@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# it can only be executed, do not allow to source
+
+# This script should only be executed (do not allow user to source),
 # and crash in a controlled way if some unbound variable is used
 
 [[ $- == *i* ]] && echo "Shell Interactive" || echo "Shell Not interactive"
