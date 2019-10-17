@@ -1,1 +1,1 @@
-Working with arguments to the main(...) fuction
+Working with arguments to the main(...) function
