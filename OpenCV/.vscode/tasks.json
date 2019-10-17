@@ -1,0 +1,55 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "g++ build active file",
+
+            // Original
+            /*"command": "/usr/bin/g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],*/
+
+            // Attempt 1 to integrate compilation into VSCode. This is the target:
+            //g++ -ggdb `pkg-config --cflags opencv` -o `basename FILE.cpp .cpp` FILE.cpp `pkg-config --libs opencv`
+            //g++ -ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`
+            /*"command": "/usr/bin/g++",
+            "args": [
+                "-ggdb",
+                "pkg-config --cflags opencv",
+                "-o",
+                "basename ${fileBasename} .cpp",
+                "${fileBasename}",
+                "pkg-config --libs opencv"
+                // This produces:
+                // /usr/bin/g++ -ggdb 'pkg-config --cflags opencv' -o 'basename OpenCVtest.cpp .cpp' OpenCVtest.cpp 'pkg-config --libs opencv'
+            ],*/
+
+            // Attempt 2
+            /*
+            "command": "/usr/bin/g++",
+            "args": [
+                "-ggdb `pkg-config --cflags opencv` -o `basename ${fileBasename} .cpp` ${fileBasename} `pkg-config --libs opencv`"
+                // This produces:
+                // /usr/bin/g++ '-ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`'
+            ],*/
+
+            // Attempt 3 (this works)
+            "command": "g++ -ggdb `pkg-config --cflags opencv` -o `basename ${fileDirname}/${fileBasename} .cpp` ${fileDirname}/${fileBasename} `pkg-config --libs opencv`",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+                // Note: Default is "cwd": "/usr/bin", but this fails with "Permission denied" error
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        }
+    ]
+}
