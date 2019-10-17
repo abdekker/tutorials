@@ -1,4 +1,4 @@
 #pragma once
 
 void ShowHelp();
-//test
+//test comment as well
