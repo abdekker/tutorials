@@ -23,11 +23,53 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Build and run (single argument: help)",
+            "name": "Build and run (argument: help)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.o",
             "args": ["--help"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build active file (g++)",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Build and run (argument: X)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}.o",
+            "args": ["X"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build active file (g++)",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Build and run (arguments: X, Y)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}.o",
+            "args": ["X", "Y"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
