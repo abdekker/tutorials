@@ -12,14 +12,14 @@ echo Variable declarations in Bash
 echo
 
 # Read-only
-echo "### Read-only variables###"
+echo "### Read-only ###"
 declare -r VAR_READONLY=1
 echo Attempt to modify the variable "=>" error!
 (( VAR_READONLY++ ))        # error!
 echo "###"; echo
 
 # Integer
-echo "### Integer variables ###"
+echo "### Integer ###"
 declare -i VAR_NUM1         # VAR_NUM1 defined as an integer
 VAR_NUM1=3
 VAR_NUM2=3
@@ -42,13 +42,13 @@ echo .; echo "  "Now increment using "VAR=VAR+1"
 VAR_NUM1=VAR_NUM1+1         # works
 VAR_NUM2=VAR_NUM2+1         # Doesn't work as expected - converted to string
 echo INT1 = $VAR_NUM1, INT2 = $VAR_NUM2 "(oops! INT2 converted to string)"
-echo .; echo "  "Attempt to change integer to float "=>" error!
+echo .; echo "  "Attempt to change integer to float \(VAR=1.1\) "=>" error!
 VAR_NUM1=123.4              # error!
 echo INT1 = $VAR_NUM1 "(no change)"
 echo "###"; echo
 
 # Arrays
-echo "### Array variables ###"
+echo "### Arrays ###"
 echo "  "Using \"array[xx]\" notation. Elements need not be contiguous.
 area[11]=23
 area[13]=37
@@ -62,7 +62,7 @@ area[5]=`expr ${area[11]} + ${area[13]}`
 echo "area[5] = area[11] + area[13] = ${area[5]}"
 echo .; echo "  "Initialisation with differing types fails
 area[6]=`expr ${area[11]} + ${area[51]}`
-echo "area[6] = area[11] + area[13] = ${area[6]}"
+echo "area[6] = area[11] + area[51] = ${area[6]}"
 #declare -a indices
 echo "###"; echo .
 
@@ -75,4 +75,7 @@ echo "###"; echo .
 echo "### List functions defined in this script ###"
 # Warning: This dumps the *entire* contents of all functions!
 declare -f
+echo "  "Now call the function using \"FUNC-NAME\" \(note no brackets\)
+func1
 echo "###"; echo .
+echo "The end!"
