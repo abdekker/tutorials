@@ -1,16 +1,16 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  // Launch configurations for debugging bash scripts
   "version": "0.2.0",
   "configurations": [
     {
+      // Debug active file (ensure it is selected in the editor)
       "type": "bashdb",
       "request": "launch",
       "name": "Debug: Active script",
       "program": "${file}"
     },
     {
+      // Debug any script (including in sub-folders)
       "type": "bashdb",
       "request": "launch",
       "name": "Debug: Select script",
