@@ -1,3 +1,6 @@
+These scripts show general usage of variables, functions, etc in Bash.
+See the Commands folder for more detailed notes on specific Bash/Linux commands or utilities.
+
 General note about running scripts
 
 * Option 1: Run directly using bash
