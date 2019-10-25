@@ -1,7 +1,7 @@
 #!/bin/bash
 # Demonstrates checking parameters passed to the script
 # Example: bash ./Parameters.sh --help --unknown
-version="1.0.1"
+version="1.0.2"
 
 show_help()
 {
@@ -19,20 +19,39 @@ show_version()
 }
 
 interactive=TRUE
+echo "### Parameters in bash scripts ###"
 echo The \"\$\#\" environment variable is the number of parameters to this script
-echo "  "Raw count=$#
-if [ $# -gt 0 ]; then
+declare -i RawCount=$#
+echo "  "Raw count = $RawCount
+if [ "$RawCount" -gt 0 ]; then
     echo "  "First parameter is \"$1\"
 fi
 echo
 
+echo Other ways to check if there are parameters include:
+echo "  1) "if [ -n \"\$1\" ] \(Is the first parameter NOT null?\)
+if [ -n "$1" ]; then
+    echo "    "First parameter is \"$1\" \(1\)
+else
+    echo "    "No parameters found \(1\)
+fi
+echo "  2) "if [ -z \"\$1\" ] \(Is the first parameter empty?\)
+if [ -z "$1" ]; then
+    echo "    "No parameters found \(2\)
+else
+    echo "    "First parameter is \"$1\" \(2\)
+fi
+echo
+
 echo Processing known parameters
+echo "  "Note: Parameters are being counted using \"for param in \"\$@\"\; do
 declare -i paramcount=0     # Declare as integer, but "paramcount=0" also works
 declare -i paramknown=0
 declare -i IsHelp=0
 declare -i IsVersion=0
 for param in "$@"; do
     # Alternatives for incrementing an integer include:
+    # ((paramcount+=1)), (( paramcount+=1 )) or ((paramcount += 1))
     # ((var=var+1))
     # let "var=var+1"
     ((paramcount+=1))
@@ -67,11 +86,13 @@ fi
 
 # Now use the parameters (if any)
 if [ $IsHelp -gt 0 ] || [ $IsVersion -gt 0 ]; then
-    # Show help. The following are all equivalent:
+    # The following are all equivalent:
         # if [ $IsHelp -gt 0 ]; then
         # if [ ${IsHelp} -gt 0 ]; then
         # if [ "$IsHelp" -gt 0 ]; then
+        # if (($IsHelp > 0)); then
     if [ $IsHelp -gt 0 ]; then
+        # Show help
         echo; show_help
     fi
 
