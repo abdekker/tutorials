@@ -1,0 +1,37 @@
+g++ -ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`
+/usr/bin/g++ -ggdb 'pkg-config --cflags opencv' -o 'basename OpenCVtest.cpp .cpp' OpenCVtest.cpp 'pkg-config --libs opencv'
+-ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`
+
+C/C++ Makefile Project
+adriano-markovic.c-cpp-makefile-project
+Adriano Markovic
+
+### SCRATCH AREA ###
+/usr/bin/g++ -ggdb 'pkg-config --cflags opencv' -o 'basename /home/ME/Projects/Test/OpenCVtest/OpenCVtest.cpp .cpp' /home/ME/Projects/Test/OpenCVtest/OpenCVtest 'pkg-config --libs opencv'
+
+g++ -ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`
+
+/usr/bin/g++ -ggdb 'pkg-config --cflags opencv' -o 'basename OpenCVtest.cpp .cpp' OpenCVtest.cpp 'pkg-config --libs opencv'
+/usr/bin/g++ '-ggdb `pkg-config --cflags opencv` -o `basename OpenCVtest.cpp .cpp` OpenCVtest.cpp `pkg-config --libs opencv`'
+
+line 2
+line 3
+line 1
+
+Unable to open 'strlen-avx2.S': Unable to read file (Error: File not found (/build/glibc-OTsEL5/glibc-2.27/sysdeps/x86_64/multiarch/strlen-avx2.S)).
+
+Unable to open 'raise.c': Unable to read file (Error: File not found (/build/glibc-OTsEL5/glibc-2.27/sysdeps/unix/sysv/linux/raise.c)).
+
+myOutputWorkingDirmyOutputWorkingDir{
+	"resource": "/home/abdekker/Projects/Test/OpenCVtest/OpenCVtest.hpp",
+	"owner": "_generated_diagnostic_collection_name_#0",
+	"severity": 8,
+	"message": "the #endif for this directive is missing",
+	"startLineNumber": 11,
+	"startColumn": 2,
+	"endLineNumber": 11,
+	"endColumn": 8
+}
+
+the #endif for this directive is missing
+###
