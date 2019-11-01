@@ -1,0 +1,5 @@
+# Turning a set of pngs to yuv420
+ffmpeg -r 1 -i PATH/INPUT/img000000%4d.png -c:v rawvideo -pix_fmt yuv420p PATH/OUTPUT/output.yuv
+
+# yuv420 to h264 with fixed qp and intraframe encoding
+ffmpeg -r 1 -i PATH/INPUT/img000000%4d.png -c:v libx264 -pix_fmt yuv420p -intra -qmin 20 -qmax 20 -chromaoffset 0 -r 10 PATH/OUTPUT/output.mp4
