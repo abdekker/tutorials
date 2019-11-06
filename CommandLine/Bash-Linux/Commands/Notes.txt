@@ -1,1 +1,9 @@
 Scripts that show detailed usage of specific bash commands
+
+### Scratch area ###
+* Sleep (https://stackoverflow.com/questions/21620406/)
+    - Example: sleep 0.5 # Wait 0.5 seconds
+
+* cp (copy)
+
+###
