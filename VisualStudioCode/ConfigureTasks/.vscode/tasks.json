@@ -2,22 +2,59 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "shell",
             "label": "Build active file (g++)",
+            "type": "shell",
             "command": "/usr/bin/g++",
             "args": [
+                // Debug information: -g0=None, -g1=Min, -g=Std, -g3=Max
                 "-g",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.o"
             ],
-            "options": {
-                "cwd": "/usr/bin"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
+            "options": { "cwd": "/usr/bin" },
+            "problemMatcher": [ "$gcc" ],
             "group": "build"
+        },
+        {
+            "label": "Pre-defined vars 1",
+            "type": "shell",
+            "command": "echo",
+            // Pre-defined variables include:
+            //      ${workspaceFolder} - path of the folder opened in VS Code
+            //      ${workspaceFolderBasename} - name of the folder opened in VS Code without any slashes (/)
+            //      ${file} - current opened file
+            //      ${relativeFile} - current opened file relative to workspaceFolder
+            //      ${relativeFileDirname} - current opened file's dirname relative to workspaceFolder
+            //      ${fileBasename} - current opened file's basename
+            //      ${fileBasenameNoExtension} - thcurrent opened file's basename with no file extension
+            //      ${fileDirname} - current opened file's dirname
+            //      ${fileExtname} - current opened file's extension
+            //      ${cwd} - task runner's current working directory on startup
+            //      ${lineNumber} - current selected line number in the active file
+            //      ${selectedText} - current selected text in the active file
+            //      ${execPath} - path to the running VS Code executable
+            "args": [
+                " workspaceFolder = ${workspaceFolder}\n",
+                "workspaceFolderBasename = ${workspaceFolderBasename}\n",
+                "file = ${file}\n"  // etc...
+            ]
+        },
+        {
+            // Simpler version of "Pre-defined vars 1"...
+            "label": "Pre-defined vars 2",
+            "type": "shell",
+            "command": "echo workspaceFolder = ${workspaceFolder}"
+        },
+        {
+            "label": "Run script (simple)",
+            "type": "shell",
+            "command": "bash ./scripts/simpleScript.sh",
+        },
+        {
+            "label": "Run script (complex)",
+            "type": "shell",
+            "command": "bash ./scripts/complexScript.sh",
         }
     ]
 }

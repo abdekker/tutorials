@@ -2,7 +2,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Build and debug (no arguments)",
+            "name": "Minimal launch configuration",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}.o",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Run script 1",  // ...one of the entries in tasks.json
+        },
+        {
+            "name": "Debug (no arguments)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.o",
@@ -23,7 +31,7 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Build and run (argument: help)",
+            "name": "Debug (argument: help)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.o",
@@ -44,11 +52,11 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Build and run (argument: X)",
+            "name": "Debug (arguments: X, version)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.o",
-            "args": ["X"],
+            "args": ["X", "--version"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -65,10 +73,10 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Build and run (arguments: X, Y)",
+            "name": "Use make and debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}.o",
+            "program": "${fileDirname}/build/${fileBasenameNoExtension}.o",
             "args": ["X", "Y"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -82,8 +90,17 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Build active file (g++)",
+            "preLaunchTask": "make",
             "miDebuggerPath": "/usr/bin/gdb"
-        }
+        },
+        {
+            "name": "Bash debug",
+            "type": "bashdb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${file}",
+            // To debug testScript.sh, change to: "program": "${workspaceFolder}/scripts/testScript.sh"
+            "args": []
+        },
     ]
 }
