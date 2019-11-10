@@ -21,6 +21,12 @@ int main()
 
     // Back in main...
     cout << "\nmain::Back in main...\n";
+
+    // Random variables (to play with colour customisations)
+    int bob = 3;
+    float mary = 3.3f;
+
+    // Exit...
     cout << "Press RETURN to continue...";
     getchar();
 }
