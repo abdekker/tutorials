@@ -21,8 +21,9 @@
             "type": "shell",
             "command": "echo",
             // Pre-defined variables include:
-            //      ${workspaceFolder} - path of the folder opened in VS Code
+            //      ${workspaceFolder} - path of the folder opened in VS Code (where .vscode folder resides)
             //      ${workspaceFolderBasename} - name of the folder opened in VS Code without any slashes (/)
+            //      ${workspaceRoot} - is deprecated; use ${workspaceFolder} instead
             //      ${file} - current opened file
             //      ${relativeFile} - current opened file relative to workspaceFolder
             //      ${relativeFileDirname} - current opened file's dirname relative to workspaceFolder
