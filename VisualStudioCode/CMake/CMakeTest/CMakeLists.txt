@@ -1,6 +1,16 @@
 # Ensure CMake 3.10 or higher is installed
 cmake_minimum_required(VERSION 3.10)
 
+# Some diagnostics messages about the current CMake version
+message(STATUS "  Diag: CMake version ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} is installed (1)")
+message(STATUS "  Diag: CMake version ${CMAKE_VERSION} is installed (2)")
+set(CMAKE_VERSION_REQUIRED "3.13.2")
+if (${CMAKE_VERSION} VERSION_LESS ${CMAKE_VERSION_REQUIRED})
+    message(STATUS "  Diag: Consider to switch to CMake ${CMAKE_VERSION_REQUIRED}")
+else ()
+    message(STATUS "  Diag: Your CMake version is >= ${CMAKE_VERSION_REQUIRED}")
+endif()
+
 # The project will be named "CMakeTest" (regardless of IDE)
 project(CMakeTest)
 
@@ -29,7 +39,7 @@ message(STATUS "  Diag: CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "  Diag: CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 message(STATUS "  Diag: EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}")
 
-# Define a variable called SOURCE (source files to be compiled into the final binary)
+# Define the files to be compiled into the final binary
 set(SOURCE
    src/main.cpp
    src/testClass.cpp src/testClass.hpp)
