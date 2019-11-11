@@ -3,12 +3,14 @@
 
 TestClass::TestClass()
 {
-    // Constructor...nothing to do
+    // Constructor...
+    cout << "TestClass constructor...\n";
 }
 
 TestClass::~TestClass()
 {
     // Destructor...clean up?
+    cout << "TestClass destructor...\n";
 }
 
 void TestClass::PrintMessage(string szMessage)
