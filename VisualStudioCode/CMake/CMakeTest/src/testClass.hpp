@@ -9,4 +9,7 @@ public:
     ~TestClass();
 
     void PrintMessage(string szMessage);
+
+private:
+    string szLastMessage;
 };

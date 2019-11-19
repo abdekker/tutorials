@@ -5,6 +5,7 @@ TestClass::TestClass()
 {
     // Constructor...
     cout << "TestClass constructor...\n";
+    szLastMessage = string();
 }
 
 TestClass::~TestClass()
@@ -21,4 +22,6 @@ void TestClass::PrintMessage(string szMessage)
     #else
         cout << "TestClass::Release build\n";
     #endif
+
+    szLastMessage = szMessage;
 }
