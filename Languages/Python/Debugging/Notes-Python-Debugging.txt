@@ -1,0 +1,62 @@
+### Python debugging - From the command line ###
+* Enter a Python virtual environment (see ./Notes-Python-Environments.txt)
+	- For example: source /home/abdekker/Environments/rd_video_env/bin/activate
+
+* Enter the following code into the file "test.py"
+	print("hello")
+	x = 5
+	print("x =", x)
+	#import pdb; pdb.set_trace()
+	print("1")
+	x = (x * 2)
+	print("x =", x)
+	#x = x / 0
+	print("2")
+	print("world!")
+
+* Brief explanation of code:
+	- import pdb (Import the Python debugger)
+	- print(x) (Print something to the
+
+* Run the command "python test.py"
+	- The following appears:
+		hello
+		x = 5
+		1
+		x = 10
+		2
+		world!
+	- The program has completed and automatically terminated
+
+* Uncomment "import pdb; pdb.set_trace()" and repeat
+	- The following appears:
+		hello
+		x = 5
+		> /home/abdekker/Projects/work/rd_video/test.py(5)<module>()
+		-> print("1")
+		(Pdb)
+	- This shows that the first 3 lines ran before the debugger stopped execution
+	- The next line, "print("1")" is displayed, ready to run
+	- The "(Pdb)" prompt allows you to perform an action
+	- Press "x" then RETURN
+		- "5" is reported, the value of the variable "x"
+	- Press "n" then RETURN to step to the next line. This displays:
+		1
+		> /home/abdekker/Projects/work/rd_video/test.py(6)<module>()
+		-> x = (x * 2)
+	- As expected, the line "print("1") is executed and the next line is displayed
+	- Press "n" (to step to the next line and repeat) OR "q" (to quit the program)
+
+* Uncomment "x = x / 0" and repeat. This line is designed to crash the program.
+	- This time continue until "x = x / 0" is the next line to be executed
+	- Press "n" which displays
+		- ZeroDivisionError: division by zero
+	- Now you can press "n" repeatedly to see the Python stack unwind or "q" to quit
+#
+
+### Python debugging - from within Visual Studio Code ###
+* Require the following package to be installed
+	- Python (ms-python.python, 2019.11.50794, Python linting, debugging...and more)
+
+* Simply set your breakpoint and debug
+#
