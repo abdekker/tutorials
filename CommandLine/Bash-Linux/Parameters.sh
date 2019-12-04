@@ -43,6 +43,22 @@ else
 fi
 echo
 
+echo To loop through the parameters, use \"for param in \"\$\@\"\; do\"
+if [ -n "$1" ]; then
+    for param in "$@"; do
+        if [ $param = "--help" ]; then
+            # Display help?
+            echo Help!
+        elif [ $param = "--save" ]; then
+            # Save something to disk?
+            echo Save!
+        else
+            echo Parameter \"$param\" not recognised...
+        fi
+    done
+fi
+echo
+
 echo Processing known parameters
 echo "  "Note: Parameters are being counted using \"for param in \"\$@\"\; do
 declare -i paramcount=0     # Declare as integer, but "paramcount=0" also works
