@@ -7,14 +7,17 @@
       "type": "bashdb",
       "request": "launch",
       "name": "Debug: Active script",
-      "program": "${file}"
+      "program": "${file}",
+      // Modify "args" to provide command-line parameters eg. "args": [ "--help", "--save", "3rd" ]
+      "args": []
     },
     {
       // Debug any script (including in sub-folders)
       "type": "bashdb",
       "request": "launch",
       "name": "Debug: Select script",
-      "program": "${command:SelectScriptName}"
+      "program": "${command:SelectScriptName}",
+      "args": []
     }
   ]
 }
