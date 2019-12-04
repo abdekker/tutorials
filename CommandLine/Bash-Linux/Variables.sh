@@ -4,21 +4,44 @@
 
 func1 ()
 {
-  echo This is a function.
+  echo Hello from func1
+}
+
+func2 ()
+{
+    declare -i paramcount=0     # Declare as integer, but simply "paramcount=0" also works
+    declare -i paramknown=0
+    for param in "$@"; do
+        # Alternatives for incrementing an integer include:
+        # ((var=var+1))
+        # let "var=var+1"
+        ((paramcount+=1))
+
+        # "Help" checked one way...
+        if echo $param | grep "^--help" > /dev/null 2> /dev/null; then
+            show_help
+            ((paramknown+=1))
+        fi
+
+        # "Version" checked another way...
+        if [ $param = "--version" ]; then
+            show_version
+            ((paramknown+=1))
+        fi
+    done
+  echo Hello from func2: $1
 }
 
 interactive=TRUE
 echo Variable declarations in Bash
 echo
 
-# Read-only
 echo "### Read-only ###"
 declare -r VAR_READONLY=1
 echo Attempt to modify the variable "=>" error!
 (( VAR_READONLY++ ))        # error!
 echo "###"; echo
 
-# Integer
 echo "### Integer ###"
 declare -i VAR_NUM1         # VAR_NUM1 defined as an integer
 VAR_NUM1=3
@@ -47,9 +70,8 @@ VAR_NUM1=123.4              # error!
 echo INT1 = $VAR_NUM1 "(no change)"
 echo "###"; echo
 
-# Arrays
 echo "### Arrays ###"
-echo "  "Using \"array[xx]\" notation. Elements need not be contiguous.
+echo "  "Using \"array[xx]\" notation. Elements do not need to be contiguous.
 area[11]=23
 area[13]=37
 area[51]=UFOs
@@ -66,16 +88,15 @@ echo "area[6] = area[11] + area[51] = ${area[6]}"
 #declare -a indices
 echo "###"; echo .
 
-# Export variable
 echo "### Export variable for use outside this script ###"
 echo Use "declare -x VAR"
 echo "###"; echo .
 
-# List functions
 echo "### List functions defined in this script ###"
 # Warning: This dumps the *entire* contents of all functions!
 declare -f
 echo "  "Now call the function using \"FUNC-NAME\" \(note no brackets\)
 func1
+func2 fred
 echo "###"; echo .
 echo "The end!"
