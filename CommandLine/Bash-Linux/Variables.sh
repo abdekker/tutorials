@@ -97,8 +97,7 @@ echo "  "This example searches for files with specified extensions defined in an
 declare -i totalFiles=0
 declare -a exts=("sh" "txt")  # declare -a exts=(sh txt) also works
 echo "    "exts = \""${exts[*]}"\" and has "${#exts[*]}" elements
-for ext in "${exts[@]}"
-do
+for ext in "${exts[@]}"; do
     shopt -s nullglob
     files=(./*.$ext)
     echo "    "${#files[@]} $ext files detected
