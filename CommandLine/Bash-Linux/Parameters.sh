@@ -20,7 +20,7 @@ show_version()
 
 interactive=TRUE
 echo "### Parameters in bash scripts ###"
-echo The \"\$\#\" environment variable is the number of parameters to this script
+echo The \"\$\#\" environment variable is the number of parameters passed to this script
 declare -i RawCount=$#
 echo "  "Raw count = $RawCount
 if [ "$RawCount" -gt 0 ]; then
