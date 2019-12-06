@@ -7,8 +7,10 @@ interactive=TRUE
 echo "### Strings and string manipulation in bash scripts ###"
 STR1="Hello World! 123"
 STR2=orl
+STR3=$STR1","$STR2  # Concatenatation (with a comma separator); use "STR3=$STR1$STR2" for no command
 echo STR1 = $STR1
 echo STR2 = $STR2
+echo STR3 = $STR3
 echo
 
 echo "# String length #"
