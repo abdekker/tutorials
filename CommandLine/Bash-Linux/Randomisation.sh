@@ -14,14 +14,14 @@ funcPwgenSecure()   # Can also be "function NAME()"
     # 1st parameter: Password length
     pwgenLength=$1
     if [ -z "$1" ]; then
-      pwgenLength=$DEFAULT_PWD_LENGTH
+        pwgenLength=$DEFAULT_PWD_LENGTH
     fi
 
     # 2nd parameter: Characters to exclude. Leave blank to include all characters.
     # Note: Typical use is to exclude special characters that might, for example, prevent
     # the generated string being used to create a file or folder on Linux.
     if [ -n "$2" ]; then
-       FUNC_RETURN=$(pwgen -sy -r {$"$2"} $pwgenLength 1)
+        FUNC_RETURN=$(pwgen -sy -r {$"$2"} $pwgenLength 1)
     else
         FUNC_RETURN=$(pwgen -sy $pwgenLength 1)
     fi
@@ -130,3 +130,5 @@ RAND_SSL=$(openssl rand -base64 32 | tr -d /=+ | cut -c -$DEFAULT_PWD_LENGTH)
 echo "  "$DEFAULT_PWD_LENGTH-char string = $RAND_SSL \(alphanumeric, no special characters\)
 echo ""
 echo .
+
+echo The end!
