@@ -68,7 +68,7 @@ int main()
     // Call methods in another class
     TestClass::staticPrintMessage("Hello from main (static)");
     TestClass myTest;
-    myTest.printMessage("Hello from main (method)");
+    myTest.printMessage  (  "Hello from main (method)"  );
 
         // Exit...
     cout << "\nmain::Back in main, bye!\n"            ;
