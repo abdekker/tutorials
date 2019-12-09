@@ -65,6 +65,18 @@ This example embeds an image in a list
 
 3.  Close the file.
 
+###### Tables
+Tables are defined using three (or more) rows. Trailing spaces are ignored.
++ 1st row: Use pipe (|) characters to define columns and provide titles
++ 2nd row: Use one or more hyphen (-) characters, separated by pipes (|)
++ 3rd+ row: Provide text for each row in the table
+
+Column 1 | Column 2 | Really Long Column Name
+-- | -- | --
+This row has | text in all | columns
+2nd column is blank | | Text for 3rd column
+3rd column is missing | Text for 2nd column
+
 ###### Code samples
 Nest code samples with tick marks ( \` ): Here is a function `auto sum(auto a, auto b)`
 
