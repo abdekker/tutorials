@@ -17,8 +17,7 @@ Alternatively, view this file in a standard ASCII editor to understand the examp
 Six levels are supported from h1 (largest) to h6 (smallest).  
 Put one hash ( \# ) for each level before text eg. \#\#\# Heading 3
 
-#### Paragraphs and line breaks
-Paragraph: Separate text with one or more blank lines  
+#### Line breaks
 Line break: End line with two or more spaces (not required for headings)
 
 #### Bold
@@ -69,7 +68,8 @@ This example embeds an image in a list
 3.  Close the file.
 
 #### Tables
-Tables are defined using three (or more) rows. Trailing spaces are ignored.  
+Tables are defined using three (or more) rows. Trailing spaces are ignored.
+
 + 1st row: Use pipe (|) characters to define columns and provide titles
 + 2nd row: Use one or more hyphen (-) characters, separated by pipes (|)
 + 3rd+ row: Provide text for each row in the table
