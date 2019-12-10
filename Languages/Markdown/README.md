@@ -20,6 +20,10 @@ Put one hash ( \# ) for each level before text eg. \#\#\# Heading 3
 #### Line breaks
 Line break: End line with two or more spaces (not required for headings)
 
+#### Page breaks
+Use three or more asterisk ( \* ) or hyphen ( \- ) characters to create a horizontal rule...
+***
+
 #### Bold
 Nest text with double asterisk ( \*\* ) or underscore ( \_\_ ): Next word is **bold**. Nice!
 
