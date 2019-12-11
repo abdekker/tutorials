@@ -34,13 +34,19 @@ func2 ()
 
 interactive=TRUE
 echo Variable declarations in Bash
-echo
+# There must be no space between the variable name, "=" and value
+# VAR=3                 # Valid
+# declare -i VAR=3      # Valid
+# VAR = 3               # Not valid!
+# declare -i VAR = 3    # Not valid!
+echo "  "Declare the variable without any spaces between 
+echo .
 
 echo "### Read-only ###"
 declare -r VAR_READONLY=1
 echo Attempt to modify the variable "=>" error!
 (( VAR_READONLY++ ))        # error!
-echo "###"; echo
+echo "###"; echo .
 
 echo "### Integer ###"
 declare -i VAR_NUM1         # VAR_NUM1 defined as an integer
@@ -71,7 +77,7 @@ if [ -z $BASH_SOURCE ]; then
     VAR_NUM1=123.4          # error!
 fi
 echo INT1 = $VAR_NUM1 "(no change)"
-echo "###"; echo
+echo "###"; echo .
 
 echo "### Arrays 1 ###"
 echo "  "Using \"ARRAY[xx]\" notation. Elements do not need to be contiguous.
