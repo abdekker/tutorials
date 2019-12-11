@@ -12,12 +12,12 @@ funcHello1()
 funcHello2() { echo Hello world 2! \(No parameter, single line\); }
 funcHello3()
 {
-   echo Hello $1 3! \(Single parrmater\)
+    echo Hello $1 3! \(Single parrmater\)
 }
 
 funcHello4()
 {
-   echo $1 $2 4! \(Multiple parameters\)
+    echo $1 $2 4! \(Multiple parameters\)
 }
 
 funcTake()
