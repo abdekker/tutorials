@@ -38,7 +38,7 @@ echo Variable declarations in Bash
 # VAR=3                 # Valid
 # declare -i VAR=3      # Valid
 # VAR = 3               # Not valid!
-# declare -i VAR = 3    # Not valid!
+# declare -i VAR= 3     # Also not valid!
 echo "  "Declare the variable without any spaces between 
 echo .
 
