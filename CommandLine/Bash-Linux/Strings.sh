@@ -1,5 +1,5 @@
 #!/bin/bash
-# Some usage of strings
+# Using strings in bash
 # Example: bash ./Strings.sh
 # Adapted from: https://www.tldp.org/LDP/abs/html/string-manipulation.html
 
@@ -31,7 +31,7 @@ echo .
 echo "# Array of strings #"
 declare -a myStrings=( "string1" "num2" "last" )
 declare -i numStrings=${#myStrings[@]}
-echo "  "Our array has $numStrings elements
+echo "  "Array has $numStrings elements
 if [ $numStrings -gt 0 ]; then
     listOfStrings=""
     declare -i stringPos=0
@@ -44,7 +44,7 @@ if [ $numStrings -gt 0 ]; then
     done
 
     # Display the list of tags to the user
-    echo "  "List of strings: $listOfStrings
+    echo "  "Elements listed: $listOfStrings
 fi
 echo .
 
