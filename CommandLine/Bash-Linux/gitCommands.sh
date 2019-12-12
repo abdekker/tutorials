@@ -6,8 +6,8 @@
 getGitStats()
 {
     # Some statistics about your git repository
-    gitRepoName=$(basename `git rev-parse --show-toplevel`)
     echo "  "Basic git statistics
+    gitRepoName=$(basename `git rev-parse --show-toplevel`)
     echo "    Repository name:      "$gitRepoName
     echo
 
