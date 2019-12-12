@@ -6,7 +6,10 @@
 getGitStats()
 {
     # Some statistics about your git repository
+    gitRepoName=$(basename `git rev-parse --show-toplevel`)
     echo "  "Basic git statistics
+    echo "    Repository name:      "$gitRepoName
+    echo
 
     # Change the time or provide a new starting date/time
     echo "  "Using a fixed date
