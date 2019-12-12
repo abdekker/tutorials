@@ -54,6 +54,14 @@ getGitStats()
 }
 
 interactive=TRUE
+# First check that we are in a git repository
+IsGitRepo="$(git rev-parse --is-inside-work-tree 2> /dev/null)"
+if [ -z "$IsGitRepo" ]; then
+    echo Please run this script from inside a git repository...
+    exit
+fi
+
+# We're in a repository!
 echo "### Advanced git commands from bash ###"
 
 # Basic git statistics
