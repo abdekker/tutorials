@@ -1,5 +1,6 @@
 # Ensure CMake 3.10 or higher is installed
 cmake_minimum_required(VERSION 3.10)
+message("CMake example application for Visual Studio Code")
 
 # Some diagnostics messages about the current CMake version
 message(STATUS "  Diag: CMake version ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} is installed (1)")
