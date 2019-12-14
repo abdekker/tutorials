@@ -27,10 +27,29 @@ getGitStats()
     echo "    Inserted lines:       "$gitInserted
     echo "    Deleted lines:        "$gitDeleted
 
-    # Note: An early version of this script used the code below
+    # Note,1: An early version of this script used the code below
     #echo "Number of commits: "$(git log --shortstat --since="$beginTime" | grep commit | wc -l)
     #echo "Inserted lines: "$(git log --shortstat --since="$beginTime" | grep insertions | cut -d "," -f2 | sed 's/^[ \t]*//' | cut -d" " -f1 | paste -sd+ | tr -s "+" | bc)
     #echo "Deleted lines:  "$(git log --shortstat --since="$beginTime" | grep deletions  | cut -d "," -f3 | sed 's/^[ \t]*//' | cut -d" " -f1 | paste -sd+ | tr -s "+" | bc)
+
+    # Note,2: "paste" causes errors on MacOS, and the following can be used (see GetOS.sh for further details)
+    #if [[ "$OSTYPE" == "linux-gnu" ]]; then    # To test on Linux (ensure the next line is commented out)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # Mac OSX
+        echo "  (Statistics on MacOS)"
+        gitInserted2=$(sum=0;
+            for i in $(grep insertions <<< "$gitLog" | cut -d "," -f2 | sed 's/^[ \t]*//' | cut -d " " -f1); do
+                sum=$((sum + ${i}));
+            done;
+            echo "${sum}")
+        gitDeleted2=$(sum=0;
+            for i in $(grep deletions <<< "$gitLog" | cut -d "," -f3 | sed 's/^[ \t]*//' | cut -d " " -f1); do
+                sum=$((sum+${i}));
+            done;
+            echo "${sum}")
+        echo "    Inserted lines:       "$gitInserted2
+        echo "    Deleted lines:        "$gitDeleted2
+    fi
 }
 
 # It is common to have "interactive=TRUE" as the first line
