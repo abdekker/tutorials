@@ -8,7 +8,10 @@
       "request": "launch",
       "name": "Debug: Active script",
       "program": "${file}",
-      // Modify "args" to provide command-line parameters eg. "args": [ "--help", "--save", "3rd" ]
+      // Modify "args" to provide command-line parameters. Example are below.
+      // "args": [ "--help", "--save", "3rd" ]
+      // "args": [ "-t" "Fred" "--save" "-t" "Squish" "--version" ]
+      //"args": [ "2019-03-03" "2018-11-04" "2020-12-12" ]
       "args": []
     },
     {
