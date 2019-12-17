@@ -2,7 +2,6 @@
 # Some examples of using git from the command-line
 # To use, place this script inside a git repo (can be the root where the .git folder is or anywhere else)
 # Example: bash ./gitCommands.sh
-#ADAD, this line is a test
 
 getGitStats()
 {
