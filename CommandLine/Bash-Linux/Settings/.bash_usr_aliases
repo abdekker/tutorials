@@ -1,0 +1,17 @@
+# User-defined aliases for the Linux bash shell
+
+# To use:
+# 1) Copy this file to $HOME
+# 2) Add the following to your .bashrc (somewhere near the bottom in a "user" section)
+#   # User-defined bash aliases
+#   if [ -f ~/.bash_usr_aliases ]; then
+#       . ~/.bash_usr_aliases
+#   fi
+echo "  "User-defined bash aliases...
+
+# Git aliases
+alias gstat='git status'
+
+# Alias to enter a Phython3 virtual environment ("deactivate" to exit)
+# Suggested by Sebastian Boie (though he uses "work")
+alias pyenv='source ~/Environments/rd_video_env/bin/activate'
