@@ -5,12 +5,12 @@ int main()
 {
     // See ../Puzzles/Notes-Puzzles.txt for details
 
-    // Print all numbers up to 1000 that have the digit 5 in their number
+    cout << "Print all numbers up to 1000 that have the digit 5 in their number";
+    const int target = 1000;
 
-    cout << "Attempt 1\n";
-    bool bPrintNum = false;
-    int tmp = 0;
-    for (int num=1; num < 1000; num++)
+    cout << "\n\nAttempt 1 (making use of integer division 1)\n";
+    int num, tmp;
+    for (num=1; num < target; num++)
     {
         if (((num % 5) == 0) && ((num % 10) != 0))
             cout << num << " ";
@@ -25,6 +25,26 @@ int main()
                 if (((tmp % 5) == 0) && ((tmp % 10) != 0))
                     cout << num << " ";
             }
+        }
+    }
+
+    cout << "\n\nAttempt 2 (making use of integer division 2)\n";
+    for (num=1; num < target; num++)
+    {
+        if (((num % 5) == 0) && ((num % 10) != 0))
+            cout << num << " ";
+        else
+        {
+            tmp = num;
+            do
+            {
+                tmp = (tmp / 10);
+                if (((tmp % 5) == 0) && ((tmp % 10) != 0))
+                {
+                    cout << num << " ";
+                    tmp = 0;
+                }
+            } while (tmp > 0);
         }
     }
 
