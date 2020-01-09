@@ -1,4 +1,6 @@
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 int main()
@@ -46,6 +48,15 @@ int main()
                 }
             } while (tmp > 0);
         }
+    }
+
+    cout << "\n\nAttempt 3 (converting to char *)\n";
+    char numAsChar[10];
+    for (num=1; num < target; num++)
+    {
+        snprintf(numAsChar, 10, "%d", num);
+        if (strchr(numAsChar, '5') != NULL)
+            cout << num << " ";
     }
 
     cout << "\n\nAll done!\n";
