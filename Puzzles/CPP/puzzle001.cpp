@@ -1,18 +1,28 @@
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include "puzzle001.h"
+
+const int TARGET = 1000;
 
 using namespace std;
 int main()
 {
     // See ../Puzzles/Notes-Puzzles.txt for details
 
-    cout << "Print all numbers up to 1000 that have the digit 5 in their number";
-    const int target = 1000;
+    cout << "Print all numbers up to " << TARGET << " that have the digit 5 in their number";
+    ClassPuzzle001 puzzle;  
+    puzzle.Attempt1();
+    puzzle.Attempt2();
+    puzzle.Attempt3();
+    puzzle.Attempt4();
 
-    cout << "\n\nAttempt 1 (making use of integer division 1)\n";
+    cout << "\n\nAll done!\n";
+}
+
+void ClassPuzzle001::Attempt1()
+{
+    // Attempt 1: Make use of integer division (crude version that fails if TARGET > 1000)
+    cout << "\n\nAttempt 1 (use integer division 1)\n";
     int num, tmp;
-    for (num=1; num < target; num++)
+    for (num=1; num < TARGET; num++)
     {
         if (((num % 5) == 0) && ((num % 10) != 0))
             cout << num << " ";
@@ -29,9 +39,14 @@ int main()
             }
         }
     }
+}
 
-    cout << "\n\nAttempt 2 (making use of integer division 2)\n";
-    for (num=1; num < target; num++)
+void ClassPuzzle001::Attempt2()
+{
+    // Attempt 2: Make use of integer division (sophisticated version that works for all values of TARGET)
+    cout << "\n\nAttempt 2 (use integer division 2)\n";
+    int num, tmp;
+    for (num=1; num < TARGET; num++)
     {
         if (((num % 5) == 0) && ((num % 10) != 0))
             cout << num << " ";
@@ -49,15 +64,30 @@ int main()
             } while (tmp > 0);
         }
     }
+}
 
-    cout << "\n\nAttempt 3 (converting to char *)\n";
+void ClassPuzzle001::Attempt3()
+{
+    // Attempt 3: Convert number to char *
+    cout << "\n\nAttempt 3 (convert to char *)\n";
     char numAsChar[10];
-    for (num=1; num < target; num++)
+    for (int num=1; num < TARGET; num++)
     {
         snprintf(numAsChar, 10, "%d", num);
         if (strchr(numAsChar, '5') != NULL)
             cout << num << " ";
     }
+}
 
-    cout << "\n\nAll done!\n";
+void ClassPuzzle001::Attempt4()
+{
+    // Attempt 4: Convert number to std::string
+    cout << "\n\nAttempt 4 (convert to std::string)\n";
+    string numAsString;
+    for (int num=1; num < TARGET; num++)
+    {
+        numAsString = to_string(num);
+        if (numAsString.find("5") != string::npos)
+            cout << num << " ";
+    }
 }
