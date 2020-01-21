@@ -1,0 +1,2 @@
+* This tutorial follows the URL below to use MinGW-W64 to compile gcc C++11, 14 and 17 programs on Windows
+	- https://code.visualstudio.com/docs/cpp/config-mingw
