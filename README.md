@@ -12,3 +12,4 @@ git can be used from Ubuntu or Windows
 2020-01-23: Yet another test in Git Bash (this time after editing with Notepad++)
 2020-01-23: Another test from Visual Studio Code...
 2020-01-23: This test is after editing with Notepad
+2020-01-23: Automatically starting the ssh-agent for Windows
