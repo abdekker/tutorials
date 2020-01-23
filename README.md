@@ -5,3 +5,5 @@ Public and private keys for https://github.com/abdekker stored at ~/.ssh:
     - id_rsa_github.pub
 	
 git can be used from Ubuntu or Windows
+
+2020-01-23: Testing git from the command line
