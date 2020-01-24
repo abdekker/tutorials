@@ -6,14 +6,6 @@ Public and private keys for https://github.com/abdekker stored at ~/.ssh:
 	
 git can be used from Ubuntu or Windows
 
-Line 1 (no space)
-Line 2 (space next line)
-
-Line 3 (no space)
-Line 4
-
-Alain loves Bronwen
-
 2020-01-23: Testing git from the command line
 2020-01-23: Now testing git from within Visual Studio Code
 2020-01-23: New test using vi in Git Bash (command line) after editing with vi
