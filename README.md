@@ -6,7 +6,7 @@ Public and private keys for https://github.com/abdekker stored at ~/.ssh:
 	
 git can be used from Ubuntu or Windows
 
-test 1, now 2
+test 1, now 2, and 3
 
 2020-01-23: Testing git from the command line
 2020-01-23: Now testing git from within Visual Studio Code
