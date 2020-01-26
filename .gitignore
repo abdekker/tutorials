@@ -1,4 +1,5 @@
 # Ignore output files (for example .o or .a on Linux)
+*.exe
 *.[oa]
 *.out
 
