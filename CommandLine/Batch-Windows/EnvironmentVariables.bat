@@ -2,6 +2,15 @@
 
 rem This script covers some aspects of environment variables in DOS and Windows
 
+echo ### Use an environment variable to prevent a script running multiple times ###
+rem This trick prevents circular calls, and similar variations, such as:
+rem ScriptA) call ScriptB
+rem ScriptB) call ScriptA
+if defined SCRIPT_IS_RUNNING (exit)
+set SCRIPT_IS_RUNNING=1
+echo Now "SCRIPT_IS_RUNNING" is defined
+echo .
+
 echo ### Check whether an environment variable is defined ###
 echo 1) Using "defined"
 set TEST_PARAM_1=test1
@@ -29,3 +38,6 @@ echo 4) Using NEQ
 if not "%TEST_PARAM_1%" NEQ "" (echo   Parameter 1 is NOT defined) else (echo   Parameter 1 is defined!)
 if not "%TEST_PARAM_2%" NEQ "" (echo   Parameter 2 is NOT defined) else (echo   Parameter 2 is defined!)
 echo .
+
+rem Uncomment the following line to see the results of the script
+rem pause
