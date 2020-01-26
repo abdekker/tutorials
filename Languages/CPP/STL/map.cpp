@@ -2,16 +2,10 @@
 #include <map>
 #include <string>
 #include <iterator>
- 
-int main()
+
+void basicMap()
 {
-    // References for the std::map data structure:
-    // * http://www.cplusplus.com/reference/map/map/map/
-    // * https://en.cppreference.com/w/cpp/container/map
-
-    // Tutorial adapted from https://thispointer.com/stdmap-tutorial-part-1-usage-detail-with-examples
-
-    // Inserting data in std::map
+     // Inserting data in std::map
     std::map<std::string, int> mapOfWords;
     mapOfWords.insert(std::make_pair("earth", 1));
     mapOfWords.insert(std::make_pair("moon", 2));
@@ -51,6 +45,22 @@ int main()
         std::cout << "'sun' found" << std::endl;
     if (mapOfWords.find("mars") == mapOfWords.end())
         std::cout << "'mars' not found" << std::endl;
+
+    // Clear the map
+    mapOfWords.clear();
+    std::cout << "\nMap cleared. There are now " << mapOfWords.size() << " elements.\n";
+}
+ 
+int main()
+{
+    // References for the std::map data structure:
+    // * http://www.cplusplus.com/reference/map/map/map/
+    // * https://en.cppreference.com/w/cpp/container/map
+
+    // Tutorial adapted from https://thispointer.com/stdmap-tutorial-part-1-usage-detail-with-examples
+
+    // Basic map
+    basicMap();
 
     return 0;
 }
