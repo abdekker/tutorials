@@ -6,13 +6,21 @@
 void basicMap()
 {
      // Inserting data in std::map
+     std::cout << "Basic tutorial of 'std::map<std::string, int>'\n";
     std::map<std::string, int> mapOfWords;
     mapOfWords.insert(std::make_pair("earth", 1));
     mapOfWords.insert(std::make_pair("moon", 2));
     mapOfWords["sun"] = 3;
 
     // Replace the value of an existing key
+    int oldValue = mapOfWords["earth"];
     mapOfWords["earth"] = 4;    // mapOfWords["earth"] was 1, now 4
+    std::cout << "Old value for key 'earth' was " << oldValue << ". Now it is " << mapOfWords["earth"] << ".\n";
+
+    // Check if insertion is successful (this fails because keys must be unique)
+    if (!mapOfWords.insert(std::make_pair("earth", 5)).second) {
+        std::cout << "Element with key 'earth' was not inserted because it already exists\n\n";
+    }
 
     // Number of items in the map
     std::cout << "Map contains " << mapOfWords.size() << " items\n\n";
@@ -34,11 +42,6 @@ void basicMap()
         std::cout << elem.first << " :: " << elem.second << std::endl;
     }
     std::cout << std::endl;
-
-    // Check if insertion is successful (key's must be unique)
-    if (mapOfWords.insert(std::make_pair("earth", 1)).second == false) {
-        std::cout << "Element with key 'earth' was not inserted because it already exists\n\n";
-    }
 
     // Searching element in std::map by key
     if (mapOfWords.find("sun") != mapOfWords.end())
