@@ -26,7 +26,7 @@ if defined TEST_PARAM_2 (echo   Parameter 2 is defined) else (echo   Parameter 2
 echo .
 
 echo 2a) Using "==" (using quotation marks)
-rem Note: Quotation marks are useful if the variable may have spaces
+rem Note: Quotation marks are used because the variable may have spaces
 if "%TEST_PARAM_1%"=="" (echo   Parameter 1 is NOT defined) else (echo   Parameter 1 is defined!)
 if "%TEST_PARAM_2%"=="" (echo   Parameter 2 is NOT defined) else (echo   Parameter 2 is defined!)
 echo .
