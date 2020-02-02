@@ -1,5 +1,5 @@
 :: Bubblesort (horribly inefficient for large lists!)
-:: Taken from https://stackoverflow.com/questions/10166386
+:: Adapted from https://stackoverflow.com/questions/10166386
 @echo off
 setlocal EnableDelayedExpansion
 
@@ -12,7 +12,7 @@ for /l %%a in (1,1,%MaxValue%) do (
 )
 
 :: Show the (unsorted) array
-set ToSort
+for /l %%a in (1,1,%MaxValue%) do (echo ToSort[%%a]=!ToSort[%%a]!)
 
 :: Commence bubble sort
 echo Sorting...
@@ -26,7 +26,7 @@ for /l %%a in (%MaxValue%,-1,1) do ( rem Decrease the number of checks by 1 each
             set Next=!Next!
             call :GRAB_VALUES ToSort[%%b] !Next!
             rem Comparing ToSort[%%b] = !ToSortValue! and !Next! = !NextValue!
-            if !NextValue! LSS !tosortvalue! (
+            if !NextValue! LSS !ToSortValue! (
             rem set /a num_of_swaps+=1
             rem echo Swapping !num_of_swaps!
                 set !Next!=!ToSortValue!
@@ -35,7 +35,7 @@ for /l %%a in (%MaxValue%,-1,1) do ( rem Decrease the number of checks by 1 each
             )
         )
     set /a Iterations+=1
-    if !HasSwapped!==0 goto sorted
+    if !HasSwapped!==0 goto Sorted
 )
 
 goto:eof
@@ -48,5 +48,5 @@ goto:eof
 :: The array is now sorted, nice!
 set ToSortValue=
 echo Iterations required: %Iterations%
-set ToSort
+for /l %%a in (1,1,%MaxValue%) do (echo ToSort[%%a]=!ToSort[%%a]!)
 endlocal
