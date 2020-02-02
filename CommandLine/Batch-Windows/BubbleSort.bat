@@ -29,8 +29,8 @@ for /l %%a in (%LoopMax%,-1,1) do ( rem Decrease the number of checks by 1 each 
             call :GrabValues ToSort[%%b] !Next!
             rem Comparing ToSort[%%b] = !ToSortValue! and !Next! = !NextValue!
             if !NextValue! LSS !ToSortValue! (
-            rem set /a num_of_swaps+=1
-            rem echo Swapping !num_of_swaps!
+                rem set /a num_of_swaps+=1
+                rem echo Swapping !num_of_swaps!
                 set !Next!=!ToSortValue!
                 set ToSort[%%b]=!NextValue!
                 set /a HasSwapped+=1
