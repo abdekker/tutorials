@@ -12,3 +12,8 @@ General note about running DOS scripts on Windows
 
 * Option 3: Run in an external command line window
     - Probably the most convenient for debugging
+
+Case sensitivity
+
+* DOS commands are case insensitive, so "cd" is equivalent to "CD"
+* Because of this, commands are sometimes written UPPERCASE and data and variables written lowercase
