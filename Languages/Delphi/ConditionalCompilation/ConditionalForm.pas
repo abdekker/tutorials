@@ -94,6 +94,8 @@ begin
 	abDefined[0] := {$IF Defined(A1)} True {$ELSE} False {$IFEND};
 	abDefined[1] := {$IF Defined(A2)} True {$ELSE} False {$IFEND};
 	abDefined[2] := {$IF Defined(A1) or Defined(A2)} True {$ELSE} False {$IFEND};
+	// Alternative:
+	//abDefined[2] := {$IF Defined(A1)} True {$ELSEIF Defined(A2)} True {$ELSE} False {$IFEND};
 	UpdateRow(1, abDefined);
 
 	// Use $IFDEF with $ENDIF
