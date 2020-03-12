@@ -1,0 +1,26 @@
+These notes refer to the Visual Studio 2019 Extension "GitHub for Visual Studio"
+
+* Git credentials
+	- These notes assume you already have these files in %USERPROFILE%
+		- .gitconfig (user details)
+		- .ssh/id_rsa and .ssh/id_rsa.pub (user credentials)
+
+* Installation
+	- Extensions > Manage Extensions
+	- Search with "GitHub" and install "GitHub for Visual Studio"
+	- Visual Studio needs to be closed and re-opened for the installation to complete
+	
+* Visual Studio will automatically generate some files and folders:
+	- %USERPROFILE%\source\repos (folder) is the Visual Studio "Default Repository Location"
+	- .gitattributes (file) is created in your Git repo
+
+* View > Team Explorer > Settings
+	- Global Settings
+		- Review user name and other settings (no changes made)
+	- Repository Settings
+		- Review settings (no changes made)
+
+* Use (View > Team Explorer)
+	- Review branch at top (eg. "master")
+	- Add commit message
+	- Review changes and right-click "Stage" each (you can select multiple files at the same time)
