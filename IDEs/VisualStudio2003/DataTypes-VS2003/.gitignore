@@ -1,0 +1,2 @@
+# Note: This .gitignore overrides patterns from the root for a local .exe
+!DataTypes-VS2003.exe
