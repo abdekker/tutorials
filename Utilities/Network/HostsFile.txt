@@ -4,11 +4,14 @@ Windows comes with a special "hosts" file which helps resolving DNS records. In 
 	- Start the editor in Administrator mode
 	- Open C:\Windows\System32\drivers\etc\hosts from within the editor
 
+* Comments start with a hash (#) symbol
+
 * To block a website
 	- Add a new line with "127.0.0.1 WEBSITE.com"
 	- Example:
-		127.0.0.1 google.com
-		127.0.0.1 www.facebook.com
-
-* Comments start with a hash (#) symbol
+		127.0.0.1	google.com
+		127.0.0.1	www.facebook.com
+		127.0.0.1	play.chessbase.com
+	- To test, open a command prompt and type "ping WEBSITE.com"
+		- Note: This won't work if the website does not respond to ICMP echo requests
 	
