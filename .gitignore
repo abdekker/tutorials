@@ -1,4 +1,5 @@
 # Note: This .gitignore file will affect all child projects
+#		To override a pattern, include a .gitignore in the child project
 
 # Ignore output files (for example .o or .a on Linux)
 *.exe
@@ -20,6 +21,11 @@ settings.json
 
 # 	Don't ignore VS Code project files, but if you wanted to:
 #.vscode
+
+### Visual Studio (all versions) ###
+*.aps
+*.ncb
+*.suo
 
 ### Visual Studio (2019) ###
 .vs
