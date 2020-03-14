@@ -14,4 +14,40 @@ Windows comes with a special "hosts" file which helps resolving DNS records. In 
 		127.0.0.1	play.chessbase.com
 	- To test, open a command prompt and type "ping WEBSITE.com"
 		- Note: This won't work if the website does not respond to ICMP echo requests
+	- You may need to restart the browser to get this to work
+
+### Examples - these can be added to the "hosts" file ###
+# Online chess
+127.0.0.1	play.chessbase.com
+
+# Facebook
+0.0.0.0 	api.ak.facebook.com
+0.0.0.0 	api.connect.facebook.com
+0.0.0.0 	api.facebook.com
+0.0.0.0 	app.facebook.com
+0.0.0.0 	apps.facebook.com
+0.0.0.0 	ar-ar.facebook.com
+0.0.0.0 	badge.facebook.com
+0.0.0.0 	blog.facebook.com
+0.0.0.0 	connect.facebook.com
+0.0.0.0 	connect.facebook.net
+0.0.0.0 	de-de.facebook.com
+0.0.0.0 	developers.facebook.com
+0.0.0.0 	es-la.facebook.com
+0.0.0.0 	external.ak.fbcdn.net
+0.0.0.0 	facebook.com
+0.0.0.0 	facebook.de
+0.0.0.0 	facebook.fr
+0.0.0.0 	fb.me
+0.0.0.0 	fbcdn.net
+0.0.0.0 	fr-fr.facebook.com
+0.0.0.0 	hi-in.facebook.com
+0.0.0.0 	login.facebook.com
+0.0.0.0		profile.ak.fbcdn.net
+0.0.0.0		ssl.connect.facebook.com
+0.0.0.0 	static.ak.connect.facebook.com
+0.0.0.0 	static.ak.fbcdn.net
+0.0.0.0 	www.facebook.com
+0.0.0.0 	www.facebook.de
+0.0.0.0		www.facebook.fr
 	
