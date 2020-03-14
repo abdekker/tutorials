@@ -1,7 +1,40 @@
-#include <stdio.h>
+// Sample console application for Visual Studio 2003
+#include <windows.h>	// Required for "BYTE", "MAX_PATH", "strlen", etc
+#include <conio.h>		// Required for "_getch"
+#include <stdio.h>		// Required for "printf"
 
-// This is a sample console application for Visual Studio 2003
+// Maximum number of arguments to this console application
+#define MAX_ARG 20
+
+void ShowArguments(int argc, char *argv[])
+{
+	// Output the number of the arguments
+	printf("Number of arguments: %d\n", argc);
+	if (argc > 0)
+	{
+		// One or more arguments to this console application. On Windows, the 1st argument should
+		// be the application name (including full path).
+		BYTE	byArg = 0;
+		size_t	nLength = 0;
+		char	aszArguments[MAX_ARG][MAX_PATH];
+		for (byArg = 0; byArg < argc; byArg++)
+		{
+			nLength = strlen(argv[byArg]);
+			strncpy(aszArguments[byArg], argv[byArg], nLength);
+			aszArguments[byArg][nLength] = '\0';
+			printf("Arg %d = %s\n", byArg+1, aszArguments[byArg]);
+		}
+
+		printf("\n");
+	}
+}
+
 int main(int argc, char *argv[])
 {
-	printf("Sample VS 2003 console application...\n");
+	printf("Visual Studio 2003 sample console application...\n");
+	ShowArguments(argc, argv);
+
+	// Prompt for exit (holds application on-screen if launched outside the IDE)
+	printf("Finished...press a key to exit\n");
+	_getch();
 }
