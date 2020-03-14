@@ -23,4 +23,9 @@ These notes refer to the Visual Studio 2019 Extension "GitHub for Visual Studio"
 * Use (View > Team Explorer)
 	- Review branch at top (eg. "master")
 	- Add commit message
-	- Review changes and right-click "Stage" each (you can select multiple files at the same time)
+	- Review changes
+	- If any files are being tracked which should not
+		- Add an appropriate pattern to the root .gitignore or
+		- Create a child .gitignore with the new pattern
+	- Right-click and "Stage" each (can select multiple files)
+	- Select "Commit staged" or "Commit staged and Push"
