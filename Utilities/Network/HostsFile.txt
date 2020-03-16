@@ -17,6 +17,9 @@ Windows comes with a special "hosts" file which helps resolving DNS records. In 
 	- You may need to restart the browser
 
 ### Examples - these can be added to the "hosts" file ###
+# Stop Skype updating itself
+127.0.0.1	download.skype.com
+
 # Online chess
 127.0.0.1	play.chessbase.com
 
