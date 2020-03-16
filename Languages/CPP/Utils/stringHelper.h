@@ -17,7 +17,7 @@ public:
         // Destructor
     }
 
-    // Template functions
+    // Template functions (using C++11)
     template <typename... Args>
     string formatString(const char *format, Args... args)
     {
