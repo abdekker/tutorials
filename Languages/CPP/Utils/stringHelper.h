@@ -1,4 +1,3 @@
-//INSERT_TERAKI_COPYRIGHT_MESSAGE_HERE//
 #pragma once
 
 #include <cstring>
