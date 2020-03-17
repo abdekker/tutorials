@@ -112,11 +112,13 @@ begin
 			@fMinExternal := GetProcAddress(hDLL, 'Min');
 			@fMaxExternal := GetProcAddress(hDLL, 'Max');
 			if ((@fMinExternal <> nil) and (@fMinExternal <> nil)) then
+				begin
 				m_strOutput := (
 					'External' + #13#10 +
 					Format('  "Min" returns %d', [fMinExternal(m_aNumber[1], m_aNumber[2])]) +
 					#13#10 +
-					Format('  "Max" returns %d', [fMaxExternal(m_aNumber[1], m_aNumber[2])]))
+					Format('  "Max" returns %d', [fMaxExternal(m_aNumber[1], m_aNumber[2])]));
+				end
 			else
 				m_strOutput := 'External: Unable to extract method pointer(s) from DLL';
 
