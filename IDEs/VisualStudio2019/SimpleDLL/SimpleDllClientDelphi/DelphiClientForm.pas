@@ -207,7 +207,7 @@ begin
 			memoOutput.Lines.Add('Fibonacci: Success! Calling functions from DLL...');
 			memoOutput.Lines.Add('');
 
-			// Note: Delphi 7 does not have a "IntToStr" overload for signed Int64. We cast the
+			// Note: Delphi 7 does not have a "IntToStr" overload for unsigned Int64. We cast the
 			// C++ unsigned long long (UInt64) types to a signed Int64. Any values larger than the
 			// max Int64 (9223372036854775807) will not be displayed correctly.
 			fFiboInit(1, 1);
