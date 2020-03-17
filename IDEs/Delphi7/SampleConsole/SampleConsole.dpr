@@ -1,4 +1,5 @@
 program SampleConsole;
+{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 {$APPTYPE CONSOLE}
 
