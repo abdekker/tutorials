@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <iostream>
 #include <conio.h>
-//#include <stdio.h>
 
 // Maximum number of arguments to this console application
 #define MAX_ARG 20
