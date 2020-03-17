@@ -5,25 +5,41 @@ interface
 
 uses
   SysUtils;
-  
+
 const
   DUMMY_INTERFACE_CONSTANT = 0;
-  
+
 type
   PDummyInterfacePointer = ^Integer;
-  
+
+// General methods
+procedure ShowConsoleArguments();
 function IsConsoleKeyPressed() : Boolean;
-  
+
 implementation
 
 uses
   Windows;
-  
+
 const
   DUMMY_IMPLEMENTATION_CONSTANT = 0;
-  
+
 type
   PDummyImplementationPointer = ^Integer;
+
+// Start: General methods
+procedure ShowConsoleArguments();
+var
+	nParam: Integer;
+begin
+	// Output the number of the arguments
+	// Note: On Windows, the 0th command is the execution command
+	WriteLn(Format('Number of arguments: %d', [ParamCount]));
+	for nParam:=0 to ParamCount do
+		WriteLn(Format('Arg %d = %s', [nParam, ParamStr(nParam)]));
+
+	Writeln('');
+end;
 
 function IsConsoleKeyPressed() : Boolean;
 var
@@ -70,5 +86,6 @@ begin
 			end;
 		end;
 end;
+// End: General methods
 
 end.
