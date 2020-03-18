@@ -16,7 +16,7 @@ int main()
     stringHelper formatter;
 
 	// Show information about data types
-	cout << "### Integers ###\n";
+	cout << "### Integer ###\n";
 	cout << "\t\t\tSize (bytes)\tMin\t\t\tMax\n";
 	{
 		// bool
