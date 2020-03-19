@@ -52,7 +52,7 @@ unsigned long long SIMPLEDLL_API fibonacciCurrent64()
 }
 
 // Get the current index position in the sequence
-unsigned int SIMPLEDLL_API fibonacciIndex64()
+unsigned int SIMPLEDLL_API fibonacciIndex()
 {
     return index_;
 }
@@ -83,7 +83,6 @@ bool SIMPLEDLL_API fibonacciNext32()
 }
 
 unsigned int SIMPLEDLL_API fibonacciCurrent32() { return current32_; }
-unsigned int SIMPLEDLL_API fibonacciIndex32() { return index_; }
 
 // Test functions for Delphi and other external applications
 unsigned int SIMPLEDLL_API SimpleReturn()

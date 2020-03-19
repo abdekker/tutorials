@@ -68,13 +68,13 @@ bool SIMPLEDLL_API fibonacciNext64();
 unsigned long long SIMPLEDLL_API fibonacciCurrent64();
 
 // Get the position of the current value in the sequence
-unsigned int SIMPLEDLL_API fibonacciIndex64();
+unsigned int SIMPLEDLL_API fibonacciIndex();
 
 // 32-bit versions
 void SIMPLEDLL_API fibonacciInit32(const unsigned int a, const unsigned int b);
 bool SIMPLEDLL_API fibonacciNext32();
 unsigned int SIMPLEDLL_API fibonacciCurrent32();
-unsigned int SIMPLEDLL_API fibonacciIndex32();
+// "fibonacciIndex" is used for the current position in both the 64-bit and 32-bit sequences
 
 // Test functions for external applications (such as x86 applications written in Delphi)
 unsigned int SIMPLEDLL_API SimpleReturn();

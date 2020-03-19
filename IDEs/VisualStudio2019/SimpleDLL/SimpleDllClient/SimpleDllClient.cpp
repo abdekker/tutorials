@@ -10,10 +10,10 @@ int main()
     std::cout << "Hello World from a simple DLL client (written in VS 2019)!\n\n";
 
     // Test functions
-    std::cout << "Test functions from DLL:\n";
-    std::cout << "SimpleReturn()\t\t\t= " << SimpleReturn() << "\n";
-    std::cout << "SimpleSum(4, -11)\t\t= " << SimpleSum(4, -11) << "\n";
-    std::cout << "SimpleMultiply(3.7f, 12)\t= " << SimpleMultiply(3.7f, 12) << "\n\n";
+    std::cout << "Test functions from DLL\n";
+    std::cout << "  SimpleReturn()\t\t= " << SimpleReturn() << "\n";
+    std::cout << "  SimpleSum(4, -11)\t\t= " << SimpleSum(4, -11) << "\n";
+    std::cout << "  SimpleMultiply(3.7f, 12)\t= " << SimpleMultiply(3.7f, 12) << "\n\n";
 
     // Initialize a 64-bit Fibonacci relation sequence
     std::cout << "Fibonacci sequence (64-bit)\n";
@@ -21,21 +21,21 @@ int main()
 
     // Write out the sequence values until overflow
     do {
-        std::cout << fibonacciIndex64() << ": " << fibonacciCurrent64() << std::endl;
+        std::cout << fibonacciIndex() << ": " << fibonacciCurrent64() << std::endl;
     } while (fibonacciNext64());
 
     // Report count of values written before overflow
-    std::cout << fibonacciIndex64() + 1 <<
+    std::cout << fibonacciIndex() + 1 <<
         " Fibonacci sequence values fit in an unsigned 64-bit integer.\n\n";
 
     // Repeat with 32-bit
     std::cout << "Fibonacci sequence (32-bit)\n";
     fibonacciInit32(1, 1);
     do {
-        std::cout << fibonacciIndex32() << ": " << fibonacciCurrent32() << std::endl;
+        std::cout << fibonacciIndex() << ": " << fibonacciCurrent32() << std::endl;
     } while (fibonacciNext32());
 
-    std::cout << fibonacciIndex32() + 1 <<
+    std::cout << fibonacciIndex() + 1 <<
         " Fibonacci sequence values fit in an unsigned 32-bit integer.\n";
 
     // Prompt for exit
