@@ -22,7 +22,7 @@ object frmConditional: TfrmConditional
     Width = 370
     Height = 145
     TabOrder = 0
-    object lblOutput1: TLabel
+    object lblBothSymbols_IF: TLabel
       Left = 15
       Top = 37
       Width = 190
@@ -31,7 +31,7 @@ object frmConditional: TfrmConditional
       AutoSize = False
       Caption = 'Both symbols defined (using $IF)'
     end
-    object Label1: TLabel
+    object lblBothSymbols_IFDEF: TLabel
       Left = 15
       Top = 58
       Width = 190
@@ -40,7 +40,7 @@ object frmConditional: TfrmConditional
       AutoSize = False
       Caption = 'Both symbols defined (using $IFDEF)'
     end
-    object Label2: TLabel
+    object lblFirstSymbolOnly: TLabel
       Left = 15
       Top = 79
       Width = 190
@@ -49,7 +49,7 @@ object frmConditional: TfrmConditional
       AutoSize = False
       Caption = 'Only 1st symbol defined (using $IF)'
     end
-    object Label3: TLabel
+    object lblSecondSymbolOnly: TLabel
       Left = 15
       Top = 100
       Width = 190
@@ -58,7 +58,7 @@ object frmConditional: TfrmConditional
       AutoSize = False
       Caption = 'Only 2nd symbol defined (using $IF)'
     end
-    object Label4: TLabel
+    object lblNeitherSymbol: TLabel
       Left = 15
       Top = 121
       Width = 190

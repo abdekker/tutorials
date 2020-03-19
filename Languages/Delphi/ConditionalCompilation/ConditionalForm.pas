@@ -15,12 +15,13 @@ type
   TfrmConditional = class(TForm)
 	gbOutput: TGroupBox;
 	btnExit: TButton;
-    gridDefined: TStringGrid;
-    lblOutput1: TLabel;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
+
+	gridDefined: TStringGrid;
+	lblBothSymbols_IF: TLabel;
+	lblBothSymbols_IFDEF: TLabel;
+	lblFirstSymbolOnly: TLabel;
+	lblSecondSymbolOnly: TLabel;
+	lblNeitherSymbol: TLabel;
 
 	procedure FormShow(Sender: TObject);
 	procedure gridDefinedDrawCell(Sender: TObject; col, row: Integer; Rect: TRect; State: TGridDrawState);
