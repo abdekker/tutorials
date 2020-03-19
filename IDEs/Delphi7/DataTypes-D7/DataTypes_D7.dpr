@@ -1,11 +1,14 @@
+{ Console application to show some of the data types, including ranges, in Delphi 7 }
 program DataTypes_D7;
 {$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
+// Note: APPTYPE is "GUI" by default; only needs to be set explicitly for console applications }
 {$APPTYPE CONSOLE}
 
 uses
   Windows, Math, SysUtils,
-  ConsoleUtils in '..\..\..\Languages\Delphi\Utils\ConsoleUtils.pas';
+  ConsoleUtils in '..\..\..\Languages\Delphi\Utils\ConsoleUtils.pas',
+  MinimalUnit  in '..\..\..\Languages\Delphi\Utils\MinimalUnit.pas';
 
 var
 	tab: Char;
