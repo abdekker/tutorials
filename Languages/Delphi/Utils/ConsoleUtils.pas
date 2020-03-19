@@ -1,5 +1,6 @@
 { Utilities designed for console applications, where $APPTYPE=CONSOLE is defined }
 unit ConsoleUtils;
+{$I CoreOptions.inc}
 
 interface
 
