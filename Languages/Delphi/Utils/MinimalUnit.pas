@@ -23,6 +23,10 @@ implementation
 
 const
   PRIVATE_CONST = 3;	// Private => available within this unit only
+  
+type
+  // TSomethingElse is private (so can only be used within this unit only)
+  TSomethingElse = Integer;
 
 var
   // Private variables are only modifiable from inside this unit
