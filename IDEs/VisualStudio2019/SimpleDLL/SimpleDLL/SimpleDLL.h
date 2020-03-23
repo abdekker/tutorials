@@ -42,6 +42,8 @@
 #define SIMPLEDLL_API __declspec(dllimport) __stdcall
 #endif
 
+// Declare functions exported from this DLL to have C linkage. This allows these functions to be
+// used in C-language and Delphi modules.
 #ifdef __cplusplus
 extern "C" {
 #endif
