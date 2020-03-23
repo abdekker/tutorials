@@ -35,14 +35,23 @@
             - Linker > General > Additional Library Directories and add "..\..\PROJ-DLL\$(IntDir)"
                 - Example: "..\..\SimpleDLL\$(IntDir)"
         - Note: You can also solve the problem of finding the PROJ-DLL.dll by using a Post-Build Event
-
 */
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+                       LPVOID lpReserved )
 {
+	// Debugging:
+	// * With "SimpleDllClient" written in VS2019
+	//		- Project Properties > Debugging
+	//		- Command = "..\SimpleDllClient.exe" (Working Directory = "$(ProjectDir)")
+	// * With "DelphiClient.exe" written in Delphi7
+	//		- Project Properties > Debugging
+	//		- Command = "..\DelphiClient.exe"
+
+	// Set a breakpoint on the "switch" line and debug (see above). The entry point is here with
+    // "ul_reason_for_call" == 1 (DLL_PROCESS_ATTACH). When the client application exits,
+    // "ul_reason_for_call" == 0 (DLL_PROCESS_DETACH).
     switch (ul_reason_for_call)
     {
         case DLL_PROCESS_ATTACH:

@@ -4,6 +4,11 @@
 #include <limits.h>
 #include "SimpleDLL.h"
 
+// To output a debug message...
+#ifdef _DEBUG
+	#include <iostream>
+#endif
+
 // DLL internal state variables:
 static unsigned long long previous64_;  // Previous value, if any
 static unsigned long long current64_;   // Current sequence value
@@ -17,6 +22,11 @@ void SIMPLEDLL_API fibonacciInit64(
     const unsigned long long a,
     const unsigned long long b)
 {
+#ifdef _DEBUG
+    // Note: Prints out a message only in _DEBUG mode and if the client is a console app
+    std::cout << "  fibonacciInit64 called\n";
+#endif
+
     index_ = 0;
     current64_ = a;
     previous64_ = b;    // see special case when initialized
@@ -60,6 +70,10 @@ unsigned int SIMPLEDLL_API fibonacciIndex()
 // 32-bit versions
 void SIMPLEDLL_API fibonacciInit32(const unsigned int a, const unsigned int b)
 {
+#ifdef _DEBUG
+    std::cout << "  fibonacciInit32 called\n";
+#endif
+
     index_ = 0;
     current32_ = a;
     previous32_ = b;
