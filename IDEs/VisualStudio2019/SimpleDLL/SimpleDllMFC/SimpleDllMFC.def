@@ -1,0 +1,13 @@
+; SimpleDllMFC.def : Declares the module parameters for the DLL.
+
+LIBRARY
+
+EXPORTS
+    ; Explicit exports can go here
+	; Note: Name-mangling for functions exported from classes (CSimpleDllMFCApp here) is complex.
+	;	When the function prototype (name, parameters or return type) change, check the name using
+	;	an external tool (eg. Dependency Walker (DW)). Comment out the next line, build the DLL,
+	;	use DW to get the exact name, enable the next line with the correct name and build again.
+	; SimpleReturn_InsideClass = ?SimpleReturn_InsideClass@CSimpleDllMFCApp@@QAGIXZ
+	SimpleReturn1_OutsideClass = _SimpleReturn1_OutsideClass@0
+	SimpleReturn2_OutsideClass = _SimpleReturn2_OutsideClass@0

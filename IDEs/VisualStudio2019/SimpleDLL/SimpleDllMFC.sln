@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleDllMFC", "SimpleDllMFC\SimpleDllMFC.vcxproj", "{3A36E409-2E07-4875-A968-801DCCC05069}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A36E409-2E07-4875-A968-801DCCC05069}.Debug|x86.ActiveCfg = Debug|Win32
+		{3A36E409-2E07-4875-A968-801DCCC05069}.Debug|x86.Build.0 = Debug|Win32
+		{3A36E409-2E07-4875-A968-801DCCC05069}.Release|x86.ActiveCfg = Release|Win32
+		{3A36E409-2E07-4875-A968-801DCCC05069}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {954F099E-2AC2-41E6-99FB-B8C018FC5E25}
+	EndGlobalSection
+EndGlobal
