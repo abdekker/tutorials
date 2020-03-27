@@ -1,23 +1,7 @@
 #include <iostream>
 #include <conio.h>
 
-// Some defines...
-//#if !defined(EXAMPLE1)
-//#define EXAMPLE1
-
-/*
-#if defined(_USRDLL)
- #define DLL_EXP __declspec(dllexport)
- #error "ONE"
-#elif defined(_MSC_VER)&&(_MSC_VER<1200)
- #define DLL_EXP __declspec(dllimport)
- #error "TWO"
-#else
- #define DLL_EXP
- #error "THREE"
-#endif
-*/
-
+// Helper function
 void UpdateRow(const std::string cszSymbol, const bool cbDefined, const std::string szExtra)
 {
 	std::cout << "  " << cszSymbol << "...";
@@ -34,13 +18,13 @@ void UpdateRow(const std::string cszSymbol, const bool cbDefined, const std::str
 
 void Demonstrate_if()
 {
-	// Define a simple symbol and #if
+	// Define a simple symbol and #if / #ifdef
 	// Note: Preprocessor commands must be the first non-whitespace on a line. Consequently, it is
 	// typical for #if/#else/#endif to cover several lines.
 	std::string szSymbolName;
 	bool bIsDefined;
 
-	std::cout << "=== #if: Define a symbol ===\n";
+	std::cout << "=== #if and #ifdef: Define a symbol ===\n";
 #define SYMBOL1
 
 	szSymbolName = "SYMBOL1";
@@ -50,7 +34,7 @@ void Demonstrate_if()
 #else
 		false;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " (positive logic)");
+	UpdateRow(szSymbolName, bIsDefined, " [ #if defined(X) ]");
 
 	bIsDefined =
 #if !defined(SYMBOL1)
@@ -58,7 +42,23 @@ void Demonstrate_if()
 #else
 		true;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " (negative logic)");
+	UpdateRow(szSymbolName, bIsDefined, " [ #if !defined(X) ]");
+
+	bIsDefined =
+#ifdef SYMBOL1
+		true;
+#else
+		false;
+#endif
+	UpdateRow(szSymbolName, bIsDefined, " [ #ifdef X ]");
+
+	bIsDefined =
+#ifndef SYMBOL1
+		false;
+#else
+		true;
+#endif
+	UpdateRow(szSymbolName, bIsDefined, " [ #ifndef X ]");
 
 	// Undefine the symbol and repeat
 	std::cout << "\nUndefine the symbol\n";
