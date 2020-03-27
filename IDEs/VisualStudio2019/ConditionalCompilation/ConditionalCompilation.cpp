@@ -281,7 +281,7 @@ void Demonstrate_predefinedMacros()
 void Demonstrate_line()
 {
 	// Use #line to modify __LINE__ and __FILE__ (pre-defined macros)
-	std::cout << "\=== #line: Change __LINE__ and __FILE__ ===\n";
+	std::cout << "\n=== #line: Change __LINE__ and __FILE__ ===\n";
 #define ASSERT(cond) if (!(cond))\
 	{ printf( "Assertion error!\n  Line: %d\n  File: %s\n", \
 		__LINE__, __FILE__ ); }
