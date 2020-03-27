@@ -24,9 +24,10 @@ uses
 
 const
   // This project consumes a sample C++ DLL generated in Visual Studio 2019
-  DLL_NAME = 'SimpleDLL.dll';
+  DLL_SIMPLE = 'SimpleDLL.dll';
+  DLL_SIMPLE_MFC = 'SimpleDllMFC.dll';
 
-  // Fibonacci functions exported from the C++ DLL
+  // Fibonacci functions exported from the standard C++ DLL
   // Note: Sizeof(Cardinal) is 4-bytes, so the 32-bit version of "fibonacciInit" uses "@8". Since
   // sizeOf(UInt64) is 8-bytes, the 64-bit version uses "@16".
   FIBO_INIT32 =
@@ -55,7 +56,7 @@ const
 	{$IF Defined(DLL_CDECL)} 'fibonacciIndex'
 	{$ELSEIF Defined(DLL_STDCALL)} '_fibonacciIndex@0' {$IFEND};
 
-  // Test functions exported from the C++ DLL
+  // Test functions exported from the standard C++ DLL
   TEST_RETURN =
 	{$IF Defined(DLL_CDECL)} 'SimpleReturn'
 	{$ELSEIF Defined(DLL_STDCALL)} '_SimpleReturn@0' {$IFEND};
@@ -66,24 +67,33 @@ const
 	{$IF Defined(DLL_CDECL)} 'SimpleMultiply'
 	{$ELSEIF Defined(DLL_STDCALL)} '_SimpleMultiply@8' {$IFEND};
 
+  // Test functions exported from the MFC C++ DLL
+  // Note: Only one version required because a definition (.def) file was used internally in the
+  // DLL to fix the name of exported functions
+  MFC_OUTSIDE_CLASS1 = 'SimpleReturn1_OutsideClass';
+  MFC_OUTSIDE_CLASS2 = 'SimpleReturn2_OutsideClass';
+
   // Test for a function that is deliberately NOT defined / exported
   TEST_NOT_IN_DLL = 'MissingInAction';
 
 type
   CACHE_DELPHI_CLIENT = record
-	szMsgErrUnableToLocateDLL: String;
+	szMsgSimpleDLL, szMsgSimpleDllMFC: String;
+	szMsgErrUnableToLocateDLL, szMsgErrUnableToLocateDllMFC: String;
   end;
 
   TfrmDelphiClient = class(TForm)
 	gbSettings: TGroupBox;
-
+	lblFunctionClass: TLabel;
+	ddlFunctionClass: TComboBox;
 	lblFunctionMethod: TLabel;
 	ddlFunctionMethod: TComboBox;
 	lblFibonacciBitDepth: TLabel;
 	rbFibonacciBitDepth32: TRadioButton;
 	rbFibonacciBitDepth64: TRadioButton;
-	btnUseTestMethods: TButton;
-	btnUseFibonacciMethods: TButton;
+	btnUseFunctionsFromDLL: TButton;
+	lblDllNameTitle: TLabel;
+	lblDllName: TLabel;
 	memoOutput: TMemo;
 
 	btnExit: TButton;
@@ -91,22 +101,25 @@ type
 	procedure FormCreate(Sender: TObject);
 	procedure FormShow(Sender: TObject);
 	procedure btnExitClick(Sender: TObject);
-	procedure rbFibonacciBitDepthClick(Sender: TObject);
-	procedure btnUseTestMethodsClick(Sender: TObject);
-	procedure btnUseFibonacciMethodsClick(Sender: TObject);
+	procedure OnControlChange(Sender: TObject);
+	procedure btnUseFunctionsFromDLLClick(Sender: TObject);
 
   private
 	{ Private declarations }
 	m_cache: CACHE_DELPHI_CLIENT;
 
+	procedure UpdateControls();
+
 	procedure UseTestMethodsManual();
 	procedure UseTestMethodsStatic();
 
-	procedure SetFibonacciButtonText();
 	procedure UseFibonacciMethodsManual32();
 	procedure UseFibonacciMethodsManual64();
 	procedure UseFibonacciMethodsStatic32();
 	procedure UseFibonacciMethodsStatic64();
+
+	procedure UseTestMethodsManualMFC();
+	procedure UseTestMethodsStaticMFC();
 
   public
 	{ Public declarations }
@@ -155,45 +168,65 @@ const
   MSG_UNLOAD_DLL_SUCCESS		= 'Success! DLL unloaded';
 
   MSG_ERR_EXTRACT_FUNCTIONS		= 'Unable to extract function pointer(s) from DLL';
-  // m_cache.szMsgErrUnableToLocateDLL
 
 type
-  // Enumeration
-  TFunctionsExtraction = (eFunctionsManual, eFunctionsStatic);
+  // Enumerations
+  TFunctionClass = (
+	eClassSimpleTest = 0,
+	eClassSimpleFibonacci,
+	eClassSimpleTestMFC);
+  TFunctionExtraction = (
+	eExtractionManual = 0,
+	eExtractionStatic);
 
   // Static function declarations (alternative to using LoadLibrary / GetProcAddress)
 
+  // SimpleDLL.dll  (standard DLL)
 {$IF Defined(DLL_CDECL)}			// cdecl
   // Fibonacci functions
-  procedure fibonacciInit32(const a, b: Cardinal); cdecl; external DLL_NAME name FIBO_INIT32;
-  procedure fibonacciInit64(const a, b: UInt64); cdecl; external DLL_NAME name FIBO_INIT64;
-  function fibonacciNext32() : Boolean; cdecl; external DLL_NAME name FIBO_NEXT32;
-  function fibonacciNext64() : Boolean; cdecl; external DLL_NAME name FIBO_NEXT64;
-  function fibonacciCurrent32() : Cardinal; cdecl; external DLL_NAME name FIBO_CURRENT32;
-  function fibonacciCurrent64() : UInt64; cdecl; external DLL_NAME name FIBO_CURRENT64;
-  function fibonacciIndex() : Cardinal; cdecl; external DLL_NAME name FIBO_INDEX;
+  procedure fibonacciInit32(const a, b: Cardinal); cdecl; external DLL_SIMPLE name FIBO_INIT32;
+  procedure fibonacciInit64(const a, b: UInt64); cdecl; external DLL_SIMPLE name FIBO_INIT64;
+  function fibonacciNext32() : Boolean; cdecl; external DLL_SIMPLE name FIBO_NEXT32;
+  function fibonacciNext64() : Boolean; cdecl; external DLL_SIMPLE name FIBO_NEXT64;
+  function fibonacciCurrent32() : Cardinal; cdecl; external DLL_SIMPLE name FIBO_CURRENT32;
+  function fibonacciCurrent64() : UInt64; cdecl; external DLL_SIMPLE name FIBO_CURRENT64;
+  function fibonacciIndex() : Cardinal; cdecl; external DLL_SIMPLE name FIBO_INDEX;
 
   // Test functions
-  function SimpleReturn() : Cardinal; cdecl; external DLL_NAME name TEST_RETURN;
-  function SimpleSum(const a, b: Integer) : Integer; cdecl; external DLL_NAME name TEST_SUM;
+  function SimpleReturn() : Cardinal; cdecl; external DLL_SIMPLE name TEST_RETURN;
+  function SimpleSum(const a, b: Integer) : Integer; cdecl; external DLL_SIMPLE name TEST_SUM;
   function SimpleMultiply(const a: Single; const b: Char) : Single; cdecl;
-	external DLL_NAME name TEST_MULTIPLY;
-  function NotInDLL() : Cardinal; cdecl; external DLL_NAME name TEST_NOT_IN_DLL;
+	external DLL_SIMPLE name TEST_MULTIPLY;
+  function NotInDLL() : Cardinal; cdecl; external DLL_SIMPLE name TEST_NOT_IN_DLL;
 {$ELSEIF Defined(DLL_STDCALL)}		// stdcall
-  procedure fibonacciInit32(const a, b: Cardinal); stdcall; external DLL_NAME name FIBO_INIT32;
-  procedure fibonacciInit64(const a, b: UInt64); stdcall; external DLL_NAME name FIBO_INIT64;
-  function fibonacciNext32() : Boolean; stdcall; external DLL_NAME name FIBO_NEXT32;
-  function fibonacciNext64() : Boolean; stdcall; external DLL_NAME name FIBO_NEXT64;
-  function fibonacciCurrent32() : Cardinal; stdcall; external DLL_NAME name FIBO_CURRENT32;
-  function fibonacciCurrent64() : UInt64; stdcall; external DLL_NAME name FIBO_CURRENT64;
-  function fibonacciIndex() : Cardinal; stdcall; external DLL_NAME name FIBO_INDEX;
+  procedure fibonacciInit32(const a, b: Cardinal); stdcall; external DLL_SIMPLE name FIBO_INIT32;
+  procedure fibonacciInit64(const a, b: UInt64); stdcall; external DLL_SIMPLE name FIBO_INIT64;
+  function fibonacciNext32() : Boolean; stdcall; external DLL_SIMPLE name FIBO_NEXT32;
+  function fibonacciNext64() : Boolean; stdcall; external DLL_SIMPLE name FIBO_NEXT64;
+  function fibonacciCurrent32() : Cardinal; stdcall; external DLL_SIMPLE name FIBO_CURRENT32;
+  function fibonacciCurrent64() : UInt64; stdcall; external DLL_SIMPLE name FIBO_CURRENT64;
+  function fibonacciIndex() : Cardinal; stdcall; external DLL_SIMPLE name FIBO_INDEX;
 
-  function SimpleReturn() : Cardinal; stdcall; external DLL_NAME name TEST_RETURN;
-  function SimpleSum(const a, b: Integer) : Integer; stdcall; external DLL_NAME name TEST_SUM;
+  function SimpleReturn() : Cardinal; stdcall; external DLL_SIMPLE name TEST_RETURN;
+  function SimpleSum(const a, b: Integer) : Integer; stdcall; external DLL_SIMPLE name TEST_SUM;
   function SimpleMultiply(const a: Single; const b: Char) : Single; stdcall;
-	external DLL_NAME name TEST_MULTIPLY;
-  function NotInDLL() : Cardinal; stdcall; external DLL_NAME name TEST_NOT_IN_DLL;
+	external DLL_SIMPLE name TEST_MULTIPLY;
+  function NotInDLL() : Cardinal; stdcall; external DLL_SIMPLE name TEST_NOT_IN_DLL;
 {$IFEND}
+
+  // SimpleDllMFC.dll (MFC DLL)
+{$IF Defined(DLL_CDECL)}			// cdecl
+  function outsideClass1MFC() : Cardinal; cdecl; external DLL_SIMPLE_MFC name MFC_OUTSIDE_CLASS1;
+  function outsideClass2MFC() : Cardinal; cdecl; external DLL_SIMPLE_MFC name MFC_OUTSIDE_CLASS2;
+{$ELSEIF Defined(DLL_STDCALL)}		// stdcall
+  function outsideClass1MFC() : Cardinal; stdcall; external DLL_SIMPLE_MFC name MFC_OUTSIDE_CLASS1;
+  function outsideClass2MFC() : Cardinal; stdcall; external DLL_SIMPLE_MFC name MFC_OUTSIDE_CLASS2;
+{$IFEND}
+
+//ADAD
+{?SimpleReturn_InsideClass@CSimpleDllMFCApp@@QAGIXZ
+_SimpleReturn1_OutsideClass@0
+_SimpleReturn2_OutsideClass@0}
 
 {$R *.dfm}
 
@@ -201,24 +234,40 @@ procedure TfrmDelphiClient.FormCreate(Sender: TObject);
 begin
 	// Initialise cache
 	ZeroMemory(@m_cache, SizeOf(CACHE_DELPHI_CLIENT));
-	m_cache.szMsgErrUnableToLocateDLL := Format('Unable to locate %s', [DLL_NAME]);
+	m_cache.szMsgSimpleDLL := Format('### %s ###', [DLL_SIMPLE]);
+	m_cache.szMsgSimpleDllMFC := Format('### %s ###', [DLL_SIMPLE_MFC]);
+
+	m_cache.szMsgErrUnableToLocateDLL := Format('Unable to locate %s', [DLL_SIMPLE]);
+	m_cache.szMsgErrUnableToLocateDllMFC := Format('Unable to locate %s', [DLL_SIMPLE_MFC]);
 end;
 
 procedure TfrmDelphiClient.FormShow(Sender: TObject);
 begin
 	// Initialise form
+
+	// Function class:
+	// * SimpleDLL.dll (and test functions "SimpleReturn", "SimpleSum" and "SimpleMultiply"
+	// * SimpleDLL.dll (and 32-bit or 64-bit Fibonacci functions)
+	// * SimpleDllMFC.dll.dll (functions from outside and exported from inside a C++ class)
+	SetComboHandlers(ddlFunctionClass);
+	ddlFunctionClass.Items.Clear();
+	ddlFunctionClass.Items.AddObject('Simple DLL (test functions)', TObject(eClassSimpleTest));
+	ddlFunctionClass.Items.AddObject('Simple DLL (Fibonacci functions)', TObject(eClassSimpleFibonacci));
+	ddlFunctionClass.Items.AddObject('MFC DLL (test functions)', TObject(eClassSimpleTestMFC));
+	ddlFunctionClass.ItemIndex := ddlFunctionClass.Items.IndexOfObject(TObject(eClassSimpleTest));
+
 	SetComboHandlers(ddlFunctionMethod);
 	ddlFunctionMethod.Items.Clear();
-	ddlFunctionMethod.Items.AddObject('LoadLibrary / GetProcAddress', TObject(eFunctionsManual));
-	ddlFunctionMethod.Items.AddObject('Statically-defined entry points', TObject(eFunctionsStatic));
-	ddlFunctionMethod.ItemIndex := 0;
+	ddlFunctionMethod.Items.AddObject('LoadLibrary / GetProcAddress', TObject(eExtractionManual));
+	ddlFunctionMethod.Items.AddObject('Statically-defined entry points', TObject(eExtractionStatic));
+	ddlFunctionMethod.ItemIndex := ddlFunctionMethod.Items.IndexOfObject(TObject(eExtractionManual));
 
 	rbFibonacciBitDepth32.Checked := True;
-	SetFibonacciButtonText();
+	UpdateControls();
 
 	memoOutput.Lines.BeginUpdate();
 	memoOutput.Lines.Clear();
-	memoOutput.Lines.Add('Click one of the buttons to use methods from an external DLL...');
+	memoOutput.Lines.Add('Select a function class, extraction method...');
 	memoOutput.Lines.EndUpdate();
 
 	// Set focus to the Exit button
@@ -231,71 +280,107 @@ begin
 	Close();
 end;
 
-procedure TfrmDelphiClient.rbFibonacciBitDepthClick(Sender: TObject);
+procedure TfrmDelphiClient.OnControlChange(Sender: TObject);
 begin
-	// Update the text on the Fibonacci button
-	SetFibonacciButtonText();
+	UpdateControls();
 end;
 
-procedure TfrmDelphiClient.btnUseTestMethodsClick(Sender: TObject);
+procedure TfrmDelphiClient.btnUseFunctionsFromDLLClick(Sender: TObject);
 var
-	eExtraction: TFunctionsExtraction;
-begin
-	// Get the function extraction method and the bit depth
-	memoOutput.Lines.BeginUpdate();
-	memoOutput.Lines.Clear();
-	eExtraction :=
-		TFunctionsExtraction(ddlFunctionMethod.Items.Objects[ddlFunctionMethod.ItemIndex]);
-
-	if (eExtraction = eFunctionsManual) then
-		begin
-		// Manual extraction of functions using LoadLibrary and GetProcAddress
-		UseTestMethodsManual();
-		end
-	else if (eExtraction = eFunctionsStatic) then
-		begin
-		// Statically-defined procedure entry points
-		UseTestMethodsStatic();
-		end;
-
-	ScrollMemoLastLine(memoOutput.Handle, memoOutput.Lines.Count);
-	memoOutput.Lines.EndUpdate();
-end;
-
-procedure TfrmDelphiClient.btnUseFibonacciMethodsClick(Sender: TObject);
-var
-	eExtraction: TFunctionsExtraction;
+	eClass: TFunctionClass;
+	eExtraction: TFunctionExtraction;
 	nBitDepth: Integer;
 begin
-	// Get the function extraction method and the bit depth
+	// Update controls based on the current selections
 	memoOutput.Lines.BeginUpdate();
 	memoOutput.Lines.Clear();
-	eExtraction :=
-		TFunctionsExtraction(ddlFunctionMethod.Items.Objects[ddlFunctionMethod.ItemIndex]);
-	nBitDepth := IfThen(rbFibonacciBitDepth32.Checked, 32, 64);
 
-	if (eExtraction = eFunctionsManual) then
+	eClass := TFunctionClass(ddlFunctionClass.Items.Objects[ddlFunctionClass.ItemIndex]);
+	eExtraction := TFunctionExtraction(ddlFunctionMethod.Items.Objects[ddlFunctionMethod.ItemIndex]);
+	if (eClass = eClassSimpleTest) then
 		begin
-		// Manual extraction of functions using LoadLibrary and GetProcAddress
-		if (nBitDepth = 32) then
-			UseFibonacciMethodsManual32()
-		else if (nBitDepth = 64) then
-			UseFibonacciMethodsManual64();
+		// SimpleDLL.dll: Test functions
+		memoOutput.Lines.Add(m_cache.szMsgSimpleDLL);
+		if (eExtraction = eExtractionManual) then
+			begin
+			// Manual extraction of functions using LoadLibrary and GetProcAddress
+			UseTestMethodsManual();
+			end
+		else if (eExtraction = eExtractionStatic) then
+			begin
+			// Statically-defined procedure entry points
+			UseTestMethodsStatic();
+			end;
 		end
-	else if (eExtraction = eFunctionsStatic) then
+	else if (eClass = eClassSimpleFibonacci) then
 		begin
-		// Statically-defined procedure entry points
-		if (nBitDepth = 32) then
-			UseFibonacciMethodsStatic32()
-		else if (nBitDepth = 64) then
-			UseFibonacciMethodsStatic64();
+		// SimpleDLL.dll: Fibonacci functions
+		memoOutput.Lines.Add(m_cache.szMsgSimpleDLL);
+		nBitDepth := IfThen(rbFibonacciBitDepth32.Checked, 32, 64);
+		if (eExtraction = eExtractionManual) then
+			begin
+			// Manual extraction of functions using LoadLibrary and GetProcAddress
+			if (nBitDepth = 32) then
+				UseFibonacciMethodsManual32()
+			else if (nBitDepth = 64) then
+				UseFibonacciMethodsManual64();
+			end
+		else if (eExtraction = eExtractionStatic) then
+			begin
+			// Statically-defined procedure entry points
+			if (nBitDepth = 32) then
+				UseFibonacciMethodsStatic32()
+			else if (nBitDepth = 64) then
+				UseFibonacciMethodsStatic64();
+			end;
+		end
+	else if (eClass = eClassSimpleTestMFC) then
+		begin
+		// SimpleDllMFC.dll: Test functions
+		memoOutput.Lines.Add(m_cache.szMsgSimpleDllMFC);
+		if (eExtraction = eExtractionManual) then
+			UseTestMethodsManualMFC()
+		else if (eExtraction = eExtractionStatic) then
+			UseTestMethodsStaticMFC();
 		end;
 
-	ScrollMemoLastLine(memoOutput.Handle, memoOutput.Lines.Count);
 	memoOutput.Lines.EndUpdate();
 end;
 
 // Start: Private functions
+procedure TfrmDelphiClient.UpdateControls();
+var
+	eClass: TFunctionClass;
+	nBitDepth: Integer;
+	strButtonText, strDllName: String;
+begin
+	// Update controls based on the current selections
+	eClass := TFunctionClass(ddlFunctionClass.Items.Objects[ddlFunctionClass.ItemIndex]);
+	if (eClass = eClassSimpleTest) then
+		begin
+		strButtonText := 'Test functions';
+		strDllName := DLL_SIMPLE;
+		end
+	else if (eClass = eClassSimpleFibonacci) then
+		begin
+		nBitDepth := IfThen(rbFibonacciBitDepth32.Checked, 32, 64);
+		strButtonText := Format('Fibonacci (%d-bit) functions', [nBitDepth]);
+		strDllName := DLL_SIMPLE;
+		end
+	else if (eClass = eClassSimpleTestMFC) then
+		begin
+		strButtonText := 'Test functions (MFC)';
+		strDllName := DLL_SIMPLE_MFC;
+		end;
+
+	lblFibonacciBitDepth.Enabled := (eClass = eClassSimpleFibonacci);
+	rbFibonacciBitDepth32.Enabled := lblFibonacciBitDepth.Enabled;
+	rbFibonacciBitDepth64.Enabled := lblFibonacciBitDepth.Enabled;
+
+	btnUseFunctionsFromDLL.Caption := strButtonText;
+	lblDllName.Caption := strDllName;
+end;
+
 procedure TfrmDelphiClient.UseTestMethodsManual();
 var
 	hDLL: THandle;
@@ -309,7 +394,7 @@ begin
 
 	// Load the external library written in Visual Studio 2019 (this is case insensitive)
 	memoOutput.Lines.Add(MSG_LOAD_DLL);
-	hDLL := LoadLibrary(DLL_NAME);
+	hDLL := LoadLibrary(DLL_SIMPLE);
 	if (hDLL <> 0) then
 		begin
 		// Assign functions from the DLL to variables
@@ -379,25 +464,17 @@ begin
 		Format('SimpleMultiply(3.7, 12) = %.1f', [SimpleMultiply(3.7, Char(12))]));
 
 	// "UseTestMethodsManual" demonstrated using a method not found in the DLL. With (compile-time)
-	// static functions this is not possible because the program crashes immediately (possibly as a
-	// safety feature). This is one advantage of using compile-time functions...you find out about
-	// the missing procedure entry point problem before even attempting to use the method!
+	// static functions this is not possible because the program crashes immediately. This is
+	// probably a safety feature). This is one advantage of using compile-time functions...you find
+	// out about the missing procedure entry point before even attempting to use the method!
 	{try
-		NotInDLL();
+		NotInDLL();		// Won't compile
 	except
 		on E: Exception do memoOutput.Lines.Add(Format('%s.', [E.Message]));
 	end;}
 
 	memoOutput.Lines.Add('');
 	memoOutput.Lines.Add('Test...static...complete');
-end;
-
-procedure TfrmDelphiClient.SetFibonacciButtonText();
-var
-	nBitDepth: Integer;
-begin
-	nBitDepth := IfThen(rbFibonacciBitDepth32.Checked, 32, 64);
-	btnUseFibonacciMethods.Caption := Format('Fibonacci (%d-bit)', [nBitDepth]);
 end;
 
 procedure TfrmDelphiClient.UseFibonacciMethodsManual32();
@@ -413,7 +490,7 @@ begin
 	memoOutput.Lines.Add('32-bit Fibonacci methods...run-time, manual extraction of function pointers');
 	memoOutput.Lines.Add('');
 	memoOutput.Lines.Add(MSG_LOAD_DLL);
-	hDLL := LoadLibrary(DLL_NAME);
+	hDLL := LoadLibrary(DLL_SIMPLE);
 	if (hDLL <> 0) then
 		begin
 		// Assign functions from the DLL to the function variables
@@ -470,7 +547,7 @@ begin
 	memoOutput.Lines.Add('64-bit Fibonacci methods...run-time, manual extraction of function pointers');
 	memoOutput.Lines.Add('');
 	memoOutput.Lines.Add(MSG_LOAD_DLL);
-	hDLL := LoadLibrary(DLL_NAME);
+	hDLL := LoadLibrary(DLL_SIMPLE);
 	if (hDLL <> 0) then
 		begin
 		// Assign functions from the DLL to the function variables
@@ -557,6 +634,70 @@ begin
 
 	memoOutput.Lines.Add('');
 	memoOutput.Lines.Add('64-bit Fibonacci...static...complete');
+end;
+
+procedure TfrmDelphiClient.UseTestMethodsManualMFC();
+var
+	hDLL: THandle;
+	fFunc1_OutsideClass, fFunc2_OutsideClass: TFibonacciIndex;
+begin
+	// Test methods from the MFC DLL with manual extraction
+	memoOutput.Lines.Add('Test methods from MFC DLL...run-time, manual extraction of function pointers');
+	memoOutput.Lines.Add('');
+	memoOutput.Lines.Add(MSG_LOAD_DLL);
+	hDLL := LoadLibrary(DLL_SIMPLE_MFC);
+	if (hDLL <> 0) then
+		begin
+		memoOutput.Lines.Add(MSG_FIND_FUNCTIONS);
+		// Note: Function names are as defined by the defintion (.def) file in the C++ DLL
+		@fFunc1_OutsideClass := GetProcAddress(hDLL, MFC_OUTSIDE_CLASS1);
+		@fFunc2_OutsideClass := GetProcAddress(hDLL, MFC_OUTSIDE_CLASS2);
+		if (	Assigned(@fFunc1_OutsideClass) and
+				Assigned(@fFunc2_OutsideClass)) then
+			begin
+				try
+					// An attempt was made to export a method from
+					// Curiously, the exported function from the CWinApp-derived class (from the
+					// MFC DLL) cannot be used function directly in "Format":
+					//		myString := Format('%d', [fFunc_InsideClass()]);
+					// The above line crashes or does not change the string (depending on whether
+					// "myString" has been set or not). But you can do this:
+					//		uMyCardinal := fFunc_InsideClass();		// Or use "IntToStr"
+					//		myString := Format('%d', [uMyCardinal]);
+					// The reason for this problem is unknown, probably a bug in "Format"
+
+					memoOutput.Lines.Add(Format('SimpleReturn1_OutsideClass: %d', [fFunc1_OutsideClass()]));
+					memoOutput.Lines.Add(
+						'    (Calls an internal, public method on a CWinApp-derived class)');
+					memoOutput.Lines.Add(Format('SimpleReturn2_OutsideClass: %d', [fFunc2_OutsideClass()]));
+				except
+					on E: Exception do memoOutput.Lines.Add(Format('%s.', [E.Message]));
+				end;
+			end
+		else
+			memoOutput.Lines.Add(MSG_ERR_EXTRACT_FUNCTIONS);
+		end
+	else
+		memoOutput.Lines.Add(m_cache.szMsgErrUnableToLocateDllMFC);
+
+	memoOutput.Lines.Add('');
+	memoOutput.Lines.Add('MFC DLL functions...manual...complete');
+end;
+
+procedure TfrmDelphiClient.UseTestMethodsStaticMFC();
+var
+	strOutsideClass1, strOutsideClass2: String;
+begin
+	// Test methods from the MFC DLL with static definition
+	memoOutput.Lines.Add('Test methods from MFC DLL...compile-time, statically-defined');
+	memoOutput.Lines.Add('');
+
+	memoOutput.Lines.Add(Format('SimpleReturn1_OutsideClass: %d', [outsideClass1MFC()]));
+	memoOutput.Lines.Add('    (Calls an internal, public method on a CWinApp-derived class)');
+	memoOutput.Lines.Add(Format('SimpleReturn2_OutsideClass: %d', [outsideClass2MFC()]));
+
+	memoOutput.Lines.Add('');
+	memoOutput.Lines.Add('MFC DLL functions...static...complete');
 end;
 // End: Private functions
 
