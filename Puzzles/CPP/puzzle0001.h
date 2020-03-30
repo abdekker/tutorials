@@ -1,11 +1,4 @@
 #pragma once
-#include <chrono>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
-
-#include "../../Languages/CPP/Utils/stringHelper.h"
 
 enum AttemptNumber
 {
@@ -18,13 +11,16 @@ enum AttemptNumber
     ATTEMPT_LAST
 };
 
-using namespace std;
-class ClassPuzzle001
+class ClassPuzzle0001
 {
 public:
-    ClassPuzzle001() {}
-    ~ClassPuzzle001() {}
+    ClassPuzzle0001() {}
+    ~ClassPuzzle0001() {}
 
+	// Main entry point
+	void RunPuzzle();
+
+private:
     void DoAttempt(const AttemptNumber attempt, const int target, const bool print);
     void PerformanceTests();
 };
