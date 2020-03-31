@@ -36,6 +36,10 @@ but adapted to give functionality similar to the command-line "ping" utility:
 		Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 	Approximate round trip times in milli-seconds:
 		Minimum = 102ms, Maximum = 630ms, Average = 277ms
+
+The "ping" utility returns a TTL value which stands for "time to live". Whenever a router touches
+an ICMP packet, the TTL is decremented. If this reaches zero, the packet is discarded. This code
+does not demonstrate TTL, and IcmpSendEcho does not appear to return this diectly (TODO).
 */
 
 int TryIcmpSendEcho_v1(const char *address, const uint32_t cuTries = 1)
