@@ -1,6 +1,6 @@
 @echo off
 
-rem This script demonstrates some artithmetic operations in DOS scripting
+rem This script demonstrates arithmetic operations in DOS scripting
 setlocal
 
 echo ### Introductory notes ###
