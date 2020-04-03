@@ -63,7 +63,7 @@ echo All done!
 goto :EOF
 
 :ShowHelp
-rem In functions, %0 is the function name (in this case ":ShowHelp")
+rem %0 is the function name (in this case ":ShowHelp")
 echo Usage: %1 [options]
 echo Options:
 echo   --help       print this message
