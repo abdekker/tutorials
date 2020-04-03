@@ -1,0 +1,9 @@
+General-purpose batch utilities
+
+Notes and usage details:
+* These scripts generally work together so should be kept together
+* Copy this entire folder to your target Windows system (eg. C:\Work\Scripts)
+* To ensure the scripts are usable do one of the following:
+    - Add this folder to your system path
+    - Create an enviroment variable to point to this path (eg. DEV_SCRIPTS=C:\Work\Scripts)
+        - Scripts can then be called with something like: "call %DEV_SCRIPTS%\MyScript.bat"
