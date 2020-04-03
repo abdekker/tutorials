@@ -1,20 +1,19 @@
 @echo off
-setlocal EnableDelayedExpansion
-
 rem Function to calculate the length of a string
-rem Usage: GetStringLength MY_STRING MY_STRING_LENGTH
+rem Usage: strlen MY_STRING MY_STRING_LENGTH
 rem Example:
 rem     set "MY_STRING=test"
-rem     call :GetStringLength MY_STRING MY_STRING_LENGTH
+rem     call :strlen MY_STRING MY_STRING_LENGTH
 rem     echo "%MY_STRING%" is %MY_STRING_LENGTH% characters long
 rem         > "test" is 4 characters long
 
-:GetStringLength
+:strlen
+setlocal EnableDelayedExpansion
 set LOCAL_LENGTH=0
-:StringLengthLoop
+:strlenLoop
 if not "!%1:~%LOCAL_LENGTH%,1%!"=="" (
     set /a LOCAL_LENGTH+=1
-    goto :StringLengthLoop
+    goto :strlenLoop
 )
-set %2=%LENGTH%
+endlocal & set %2=%LOCAL_LENGTH%
 exit /b 0
