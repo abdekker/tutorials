@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 rem This script demonstrates using functions in DOS scripting
 echo ### Functions in batch scripts ###
@@ -23,25 +23,33 @@ echo ### Set variable inside function ###
 set MY_VAR=one
 echo   Before: MY_VAR = "%MY_VAR%"
 call :funcSetParamTwo MY_VAR
-echo   After: MY_VAR = "%MY_VAR%"
+echo   After:  MY_VAR = "%MY_VAR%"
 echo .
 
-echo This does NOT work inside an "if" statement!
+echo Take care inside "if" statements^^! Use "setlocal EnableDelayedExpansion" and inside the code
+echo block use ^^!VAR^^! (not %%VAR%%).
 if defined MY_VAR (
     echo   Before: MY_VAR = "%MY_VAR%"
     call :funcSetParamThree MY_VAR
-    echo   After: MY_VAR = "%MY_VAR%", but this should have been "three"
+    echo   After:  MY_VAR = "%MY_VAR%" (global)
+    echo   After:  MY_VAR = "!MY_VAR!" (local)
 )
 echo .
 
 echo ### Use the return value (saved in %%ERRORLEVEL%%) ###
 echo   Before: ERRORLEVEL = %ERRORLEVEL%
 call :funcSetErrorLevel
-echo   After: ERRORLEVEL = %ERRORLEVEL%
-echo Changing the return (with "exit /b X") can be used as a function return value.
-echo This also does NOT work inside an "if" statement.
+echo   After:  ERRORLEVEL = %ERRORLEVEL%
+echo Setting an error (with "exit /b X") can be used as a function return value.
+echo Exclamation marks do NOT work with %%ERRORLEVEL%% inside an "if" statement^^!
 echo .
-echo All done!
+echo Final comment about %%ERRORLEVEL%% is that it can be set to "1", without exiting, by running a
+echo small invalid command like "COLOR 00".
+echo   Before: ERRORLEVEL = %ERRORLEVEL%
+COLOR 00
+echo   After:  ERRORLEVEL = %ERRORLEVEL%
+echo .
+echo All done^^!
 goto :EOF
 
 :funcSimpleNoParams
@@ -61,6 +69,4 @@ set %1=three
 exit /b 0
 
 :funcSetErrorLevel
-exit /b 3
-
-:func
+exit /b 7
