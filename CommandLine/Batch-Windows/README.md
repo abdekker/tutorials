@@ -16,4 +16,5 @@ General note about running DOS scripts on Windows
 Case sensitivity
 
 * DOS commands are case insensitive, so "cd" is equivalent to "CD"
-* Because of this, commands are sometimes written UPPERCASE and data and variables written lowercase
+* Because of this, commands are usually written in the opposite case to data and variables
+* In these examples, I've generated chosen commands in LOWERCASE, data and variable in UPPERCASE
