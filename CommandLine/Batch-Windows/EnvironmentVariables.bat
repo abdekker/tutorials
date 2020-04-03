@@ -3,8 +3,9 @@
 rem This script covers some aspects of environment variables in DOS and Windows
 rem On a development machine, create a new User environment variable called "DEV_TMP"
 
-rem To create new (permanent) system environment variables use "setx VAR VALUE". This is not
-rem demonstrated in this script.
+rem To create new (permanent) system environment variables use "setx VAR VALUE". This command is
+rem not demonstrated in this script. Variables created created with "setx" are available in future
+rem command windows (but not the current command window). Variables cannot be removed with "setx".
 
 echo ### Environment Variables ###
 echo Access these in System Properties / Advanced / Environment Variables. Variables are saved at
