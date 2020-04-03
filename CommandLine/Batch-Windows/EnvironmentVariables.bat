@@ -1,6 +1,20 @@
 @echo off
 
 rem This script covers some aspects of environment variables in DOS and Windows
+rem On a development machine, create a new User environment variable called "DEV_TMP"
+
+rem To create new (permanent) system environment variables use "setx VAR VALUE". This is not
+rem demonstrated in this script.
+
+echo ### Environment Variables ###
+echo Access these in System Properties / Advanced / Environment Variables. Variables are saved at
+echo the following registry addresses:
+echo   User   = HKCU\Environment
+echo   System = HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
+echo If variables are added or modified programmatically, broadcast a WM_SETTINGCHANGE message
+echo with lParam set to the string "Environment". This allows applications, such as the shell, to
+echo pick up your updates.
+echo .
 
 echo ### Use an environment variable to prevent a script running multiple times ###
 rem This trick can be used to prevent circular calls, and variations, such as:
