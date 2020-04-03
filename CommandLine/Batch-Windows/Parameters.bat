@@ -5,6 +5,16 @@ rem Demonstrates checking parameters passed to the script
 rem Example: ./Parameters.bat --help --version
 set SCRIPT_VERSION=1.0.23
 
+echo ### The first parameter to batch files (%%0) is the batch filename ###
+echo   %%~f0    Fully qualified name    %~f0
+echo   %%~d0    Drive                   %~d0
+echo   %%~p0    Path only               %~p0
+echo   %%~dp0   Drive and directory     %~dp0
+echo   %%~n0    Filename                %~n0
+echo   %%~x0    File extension          %~x0
+echo   %%~nx0   File with extension     %~nx0
+echo .
+
 echo ### Count arguments and place them in an array ###
 set argCount=0
 for %%x in (%*) do (
@@ -32,9 +42,9 @@ if %argCount% GTR 0 (
         rem Help?
         if !argVec[%%i]! EQU --help (
             if !calledHelp! EQU 0 (
-                call :ShowHelp %0
+                call :ShowHelp %~nx0
                 set /a calledHelp += 1
-            ) else (echo   Help already requested! & echo .)
+            ) else (echo   Help already requested & echo .)
         )
 
         rem Version?
@@ -42,7 +52,7 @@ if %argCount% GTR 0 (
             if !calledVersion! EQU 0 (
                 call :ShowVersion
                 set /a calledVersion += 1
-            ) else (echo   Version already displayed! & echo .)
+            ) else (echo   Version already displayed & echo .)
         )
     )
 ) else (
@@ -53,8 +63,8 @@ echo All done!
 goto :EOF
 
 :ShowHelp
-rem %~nx1 gives filename with extension (ie. Parameters.bat)
-echo Usage: %~nx1 [options]
+rem In functions, %0 is the function name (in this case ":ShowHelp")
+echo Usage: %1 [options]
 echo Options:
 echo   --help       print this message
 echo   --version    print version of this script file
