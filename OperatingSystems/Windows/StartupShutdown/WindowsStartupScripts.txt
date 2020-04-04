@@ -1,0 +1,51 @@
+###
+To run a Windows Startup/Shutdown script:
+
+CREATE BATCH FILE
+* Create a batch file and place in a permanent location
+	- This example deletes the BBC iPlayer which adds itself to the Startup folder:
+		@echo off
+		set "BBC_IPLAYER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\BBC iPlayer Desktop.lnk"
+		if EXIST %BBC_IPLAYER% del %BBC_IPLAYER%
+* Lets say this is called "StartupScript.bat" in the location PATH_SCRIPTS
+
+TWO OPTIONS
+* Option 1: Configure the script in Group Policy
+* Option 2: Configure the script in Task Scheduler
+
+CONFIGURE THE MICROSOFT MANAGEMENT CONSOLE (if Group Policy is not available)
+* Applies to Windows XP
+	- Click Start > Run
+	- Type "mmc", and then click OK
+	- On the File menu, click "Add/Remove Snap-in..."
+	- Click "Add..."
+	- Under Available Stand-alone Snap-ins, click Group Policy, and then click Add
+	- Click File > Save As "Microsoft Management Console" (under Start > Programs > Administrative Tools")
+	
+GROUP POLICY EDITOR
+* Group Policy Editor
+* Local Computer Policy > Computer Configuration > Windows Settings > Scripts (Startup/Shutdown)
+	- Select Startup
+		- Standard and Powershell scripts configured to run are listed here
+	- Click "Add..."
+	- Browse to PATH_SCRIPTS\StartupScript.bat
+	- Save all changes
+		
+TASK SCHEDULER
+* Windows 10
+	- Control Panel\Administrative Tools\Task Scheduler
+	- Task Scheduler (Local)\Task Scheduler Library
+	- Click "Create Task..."
+		- General: Supply a name and description
+		- Triggers\New...
+			- Begin the task = "At log on"
+			- Settings = "Any user"
+		- Actions\New...
+			- Action = "Start a program"
+			- Browse to PATH_SCRIPTS\StartupScript.bat
+		- Conditions
+			- Untick "Power" options
+		- Settings
+			- Stop the task if it runs longer than = "1 hour"
+	- Save all changes
+#

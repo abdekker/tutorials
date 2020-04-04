@@ -1,4 +1,4 @@
-The master for this file is <PEN_DRIVE>\Work\Utilities\Microsoft\Tips\WindowsStartup\Notes-WinStartup.txt
+The master for this file is <PEN_DRIVE>\Work\Utilities\Microsoft\Tips\WindowsStartup\WindowsStartup.txt
 
 ### Windows Startup / Shutdown ###
 There are several locations where applications and services can be started
@@ -34,5 +34,12 @@ There are several locations where applications and services can be started
 		- Some services appear as "Automatic (Delayed Start)"
 			- These have a parameter called "DelayedAutostart" (set to 0x00000001)
 
-* See .Scripts
+* Group Policy
+	- Local Computer Policy\Computer Configuration\Windows Settings\Scripts (Startup/Shutdown)\Startup
+	- .\WindowsStartupScripts.txt for additional information
+
+* Task Scheduler
+	- Task Scheduler (Local)\Task Scheduler Library
+	- Tasks listed have triggers such as "On a schedule", "At log on", etc
+	- .\WindowsStartupScripts.txt for additional information
 #
