@@ -1,0 +1,38 @@
+The master for this file is <PEN_DRIVE>\Work\Utilities\Microsoft\Tips\WindowsStartup\Notes-WinStartup.txt
+
+### Windows Startup / Shutdown ###
+There are several locations where applications and services can be started
+
+* User startup folder
+	- Located at
+		C:\Users\<USER>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+		%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+	- Press WIN+R (Run) and type "shell:startup"
+
+* All Users startup folder
+	- Located at
+		C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
+		%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup	
+	- Press WIN+R (Run) and type "shell:common startup"
+		
+* Registry
+	- HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+	- HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	- HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run
+		- This only applies to x64 versions of Windows
+	
+*  Services are stored in the registry at this key:
+	- HKLM\SYSTEM\CurrentControlSet\Services
+	- Most services have a "Start" parameter of type REG_DWORD. Available settings are:
+		- 0x00000002 (Automatic)
+		- 0x00000003 (Manual)
+		- 0x00000004 (Disabled)
+	- Services are configured using Control Panel > Administrative Tools > Services
+		- Some services appear as "Manual (Trigger Start)"
+			- These services have a "Start" of 0x00000003 and a subkey called "TriggerInfo"
+			- The subkey defines one or more triggers for starting the service
+		- Some services appear as "Automatic (Delayed Start)"
+			- These have a parameter called "DelayedAutostart" (set to 0x00000001)
+
+* See .Scripts
+#
