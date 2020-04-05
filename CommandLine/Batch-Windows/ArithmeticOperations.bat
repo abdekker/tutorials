@@ -96,6 +96,7 @@ call :NumericLSS %String_ABC1% %String_ABC2%
 call :NumericLSS %String_xyz% %String_abc%
 echo .
 echo   2) EQU
+echo   For case-insensitive comparisons, use the "/i" switch
 call :NumericEQU %String_abc% %String_ABC1%
 call :NumericEQU %String_ABC1% %String_abc%
 call :NumericEQU %String_ABC1% %String_ABC2%
