@@ -20,9 +20,8 @@ echo Using "for /f" with "dir /b" (bare format) and looking for non-empty lines
 rem The "/a-d-s-h" ensures that directories, system and hidden files are not returned
 for /f %%a in ('dir %WINDIR% /a-d-s-h /b ^| find /v /c ""') do set cnt=%%a
 echo   Count (all files in %WINDIR%) = %cnt%
-rem for /f %%a in ('dir %WINDIR% /ad-h-s-r-a /b ^| find /v /c ""') do set cnt=%%a
-for /f %%a in ('dir %WINDIR% /ad ^| find /v /c ""') do set cnt=%%a
-echo   Count (directories in %WINDIR%) = %cnt% (includes additional entries compared with "dir")
+for /f %%a in ('dir %WINDIR% /ad /b ^| find /v /c ""') do set cnt=%%a
+echo   Count (directories in %WINDIR%) = %cnt% (different count compared with "dir")
 echo .
 
 echo ### Iterate through all files, incrementing a variable ###
