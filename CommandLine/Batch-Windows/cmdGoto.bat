@@ -1,6 +1,6 @@
 @echo off
 
-rem This script demonstrates using the "GOTO" command
+rem This script demonstrates using the "goto" command
 goto ScriptEnd
 echo Skipping this...
 :ScriptEnd
