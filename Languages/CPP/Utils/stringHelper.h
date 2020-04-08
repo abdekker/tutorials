@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-// Simple helper class for using strings
+// Header-only helper class for using strings
 using namespace std;
 class stringHelper
 {
@@ -17,7 +17,7 @@ public:
         // Destructor
     }
 
-    // Template functions (using C++11)
+    // Template functions (using C++11 or later)
     template <typename... Args>
     string formatString(const char *format, Args... args)
     {
