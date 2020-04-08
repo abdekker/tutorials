@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "puzzlePrototypes.h"
 
 // Implement a method "distinct(...)" that returns an ascendingly sorted array that does not
 // contain any repetitions but those of the number '1'. All repetitions of '1' should be the

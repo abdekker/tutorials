@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "puzzlePrototypes.h"
 
 // Print "Hello World" without using a semicolon (;)
 

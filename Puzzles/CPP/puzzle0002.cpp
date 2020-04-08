@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "puzzlePrototypes.h"
 
 // Write a function that adds two numbers without using any addition, subtraction, increment or
 // decrement operator.

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "puzzlePrototypes.h"
 
 /* multiply_array_elements() is a function to modify each element of an array by multiplying it with n.
 
@@ -20,19 +19,19 @@
 		return 0;
 	}
 	
-5a) What are the values of "test" after executing main?
-5b) What needs to be changed to make the function "multiply_array_elements()" work as expected, and why? */
+a) What are the values of "test" after executing main?
+b) What needs to be changed to make the function "multiply_array_elements()" work as expected, and why? */
 
 // Source: Papyrus coding test
 
 /* Commentary:
-5a
+a
 First impressions (not tried in IDE yet).
 The code just multiples the elements locally, but does put them back into the array.
 Therefore expect there to be no change in test.
 Trying now...confirmed
 
-5b
+b
 To modify the program, I'd want to ensure the vector was passed by reference, probably do it with pointers.
 Then each element needs to be modified in-place. We could use the vector::at, or something like the standard
 "for_each" method.

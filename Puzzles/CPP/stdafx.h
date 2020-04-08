@@ -1,6 +1,7 @@
 // Standard header file for all puzzle C++ code
-#ifndef PUZZLES_STD_H
-#define PUZZLES_STD_H
+#pragma once
+//#ifndef PUZZLES_STD_H
+//#define PUZZLES_STD_H
 
 // Console I/O
 #include <iostream>
@@ -14,10 +15,8 @@
 #include <algorithm>
 #include <vector>
 
-// Helper classes and utilities
+// External helper classes and utilities
 #include "../../Languages/CPP/Utils/stringHelper.h"
+#include "../../Languages/CPP/Utils/dataTypes.h"
 
-// Type definitions
-typedef std::vector<int> ARRAY;
-
-#endif //PUZZLES_STD_H
+//#endif //PUZZLES_STD_H
