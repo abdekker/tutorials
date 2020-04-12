@@ -18,6 +18,7 @@ type
 function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
+function ExpandEnvironment(const cstrValue: String): String;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -121,6 +122,29 @@ begin
 		GetSystemDirectory(szSystemFolder, MAX_PATH+1);
 		strSys32 := IncludeTrailingPathDelimiter(szSystemFolder);
 		end;
+end;
+
+function ExpandEnvironment(const cstrValue: String): String;
+var
+	szResult: array[0..1023] of Char;
+	dwReturn: DWORD;
+begin
+	// Use this function as follows:
+	// strWindowsDir = ExpandEnvironment('%SystemRoot%');
+	// which will return "C:\Windows".
+
+	// You can also get this by calling:
+	// var
+	//		szSystemFolder: array[0..(MAX_PATH+1)] of Char;
+	// ...
+	// GetWindowsDirectory(szSystemFolder, MAX_PATH+1);
+	// strWindowsDir := IncludeTrailingPathDelimiter(szSystemFolder);
+	// which will return "C:\Windows\"
+	dwReturn := ExpandEnvironmentStrings(PChar(cstrValue), szResult, 1024);
+	if (dwReturn = 0) then
+		Result := cstrValue
+	else
+		Result := Trim(szResult);
 end;
 
 // File utilities
