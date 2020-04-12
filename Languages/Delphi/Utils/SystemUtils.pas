@@ -24,6 +24,7 @@ procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList
 	bRecursive: Boolean = False);
 function DeleteFolder(strFolder: String) : Boolean;
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
+function GetSizeOfFile(strFilename: String) : DWORD;
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -193,6 +194,26 @@ begin
 
 		FindClose(find);
 		end;
+end;
+
+function GetSizeOfFile(strFilename: String) : DWORD;
+var
+	fHandle: Integer;
+	dwFileSize: DWORD;
+begin
+	// Get the size of the file, in BYTEs
+	dwFileSize := 0;
+	try
+		fHandle := FileOpen(strFilename, fmOpenRead);
+		dwFileSize := GetFileSize(fHandle, nil);
+		FileClose(fHandle);
+	except
+	end;
+
+	if (dwFileSize = $FFFFFFFF) then
+		Result := 0		// Error
+	else
+		Result := dwFileSize;
 end;
 
 // System
