@@ -100,6 +100,8 @@ procedure ChangeFilename(strOldPath, strNewPath: String);
 // String
 function IsNumber(const cstrInput: String) : Boolean;
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
+function ConvertStringToWideString(strInput: String) : WideString;
+function ConvertWideStringToString(wstrInput: WideString): String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
@@ -1400,6 +1402,41 @@ begin
 	//		TryStrToInt("1x", nValue)		False, nValue unchanged
 	Val(cstrInput, nOutput, nErrorCode);
 	Result := (nErrorCode = 0);
+end;
+
+function ConvertStringToWideString(strInput: String) : WideString;
+var
+	wstrConverted: WideString;
+	nLength: Integer;
+begin
+	// Given the input AnsiString command, convert to the WideString equivalent
+	nLength := MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
+		PChar(@strInput[1]), -1, nil, 0);
+	SetLength(wstrConverted, (nLength - 1));
+	if (nLength > 1) then
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PChar(@strInput[1]),
+			-1, PWideChar(@wstrConverted[1]), (nLength - 1));
+
+	Result := wstrConverted;
+end;
+
+function ConvertWideStringToString(wstrInput: WideString): String;
+const
+	// String <-> WideString conversions
+	CONVERT_WIDE_TO_ANSI_OPTIONS: DWORD =
+		(WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR);
+var
+	strConverted: String;
+	nLength: Integer;
+begin
+	nLength := WideCharToMultiByte(CP_ACP, CONVERT_WIDE_TO_ANSI_OPTIONS,
+		@wstrInput[1], -1, nil, 0, nil, nil);
+	SetLength(strConverted, (nLength - 1));
+	if (nLength > 1) then
+		WideCharToMultiByte(CP_ACP, CONVERT_WIDE_TO_ANSI_OPTIONS,
+			@wstrInput[1], - 1, @strConverted[1], nLength - 1, nil, nil);
+
+	Result := strConverted;
 end;
 
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
