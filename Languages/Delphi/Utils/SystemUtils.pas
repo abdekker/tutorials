@@ -25,6 +25,7 @@ function GetSystemThreadCount() : Integer;
 function IsThreadRunning(dwThreadID: DWORD) : Boolean;
 function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
+function GetDiskFileSystem(const cstrDrive: String) : String;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -348,6 +349,22 @@ begin
 		fTotalGB := (nTotalBytes64 / GIGA_BYTE);
 		fTotalFreeGB := (nTotalFreeBytes64 / GIGA_BYTE);
 		end;
+end;
+
+function GetDiskFileSystem(const cstrDrive: String) : String;
+var
+	szPartitionType: array[0..32] of Char;
+	dwDummy: DWORD;
+begin
+	// Return the file system (usually NTFS or FAT32)
+	GetVolumeInformation(PChar(cstrDrive), nil, 0, nil,
+		dwDummy, dwDummy, szPartitionType, SizeOf(szPartitionType));
+	Result := Format('%s', [szPartitionType]);
+
+	// Note to developer: Systems running FAT32 are less robust to sudden power cuts. The file
+	// system can be updated from the command line using:
+	//		convert c: /fs:ntfs
+	// This change is one-way! Once you convert to NTFS, you cannot switch back to FAT32.
 end;
 
 // File utilities
