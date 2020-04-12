@@ -122,11 +122,13 @@ function GetArrayMin(pbyArray: PBYTE; pdwMinPos: PDWORD; dwCount: DWORD) : BYTE;
 function GetArrayMax(pbyArray: PBYTE; pdwMaxPos: PDWORD; dwCount: DWORD) : BYTE; overload;
 function GetArrayMin(pnArray: PInteger; pdwMinPos: PDWORD; dwCount: DWORD) : Integer; overload;
 function GetArrayMax(pnArray: PInteger; pdwMaxPos: PDWORD; dwCount: DWORD) : Integer; overload;
+function GetArrayAverage(pfArray: PSingle; dwCount: DWORD) : Single;
+function GetArrayStdDeviation(pfArray: PSingle; dwCount: DWORD; const cfAverage: Single) : Single;
 
 implementation
 
 uses
-  Clipbrd, Registry, StrUtils, SysUtils, TLHelp32, WinSock;
+  Clipbrd, Math, Registry, StrUtils, SysUtils, TLHelp32, WinSock;
 
 const
   // Disk sizes / capacities
@@ -1815,6 +1817,47 @@ begin
 		end;
 
 	Result := nMax;
+end;
+
+function GetArrayAverage(pfArray: PSingle; dwCount: DWORD) : Single;
+var
+	dwElement: DWORD;
+	fSum: Single;
+begin
+	// Calculate the average of a collection of floating point numbers
+	Result := 0.0;
+	if (pfArray <> nil) and (dwCount > 0) then
+		begin
+		fSum := 0.0;
+		for dwElement:=0 to (dwCount-1) do
+			begin
+			fSum := (fSum + pfArray^);
+			Inc(pfArray);
+			end;
+
+		Result := (fSum / dwCount);
+		end;
+end;
+
+function GetArrayStdDeviation(pfArray: PSingle; dwCount: DWORD; const cfAverage: Single) : Single;
+var
+	dwElement: DWORD;
+	fSum, fDeviation: Single;
+begin
+	// Calculate the standard deviation of a collection of floating point numbers
+	Result := 0.0;
+	if (pfArray <> nil) and (dwCount > 0) and (cfAverage > MinSingle) then
+		begin
+		fSum := 0.0;
+		for dwElement:=0 to (dwCount-1) do
+			begin
+			fDeviation := (pfArray^ - cfAverage);
+			fSum := (fSum + (fDeviation*fDeviation));
+			Inc(pfArray);
+			end;
+
+		Result := Sqrt(fSum / (dwCount - 1));
+		end;
 end;
 // End: Public methods
 
