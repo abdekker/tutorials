@@ -124,6 +124,9 @@ function GetArrayMin(pnArray: PInteger; pdwMinPos: PDWORD; dwCount: DWORD) : Int
 function GetArrayMax(pnArray: PInteger; pdwMaxPos: PDWORD; dwCount: DWORD) : Integer; overload;
 function GetArrayAverage(pfArray: PSingle; dwCount: DWORD) : Single;
 function GetArrayStdDeviation(pfArray: PSingle; dwCount: DWORD; const cfAverage: Single) : Single;
+procedure FitLineToData(padY_Values, padX_Values: PDouble; byPoints: BYTE; pdSlope, pdConst: PDouble);
+procedure CalculateRSquared(padY_Values, padX_Values: PDouble; byPoints: BYTE;
+	pdRSquared: PDouble; dSlope, dConst: Double);
 
 implementation
 
@@ -1858,6 +1861,144 @@ begin
 
 		Result := Sqrt(fSum / (dwCount - 1));
 		end;
+end;
+
+procedure FitLineToData(padY_Values, padX_Values: PDouble; byPoints: BYTE; pdSlope, pdConst: PDouble);
+var
+	byPoint: BYTE;
+	dTmpSq, dTmp1, dTmp2, dDeterminantAtA: Double;
+	AtA, AtA_Inverse: array[0..1, 0..1] of Double;
+	AtB: array[0..1] of Double;
+begin
+	if (padY_Values = nil) or (padX_Values = nil) or (pdSlope = nil) or (pdConst = nil) then
+		Exit;
+
+	// We are fitting an exponential of the form y = ce^(bx). This can be made into a normal linear
+	// equation by: ln(y) = bx + ln(c)
+
+	// Calculate the AtA matrix (A-transpose * A) where A is the matrix of x values:
+	// [x-1		1]
+	// [x-2		1]
+	// [...		1]
+	// [x-N		1]
+
+	// A-transpose is therefore:
+	// [x-1		x-2		...		x-N]
+	// [1		1		1		1]
+	dTmpSq := 0.0;
+	dTmp1 := 0.0;
+	dTmp2 := 0.0;
+	for byPoint:=0 to (byPoints-1) do
+		begin
+		dTmpSq := (dTmpSq + Sqr(padX_Values^));
+		dTmp1 := (dTmp1 + padX_Values^);
+		dTmp2 := (dTmp2 + 1.0);
+
+		Inc(padX_Values);
+		end;
+
+	AtA[0, 0] := dTmpSq;
+	AtA[0, 1] := dTmp1;
+	AtA[1, 0] := dTmp1;
+	AtA[1, 1] := dTmp2;
+
+	// Calculate the determinant of the AtA matrix. The determinant of this 2x2 matrix:
+	// [a	b]		(1)
+	// [c	d]
+	// is defined as 1/(ad - bc). Note that the denominator should be non-zero. If it is equal to
+	// zero, then the matrix is said to be non-invertible and we cannot calculate a best-fit line.
+	// This is not likely.
+	try
+		dDeterminantAtA := (1.0 / (AtA[0, 0]*AtA[1, 1] - AtA[0, 1]*AtA[1, 0]));
+	except
+		// Error!
+		Exit;
+	end;
+
+	// Now invert the AtA matrix. For the matrix (1) given above it is:
+	// DETERMINANT		times		[d		-b]
+	//								[-c		a]
+	AtA_Inverse[0, 0] := (dDeterminantAtA * AtA[1, 1]);
+	AtA_Inverse[0, 1] := (-1.0 * dDeterminantAtA * AtA[0, 1]);
+	AtA_Inverse[1, 0] := (-1.0 * dDeterminantAtA * AtA[1, 0]);
+	AtA_Inverse[1, 1] := (dDeterminantAtA * AtA[0, 0]);
+
+	// Calculate the AtB matrix (A-transpose * B) where B is the matrix of y-values:
+	// [y-1]
+	// [y-2]
+	// [...]
+	// [y-N]
+	// Note: We take the logarithm of the y values in order to fit the exponential
+	Dec(padX_Values, byPoints);
+	dTmp1 := 0.0;
+	dTmp2 := 0.0;
+	for byPoint:=0 to (byPoints-1) do
+		begin
+		dTmp1 := (dTmp1 + (Ln(padY_Values^) * padX_Values^));
+		dTmp2 := (dTmp2 + Ln(padY_Values^));
+
+		Inc(padY_Values);
+		Inc(padX_Values);
+		end;
+
+	AtB[0] := dTmp1;
+	AtB[1] := dTmp2;
+
+	// Finally calculate the slope and constant of best-fit line
+	pdSlope^ := (AtA_Inverse[0, 0]*AtB[0] + AtA_Inverse[0, 1]*AtB[1]);
+	pdConst^ := (Exp(AtA_Inverse[1, 0]*AtB[0] + AtA_Inverse[1, 1]*AtB[1]));
+end;
+
+procedure CalculateRSquared(padY_Values, padX_Values: PDouble; byPoints: BYTE;
+	pdRSquared: PDouble; dSlope, dConst: Double);
+var
+	byPoint: BYTE;
+	dTotalY, dMeanY, dCalcY: Double;
+	dESS, dTSS: Double;
+begin
+	if (padY_Values = nil) or (padX_Values = nil) or (pdRSquared = nil) then
+		Exit;
+
+	// The best-fit line is defined as the one where the sum of the squares between the actual y
+	// values and the calculated y values is minimised.
+
+	// The measure of how well this line fits the data is defined by r^2:
+	// r^2 = 1 - (ESS/TSS) where
+	// ESS = SUM(yi - y(calc)i)^2 where y(calc) is the calculated y from the best-fit line
+	// TSS = SUM(yi - y(mean))^2 where y(mean) is the average of the raw y values
+
+	// Calculate mean
+	dTotalY := 0.0;
+	for byPoint:=0 to (byPoints-1) do
+		begin
+		dTotalY := (dTotalY + Ln(padY_Values^));
+		Inc(padY_Values);
+		end;
+
+	dMeanY := (dTotalY / byPoints);
+
+	// Calculate ESS
+	Dec(padY_Values, byPoints);
+	dESS := 0.0;
+	for byPoint:=0 to (byPoints-1) do
+		begin
+		dCalcY := (dConst * Exp(dSlope * padX_Values^));
+		dESS := (dESS + Sqr(Ln(padY_Values^) - Ln(dCalcY)));
+
+		Inc(padY_Values);
+		Inc(padX_Values);
+		end;
+
+	// Calculate TSS
+	Dec(padY_Values, byPoints);
+	dTSS := 0.0;
+	for byPoint:=0 to (byPoints-1) do
+		begin
+		dTSS := (dTSS + Sqr(Ln(padY_Values^) - dMeanY));
+		Inc(padY_Values);
+		end;
+
+	pdRSquared^ := (1.0 - (dESS / dTSS));
 end;
 // End: Public methods
 
