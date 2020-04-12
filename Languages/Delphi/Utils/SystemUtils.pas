@@ -17,8 +17,19 @@ const
   DRIVE_RAMDISK			= 6;
   DRIVE_ALL_TYPES		= 99;	// Non-Windows constant for "All of the above"
 
+  // Network adapters
+  MAX_ADAPTER_ADDRESS_LENGTH		= 8;
+  MAX_ADAPTER_DESCRIPTION_LENGTH	= 128;
+  MAX_ADAPTER_NAME_LENGTH			= 256;
+
 type
   PDummyInterfacePointer = ^Integer;
+
+  // Information about a specific network adapter
+  ADAPTER_INFO = record
+	bLive, bDhcpEnabled: Boolean;
+	strMacAddress, strDescription, strIpAddress, strSubnetMask: String;
+  end;
 
 // Public methods
 
@@ -50,6 +61,16 @@ procedure DumpRegKeyValues(var fp: TextFile; hRootKey: HKEY; const cstrKey: Stri
 procedure DumpRegValue(var fp: TextFile; hRootKey: HKEY; const cstrName: String; dwValType: Cardinal);
 function RegisterOCX(strDLL: String; bSilent: Boolean = False) : Boolean;
 
+// Network
+function ShareFolder(wstrFolder, wstrName: WideString) : Boolean;
+procedure UnshareFolder(wstrName: WideString);
+function GetAdapterInfo(var connect: array of ADAPTER_INFO) : BYTE;
+procedure GetIpAddressRange(nOctet: Integer; var nMin: Integer; var nMax: Integer);
+procedure TranslateStringToIpAddress(strIP: String; var ipAddress);
+function Ping(strIpAddress : String) : Boolean;
+function PingWithError(strIpAddress : String; var strError: String) : Boolean;
+function HasInternet(const strURL: String) : Boolean;
+
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
@@ -66,7 +87,7 @@ function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 implementation
 
 uses
-  Clipbrd, Registry, StrUtils, SysUtils, TLHelp32;
+  Clipbrd, Registry, StrUtils, SysUtils, TLHelp32, WinSock;
 
 const
   // Disk sizes / capacities
@@ -74,6 +95,106 @@ const
   MEGA_BYTE		= Int64(1024 * KILO_BYTE);
   GIGA_BYTE		= Int64(1024 * MEGA_BYTE);
   TERA_BYTE		= Int64(1024 * GIGA_BYTE);
+
+type
+  // This record is used to specify shared network resources (eg. folders)
+  T_SHARE_INFO_2 = packed record
+	shi2_netname		: PWCHAR;
+	shi2_type			: DWORD;
+	shi2_remark			: PWCHAR;
+	shi2_permissions	: DWORD;
+	shi2_max_uses		: DWORD;
+	shi2_current_uses	: DWORD;
+	shi2_path			: PWCHAR;
+	shi2_passwd			: PWCHAR;
+  end;
+
+  // These records are used by the Ping feature to determine whether an IPv4 address is reachable
+  TSunB = packed record
+	by1, by2, by3, by4: BYTE;
+  end;
+
+  TSunW = packed record
+	w1, w2: WORD;
+  end;
+
+  PIpAddress = ^TIpAddress;
+  TIpAddress = record
+	case Integer of
+		0: (S_un_b: TSunB);
+		1: (S_un_w: TSunW);
+		2: (S_addr: LongWord);
+  end;
+  IpAddress = TIpAddress;
+
+ // Definitions from the Iphlpapi unit (apparently defined in later versions of Delphi)
+  PIP_MASK_STRING = ^IP_MASK_STRING;
+  IP_ADDRESS_STRING = record
+	S: array[0..15] of Char;
+  end;
+  PIP_ADDRESS_STRING = ^IP_ADDRESS_STRING;
+  IP_MASK_STRING = IP_ADDRESS_STRING;
+
+  PIP_ADDR_STRING = ^IP_ADDR_STRING;
+  _IP_ADDR_STRING = record
+	Next: PIP_ADDR_STRING;
+	IpAddress: IP_ADDRESS_STRING;
+	IpMask: IP_MASK_STRING;
+	Context: DWORD;
+  end;
+  IP_ADDR_STRING = _IP_ADDR_STRING;
+
+   PIP_ADAPTER_INFO = ^IP_ADAPTER_INFO;
+  _IP_ADAPTER_INFO = record
+	Next: PIP_ADAPTER_INFO;
+	ComboIndex: DWORD;
+	AdapterName: array[0..MAX_ADAPTER_NAME_LENGTH + 3] of Char;
+	Description: array[0..MAX_ADAPTER_DESCRIPTION_LENGTH + 3] of Char;
+	AddressLength: UINT;
+	Address: array[0..MAX_ADAPTER_ADDRESS_LENGTH - 1] of BYTE;
+	Index: DWORD;
+	Type_: UINT;
+	DhcpEnabled: UINT;
+	CurrentIpAddress: PIP_ADDR_STRING;
+	IpAddressList: IP_ADDR_STRING;
+	GatewayList: IP_ADDR_STRING;
+	DhcpServer: IP_ADDR_STRING;
+	HaveWins: BOOL;
+	PrimaryWinsServer: IP_ADDR_STRING;
+	SecondaryWinsServer: IP_ADDR_STRING;
+	LeaseObtained: Integer;
+	LeaseExpires: Integer;
+  end;
+  IP_ADAPTER_INFO = _IP_ADAPTER_INFO;
+
+// Functions imported from external DLLs
+function NetShareAdd(strServername: PChar;
+	dwLevel: DWORD; pBuf: pointer; pdwError: PDWORD) : DWORD; stdcall;
+	external 'netapi32.dll' name 'NetShareAdd';
+function NetShareDel(strServername: PChar;
+	strNetname: PWChar; dwReserved: DWORD) : DWORD; stdcall;
+	external 'netapi32.dll' name 'NetShareDel';
+function NetGetJoinInformation(lpServer: LPCWSTR;
+	lpNameBuffer: LPWSTR; pBufferType: Pointer) : LongInt; stdcall;
+	external 'netapi32.dll' name 'NetGetJoinInformation';
+function NetApiBufferFree(pBuffer: Pointer) : Integer; stdcall;
+	external 'netapi32.dll' name 'NetApiBufferFree';
+
+function GetAdaptersInfo(pAdapterInfo: PIP_ADAPTER_INFO; var pOutBufLen: ULONG) : DWORD; stdcall;
+	external 'iphlpapi.dll' name 'GetAdaptersInfo';
+// Note: The function "GetExtendedTcpTable" from iphlpapi.dll retrieves a table that contains a
+// list of TCP endpoints available to the application. Could be interesting...
+
+// Note: Before v1.57.75.0, the "IcmpX" methods below were imported from icmp.dll. This was not
+// correct because icmp.dll was intended for Windows 2000 only.
+function IcmpCreateFile() : THandle; stdcall; external 'iphlpapi.dll';
+function IcmpCloseHandle(icmpHandle: THandle) : Boolean; stdcall; external 'iphlpapi.dll';
+function IcmpSendEcho(IcmpHandle: THandle; ipDest: IpAddress;
+	pRequestData: Pointer; nRequestSize: SmallInt; RequestOptions: Pointer;
+	pReplyBuffer: Pointer; dwReplySize: DWORD; dwTimeout: DWORD) : DWORD; stdcall; external 'iphlpapi.dll';
+
+function InternetCheckConnectionA(lpszUrl: PAnsiChar; dwFlags: DWORD; dwReserved: DWORD) : BOOL; stdcall;
+	external 'wininet.dll' name 'InternetCheckConnectionA';
 
 // Start: Public methods
 // Windows
@@ -731,6 +852,264 @@ begin
 		end;
 
 	Result := bSuccess;
+end;
+
+// Network
+function ShareFolder(wstrFolder, wstrName: WideString) : Boolean;
+var
+	sh: T_SHARE_INFO_2;
+	dwResult: DWORD;
+	dwError: DWORD;
+begin
+	// Share a folder across the network
+	with sh do begin
+		shi2_netname := PWidechar(wstrName);
+		shi2_type := 0;
+		shi2_remark := nil;
+		shi2_permissions := 0;
+		shi2_max_uses := $FFFFFFFF;
+		shi2_current_uses := 0;
+		shi2_path := PWidechar(wstrFolder);
+		shi2_passwd := nil;
+	end;
+
+	dwResult := NetShareAdd(nil, 2, @sh, @dwError);
+	Result := (dwResult = 0);
+end;
+
+procedure UnshareFolder(wstrName: WideString);
+begin
+	// Remove a network folder share
+	NetShareDel(nil, PWidechar(wstrName), 0);
+end;
+
+function GetAdapterInfo(var connect: array of ADAPTER_INFO) : BYTE;
+var
+	byAdapterCount: BYTE;
+	pAdapterList, pAdapter: PIP_ADAPTER_INFO;
+	uBufferLen: ULong;
+	dwStatus: DWORD;
+	nAddress: Integer;
+begin
+	// According to MSDN, over-allocate memory to avoid having to call "GetAdaptersInfo" multiple
+	// times
+	byAdapterCount := 0;
+	uBufferLen := (1024 * 15);
+	GetMem(pAdapterList, uBufferLen);
+	try
+	repeat
+		dwStatus := GetAdaptersInfo(pAdapterList, uBufferLen);
+		case dwStatus of
+		ERROR_SUCCESS:
+				begin
+				// Some versions of Windows return ERROR_SUCCESS with uBufferLen=0 instead of
+				// returning ERROR_NO_DATA as documented...
+				if (uBufferLen = 0) then
+					raise Exception.Create('No network adapter on the local computer.');
+
+				break;
+				end;
+
+		ERROR_NOT_SUPPORTED:
+			begin
+			raise Exception.Create('GetAdaptersInfo is not supported by the operating system.');
+			end;
+
+		ERROR_NO_DATA:
+			begin
+			raise Exception.Create('No network adapter on the local computer.');
+			end;
+
+		ERROR_BUFFER_OVERFLOW:
+			begin
+			ReallocMem(pAdapterList, uBufferLen);
+			end;
+		else
+			SetLastError(dwStatus);
+			RaiseLastOSError();
+		end;
+	until False;
+
+	// Retrieve the data for the first few adapters only. If we start supporting computers with
+	// numerous (or temporary) adapters, this code may need to be modified.
+	pAdapter := pAdapterList;
+	while (pAdapter <> nil) and (byAdapterCount < 5) do
+		begin
+		// This adapter is alive
+		connect[byAdapterCount].bLive := True;
+
+		// MAC address
+		if (pAdapter^.AddressLength > 0) then
+			begin
+			for nAddress:=0 to pAdapter^.AddressLength - 1 do
+				begin
+				if (nAddress > 0) then
+					connect[byAdapterCount].strMacAddress := (connect[byAdapterCount].strMacAddress + '-');
+
+				connect[byAdapterCount].strMacAddress :=
+					(connect[byAdapterCount].strMacAddress + IntToHex(pAdapter^.Address[nAddress], 2));
+				end;
+			end;
+
+		// Network adapter description
+		connect[byAdapterCount].strDescription := pAdapter^.Description;
+
+		// DHCP enabled?
+		connect[byAdapterCount].bDhcpEnabled := (pAdapter^.DhcpEnabled <> 0);
+
+		// IP address and subnet mask
+		connect[byAdapterCount].strIpAddress := pAdapter^.IpAddressList.IpAddress.S;
+		connect[byAdapterCount].strSubnetMask := pAdapter^.IpAddressList.IpMask.S;
+
+		// Move onto the next adapter (though note we only return information for the first two)
+		pAdapter := pAdapter^.next;
+		Inc(byAdapterCount);
+		end;
+	finally
+		FreeMem(pAdapterList);
+	end;
+
+	// Return the number of adapters to the caller
+	Result := byAdapterCount;
+end;
+
+procedure GetIpAddressRange(nOctet: Integer; var nMin: Integer; var nMax: Integer);
+begin
+	// Restrictions on IPv4 addresses depend on the class of network that the PC will be attached
+	// to and can be somewhat complex. The X-ray will only be connected to class A/B/C networks for
+	// which the IPv4 ranges are:
+	// 1st octet		Other octets
+	// 1-223			0-255
+
+	// Note: This restriction applies to the IP Address and Default Gateway only. There is no such
+	// restriction for the Subnet Mask.
+	if (nOctet = 1) then
+		begin
+		nMin := 1;
+		nMax := 223;
+		end
+	else
+		begin
+		nMin := 0;
+		nMax := 255;
+		end;
+end;
+
+procedure TranslateStringToIpAddress(strIP: String; var ipAddress);
+var
+	phe: PHostEnt;
+	pac: PChar;
+begin
+	try
+		phe := GetHostByName(PChar(strIP));
+		if (Assigned(phe)) then
+			begin
+			pac := phe^.h_addr_list^;
+			if (Assigned(pac)) then
+				begin
+				with TIpAddress(ipAddress).S_un_b do
+					begin
+					by1 := Byte(pac[0]);
+					by2 := Byte(pac[1]);
+					by3 := Byte(pac[2]);
+					by4 := Byte(pac[3]);
+					end;
+				end
+			else
+				begin
+				raise Exception.Create('Error getting IP from HostName');
+				end;
+			end
+		else
+			begin
+			raise Exception.Create('Error getting HostName');
+			end;
+	except
+		FillChar(ipAddress, SizeOf(ipAddress), #0);
+	end;
+end;
+
+function Ping(strIpAddress : String) : Boolean;
+const
+	// The ICMP buffer needs to be large enough to accommodate any ICMP error messages:
+	// * sizeof(ICMP_ECHO_REPLY) + 8 = 28 bytes on 32-bit Windows (or 64-bit Windows + 32-bit app)
+	// * sizeof(ICMP_ECHO_REPLY32) + 8 = 32 bytes on 64-bit Windows (with a 64-bit application)
+	ICMP_ECHO_BUFFER = 128;		// This appears to work as low as 28 on 32-bit Windows XP
+var
+	hPingHandle: THandle;
+	address: IpAddress;
+	dwReplies: DWORD;
+	abyReplyBuffer: array[1..ICMP_ECHO_BUFFER] of BYTE;
+begin
+	// Use this function to determine if an IPv4 address can be reached
+
+	// Note,1: This simple ICMP "ping" test only confirms that the IP address is reachable. The
+	// server (eg. VNC or 3rd party application) on the host machine may not be running or the port
+	// may not be available (or set incorrectly). This test also fails if the target machine is not
+	// configured to respond to incoming ICMP echo requests.
+
+	// Note,2: The ICMP echo consumes ~750µs when the IP address is reachable but ~500ms when the
+	// IP address is not reachable!
+	Result := False;
+
+	hPingHandle := IcmpCreateFile();	// This can be cached for improved performance
+	if (hPingHandle <> INVALID_HANDLE_VALUE) then
+		begin
+		TranslateStringToIpAddress(strIpAddress, address);
+		dwReplies := IcmpSendEcho(
+			hPingHandle, address, nil, 0, nil, @abyReplyBuffer, ICMP_ECHO_BUFFER, 200);
+		IcmpCloseHandle(hPingHandle);
+
+		// Success?
+		Result := (dwReplies <> 0);
+		end;
+end;
+
+function PingWithError(strIpAddress : String; var strError: String) : Boolean;
+var
+	bPingSuccess: Boolean;
+	dwErrorCode: DWORD;
+begin
+	// This method returns a low-level Windows error code if ping fails (usually DBG builds only)
+	bPingSuccess := Ping(strIpAddress);
+	if (not bPingSuccess) then
+		begin
+		// Note to developer: This fails for a variety of reasons. Some common ones are listed below:
+		//		IP_BUF_TOO_SMALL (11001)		The reply buffer was too small
+		//		IP_REQ_TIMED_OUT (11010)		The request timed out
+
+		// On Windows 8.1 and 10, this method can fail with error code:
+		//		ERROR_INVALID_PARAMETER (87)	The parameter is incorrect
+		// which happens if:
+		// * the handle is not valid or
+		// * the reply size buffer is too small or
+		// * the timeout parameter is zero (must be non-zero on Windows 10)
+
+		// See the following for additional details:
+		// * https://docs.microsoft.com/en-us/windows/desktop/api/icmpapi/nf-icmpapi-icmpsendecho
+		// * https://docs.microsoft.com/en-gb/windows/desktop/api/ipexport/ns-ipexport-icmp_echo_reply
+		// * https://docs.microsoft.com/en-gb/windows/desktop/Debug/system-error-codes
+		dwErrorCode := GetLastError();
+		strError := Format('WinError = %d', [dwErrorCode]);
+		end;
+
+	Result := bPingSuccess;
+end;
+
+function HasInternet(const strURL: String) : Boolean;
+const
+	FLAG_ICC_FORCE_CONNECTION = $00000001;
+begin
+	// Test an internet connection to the named server
+
+	// There are two alternate ways of checking an internet connection:
+	// 1): Use the Indy "TIdHTTP" component to perform an HTTP GET operation. If the response is
+	//		empty, then a connection cannot be established.
+	// 2) Use a Windows function designed for this purpose ("InternetCheckConnectionA")
+
+	// Both methods timeout after a long period (15s or more) if the  ethernet adapter(s) on the
+	// PC are disabled, but (2) is faster under normal circumstances.
+	Result := Boolean(InternetCheckConnectionA(PAnsiChar(strURL), FLAG_ICC_FORCE_CONNECTION, 0));
 end;
 
 // File utilities
