@@ -37,6 +37,19 @@ function GetDiskFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
 procedure SaveToClipboard(const cstrText: String);
 
+// Registry
+function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
+	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
+function RegSetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
+	pValue: Pointer; dwValueSize: Cardinal): Boolean;
+function RegKeyExists(hRootKey: HKEY; const cstrName: String): Boolean;
+function RegValueExists(hRootKey: HKEY; const cstrName: String): Boolean;
+procedure RegEnumSubKeys(hRootKey: HKEY; const cstrName: String; astrKeys: TStringList);
+procedure RegEnumSubValues(hRootKey: HKEY; const cstrName: String; astrValues: TStringList);
+procedure DumpRegKeyValues(var fp: TextFile; hRootKey: HKEY; const cstrKey: String);
+procedure DumpRegValue(var fp: TextFile; hRootKey: HKEY; const cstrName: String; dwValType: Cardinal);
+function RegisterOCX(strDLL: String; bSilent: Boolean = False) : Boolean;
+
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
@@ -53,7 +66,7 @@ function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 implementation
 
 uses
-  Clipbrd, StrUtils, SysUtils, TLHelp32;
+  Clipbrd, Registry, StrUtils, SysUtils, TLHelp32;
 
 const
   // Disk sizes / capacities
@@ -454,6 +467,270 @@ procedure SaveToClipboard(const cstrText: String);
 begin
 	// Save some text to the Windows clipboard
 	Clipboard.AsText := cstrText;
+end;
+
+// Registry
+function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
+	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
+var
+	strNameReversed, strSubKey: String;
+	nPos: Integer;
+	dwMyValType, dwBufferSize: DWORD;
+	hTemp: HKEY;
+	pBuffer: Pointer;
+begin
+	// Get a value from the registry
+	// Note: This and the next function were originally adapted from:
+	//		http://www.swissdelphicenter.ch/torry/showcode.php?id=2008
+	Result := False;
+	strNameReversed := AnsiReverseString(cstrName);
+	nPos := (Length(cstrName) - Pos('\', strNameReversed));
+	if (nPos > 0) then
+		begin
+		strSubKey := Copy(cstrName, 1, nPos);
+		if (RegOpenKeyEx(hRootKey, PChar(strSubKey), 0, KEY_READ, hTemp) = ERROR_SUCCESS) then
+			begin
+			strSubKey := Copy(cstrName, nPos + 2, Length(cstrName) - nPos - 1);
+			if (RegQueryValueEx(hTemp, PChar(strSubKey), nil, @dwMyValType, nil, @dwBufferSize) = ERROR_SUCCESS) then
+				begin
+				GetMem(pBuffer, dwBufferSize);
+				if (RegQueryValueEx(hTemp, PChar(strSubKey), nil, @dwMyValType, pBuffer, @dwBufferSize) = ERROR_SUCCESS) then
+					begin
+					if (dwValType = dwMyValType) then
+						begin
+						// * For REG_DWORD:
+						//		CopyMemory(@dwTarget, pValue, dwBufferSize);
+						// * For REG_SZ (with trailing NULL character):
+						//		SetLength(strTarget, dwBufferSize);
+						//		if (dwBufferSize > 0) then
+						//			CopyMemory(@strTarget[1], pValue, dwBufferSize);
+						// * For REG_SZ (without trailing NULL character, usually want this):
+						//		SetLength(strTarget, 0);
+						//		if (dwBufferSize > 1) then
+						//			begin
+						//			SetLength(strTarget, (dwBufferSize-1));
+						//			CopyMemory(@strTarget[1], pValue, (dwBufferSize-1));
+						//			end;
+						pValue := pBuffer;
+						dwValSize := dwBufferSize;
+						Result := True;
+						end
+					else
+						FreeMem(pBuffer);
+					end
+				else
+					FreeMem(pBuffer);
+				end;
+
+			RegCloseKey(hTemp);
+			end;
+		end;
+end;
+
+function RegSetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
+	pValue: Pointer; dwValueSize: Cardinal): Boolean;
+var
+	strNameReversed, strSubKey: String;
+	nPos: Integer;
+	dwDummy: DWORD;
+	hTemp: HKEY;
+begin
+	// Set a value in the registry
+	Result := False;
+	strNameReversed := AnsiReverseString(cstrName);
+	nPos := (Length(cstrName) - Pos('\', strNameReversed));
+	if (nPos > 0) then
+		begin
+		strSubKey := Copy(cstrName, 1, nPos);
+		if (RegCreateKeyEx(hRootKey, PChar(strSubKey), 0, nil,
+				REG_OPTION_NON_VOLATILE, KEY_WRITE,
+				nil, hTemp, @dwDummy) = ERROR_SUCCESS) then
+			begin
+			strSubKey := Copy(cstrName, (nPos + 2), (Length(cstrName) - nPos));
+			Result := (RegSetValueEx(
+				hTemp, PChar(strSubKey), 0, dwValType, pValue, dwValueSize) = ERROR_SUCCESS);
+			RegCloseKey(hTemp);
+			end;
+		end;
+end;
+
+function RegKeyExists(hRootKey: HKEY; const cstrName: String): Boolean;
+var
+	hTemp: HKEY;
+begin
+	// Does a registry key exist? Example usage:
+	//		if (RegKeyExists(HKEY_CURRENT_USER, 'Software\Microsoft'))
+	Result := False;
+	if (RegOpenKeyEx(hRootKey, PChar(cstrName), 0, KEY_READ, hTemp) = ERROR_SUCCESS) then
+		begin
+		Result := True;
+		RegCloseKey(hTemp);
+		end;
+end;
+
+function RegValueExists(hRootKey: HKEY; const cstrName: String): Boolean;
+var
+	strNameReversed, strSubKey: String;
+	nPos: Integer;
+	hTemp: HKEY;
+begin
+	// Does a registry value exist? Example usage:
+	//		if (RegValueExists(HKEY_CURRENT_USER, 'Software\Microsoft\xyz'))
+	// which returns true if the key "Software\Microsoft" and the value "xyz" exist
+	Result := False;
+	strNameReversed := AnsiReverseString(cstrName);
+	nPos := (Length(cstrName) - Pos('\', strNameReversed));
+	if (nPos > 0) then
+		begin
+		strSubKey := Copy(cstrName, 1, nPos);
+		if (RegOpenKeyEx(hRootKey, PChar(strSubKey), 0, KEY_READ, hTemp) = ERROR_SUCCESS) then
+			begin
+			strSubKey := Copy(cstrName, (nPos + 2), (Length(cstrName) - nPos));
+			Result := (RegQueryValueEx(hTemp, PChar(strSubKey), nil, nil, nil, nil) = ERROR_SUCCESS);
+			RegCloseKey(hTemp);
+			end;
+		end;
+end;
+
+procedure RegEnumSubKeys(hRootKey: HKEY; const cstrName: String; astrKeys: TStringList);
+var
+	registry: TRegistry;
+begin
+	// Enumerate sub-keys of the given registry key
+	registry := TRegistry.Create();
+	try
+		registry.RootKey := hRootKey;
+		registry.OpenKeyReadOnly(cstrName);
+		try
+			registry.GetValueNames(astrKeys);
+		except
+		end;
+	finally
+		registry.Free;
+	end;
+end;
+
+procedure RegEnumSubValues(hRootKey: HKEY; const cstrName: String; astrValues: TStringList);
+var
+	registry: TRegistry;
+begin
+	// Enumerate values of the given registry key
+	// Note to developer: Delphi 7 produces 32-bit processes. When run on a 64-bit OS, calls to the
+	// registry may be redirected by "Windows-on-Windows 64-bit" or WOW64 on later versions of
+	// Windows. This only affects a subsetof registry keys (mostly in HKLM). Ffr example:
+	//		* HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	// will actually return the values from:
+	//		* HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
+	// There doesn't appear to be any way for a 32-bit application to read the first registry key
+	registry := TRegistry.Create();
+	try
+		registry.RootKey := hRootKey;
+		registry.OpenKeyReadOnly(cstrName);
+		try
+			registry.GetValueNames(astrValues);
+		except
+		end;
+	finally
+		registry.Free;
+	end;
+end;
+
+procedure DumpRegKeyValues(var fp: TextFile; hRootKey: HKEY; const cstrKey: String);
+var
+	strHeader: String;
+	astrValues: TStringList;
+	nValue: Integer;
+begin
+	// Save all values in the given registry key
+	if (hRootKey = HKEY_CLASSES_ROOT) then
+		strHeader := ('[HKCR\' + cstrKey + ']')
+	else if (hRootKey = HKEY_CURRENT_USER) then
+		strHeader := ('[HKCU\' + cstrKey + ']')
+	else if (hRootKey = HKEY_LOCAL_MACHINE) then
+		strHeader := ('[HKLM\' + cstrKey + ']')
+	else if (hRootKey = HKEY_USERS) then
+		strHeader := ('[USERS\' + cstrKey + ']')
+	else
+		strHeader := ('[' + cstrKey + ']');
+
+	WriteLn(fp, strHeader);
+
+	astrValues := TStringList.Create();
+	RegEnumSubValues(hRootKey, cstrKey, astrValues);
+	if (astrValues.Count > 0) then
+		begin
+		for nValue:=0 to (astrValues.Count - 1) do
+			WriteLn(fp, '    ' + astrValues[nValue]);
+		end
+	else
+		WriteLn(fp, '(None)');
+
+	WriteLn(fp, '');
+
+	// Clean up
+	astrValues.Free();
+end;
+
+procedure DumpRegValue(var fp: TextFile; hRootKey: HKEY; const cstrName: String; dwValType: Cardinal);
+var
+	strValue: String;
+	pData: Pointer;
+	dwBufferSize: DWORD;
+begin
+	strValue := '';
+	if (RegGetValue(hRootKey, cstrName, dwValType, pData, dwBufferSize)) then
+		begin
+		SetLength(strValue, 0);
+		if (dwBufferSize > 1) then
+			begin
+			SetLength(strValue, (dwBufferSize-1));
+			CopyMemory(@strValue[1], pData, (dwBufferSize-1));
+			end;
+
+		FreeMem(pData);
+		WriteLn(fp, Format('%s = %s', [cstrName, strValue]));
+		end;
+end;
+
+function RegisterOCX(strDLL: String; bSilent: Boolean = False) : Boolean;
+type
+	TDllRegisterServer = function(): HRESULT; stdcall;
+var
+	hOCX: THandle;
+	funcRegister: TDllRegisterServer;
+	bSuccess: Boolean;
+begin
+	// Register an ActiveX or COM DLL / OCX
+	bSuccess := False;
+	if (FileExists(strDLL)) then
+		begin
+			hOCX := 0;
+			try
+				hOCX := LoadLibrary(PChar(strDLL));
+				if (hOCX > 0) then
+					begin
+					funcRegister := GetProcAddress(hOCX, 'DllRegisterServer');
+					if (@funcRegister <> nil) then
+						bSuccess := (funcRegister() = S_OK);
+					end;
+			finally
+				FreeLibrary(hOCX);
+			end;
+		end;
+
+	if (not bSilent) then
+		begin
+		if (bSuccess) then
+			MessageBox(0,
+				PAnsiChar(Format('Success...%s registered OK!', [ExtractFileName(strDLL)])),
+				'Register', MB_ICONEXCLAMATION)
+		else
+			MessageBox(0,
+				PAnsiChar(Format('%s not registered OK.', [ExtractFileName(strDLL)])),
+				'Register', MB_ICONEXCLAMATION);
+		end;
+
+	Result := bSuccess;
 end;
 
 // File utilities
