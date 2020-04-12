@@ -98,6 +98,7 @@ function GetSizeOfFile(strFilename: String) : DWORD;
 procedure ChangeFilename(strOldPath, strNewPath: String);
 
 // String
+function IsNumber(const cstrInput: String) : Boolean;
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
@@ -1372,6 +1373,21 @@ begin
 end;
 
 // String
+function IsNumber(const cstrInput: String) : Boolean;
+var
+	nChar: Integer;
+begin
+	Result := False;
+	for nChar:=1 to Length(cstrInput) do
+		case cstrInput[nChar] of
+			'0'..'9':;
+		else
+			Exit;
+		end;
+
+	Result := True;
+end;
+
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 var
 	nErrorCode: Integer;
