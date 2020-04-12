@@ -23,6 +23,7 @@ function IsProcessRunning(strProcessName: String) : Boolean;
 function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
 function GetSystemThreadCount() : Integer;
 function IsThreadRunning(dwThreadID: DWORD) : Boolean;
+function FindWindowByTitle(strWindowTitle: string) : HWND;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -288,6 +289,36 @@ begin
 		end;
 
 	Result := bThreadRunning;
+end;
+
+function FindWindowByTitle(strWindowTitle: string) : HWND;
+var
+	hNextHandle: HWND;
+	strNextTitle: array[0..260] of Char;
+begin
+	// Find a window with the requested title (eg. "Notepad")
+
+	// Get the first window
+	hNextHandle := GetWindow(Application.Handle, GW_HWNDFIRST);
+	while (hNextHandle > 0) do
+		begin
+		// Retrieve the title of the window
+		GetWindowText(hNextHandle, strNextTitle, 255);
+		if (Pos(strWindowTitle, StrPas(strNextTitle)) <> 0) then
+			begin
+			// Found it!
+			Result := hNextHandle;
+			Exit;
+			end
+		else
+			begin
+			// Not found, try the next window
+			hNextHandle := GetWindow(hNextHandle, GW_HWNDNEXT);
+			end;
+	end;
+
+	// If we get here, the window was not found
+	Result := 0;
 end;
 
 // File utilities
