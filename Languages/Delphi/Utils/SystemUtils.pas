@@ -16,6 +16,7 @@ type
 
 // Windows
 function IsWindows64Bit() : Boolean;
+function IsWindows10() : Boolean;
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -51,6 +52,41 @@ begin
 		if (funcWinIsWow64(GetCurrentProcess(), bIs64Bit)) then
 			Result := bIs64Bit;
 		end;
+end;
+
+function IsWindows10() : Boolean;
+var
+	osVersionInfo: TOSVERSIONINFO;
+begin
+	{Following taken from MSDN (and duplicates removed)
+		Windows 10						10.0	***
+		Windows Server 2016				10.0	***
+		Windows 8.1						6.3		***
+		Windows Server 2012 R2			6.3		***
+		Windows 8						6.2
+		Windows 7						6.1
+		Windows Server 2008 R2			6.1
+		Windows Server 2008				6.0
+		Windows Vista					6.0
+		Windows Server 2003				5.2
+		Windows XP 64-Bit				5.2
+		Windows Embedded Std 2009		5.1 [Not stated explicitly on MSDN, from testing]
+		Windows XP						5.1
+		Windows 2000					5.0
+		Windows NT 4.0					4.0
+		Windows Me						4.90
+		Windows 98						4.10
+		Windows 95						4.0
+
+		*** The application manifest must specifically target Windows 8.1 or 10, otherwise the
+		version info for Windows 8 (6.2) will be returned. Since we cannot generate the proper
+		manifest in Delphi 7, only 6.2 is returned. }
+	ZeroMemory(@osVersionInfo, SizeOf(osVersionInfo));
+	osVersionInfo.dwOSVersionInfoSize := SizeOf(osVersionInfo);
+	GetVersionEx(osVersionInfo);
+	Result := (
+		((osVersionInfo.dwMajorVersion = 6) and (osVersionInfo.dwMinorVersion >= 2)) or
+		(osVersionInfo.dwMajorVersion = 10));
 end;
 
 // System
