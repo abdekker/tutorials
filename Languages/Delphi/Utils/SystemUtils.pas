@@ -23,6 +23,7 @@ function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
 function DeleteFolder(strFolder: String) : Boolean;
+function IsFolderWriteable(const cstrPath: String) : Boolean;
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
 function GetSizeOfFile(strFilename: String) : DWORD;
 procedure ChangeFilename(strOldPath, strNewPath: String);
@@ -181,6 +182,51 @@ begin
 	Result := RemoveDirectory(PChar(strFolder));
 end;
 
+function IsFolderWriteable(const cstrPath: String) : Boolean;
+var
+	fileTest: file;
+	strFile: String;
+	nChar: Cardinal;
+begin
+	// Generate a random filename that does NOT exist in the directory
+	Result := True;
+	repeat
+		strFile := IncludeTrailingPathDelimiter(cstrPath);
+		for nChar:=1 to (250 - Length(strFile)) do
+			strFile := (strFile + char(Random(26) + 65));
+	until (not FileExists(strFile));
+
+	// Attempt to write the file to the directory. This will fail on something like a CD drive or
+	// if the user does not have permission, but otherwise should work.
+	try
+		AssignFile(fileTest, strFile);
+		Rewrite(fileTest, 1);
+
+		// Note: Actually check for the existence of the file. Windows may appear to have created
+		// the file, but this fails (without an exception) if advanced security attibutes for the
+		// folder have denied "Create Files / Write Data" access to the logged in user.
+		if (not FileExists(strFile)) then
+			Result := False;
+	except
+		Result := False;
+	end;
+
+	// If the file was written to the path, delete it
+	if (Result) then
+		begin
+		CloseFile(fileTest);
+		Erase(fileTest);
+		end;
+
+	// Note: An alternative method uses the Windows API "GetFileAttributes":
+	{ fa := GetFileAttributes(PChar(strPath));	// fa: Cardinal;
+	if ((fa and FILE_ATTRIBUTE_DIRECTORY) <> 0) and ((fa and FILE_ATTRIBUTE_READONLY) <> 0) then
+		ShowMessage('Directory is read-only'); }
+
+	// Unfortunately, FILE_ATTRIBUTE_READONLY does not get set by Windows for folders. Attempting
+	// to write a file and catching errors works reliably.
+end;
+
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
 var
 	find: TSearchRec;
@@ -258,7 +304,10 @@ begin
 		// "RenameFile" can fail, just ignore. Reasons for failure include:
 		// * user does not have permission to modify the file
 		// * path is read-only eg. a read-only USB stick
-		RenameFile(strOldPath, strNewPath);
+		try
+			RenameFile(strOldPath, strNewPath);
+		finally
+		end;
 		end;
 end;
 
