@@ -5,20 +5,14 @@
 
 #include <conio.h>
 
-// Puzzles
-// * 0001: Print all numbers up to 1000 that have the digit 5 in their number
-// * 0002: Add two numbers without using any addition, subtraction, increment or decrement operator
-// * 0003: Find the largest and smallest of three numbers without using conditional statements or ternary operators
-//		Unsolved!
-// * 0004: Print "Hello World" without using a semicolon
-// * 0005: Sort an array, removing duplicates except 1s. Place duplicate 1s at the end.
-// * 0006: Modify each element of an array by multiplying it by a constant factor
-// * 0007: Generate a square spiral matrix from 1 to n^2
+// See the following files for details on the puzzles:
+// * ..\Notes-Puzzles.txt
+// * ..\Notes-Puzzles-Details.txt
 int main()
 {
 	// C++ code to solve various puzzles, see ../Puzzles/Notes-Puzzles.txt for details
 
-	// All puzzles
+	// All puzzles, latest puzzle at the bottom (this section can be collapsed in the IDE)
 	{
 		// Puzzle 0001
 		/*{
