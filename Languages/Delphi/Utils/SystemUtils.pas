@@ -23,7 +23,8 @@ function IsProcessRunning(strProcessName: String) : Boolean;
 function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
 function GetSystemThreadCount() : Integer;
 function IsThreadRunning(dwThreadID: DWORD) : Boolean;
-function FindWindowByTitle(strWindowTitle: string) : HWND;
+function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
+procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -43,6 +44,13 @@ implementation
 
 uses
   Clipbrd, StrUtils, SysUtils, TLHelp32;
+
+const
+  // Disk sizes / capacities
+  KILO_BYTE		= Int64(1024);
+  MEGA_BYTE		= Int64(1024 * KILO_BYTE);
+  GIGA_BYTE		= Int64(1024 * MEGA_BYTE);
+  TERA_BYTE		= Int64(1024 * GIGA_BYTE);
 
 // Start: Public methods
 // Windows
@@ -291,15 +299,17 @@ begin
 	Result := bThreadRunning;
 end;
 
-function FindWindowByTitle(strWindowTitle: string) : HWND;
+function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 var
 	hNextHandle: HWND;
 	strNextTitle: array[0..260] of Char;
 begin
-	// Find a window with the requested title (eg. "Notepad")
+	// Find a window with the requested title (eg. "Notepad"). This method should be provided with
+	// a (starting) handle, such as the main application window. For example:
+	//		hWindowToFind := FindWindowByTitle(Application.Handle, "Notepad");
 
 	// Get the first window
-	hNextHandle := GetWindow(Application.Handle, GW_HWNDFIRST);
+	hNextHandle := GetWindow(hStartHandle, GW_HWNDFIRST);
 	while (hNextHandle > 0) do
 		begin
 		// Retrieve the title of the window
@@ -319,6 +329,25 @@ begin
 
 	// If we get here, the window was not found
 	Result := 0;
+end;
+
+procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
+var
+	nFreeBytes64, nTotalBytes64, nTotalFreeBytes64: Int64;
+begin
+	// Return the disk space (in GB)
+	// Note: Network drive sizes can exceed 5+ TB! If converting to a 32-bit integer, convert bytes
+	// into MB or (better) GB. Do not use kB because a 5x10^12 bytes is ~5x10^9 kB which overflows
+	// the range of a 32-bit integer.
+	fTotalGB := 0.0;
+	fTotalFreeGB := 0.0;
+	if (GetDiskFreeSpaceEx(PChar(strDrive),
+			nFreeBytes64, nTotalBytes64, PLargeInteger(@nTotalFreeBytes64))) then
+		begin
+		// Drive found and details returned!
+		fTotalGB := (nTotalBytes64 / GIGA_BYTE);
+		fTotalFreeGB := (nTotalFreeBytes64 / GIGA_BYTE);
+		end;
 end;
 
 // File utilities
