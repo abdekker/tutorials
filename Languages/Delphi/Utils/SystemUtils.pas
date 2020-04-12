@@ -18,6 +18,9 @@ type
 function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
 
+// File utilities
+function FileHasData(const cstrFile: String) : Boolean;
+
 // System
 procedure SaveToClipboard(const cstrText: String);
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
@@ -87,6 +90,28 @@ begin
 	Result := (
 		((osVersionInfo.dwMajorVersion = 6) and (osVersionInfo.dwMinorVersion >= 2)) or
 		(osVersionInfo.dwMajorVersion = 10));
+end;
+
+// File utilities
+function FileHasData(const cstrFile: String) : Boolean;
+var
+	fpTxt: TextFile;
+begin
+	// This method will fail or return no data if:
+	// * The file is genuinely empty
+	// * The file has an open file handle associated with it
+	// * It's entry in the Master File Table (NTFS) or File Allocation Table (FAT32) is corrupt
+	Result := False;
+	try
+		try
+			AssignFile(fpTxt, cstrFile);
+			Reset(fpTxt);
+			Result := (not EOF(fpTxt));
+		except
+		end;
+	finally
+		CloseFile(fpTxt);
+	end;
 end;
 
 // System
