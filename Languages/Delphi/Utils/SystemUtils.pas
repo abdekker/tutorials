@@ -108,7 +108,7 @@ function ConvertTitleCase(const cstrInput: String) : String;
 function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
 procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
 
-// System, math and other general methods
+// Mathematics and geometry
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
 function FloatPoint(fX: Single; fY: Single) : TFloatPoint;
 function RotatePoint(pt: TPoint; fAngle: Single; ptOrigin: TPoint) : TPoint; overload
@@ -117,6 +117,7 @@ procedure RotatePoints(var pts: array of TPoint; fAngle: Single; ptOrigin: TPoin
 procedure RotatePoints(var fpts: array of TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint); overload
 function DegreesToRadians(fDegrees: Single) : Single;
 function RadiansToDegrees(fDegrees: Single) : Single;
+function IsBiggerFloat(fCheckMe, fCheckAgainst: Single; fAccuracy: Single = 0.001) : Boolean;
 
 implementation
 
@@ -1583,7 +1584,7 @@ begin
 	list.Text := AnsiReplaceStr(strSource, strDelimiter, #13#10);
 end;
 
-// System, math and other general methods
+// Mathematics and geometry
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
 begin
 	// Is the point with the given rectangle?
@@ -1696,6 +1697,14 @@ function RadiansToDegrees(fDegrees: Single) : Single;
 begin
 	// Convert an angle in radians into degrees
 	Result := ((fDegrees / Pi) * 180.0);
+end;
+
+function IsBiggerFloat(fCheckMe, fCheckAgainst: Single; fAccuracy: Single = 0.001) : Boolean;
+begin
+	if ((fCheckMe - fCheckAgainst) > fAccuracy) then
+		Result := True
+	else
+		Result := False;
 end;
 // End: Public methods
 
