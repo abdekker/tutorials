@@ -35,6 +35,7 @@ function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
 function GetDiskFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
+procedure SaveToClipboard(const cstrText: String);
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -47,7 +48,6 @@ function GetSizeOfFile(strFilename: String) : DWORD;
 procedure ChangeFilename(strOldPath, strNewPath: String);
 
 // System
-procedure SaveToClipboard(const cstrText: String);
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 
 implementation
@@ -450,6 +450,12 @@ begin
 	Result := strAllDrives;
 end;
 
+procedure SaveToClipboard(const cstrText: String);
+begin
+	// Save some text to the Windows clipboard
+	Clipboard.AsText := cstrText;
+end;
+
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
 var
@@ -663,12 +669,6 @@ begin
 end;
 
 // System
-procedure SaveToClipboard(const cstrText: String);
-begin
-	// Save some text to the clipboard. Usually only used for development purposes.
-	Clipboard.AsText := cstrText;
-end;
-
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 var
 	nErrorCode: Integer;
