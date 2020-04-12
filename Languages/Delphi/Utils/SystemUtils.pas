@@ -99,6 +99,8 @@ procedure ChangeFilename(strOldPath, strNewPath: String);
 
 // String
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
+function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
+function GetIsoDateTimeString(dtSource: TDateTime) : String;
 
 // System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
@@ -121,6 +123,22 @@ const
   MEGA_BYTE		= Int64(1024 * KILO_BYTE);
   GIGA_BYTE		= Int64(1024 * MEGA_BYTE);
   TERA_BYTE		= Int64(1024 * GIGA_BYTE);
+
+  // Time constants
+  SECONDS_IN_DAY	= (3600 * 24);
+  SECONDS_IN_MONTH	= (3600 * 24 * 30);
+  SECONDS_IN_YEAR	= (3600 * 24 * 365);
+  MINUTES_IN_HOUR	= 60;
+  MINUTES_IN_DAY	= (24 * 60);
+
+  // Maximum time (used by various system timers that use GetTickCount)
+  MAX_TIME: DWORD = $FFFFFFFF;
+
+  // Date / time stamps are always given in ISO 8601 format (yyyy-mm-ddThh:nn:ss) regardless of
+  // what regional settings are in use
+  DATETIME_FORMAT_ISO8601	= '%.4d-%.2d-%.2dT%.2d:%.2d:%.2d';
+  DATE_FORMAT				= 'yyyy-mm-dd';
+  TIME_FORMAT				= 'hh:nn:ss';
 
 type
   // This record is used to specify shared network resources (eg. folders)
@@ -1363,6 +1381,91 @@ begin
 	//		TryStrToInt("1x", nValue)		False, nValue unchanged
 	Val(cstrInput, nOutput, nErrorCode);
 	Result := (nErrorCode = 0);
+end;
+
+function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
+var
+	dwRemainder: DWORD;
+	dwYears, dwMonths, dwDays, dwHours, dwMinutes: DWORD;
+	strTimeString: String;
+begin
+	// Format a time string from a (potentially very large) number of seconds
+
+	// First get the breakdown in terms of year / month / etc
+	dwRemainder := dwSeconds;
+	dwYears := (dwRemainder div SECONDS_IN_YEAR);
+	dwRemainder := (dwRemainder - (SECONDS_IN_YEAR*dwYears));
+
+	dwMonths := (dwRemainder div (SECONDS_IN_MONTH));
+	dwRemainder := (dwRemainder - (SECONDS_IN_MONTH*dwMonths));
+
+	dwDays := (dwRemainder div (SECONDS_IN_DAY));
+	dwRemainder := (dwRemainder - (SECONDS_IN_DAY*dwDays));
+
+	dwHours := (dwRemainder div 3600);
+	dwRemainder := (dwRemainder - (3600*dwHours));
+
+	dwMinutes := (dwRemainder div 60);
+	dwRemainder := (dwRemainder - (60*dwMinutes));		// This is the seconds
+
+	// Now format the string
+	// Note: We don't tend to use spaces between the value and unit because the strings are long
+	strTimeString := '';
+	if (bIncludeSeconds) then
+		begin
+		// Include seconds
+		if (dwYears > 0) then
+			strTimeString := Format('%.2dyr, %.2dmth, %.2dd, %.2dh, %.2dmin, %.2ds', [
+				dwYears, dwMonths, dwDays, dwHours, dwMinutes, dwRemainder])
+		else if (dwMonths > 0) then
+			strTimeString := Format('%.2dmth, %.2dday, %.2dhr, %.2dmin, %.2ds', [
+				dwMonths, dwDays, dwHours, dwMinutes, dwRemainder])
+		else if (dwDays > 0) then
+			// Can start to use spaces from here because the length is shorter
+			strTimeString := Format('%.2d day, %.2d hr, %.2d min, %.2d s', [
+				dwDays, dwHours, dwMinutes, dwRemainder])
+		else if (dwHours > 0) then
+			strTimeString := Format('%.2d hr, %.2d min, %.2d s', [
+				dwHours, dwMinutes, dwRemainder])
+		else if (dwMinutes > 0) then
+			strTimeString := Format('%.2d min, %.2d s', [dwMinutes, dwRemainder])
+		else
+			strTimeString := Format('%.2d s', [dwRemainder]);
+		end
+	else
+		begin
+		// Leave out the seconds (ie. smallest unit is minutes)
+		if (dwRemainder > 30) then
+			Inc(dwMinutes);
+
+		if (dwYears > 0) then
+			strTimeString := Format('%.2dyr, %.2dmth, %.2dd, %.2dh, %.2dmin', [
+				dwYears, dwMonths, dwDays, dwHours, dwMinutes])
+		else if (dwMonths > 0) then
+			strTimeString := Format('%.2dmth, %.2dday, %.2dhr, %.2dmin', [
+				dwMonths, dwDays, dwHours, dwMinutes])
+		else if (dwDays > 0) then
+			// Can start to use spaces from here because the length is shorter
+			strTimeString := Format('%.2d day, %.2d hr, %.2d min', [dwDays, dwHours, dwMinutes])
+		else if (dwHours > 0) then
+			strTimeString := Format('%.2d hr, %.2d min', [dwHours, dwMinutes])
+		else
+			strTimeString := Format('%.2d min', [dwMinutes]);
+		end;
+
+	Result := strTimeString;
+end;
+
+function GetIsoDateTimeString(dtSource: TDateTime) : String;
+begin
+	// Return a formatted date/time using the ISO 8601 specification "yyyy-mm-ddThh:nn:ss"
+	// Note: You cannot use a single call to "FormatDateTime" as in:
+	//		strDateTime := FormatDateTime('yyyy-mm-ddThh:nn:ss', Now());
+	// According to the documentation, "T" has a special format meaning (displaying the time using
+	// the system ShortTimeFormat setting). We need to construct the string manually.
+	Result := (
+		FormatDateTime(DATE_FORMAT, dtSource) + 'T' +
+		FormatDateTime(TIME_FORMAT, dtSource));
 end;
 
 // System, math and other general methods
