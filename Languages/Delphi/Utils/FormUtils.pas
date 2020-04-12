@@ -4,20 +4,23 @@ unit FormUtils;
 interface
 
 uses
-  Windows, Classes, Controls, StdCtrls;
+  Windows, Classes, Controls, Forms, StdCtrls;
 
 const
   DUMMY_INTERFACE_CONSTANT = 0;
 
 type
-  PDummyInterfacePointer = ^Integer;
+  // Type pointers
+  PTForm = ^TForm;
 
 // Public methods
 
-// General controls
+// General / System
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
+procedure LockControl(control: TWinControl; bLock: Boolean);
+procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String);
 
 // TComboBox
 procedure SetComboHandlers(control: TControl);
@@ -32,7 +35,7 @@ procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 implementation
 
 uses
-  Buttons, ComCtrls, Graphics, Messages, SysUtils;
+  Buttons, ComCtrls, Graphics, jpeg, Messages, SysUtils;
 
 const
   // Maximum level of nesting for iterating child controls (eg. setting character set)
@@ -50,7 +53,7 @@ var
   eventHandlers: TEventHandlers;
 
 // Start: Public methods
-// General controls
+// General / System
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
 var
 	strmObject: TFileStream;
@@ -119,6 +122,116 @@ begin
 		end;
 
 	Result := txtSize;
+end;
+
+procedure LockControl(control: TWinControl; bLock: Boolean);
+begin
+	// Prevents the control from redrawing (for example, while it is being resized)
+
+	// Note to developer: Avoid using this method in the form's OnShow event as in:
+	//		LockControl(frmBlah, True);
+	//		SomeCode();
+	//		LockControl(frmBlah, False);
+	// This is because the Position property (usually "poScreenCenter") only gets applied late in
+	// the form's construction. Forcing a redraw results in flickering as the form gets drawn at
+	// the design-time position (wherever the developer last left it when the IDE was open) and
+	// then re-drawn at the runtime position of the screen centre.
+
+	// If used before the end of OnShow, use "SetFormRuntimePos(Self)" in the form's OnCreate event
+	// to ensure the correct runtime position is set early.
+
+	// Alternatively, use flag to decide whether to use LockControl. The flag is set when the form
+	// (or the section being locked) has been fully initialised.
+	if (control = nil) or (control.Handle = 0) then
+		Exit;
+
+	if (bLock) then
+		SendMessage(control.Handle, WM_SETREDRAW, 0, 0)
+	else
+		begin
+		SendMessage(control.Handle, WM_SETREDRAW, 1, 0);
+		RedrawWindow(control.Handle, nil, 0,
+			(RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN));
+		end;
+end;
+
+procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String);
+var
+	handleDC: HDC;
+	rectRegion: TRect;
+	bmpScreenShot: TBitmap;
+	jpgScreenShot: TJPEGImage;
+	nRasterCaps: Integer;
+	lpPalette: PLOGPALETTE;
+begin
+	// Example usage:
+	//		SaveScreenshot(@Self, 'C:\Tmp\Screenshot.bmp');
+
+	// Ensure we have a valid screen DC (this can be cached to improve performance)
+	handleDC := GetDC(0);
+	if (handleDC = 0) then
+		Exit;
+
+	// Set up a rectangle using the form's on-screen location and size
+	// Note: This code came from About.com: Delphi Programming by Zarko Gajic
+	rectRegion.Left := pSubScreen.Left;
+	rectRegion.Top := pSubScreen.Top;
+	rectRegion.Right := (pSubScreen.Left + pSubScreen.Width);
+	rectRegion.Bottom := (pSubScreen.Top + pSubScreen.Height);
+
+	// Set up bitmap for screenshot
+	bmpScreenShot := TBitmap.Create();
+	bmpScreenShot.Width := (rectRegion.Right - rectRegion.Left);
+	bmpScreenShot.Height := (rectRegion.Bottom - rectRegion.Top);
+
+	// Do we have a palette device?
+	// Note to developer: On the developer desktop, the capability of the graphics comes back as
+	// $7E99 ie. the RC_PALETTE bit is not set.
+	nRasterCaps := GetDeviceCaps(handleDC, RASTERCAPS);
+	if ((nRasterCaps and RC_PALETTE) = RC_PALETTE) then
+		begin
+		// Allocate memory for a logical palette
+		GetMem(lpPalette, SizeOf(TLOGPALETTE) + (255 * SizeOf(TPALETTEENTRY)));
+
+		// Zero it out to be neat
+		FillChar(lpPalette^, SizeOf(TLOGPALETTE) + (255 * SizeOf(TPALETTEENTRY)), #0);
+
+		// Fill in the palette version
+		lpPalette^.palVersion := $300;
+
+		// Grab the system palette entries
+		lpPalette^.palNumEntries := GetSystemPaletteEntries(
+			handleDC, 0, 256, lpPalette^.palPalEntry);
+
+		// Create the palette?
+		if (lpPalette^.palNumEntries <> 0) then
+			bmpScreenShot.Palette := CreatePalette(lpPalette^);
+
+		// Clean up memory
+		FreeMem(lpPalette, SizeOf(TLOGPALETTE) + (255 * SizeOf(TPALETTEENTRY)));
+	end;
+
+	// Copy the screen to the bitmap
+	BitBlt(bmpScreenShot.Canvas.Handle,
+		0, 0, bmpScreenShot.Width, bmpScreenShot.Height, handleDC,
+		rectRegion.Left, rectRegion.Top, SRCCOPY);
+
+	// Create a jpeg image, assign to it and save
+	jpgScreenShot := TJPEGImage.Create();
+	try
+		jpgScreenShot.Assign(bmpScreenShot);
+		jpgScreenShot.SaveToFile(cstrFile);
+	finally
+		jpgScreenShot.Free();
+	end;
+
+	// To save a BMP instead, remove the jpeg code above and use this:
+	//		bmSaveMe.SaveToFile(cstrFile);
+	// The JPG format is used because it is smaller and faster.
+
+	// Clean up memory
+	bmpScreenShot.Free();
+	ReleaseDC(0, handleDC);
 end;
 
 // TComboBox
