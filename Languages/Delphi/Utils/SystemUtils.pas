@@ -22,6 +22,7 @@ function IsWindows10() : Boolean;
 function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
+function DeleteFolder(strFolder: String) : Boolean;
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -153,6 +154,28 @@ begin
 				FindClose(find);
 			end;
 		end;
+end;
+
+function DeleteFolder(strFolder: String) : Boolean;
+var
+	find: TSearchRec;
+begin
+	// Delete a folder (including contents)
+	if (FindFirst(strFolder + '*.*', faAnyFile, find) = 0) then
+		begin
+		repeat
+			if (find.Attr and faDirectory = 0) then
+				DeleteFile(strFolder + find.Name)
+			else
+				if (find.Name <> '.') and (find.Name <> '..') then
+					DeleteFolder(strFolder + find.Name + '\');
+
+		until (FindNext(find) <> 0);
+
+		FindClose(find);
+		end;
+
+	Result := RemoveDirectory(PChar(strFolder));
 end;
 
 // System
