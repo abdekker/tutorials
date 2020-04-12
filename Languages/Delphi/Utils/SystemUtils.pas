@@ -4,7 +4,7 @@ unit SystemUtils;
 interface
 
 uses
-  Windows, StdCtrls;
+  Windows, Classes, StdCtrls;
 
 const
   DUMMY_INTERFACE_CONSTANT = 0;
@@ -20,6 +20,8 @@ function IsWindows10() : Boolean;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
+procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
+	bRecursive: Boolean = False);
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -28,7 +30,7 @@ function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 implementation
 
 uses
-  Clipbrd;
+  Clipbrd, StrUtils, SysUtils;
 
 // Start: Public methods
 // Windows
@@ -112,6 +114,45 @@ begin
 	finally
 		CloseFile(fpTxt);
 	end;
+end;
+
+procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
+	bRecursive: Boolean = False);
+var
+	find: TSearchRec;
+begin
+	// Find all files in a folder and add to a list. The caller has responsibility for ensuring the
+	// list is in the right state (ie. created and empty!).
+
+	// Add a final backslash to the path (if required, eg. C:\Temp\)
+	if (RightStr(strFolder, 1) <> '\') then
+		strFolder := (strFolder + '\');
+
+	// Now generate the list
+	if (FindFirst(strFolder + strWildCard, faAnyFile - faDirectory, find) = 0) then
+		begin
+		repeat
+			astrList.AddObject(strFolder + find.Name, TObject(find.Time))
+		until (FindNext(find) <> 0);
+
+		FindClose(find);
+		end;
+
+	// Are we looking recursively through the folder?
+	if (bRecursive) then
+		begin
+		if (FindFirst(strFolder + '*.*', faDirectory, find) = 0) then
+			try
+				repeat
+					if ((find.Attr and faDirectory) <> 0) and
+							(find.Name <> '.') and
+							(find.Name <> '..') then
+						GetFolderListing(strFolder + find.Name, strWildCard, astrList, True);
+				until FindNext(find) <> 0;
+			finally
+				FindClose(find);
+			end;
+		end;
 end;
 
 // System
