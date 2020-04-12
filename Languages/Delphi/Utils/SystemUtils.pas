@@ -118,6 +118,10 @@ procedure RotatePoints(var fpts: array of TFloatPoint; fAngle: Single; fptOrigin
 function DegreesToRadians(fDegrees: Single) : Single;
 function RadiansToDegrees(fDegrees: Single) : Single;
 function IsBiggerFloat(fCheckMe, fCheckAgainst: Single; fAccuracy: Single = 0.001) : Boolean;
+function GetArrayMin(pbyArray: PBYTE; pdwMinPos: PDWORD; dwCount: DWORD) : BYTE; overload;
+function GetArrayMax(pbyArray: PBYTE; pdwMaxPos: PDWORD; dwCount: DWORD) : BYTE; overload;
+function GetArrayMin(pnArray: PInteger; pdwMinPos: PDWORD; dwCount: DWORD) : Integer; overload;
+function GetArrayMax(pnArray: PInteger; pdwMaxPos: PDWORD; dwCount: DWORD) : Integer; overload;
 
 implementation
 
@@ -1705,6 +1709,112 @@ begin
 		Result := True
 	else
 		Result := False;
+end;
+
+function GetArrayMin(pbyArray: PBYTE; pdwMinPos: PDWORD; dwCount: DWORD) : BYTE;
+var
+	byMin: BYTE;
+	dwPos: DWORD;
+begin
+	// Given an array of BYTE values, return the position and value of the minimum element
+	// Usage example:
+	//		byMin := GetArrayMin(@abyArray, @dwMinPos, SomeCount);
+	byMin := 255;
+	Result := byMin;
+	if (pbyArray = nil) or (pdwMinPos = nil) then
+		Exit;
+
+	pdwMinPos^ := 0;
+	for dwPos:=0 to (dwCount-1) do
+		begin
+		if (pbyArray^ < byMin) then
+			begin
+			byMin := pbyArray^;
+			pdwMinPos^ := dwPos;
+			end;
+
+		Inc(pbyArray);
+		end;
+
+	Result := byMin;
+end;
+
+function GetArrayMax(pbyArray: PBYTE; pdwMaxPos: PDWORD; dwCount: DWORD) : BYTE;
+var
+	byMax: BYTE;
+	dwPos: DWORD;
+begin
+	// Given an array of BYTE values, return the position and value of the maximum element
+	byMax := 0;
+	Result := byMax;
+	if (pbyArray = nil) or (pdwMaxPos = nil) then
+		Exit;
+
+	pdwMaxPos^ := 0;
+	for dwPos:=0 to (dwCount-1) do
+		begin
+		if (pbyArray^ > byMax) then
+			begin
+			byMax := pbyArray^;
+			pdwMaxPos^ := dwPos;
+			end;
+
+		Inc(pbyArray);
+		end;
+
+	Result := byMax;
+end;
+
+function GetArrayMin(pnArray: PInteger; pdwMinPos: PDWORD; dwCount: DWORD) : Integer;
+var
+	nMin: Integer;
+	dwPos: DWORD;
+begin
+	// Array of Integer values
+	nMin := 2147483647;
+	Result := nMin;
+	if (pnArray = nil) or (pdwMinPos = nil) then
+		Exit;
+
+	pdwMinPos^ := 0;
+	for dwPos:=0 to (dwCount-1) do
+		begin
+		if (pnArray^ < nMin) then
+			begin
+			nMin := pnArray^;
+			pdwMinPos^ := dwPos;
+			end;
+
+		Inc(pnArray);
+		end;
+
+	Result := nMin;
+end;
+
+function GetArrayMax(pnArray: PInteger; pdwMaxPos: PDWORD; dwCount: DWORD) : Integer;
+var
+	nMax: Integer;
+	dwPos: DWORD;
+begin
+	// Array of Integer values
+	nMax := 0;
+	Result := nMax;
+	if (pnArray = nil) or (pdwMaxPos = nil) then
+		Exit;
+
+	pdwMaxPos^ := 0;
+	for dwPos:=0 to (dwCount-1) do
+		begin
+		if (pnArray^ > nMax) then
+			begin
+			nMax := pnArray^;
+			pdwMaxPos^ := dwPos;
+			end;
+
+		Inc(pnArray);
+		end;
+
+	Result := nMax;
 end;
 // End: Public methods
 
