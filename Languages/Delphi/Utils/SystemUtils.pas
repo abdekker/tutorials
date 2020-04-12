@@ -81,8 +81,9 @@ procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard:
 function GetSizeOfFile(strFilename: String) : DWORD;
 procedure ChangeFilename(strOldPath, strNewPath: String);
 
-// System
+// System, math and other general methods
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
+function WithinRect(pt: TPoint; rct: TRect): Boolean;
 
 implementation
 
@@ -1324,7 +1325,7 @@ begin
 		end;
 end;
 
-// System
+// System, math and other general methods
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 var
 	nErrorCode: Integer;
@@ -1337,6 +1338,15 @@ begin
 	//		TryStrToInt("1x", nValue)		False, nValue unchanged
 	Val(cstrInput, nOutput, nErrorCode);
 	Result := (nErrorCode = 0);
+end;
+
+function WithinRect(pt: TPoint; rct: TRect): Boolean;
+begin
+	// Is the point with the given rectangle?
+	Result := False;
+	if (	(pt.X >= rct.Left) and (pt.X <= rct.Right) and
+			(pt.Y >= rct.Top) and (pt.Y <= rct.Bottom)) then
+		Result := True;
 end;
 // End: Private methods
 
