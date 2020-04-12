@@ -103,6 +103,7 @@ function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = T
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
 function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
+procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
 
 // System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
@@ -1517,6 +1518,16 @@ begin
 		end;
 
 	Result := strRandom;
+end;
+
+procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
+begin
+	// Parse a string based on the delimiter. For example the string "a.b.11.22" is converted
+	// into the list {a, b, 11, 22}.
+
+	// A Delphi 7 bug in "ExtractStrings" is apparently addressed in later versions of Delphi. The
+	// solution below was suggested in: https://stackoverflow.com/questions/2625707
+	list.Text := AnsiReplaceStr(strSource, strDelimiter, #13#10);
 end;
 
 // System, math and other general methods
