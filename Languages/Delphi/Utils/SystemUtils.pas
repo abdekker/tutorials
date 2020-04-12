@@ -25,6 +25,7 @@ procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList
 function DeleteFolder(strFolder: String) : Boolean;
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
 function GetSizeOfFile(strFilename: String) : DWORD;
+procedure ChangeFilename(strOldPath, strNewPath: String);
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -247,6 +248,18 @@ begin
 	end;
 
 	Result := strVersion;
+end;
+
+procedure ChangeFilename(strOldPath, strNewPath: String);
+begin
+	// Change the name of a file (with short delay)
+	if (FileExists(strOldPath)) and (not FileExists(strNewPath)) then
+		begin
+		// "RenameFile" can fail, just ignore. Reasons for failure include:
+		// * user does not have permission to modify the file
+		// * path is read-only eg. a read-only USB stick
+		RenameFile(strOldPath, strNewPath);
+		end;
 end;
 
 // System
