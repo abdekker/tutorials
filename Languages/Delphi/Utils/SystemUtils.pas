@@ -19,6 +19,7 @@ function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
 function ExpandEnvironment(const cstrValue: String): String;
+function IsProcessRunning(strProcessName: String) : Boolean;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -37,7 +38,7 @@ function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 implementation
 
 uses
-  Clipbrd, StrUtils, SysUtils;
+  Clipbrd, StrUtils, SysUtils, TLHelp32;
 
 // Start: Public methods
 // Windows
@@ -145,6 +146,48 @@ begin
 		Result := cstrValue
 	else
 		Result := Trim(szResult);
+end;
+
+function IsProcessRunning(strProcessName: String) : Boolean;
+var
+	hSnapShot: THandle;
+	process: TProcessEntry32;
+	bFound: Boolean;
+begin
+	// Go through the list of running processes and see if the requested process is running
+
+	{ Note to developer: An alternate method is to use the Windows "_wsystem" API from C++:
+		// Pass in "std::wstring strProcess" parameter...
+		std::wstring cmd_query(
+			std::wstring(L"tasklist|findstr /i \"") + strProcess + L".exe\">nul 2>&1");
+		bool bRunning = (_wsystem(cmd_query.data()) == 0);
+		bFound := False;
+
+	This is, however, not recommended:
+	* 1) It is very slow (~160ms in one test in Aug 2018) and
+	* 2) A command prompt briefly pops up to execute the command, creating an visual flicker. }
+	bFound := False;
+	try
+		hSnapShot := CreateToolHelp32SnapShot(TH32CS_SNAPPROCESS, 0);
+		process.dwSize := Sizeof(TProcessEntry32);
+		if (Process32First(hSnapShot, process)) then
+			bFound := (AnsiCompareText(strProcessName, process.szExeFile) = 0);
+
+		if (not bFound) then
+			begin
+			while (Process32Next(hSnapShot, process)) do
+				begin
+				bFound := (AnsiCompareText(strProcessName, process.szExeFile) = 0);
+				if (bFound) then
+					break;
+				end;
+			end;
+
+		CloseHandle(hSnapShot);
+	except
+	end;
+
+	Result := bFound;
 end;
 
 // File utilities
