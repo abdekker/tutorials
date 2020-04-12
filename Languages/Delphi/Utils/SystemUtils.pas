@@ -23,12 +23,28 @@ const
   MAX_ADAPTER_NAME_LENGTH			= 256;
 
 type
-  PDummyInterfacePointer = ^Integer;
-
   // Information about a specific network adapter
   ADAPTER_INFO = record
 	bLive, bDhcpEnabled: Boolean;
 	strMacAddress, strDescription, strIpAddress, strSubnetMask: String;
+  end;
+
+  // Generic floating-point precision point
+  PFloatPoint = ^TFloatPoint;
+  TFloatPoint = packed record
+	X, Y: Single;
+  end;
+
+  // Generic floating-point precision rectangle
+  PFloatRect = ^TFloatRect;
+  TFloatRect = packed record
+	Left, Top, Right, Bottom: Single;
+  end;
+
+  // Generic quadrilateral
+  PQuadrilateral = ^TQuadrilateral;
+  TQuadrilateral = packed record
+	aPts: array[0..3] of TPoint;
   end;
 
 // Public methods
@@ -81,9 +97,16 @@ procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard:
 function GetSizeOfFile(strFilename: String) : DWORD;
 procedure ChangeFilename(strOldPath, strNewPath: String);
 
-// System, math and other general methods
+// String
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
+
+// System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
+function FloatPoint(fX: Single; fY: Single) : TFloatPoint;
+function RotatePoint(pt: TPoint; fAngle: Single; ptOrigin: TPoint) : TPoint; overload
+function RotatePoint(fpt: TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint) : TFloatPoint; overload
+procedure RotatePoints(var pts: array of TPoint; fAngle: Single; ptOrigin: TPoint); overload
+procedure RotatePoints(var fpts: array of TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint); overload
 
 implementation
 
@@ -1325,7 +1348,7 @@ begin
 		end;
 end;
 
-// System, math and other general methods
+// String
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 var
 	nErrorCode: Integer;
@@ -1340,6 +1363,7 @@ begin
 	Result := (nErrorCode = 0);
 end;
 
+// System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
 begin
 	// Is the point with the given rectangle?
@@ -1348,6 +1372,99 @@ begin
 			(pt.Y >= rct.Top) and (pt.Y <= rct.Bottom)) then
 		Result := True;
 end;
-// End: Private methods
+
+function FloatPoint(fX: Single; fY: Single) : TFloatPoint;
+var
+	fpt: TFloatPoint;
+begin
+	fpt.X := fX;
+	fpt.Y := fY;
+	Result := fpt;
+end;
+
+function RotatePoint(pt: TPoint; fAngle: Single; ptOrigin: TPoint) : TPoint;
+var
+	fSin, fCos: Extended;
+	fX, fY: Extended;
+	ptRotated: TPoint;
+begin
+	// Rotate a point by a given angle (in radians) around a pivot point (or origin)
+
+	// Calculate trigonmetric values
+	fSin := Sin(fAngle);
+	fCos := Cos(fAngle);
+
+	// Translate point back to the origin
+	pt.X := (pt.X - ptOrigin.X);
+	pt.Y := (pt.Y + ptOrigin.Y);
+
+	// Rotate point
+	fX := ((fCos * pt.X) - (fSin * pt.Y));
+	fY := ((fSin * pt.X) + (fCos * pt.Y));
+
+	// Translate point back to the pivot
+	ptRotated.X := (Round(fX) + ptOrigin.X);
+	ptRotated.Y := (Round(fY) - ptOrigin.Y);
+
+	// Return result
+	Result := ptRotated;
+end;
+
+function RotatePoint(fpt: TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint) : TFloatPoint;
+var
+	fSin, fCos: Extended;
+	fptRotated: TFloatPoint;
+begin
+	// See the "RotatePoint" overload above. This version works with TFloatPoints.
+	fSin := Sin(fAngle);
+	fCos := Cos(fAngle);
+
+	fpt.X := (fpt.X - fptOrigin.X);
+	fpt.Y := (fpt.Y + fptOrigin.Y);
+
+	fptRotated.X := ((fCos * fpt.X) - (fSin * fpt.Y));
+	fptRotated.Y := ((fSin * fpt.X) + (fCos * fpt.Y));
+
+	fptRotated.X := (fptRotated.X + fptOrigin.X);
+	fptRotated.Y := (fptRotated.Y - fptOrigin.Y);
+
+	Result := fptRotated;
+end;
+
+procedure RotatePoints(var pts: array of TPoint; fAngle: Single; ptOrigin: TPoint);
+var
+	fSin, fCos: Extended;
+	nPoint, nX, nY: Integer;
+begin
+	// As with "RotatePoint", but works on an array of points to rotate
+	fSin := Sin(fAngle);
+	fCos := Cos(fAngle);
+	for nPoint:=Low(pts) to High(pts) do
+		begin
+		nX := (pts[nPoint].X - ptOrigin.X);
+		nY := (pts[nPoint].Y + ptOrigin.Y);
+		pts[nPoint].X := (Round((nX * fCos) - (nY * fSin)) + ptOrigin.X);
+		pts[nPoint].Y := (Round((nX * fSin) + (nY * fCos)) - ptOrigin.Y);
+		end;
+end;
+
+procedure RotatePoints(var fpts: array of TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint);
+var
+	fSin, fCos: Extended;
+	nPoint: Integer;
+	fX, fY: Single;
+begin
+	// As with "RotatePoint", but works on an array of points to rotate
+	fSin := Sin(fAngle);
+	fCos := Cos(fAngle);
+	for nPoint:=Low(fpts) to High(fpts) do
+		begin
+		fX := (fpts[nPoint].X - fptOrigin.X);
+		fY := (fpts[nPoint].Y + fptOrigin.Y);
+		fpts[nPoint].X := (((fX * fCos) - (fY * fSin)) + fptOrigin.X);
+		fpts[nPoint].Y := (((fX * fSin) + (fY * fCos)) - fptOrigin.Y);
+		end;
+end;
+// End: Public methods
 
 end.
