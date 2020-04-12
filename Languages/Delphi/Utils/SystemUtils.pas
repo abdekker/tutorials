@@ -101,6 +101,7 @@ procedure ChangeFilename(strOldPath, strNewPath: String);
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
+function ConvertTitleCase(const cstrInput: String) : String;
 
 // System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
@@ -1466,6 +1467,17 @@ begin
 	Result := (
 		FormatDateTime(DATE_FORMAT, dtSource) + 'T' +
 		FormatDateTime(TIME_FORMAT, dtSource));
+end;
+
+function ConvertTitleCase(const cstrInput: String) : String;
+var
+	strOutput: String;
+begin
+	// Convert "CHICKEN" or "chicken" to "Chicken"
+	strOutput:= (
+		AnsiUppercase(MidStr(cstrInput, 1, 1)) +
+		AnsiLowercase(MidStr(cstrInput, 2, Length(cstrInput))));
+	Result := strOutput;
 end;
 
 // System, math and other general methods
