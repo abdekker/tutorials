@@ -23,6 +23,7 @@ function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
 function DeleteFolder(strFolder: String) : Boolean;
+procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
 
 // System
 procedure SaveToClipboard(const cstrText: String);
@@ -176,6 +177,22 @@ begin
 		end;
 
 	Result := RemoveDirectory(PChar(strFolder));
+end;
+
+procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
+var
+	find: TSearchRec;
+begin
+	// Find all files in Source (based on wildcard) and copy to Target
+	if (FindFirst(strSourceFolder + '\' + strWildCard, faAnyFile - faDirectory, find) = 0) then
+		begin
+		repeat
+			CopyFile(PChar(strSourceFolder + '\' + find.Name),
+				PChar(strTargetFolder + '\' + find.Name), False);
+		until (FindNext(find) <> 0);
+
+		FindClose(find);
+		end;
 end;
 
 // System
