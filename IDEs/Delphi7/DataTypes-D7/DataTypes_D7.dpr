@@ -7,8 +7,7 @@ program DataTypes_D7;
 
 uses
   Windows, Math, SysUtils,
-  ConsoleUtils in '..\..\..\Languages\Delphi\Utils\ConsoleUtils.pas',
-  MinimalUnit  in '..\..\..\Languages\Delphi\Utils\MinimalUnit.pas';
+  ConsoleUtils in '..\..\..\Languages\Delphi\Utils\ConsoleUtils.pas';
 
 var
 	tab: Char;
