@@ -17,6 +17,7 @@ type
 // Windows
 function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
+procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -97,6 +98,29 @@ begin
 	Result := (
 		((osVersionInfo.dwMajorVersion = 6) and (osVersionInfo.dwMinorVersion >= 2)) or
 		(osVersionInfo.dwMajorVersion = 10));
+end;
+
+procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
+var
+	szSystemFolder: array[0..(MAX_PATH+1)] of Char;
+begin
+	// Set the path to %WinDir%\System32
+	// Note to developer: Delphi 7 produces 32-bit application only, so if running on 64-bit
+	// Windows, calls to the 64-bit "System32" folder will be subject to redirection under WOW64.
+	if (bRedirect) and (IsWindows64Bit()) then
+		begin
+		// 64-bit Windows (ie. our application is running WOW64)
+		// Note: This will usually be "C:\Windows\Sysnative\"
+		GetWindowsDirectory(szSystemFolder, MAX_PATH+1);
+		strSys32 := (IncludeTrailingPathDelimiter(szSystemFolder) + 'Sysnative' + PathDelim);
+		end
+	else
+		begin
+		// 32-bit Windows (or the standard path, ignoring re-direction issues)
+		// Note: This will usually be "C:\Windows\System32\"
+		GetSystemDirectory(szSystemFolder, MAX_PATH+1);
+		strSys32 := IncludeTrailingPathDelimiter(szSystemFolder);
+		end;
 end;
 
 // File utilities
