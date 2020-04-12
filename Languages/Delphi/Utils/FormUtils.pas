@@ -4,7 +4,7 @@ unit FormUtils;
 interface
 
 uses
-  Windows, Controls, StdCtrls;
+  Windows, Classes, Controls, StdCtrls;
 
 const
   DUMMY_INTERFACE_CONSTANT = 0;
@@ -13,6 +13,11 @@ type
   PDummyInterfacePointer = ^Integer;
 
 // Public methods
+
+// General controls
+procedure DumpToFile(comp: TComponent; const cstrFile: String);
+function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
+function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
 
 // TComboBox
 procedure SetComboHandlers(control: TControl);
@@ -24,7 +29,7 @@ procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 implementation
 
 uses
-  Graphics, Messages;
+  Buttons, ComCtrls, Graphics, Messages, SysUtils;
 
 const
   // Maximum level of nesting for iterating child controls (eg. setting character set)
@@ -42,6 +47,77 @@ var
   eventHandlers: TEventHandlers;
 
 // Start: Public methods
+// General controls
+procedure DumpToFile(comp: TComponent; const cstrFile: String);
+var
+	strmObject: TFileStream;
+begin
+	// Debugging utility to save an object (derived from TComponent) to file. Example usage:
+	//		DumpToFile(Self, Format('C:\Tmp\Dbg%.3d.txt', [SOME_NUMBER]));
+	strmObject := TFileStream.Create(cstrFile, (fmCreate or fmShareDenyNone));
+	try
+		strmObject.WriteComponent(comp);
+	finally
+		strmObject.Free();
+	end;
+end;
+
+function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
+var
+	txtSize: TSize;
+	handleDC: HDC;
+begin
+	// Return the size of text displayed on a TWinControl control (eg. TStaticText)
+	txtSize.cx := 0;
+	txtSize.cy := 0;
+
+	// Get a device context (this can be cached to improve performance)
+	handleDC := GetDC(0);
+
+	// Assign a device context (DC) to the control depending on its type. Add control types
+	// (derived from TWinControl) as required.
+	if (wc is TStaticText) then
+		SelectObject(handleDC, TStaticText(wc).Font.Handle)
+	else if (wc is TMemo) then
+		SelectObject(handleDC, TMemo(wc).Font.Handle)
+	else if (wc is TListView) then
+		SelectObject(handleDC, TListView(wc).Font.Handle);
+
+	// Calculate the size this text will occupy on-screen (using the current font)
+	GetTextExtentPoint32(handleDC, PChar(strCaption), Length(strCaption), txtSize);
+	Result := txtSize;
+
+	// Release the device context
+	ReleaseDC(0, handleDC);
+end;
+
+function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
+var
+	txtSize: TSize;
+	handleDC: HDC;
+begin
+	// Return the size of text displayed on a TGraphicControl control (eg. TSpeedButton)
+	txtSize.cx := 0;
+	txtSize.cy := 0;
+	if (gc is TSpeedButton) then
+		begin
+		// Get a device context (this can be cached to improve performance)
+		handleDC := GetDC(0);
+
+		// Assign the DC to the control depending on its type
+		// Note: Currently only TSpeedButton is supported
+		SelectObject(handleDC, TSpeedButton(gc).Font.Handle);
+
+		// Calculate the size this text will occupy on-screen (using the current font)
+		GetTextExtentPoint32(handleDC, PChar(strCaption), Length(strCaption), txtSize);
+
+		// Release the device context
+		ReleaseDC(0, handleDC);
+		end;
+
+	Result := txtSize;
+end;
+
 // TComboBox
 procedure SetComboHandlers(control: TControl);
 begin
