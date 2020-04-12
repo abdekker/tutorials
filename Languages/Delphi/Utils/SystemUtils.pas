@@ -7,7 +7,15 @@ uses
   Windows, Classes, StdCtrls;
 
 const
-  DUMMY_INTERFACE_CONSTANT = 0;
+  // Windows constants for drives
+  DRIVE_UNKNOWN			= 0;
+  DRIVE_NO_ROOT_DIR		= 1;
+  DRIVE_REMOVABLE		= 2;
+  DRIVE_FIXED			= 3;
+  DRIVE_REMOTE			= 4;
+  DRIVE_CDROM			= 5;
+  DRIVE_RAMDISK			= 6;
+  DRIVE_ALL_TYPES		= 99;	// Non-Windows constant for "All of the above"
 
 type
   PDummyInterfacePointer = ^Integer;
@@ -26,6 +34,7 @@ function IsThreadRunning(dwThreadID: DWORD) : Boolean;
 function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
 function GetDiskFileSystem(const cstrDrive: String) : String;
+function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -365,6 +374,80 @@ begin
 	// system can be updated from the command line using:
 	//		convert c: /fs:ntfs
 	// This change is one-way! Once you convert to NTFS, you cannot switch back to FAT32.
+end;
+
+function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
+var
+	dwDrives, dwDriveType: DWORD;
+	acDrives: array[0..128] of Char;
+	pDrive: PChar;
+	strAllDrives, strTmp: String;
+	bFirstDrive: Boolean;
+begin
+	// Build up a list of all drives defined on (or attached to) the system
+	strAllDrives := '?';
+	dwDrives := GetLogicalDriveStrings(SizeOf(acDrives), acDrives);
+	if (dwDrives > 0) then
+		begin
+		if (dwDrives > SizeOf(acDrives)) then
+			raise Exception.Create(SysErrorMessage(ERROR_OUTOFMEMORY));
+
+		pDrive := acDrives;
+		strAllDrives := '';
+		bFirstDrive := True;
+		while (pDrive^ <> #0) do
+			begin
+			// Each drive type has an associated type
+			strTmp := '';
+			dwDriveType := GetDriveType(pDrive);
+			if (dwDriveType = DRIVE_UNKNOWN) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_UNKNOWN)) then
+				strTmp := Format('%s [Unknown]', [pDrive]);
+
+			if (dwDriveType = DRIVE_NO_ROOT_DIR) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_NO_ROOT_DIR)) then
+				strTmp := Format('%s [No Root]', [pDrive]);
+
+			if (dwDriveType = DRIVE_REMOVABLE) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_REMOVABLE)) then
+				strTmp := Format('%s [Removable]', [pDrive]);
+
+			if (dwDriveType = DRIVE_FIXED) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_FIXED)) then
+				strTmp := Format('%s [Fixed]', [pDrive]);
+
+			if (dwDriveType = DRIVE_REMOTE) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_REMOTE)) then
+				strTmp := Format('%s [Net]', [pDrive]);
+
+			if (dwDriveType = DRIVE_CDROM) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_CDROM)) then
+				strTmp := Format('%s [CD]', [pDrive]);
+
+			if (dwDriveType = DRIVE_RAMDISK) and
+					((cdwDrives = DRIVE_ALL_TYPES) or (cdwDrives = DRIVE_RAMDISK)) then
+				strTmp := Format('%s [RAM]', [pDrive]);
+
+			// Remove trailing backslashes
+			strTmp := StringReplace(strTmp, '\', '', [rfReplaceAll]);
+
+			// Build up the list of drives...
+			if (Length(strTmp) > 0) then
+				begin
+				if (bFirstDrive) then
+					strAllDrives := (strAllDrives + Format('%s', [strTmp]))
+				else
+					strAllDrives := (strAllDrives + Format(', %s', [strTmp]));
+
+				bFirstDrive := False;
+				end;
+
+			// Move onto the next drive
+			Inc(pDrive, 4);
+			end;
+		end;
+
+	Result := strAllDrives;
 end;
 
 // File utilities
