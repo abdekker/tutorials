@@ -107,6 +107,8 @@ function RotatePoint(pt: TPoint; fAngle: Single; ptOrigin: TPoint) : TPoint; ove
 function RotatePoint(fpt: TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint) : TFloatPoint; overload
 procedure RotatePoints(var pts: array of TPoint; fAngle: Single; ptOrigin: TPoint); overload
 procedure RotatePoints(var fpts: array of TFloatPoint; fAngle: Single; fptOrigin: TFloatPoint); overload
+function DegreesToRadians(fDegrees: Single) : Single;
+function RadiansToDegrees(fDegrees: Single) : Single;
 
 implementation
 
@@ -1464,6 +1466,18 @@ begin
 		fpts[nPoint].X := (((fX * fCos) - (fY * fSin)) + fptOrigin.X);
 		fpts[nPoint].Y := (((fX * fSin) + (fY * fCos)) - fptOrigin.Y);
 		end;
+end;
+
+function DegreesToRadians(fDegrees: Single) : Single;
+begin
+	// Convert an angle in degrees into radians
+	Result := ((fDegrees / 180.0) * Pi);
+end;
+
+function RadiansToDegrees(fDegrees: Single) : Single;
+begin
+	// Convert an angle in radians into degrees
+	Result := ((fDegrees / Pi) * 180.0);
 end;
 // End: Public methods
 
