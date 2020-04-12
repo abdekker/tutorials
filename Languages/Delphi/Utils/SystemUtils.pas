@@ -102,6 +102,7 @@ function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
+function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
 
 // System, math and other general methods
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
@@ -1478,6 +1479,44 @@ begin
 		AnsiUppercase(MidStr(cstrInput, 1, 1)) +
 		AnsiLowercase(MidStr(cstrInput, 2, Length(cstrInput))));
 	Result := strOutput;
+end;
+
+function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
+var
+	strRandom: String;
+	astrChars: TStringList;
+	byStart, byEnd, byCharacter: BYTE;
+begin
+	// Generate a randomised string (usually for test purposes)
+	strRandom := '';
+	if (cbyLength > 0) and (cbyLength < 200) then
+		begin
+		// Assign allowed characters to a temporary array
+		astrChars := TStringList.Create();
+		if (cbLettersOnly) then
+			begin
+			// Lowercase letters only
+			byStart := 97;	// a
+			byEnd := 122;	// z
+			end
+		else
+			begin
+			// Any printable ASCII character
+			byStart := 33;	// !
+			byEnd := 126;	// ~
+			end;
+
+		for byCharacter:=byStart to byEnd do
+			astrChars.Add(Chr(byCharacter));
+
+		for byCharacter:=0 to (cbyLength-1) do
+			strRandom := (strRandom + astrChars[Random(astrChars.Count)]);
+
+		// Clean up
+		astrChars.Free();
+		end;
+
+	Result := strRandom;
 end;
 
 // System, math and other general methods
