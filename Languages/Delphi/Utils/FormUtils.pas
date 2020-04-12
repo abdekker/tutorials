@@ -23,6 +23,9 @@ function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: Strin
 procedure SetComboHandlers(control: TControl);
 procedure SetChildComboHandlers(parent: TWinControl; nSubLevel: Integer = 0);
 
+// TListBox and TListView
+function GetListVisibleRows(list: TCustomListControl) : Integer;
+
 // TMemo
 procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 
@@ -152,6 +155,37 @@ begin
 				end;
 			end;
 		end;
+end;
+
+// TListBox and TListView
+function GetListVisibleRows(list: TCustomListControl) : Integer;
+var
+	nVisibleRows: Integer;
+	txtSize: TSize;
+begin
+	// Calculate the number of visible rows in TListBox and TListView controls
+	nVisibleRows := 0;
+	if (list is TListBox) then
+		begin
+		// TListBox
+		// Note to developer: If you use "Round", this will return the number of rows that are
+		// fully AND partially visible. "Trunc" returns the number of visible rows before a
+		// vertical scrollbar is required.
+		nVisibleRows := Trunc(TListBox(list).ClientHeight / TListBox(list).ItemHeight);
+		end
+	else if (list is TListView) then
+		begin
+		// TListView
+		txtSize := GetWinControlPixelSize(list, 'Xy');
+		nVisibleRows := Trunc((TListView(list).ClientHeight - 6) / (txtSize.cy + 1));
+
+		// Note to developer: An alternative method is to create a temporary TListView, and work
+		// out the space required to display a single item in the list. This requires the caller
+		// to add a parameter for the parent form ie. "form: TForm". While this works, it is ~200
+		// times slower.
+		end;
+
+	Result := nVisibleRows;
 end;
 
 // TMemo
