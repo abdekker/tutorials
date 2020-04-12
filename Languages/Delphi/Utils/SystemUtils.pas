@@ -216,6 +216,39 @@ begin
 		Result := dwFileSize;
 end;
 
+function GetFullFileVersion(szFile: PChar) : String;
+var
+	strVersion: String;
+	pstrBuffer: PChar;
+	dwSize, dwLength: DWORD;
+	pVersion: pointer;
+	ver: VS_FIXEDFILEINFO;
+begin
+	// Retrieve file version info as MAJOR.MINOR.MICRO.BUILD eg. "v1.54.0.325"
+	strVersion := '';
+	dwSize := GetFileVersionInfoSize(szFile, dwSize);
+	if (dwSize > 0) then
+		begin
+		pstrBuffer := AllocMem(dwSize);
+		try
+			GetFileVersionInfo(szFile, 0, dwSize, pstrBuffer);
+			if (VerQueryValue(pstrBuffer, PChar(strVersion), pVersion, dwLength)) then
+				begin
+				CopyMemory(@ver, pVersion, SizeOf(ver));
+				strVersion := Format('v%d.%d.%d.%d', [
+					ver.dwFileVersionMS shr 16,
+					ver.dwFileVersionMS and $FFFF,
+					ver.dwFileVersionLS shr 16,
+					ver.dwFileVersionLS and $FFFF]);
+				end;
+		finally
+			FreeMem(pstrBuffer, dwSize);
+		end;
+	end;
+
+	Result := strVersion;
+end;
+
 // System
 procedure SaveToClipboard(const cstrText: String);
 begin
