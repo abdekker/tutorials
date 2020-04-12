@@ -20,6 +20,9 @@ function IsWindows10() : Boolean;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
 function ExpandEnvironment(const cstrValue: String): String;
 function IsProcessRunning(strProcessName: String) : Boolean;
+function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
+function GetSystemThreadCount() : Integer;
+function IsThreadRunning(dwThreadID: DWORD) : Boolean;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
@@ -188,6 +191,103 @@ begin
 	end;
 
 	Result := bFound;
+end;
+
+function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
+var
+	nThreadCount: Integer;
+	hSnapShot: THandle;
+	bNextThread: Boolean;
+	threadEntry: TThreadEntry32;
+begin
+	// Returns the number of running threads in the given process
+	nThreadCount := 0;
+	hSnapShot := CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hSnapShot <> INVALID_HANDLE_VALUE) then
+		begin
+		try
+			// Get the first thread
+			threadEntry.dwSize := SizeOf(TThreadEntry32);
+			bNextThread := Thread32First(hSnapShot, threadEntry);
+			while (bNextThread) do
+				begin
+				if (threadEntry.th32OwnerProcessID = dwProcessID) then
+					begin
+					// This thread is owned by the requested process...
+					Inc(nThreadCount);
+					end;
+
+				// Onto the next thread
+				bNextThread := Thread32Next(hSnapShot, threadEntry);
+			end;
+		finally
+			// Close handle
+			CloseHandle(hSnapShot);
+		end;
+		end;
+
+	Result := nThreadCount;
+end;
+
+function GetSystemThreadCount() : Integer;
+var
+	nThreadCount: Integer;
+	hSnapShot: THandle;
+	bNextThread: Boolean;
+	threadEntry: TThreadEntry32;
+begin
+	// Count total threads for all processes (see "GetProcessThreadCount")
+	nThreadCount := 0;
+	hSnapShot := CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hSnapShot <> INVALID_HANDLE_VALUE) then
+		begin
+		try
+			threadEntry.dwSize := SizeOf(TThreadEntry32);
+			bNextThread := Thread32First(hSnapShot, threadEntry);
+			while (bNextThread) do
+				begin
+				Inc(nThreadCount);
+				bNextThread := Thread32Next(hSnapShot, threadEntry);
+				end;
+		finally
+			CloseHandle(hSnapShot);
+		end;
+		end;
+
+	Result := nThreadCount;
+end;
+
+function IsThreadRunning(dwThreadID: DWORD) : Boolean;
+var
+	bThreadRunning: Boolean;
+	hSnapShot: THandle;
+	bNextThread: Boolean;
+	threadEntry: TThreadEntry32;
+begin
+	// Determine if the requested thread is running (see "GetProcessThreadCount")
+	bThreadRunning := False;
+	hSnapShot := CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hSnapShot <> INVALID_HANDLE_VALUE) then
+		begin
+		try
+			threadEntry.dwSize := SizeOf(TThreadEntry32);
+			bNextThread := Thread32First(hSnapShot, threadEntry);
+			while (bNextThread) do
+				begin
+				if (threadEntry.th32ThreadID = dwThreadID) then
+					begin
+					bThreadRunning := True;
+					break;
+					end;
+
+				bNextThread := Thread32Next(hSnapShot, threadEntry);
+				end;
+		finally
+			CloseHandle(hSnapShot);
+		end;
+		end;
+
+	Result := bThreadRunning;
 end;
 
 // File utilities
