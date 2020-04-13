@@ -1405,7 +1405,7 @@ var
 	nErrorCode: Integer;
 begin
 	// Helper function to convert string to integer. Usage:
-	//		bSuccess:= TryStrToInt(ebValue.Text, nValue);
+	//		bSuccess := TryStrToInt(ebValue.Text, nValue);
 
 	// Examples:
 	//		TryStrToInt("13", nValue)		True, nValue set to 13
