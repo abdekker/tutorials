@@ -7,6 +7,7 @@ Additional details on puzzles (where the one-line description i
 0005: Sort an array, removing duplicates except 1s. Place duplicate 1s at the end.
 0006: Modify each element of an array by multiplying it by a constant factor
 0007: Generate a square spiral matrix from 1 to n^2
+0008: In the MIU system invented by Douglas R. Hofstadter, can the word "MU" be generated from "MI"?
 
 ### 0001 - nothing more required ###
 ### 0002 - nothing more required ###
@@ -49,4 +50,25 @@ Example: With input 3 the output is
 	[ 1 2 3 ]
 	[ 8 9 4 ]
 	[ 7 6 5 ]
+#
+
+### 0008 ###
+In his book, "Godel, Escher, Bach: An eternal golden braid", Douglas R. Hofstadter presented the "MIU" formal system.
+This has one axiom and four rules of production.
+
+Axiom: Strings are formed with the letters "M", "I" and "U". Only these letters are allowed.
+
+Rules of production:
+1) If you have MxI, you may make a new string MxIU
+2) If you have Mx, you may make a new string Mxx
+3) If you have a string with "III" anywhere in it, you may make a new string by replacing "III" with "U"
+4) If you have a string with "UU" anywhere in it, you may make a new string by dropping "UU"
+
+Examples:
+1) Given MUI, you may add MUIU to your collection
+2) Given MIIU, you may add MIIUIIU to your collection
+3) Given MIIII, you may add MUI or MIU to your collection
+4) Given MIUUIU, you may add MIIU to your collection
+
+You are given only the starting word "MI". Can the word "MU" be formed? Assume a maximum length of string of 20 characters.
 #

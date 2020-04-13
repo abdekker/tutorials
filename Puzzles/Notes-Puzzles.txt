@@ -8,3 +8,4 @@ These puzzles are common programming tasks, such as might be asked in a job inte
 0005: Sort an array, removing duplicates except 1s. Place duplicate 1s at the end.
 0006: Modify each element of an array by multiplying it by a constant factor
 0007: Generate a square spiral matrix from 1 to n^2
+0008: In the MIU system invented by Douglas R. Hofstadter, can the word "MU" be generated from "MI"?
