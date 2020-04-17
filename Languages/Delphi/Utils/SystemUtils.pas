@@ -105,8 +105,9 @@ function ConvertWideStringToString(wstrInput: WideString): String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
-function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
+function InsertFormattingChar(const cstrInput: String; const cChar: Char; const cnSpacing: Integer) : String;
 procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
+function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
 
 // Mathematics and geometry
 function WithinRect(pt: TPoint; rct: TRect): Boolean;
@@ -1545,6 +1546,44 @@ begin
 	Result := strOutput;
 end;
 
+function InsertFormattingChar(const cstrInput: String; const cChar: Char; const cnSpacing: Integer) : String;
+var
+	strFormatted: String;
+	nPos, nSpaces: Integer;
+begin
+	// Utility function which inserts a formatting character into a string. Example:
+	// * You have a MAC address "0052C2539000" you wish to format as "00-52-C2-53-90-00"
+	// * Input = "0052C2539000", character = '-', spacing = 2
+	strFormatted := '';
+	if (cnSpacing > 0) then
+		begin
+		nSpaces := 0;
+		for nPos:=1 to Length(cstrInput) do
+			begin
+			if (nSpaces = cnSpacing) then
+				begin
+				strFormatted := (strFormatted + cChar);
+				nSpaces := 0;
+				end;
+
+			strFormatted := (strFormatted + cstrInput[nPos]);
+			Inc(nSpaces);
+			end;
+		end;
+
+	Result := strFormatted;
+end;
+
+procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
+begin
+	// Parse a string based on the delimiter. For example the string "a.b.11.22" is converted
+	// into the list {a, b, 11, 22}.
+
+	// A Delphi 7 bug in "ExtractStrings" is apparently addressed in later versions of Delphi. The
+	// solution below was suggested in: https://stackoverflow.com/questions/2625707
+	list.Text := AnsiReplaceStr(strSource, strDelimiter, #13#10);
+end;
+
 function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
 var
 	strRandom: String;
@@ -1581,16 +1620,6 @@ begin
 		end;
 
 	Result := strRandom;
-end;
-
-procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
-begin
-	// Parse a string based on the delimiter. For example the string "a.b.11.22" is converted
-	// into the list {a, b, 11, 22}.
-
-	// A Delphi 7 bug in "ExtractStrings" is apparently addressed in later versions of Delphi. The
-	// solution below was suggested in: https://stackoverflow.com/questions/2625707
-	list.Text := AnsiReplaceStr(strSource, strDelimiter, #13#10);
 end;
 
 // Mathematics and geometry
