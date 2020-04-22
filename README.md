@@ -6,4 +6,4 @@ Public and private keys for https://github.com/abdekker stored at ~/.ssh:
 	
 git can be used from Ubuntu or Windows
 
-test 12
+Update 2020-04-22: Added Git to Windows 10 64-bit!
