@@ -1,6 +1,5 @@
 @echo off
 rem setlocal EnableDelayedExpansion
-rem Test: 2020-04-22
 
 rem This script demonstrate using strings in DOS scripting
 
