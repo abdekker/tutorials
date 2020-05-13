@@ -30,12 +30,12 @@ object frmSampleApplication: TfrmSampleApplication
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    object lblSample: TLabel
+    object lblSample1: TLabel
       Left = 15
       Top = 85
-      Width = 59
+      Width = 61
       Height = 16
-      Caption = 'Some text'
+      Caption = 'Variable 1'
     end
     object lblCategory: TLabel
       Left = 15
@@ -51,8 +51,22 @@ object frmSampleApplication: TfrmSampleApplication
       Height = 16
       Caption = 'Action'
     end
-    object ebSample: TEdit
-      Left = 115
+    object lblSample2: TLabel
+      Left = 15
+      Top = 115
+      Width = 61
+      Height = 16
+      Caption = 'Variable 2'
+    end
+    object lblSample3: TLabel
+      Left = 15
+      Top = 145
+      Width = 61
+      Height = 16
+      Caption = 'Variable 3'
+    end
+    object ebSample1: TEdit
+      Left = 135
       Top = 80
       Width = 400
       Height = 28
@@ -64,10 +78,10 @@ object frmSampleApplication: TfrmSampleApplication
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      Text = 'sample text'
+      Text = 'sample text 1'
     end
     object btnProcess: TButton
-      Left = 525
+      Left = 545
       Top = 45
       Width = 100
       Height = 35
@@ -76,7 +90,7 @@ object frmSampleApplication: TfrmSampleApplication
       OnClick = btnProcessClick
     end
     object ddlCategory: TComboBox
-      Left = 115
+      Left = 135
       Top = 20
       Width = 250
       Height = 28
@@ -93,7 +107,7 @@ object frmSampleApplication: TfrmSampleApplication
       OnChange = ddlCategoryChange
     end
     object ddlAction: TComboBox
-      Left = 115
+      Left = 135
       Top = 50
       Width = 400
       Height = 28
@@ -111,12 +125,61 @@ object frmSampleApplication: TfrmSampleApplication
     end
     object listOutput: TListBox
       Left = 5
-      Top = 115
+      Top = 175
       Width = 825
-      Height = 480
+      Height = 420
       Color = clInfoBk
       ItemHeight = 16
       TabOrder = 4
+    end
+    object ebSample2: TEdit
+      Left = 135
+      Top = 110
+      Width = 400
+      Height = 28
+      Color = clInfoBk
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      Text = 'sample text 2'
+    end
+    object ebSample3: TEdit
+      Left = 135
+      Top = 140
+      Width = 400
+      Height = 28
+      Color = clInfoBk
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 6
+      Text = 'sample text 3'
+    end
+    object lblExplanationText: TStaticText
+      Left = 545
+      Top = 85
+      Width = 280
+      Height = 85
+      AutoSize = False
+      BorderStyle = sbsSingle
+      Caption = 'Explanation text...'
+      Color = clWhite
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 7
+      Visible = False
     end
   end
   object btnExit: TButton

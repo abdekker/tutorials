@@ -5,6 +5,7 @@ uses
   SampleApplicationForm in 'SampleApplicationForm.pas' {frmSampleApplication},
 
   CoreFormClasses in '..\..\..\Languages\Delphi\Utils\CoreFormClasses.pas',
+  CoreTypes in '..\..\..\Languages\Delphi\Utils\CoreTypes.pas',
   FormUtils in '..\..\..\Languages\Delphi\Utils\FormUtils.pas',
   SystemUtils in '..\..\..\Languages\Delphi\Utils\SystemUtils.pas';
 

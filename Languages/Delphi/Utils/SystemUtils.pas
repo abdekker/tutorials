@@ -4,48 +4,15 @@ unit SystemUtils;
 interface
 
 uses
-  Windows, Classes, StdCtrls;
+  Windows, Classes, StdCtrls,
+  CoreTypes;
 
 const
-  // Windows constants for drives
-  DRIVE_UNKNOWN			= 0;
-  DRIVE_NO_ROOT_DIR		= 1;
-  DRIVE_REMOVABLE		= 2;
-  DRIVE_FIXED			= 3;
-  DRIVE_REMOTE			= 4;
-  DRIVE_CDROM			= 5;
-  DRIVE_RAMDISK			= 6;
-  DRIVE_ALL_TYPES		= 99;	// Non-Windows constant for "All of the above"
-
-  // Network adapters
-  MAX_ADAPTER_ADDRESS_LENGTH		= 8;
-  MAX_ADAPTER_DESCRIPTION_LENGTH	= 128;
-  MAX_ADAPTER_NAME_LENGTH			= 256;
-
-type
-  // Information about a specific network adapter
-  ADAPTER_INFO = record
-	bLive, bDhcpEnabled: Boolean;
-	strMacAddress, strDescription, strIpAddress, strSubnetMask: String;
-  end;
-
-  // Generic floating-point precision point
-  PFloatPoint = ^TFloatPoint;
-  TFloatPoint = packed record
-	X, Y: Single;
-  end;
-
-  // Generic floating-point precision rectangle
-  PFloatRect = ^TFloatRect;
-  TFloatRect = packed record
-	Left, Top, Right, Bottom: Single;
-  end;
-
-  // Generic quadrilateral
-  PQuadrilateral = ^TQuadrilateral;
-  TQuadrilateral = packed record
-	aPts: array[0..3] of TPoint;
-  end;
+  // String-to-Number extraction options
+  STR_NUMERIC		= $01;	// "0" to "9"
+  STR_MINUS			= $02;	// "-"  } Combine these if a plus symbol is likely
+  STR_PLUS			= $04;	// "+"  }
+  STR_DECIMAL		= $08;	// "."
 
 // Public methods
 
@@ -60,7 +27,7 @@ function GetSystemThreadCount() : Integer;
 function IsThreadRunning(dwThreadID: DWORD) : Boolean;
 function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
-function GetDiskFileSystem(const cstrDrive: String) : String;
+function GetDriveFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
 procedure SaveToClipboard(const cstrText: String);
 
@@ -100,6 +67,10 @@ procedure ChangeFilename(strOldPath, strNewPath: String);
 // String
 function IsNumber(const cstrInput: String) : Boolean;
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
+function ExtractNumber(const cstrInput: String; byOptions: BYTE = STR_NUMERIC) : String;
+function ConvertNumberWithThousands(const cfInput: Single) : String;
+function ConvertNumberWithSpaces(const cdwInput: DWORD) : String;
+function ConvertNumberWithMaxDigits(const cfInput: Single; nTotalDigits: Integer) : String;
 function ConvertStringToWideString(strInput: String) : WideString;
 function ConvertWideStringToString(wstrInput: WideString): String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
@@ -133,29 +104,6 @@ implementation
 
 uses
   Clipbrd, Math, Registry, StrUtils, SysUtils, TLHelp32, WinSock;
-
-const
-  // Disk sizes / capacities
-  KILO_BYTE		= Int64(1024);
-  MEGA_BYTE		= Int64(1024 * KILO_BYTE);
-  GIGA_BYTE		= Int64(1024 * MEGA_BYTE);
-  TERA_BYTE		= Int64(1024 * GIGA_BYTE);
-
-  // Time constants
-  SECONDS_IN_DAY	= (3600 * 24);
-  SECONDS_IN_MONTH	= (3600 * 24 * 30);
-  SECONDS_IN_YEAR	= (3600 * 24 * 365);
-  MINUTES_IN_HOUR	= 60;
-  MINUTES_IN_DAY	= (24 * 60);
-
-  // Maximum time (used by various system timers that use GetTickCount)
-  MAX_TIME: DWORD = $FFFFFFFF;
-
-  // Date / time stamps are always given in ISO 8601 format (yyyy-mm-ddThh:nn:ss) regardless of
-  // what regional settings are in use
-  DATETIME_FORMAT_ISO8601	= '%.4d-%.2d-%.2dT%.2d:%.2d:%.2d';
-  DATE_FORMAT				= 'yyyy-mm-dd';
-  TIME_FORMAT				= 'hh:nn:ss';
 
 type
   // This record is used to specify shared network resources (eg. folders)
@@ -555,12 +503,13 @@ begin
 		end;
 end;
 
-function GetDiskFileSystem(const cstrDrive: String) : String;
+function GetDriveFileSystem(const cstrDrive: String) : String;
 var
 	szPartitionType: array[0..32] of Char;
 	dwDummy: DWORD;
 begin
-	// Return the file system (usually NTFS or FAT32)
+	// Return the file system (usually NTFS or FAT32). Drive should be in the form "X:\", though
+	// "X:" sometimes works.
 	GetVolumeInformation(PChar(cstrDrive), nil, 0, nil,
 		dwDummy, dwDummy, szPartitionType, SizeOf(szPartitionType));
 	Result := Format('%s', [szPartitionType]);
@@ -1413,6 +1362,114 @@ begin
 	//		TryStrToInt("1x", nValue)		False, nValue unchanged
 	Val(cstrInput, nOutput, nErrorCode);
 	Result := (nErrorCode = 0);
+end;
+
+function ExtractNumber(const cstrInput: String; byOptions: BYTE = STR_NUMERIC) : String;
+var
+	strNumber: String;
+	nLength, nChar: Integer;
+	setAllowed: set of Char;
+begin
+	// Given the input "-23.7m/min" convert as follows:
+	//		STR_NUMERIC										"237"
+	//		STR_NUMERIC | STR_WITH_SIGN						"-237"
+	//		STR_NUMERIC | STR_DECIMAL						"23.7"
+	//		STR_NUMERIC | STR_WITH_SIGN | STR_DECIMAL		"-23.7"
+	// Note: The STR_NUMERIC bit should always be set
+	strNumber := '';
+
+	// Work out which characters need to be included
+	nLength := Length(cstrInput);
+	if (nLength > 0) then
+		begin
+		// Build up the set of allowed characters
+		setAllowed := [];
+		if ((byOptions and STR_NUMERIC) <> 0) then
+			setAllowed := (setAllowed + ['0'..'9']);
+
+		if ((byOptions and STR_MINUS) <> 0) then
+			setAllowed := (setAllowed + ['-']);
+
+		if ((byOptions and STR_PLUS) <> 0) then
+			setAllowed := (setAllowed + ['+']);
+
+		if ((byOptions and STR_DECIMAL) <> 0) then
+			setAllowed := (setAllowed + ['.']);
+
+		// Extract the characters we are looking for
+		for nChar:=1 to nLength do
+			begin
+			if (cstrInput[nChar] in setAllowed) then
+				strNumber := (strNumber + cstrInput[nChar]);
+			end;
+		end
+	else
+		begin
+		// Empty string, so just return zero (if looking for numbers)
+		if ((byOptions and STR_NUMERIC) <> 0) then
+			strNumber := '0';
+		end;
+
+	// Return result; caller will convert from a string into the appropriate type
+	Result := strNumber;
+end;
+
+function ConvertNumberWithThousands(const cfInput: Single) : String;
+var
+	strNumber: String;
+	nPosDecimal: Integer;
+begin
+	// Given the number 1234567.89, convert into "1,234,567"
+	strNumber := Format('%n', [cfInput]);
+	nPosDecimal := Pos(DecimalSeparator, strNumber);
+	Result := AnsiLeftStr(strNumber, nPosDecimal - 1);
+end;
+
+function ConvertNumberWithSpaces(const cdwInput: DWORD) : String;
+var
+	dwTmp, dwBillions, dwMillions, dwThousands, dwUnits: DWORD;
+begin
+	// Given the input integer (unsigned 32-bit only!) 1234567, convert into "1 234 567"
+	dwTmp := cdwInput;
+	dwBillions := (dwTmp div GIGA);
+	dwTmp := (dwTmp - (GIGA * dwBillions));
+	dwMillions := (dwTmp div MEGA);
+	dwTmp := (dwTmp - (MEGA * dwMillions));
+	dwThousands := (dwTmp div KILO);
+	dwUnits := (dwTmp - (KILO * dwThousands));
+	if (dwBillions > 0) then
+		Result := Format('%d %.3d %.3d %.3d', [dwBillions, dwMillions, dwThousands, dwUnits])
+	else if (dwMillions > 0) then
+		Result := Format('%d %.3d %.3d', [dwMillions, dwThousands, dwUnits])
+	else if (dwThousands > 0) then
+		Result := Format('%d %.3d', [dwThousands, dwUnits])
+	else
+		Result := IntToStr(dwUnits);
+end;
+
+function ConvertNumberWithMaxDigits(const cfInput: Single; nTotalDigits: Integer) : String;
+var
+	nIntegralDigits: Integer;
+begin
+	// Format a floating point number with a target number of digits. Floats have a the general
+	// format "i.f", where "i" is the "integral" and "f" is the "fractional" part. The total number
+	// of digits is therefore (i + f), or the sum of digits before and after the decimal point.
+
+	// Examples (with a total of 6 digits):
+	//		1.2				formatted as "1.20000"
+	//		1.23456789		formatted as "1.23456"
+	//		1234.56789		formatted as "1234.56"
+
+	// Note: Negative numbers are not supported at the moment
+	Result := '0.0';
+	if (cfInput < MIN_SINGLE) then
+		Exit;
+
+	nIntegralDigits := (Trunc(Log10(cfInput)) + 1);
+	if (nIntegralDigits > nTotalDigits) then
+		Result := Format('%.0f', [cfInput])
+	else
+		Result := FloatToStrF(cfInput, ffFixed, 7, (nTotalDigits - nIntegralDigits));
 end;
 
 function ConvertStringToWideString(strInput: String) : WideString;
