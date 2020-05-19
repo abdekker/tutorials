@@ -114,6 +114,15 @@ const
   ACTION_STRINGS_IS_NUMBER				= 0;	// eCategoryStrings
   ACTION_STRINGS_TRY_STRING_TO_INT		= 1;
   ACTION_STRINGS_EXTRACT_NUMBER			= 2;
+  ACTION_STRINGS_CONVERT_THOUSANDS		= 3;
+  ACTION_STRINGS_CONVERT_SPACES			= 4;
+  ACTION_STRINGS_CONVERT_SIG_FIGURES	= 5;
+  ACTION_STRINGS_TIME_STRING_FROM_SECS	= 6;
+  ACTION_STRINGS_GET_ISO_DATETIME		= 7;
+  ACTION_STRINGS_CONVERT_TITLE_CASE		= 8;
+  ACTION_STRINGS_INSERT_FORMATTING_CHAR	= 9;
+  ACTION_STRINGS_PARSE_STRING			= 10;
+  ACTION_STRINGS_RANDOM_STRING			= 11;
 
 {$R *.dfm}
 
@@ -127,6 +136,8 @@ begin
 
 	m_nActionCurrent := -1;
 	m_nActionLastUpdate := -1;
+
+	RandSeed := Integer(GetTickCount() mod 223);
 end;
 
 procedure TfrmSampleApplication.FormShow(Sender: TObject);
@@ -290,6 +301,16 @@ begin
 	ddlAction.Items.AddObject('Is this a number ?', TObject(ACTION_STRINGS_IS_NUMBER));
 	ddlAction.Items.AddObject('Try convert to integer', TObject(ACTION_STRINGS_TRY_STRING_TO_INT));
 	ddlAction.Items.AddObject('Extract number', TObject(ACTION_STRINGS_EXTRACT_NUMBER));
+	ddlAction.Items.AddObject('Convert with thousand commas', TObject(ACTION_STRINGS_CONVERT_THOUSANDS));
+	ddlAction.Items.AddObject('Convert with thousand spaces', TObject(ACTION_STRINGS_CONVERT_SPACES));
+	ddlAction.Items.AddObject('Format float with specified significant figures',
+		TObject(ACTION_STRINGS_CONVERT_SIG_FIGURES));
+	ddlAction.Items.AddObject('Time string from seconds', TObject(ACTION_STRINGS_TIME_STRING_FROM_SECS));
+	ddlAction.Items.AddObject('Get ISO 8601 date/time string', TObject(ACTION_STRINGS_GET_ISO_DATETIME));
+	ddlAction.Items.AddObject('Convert title case', TObject(ACTION_STRINGS_CONVERT_TITLE_CASE));
+	ddlAction.Items.AddObject('Insert formatting char', TObject(ACTION_STRINGS_INSERT_FORMATTING_CHAR));
+	ddlAction.Items.AddObject('Parse string', TObject(ACTION_STRINGS_PARSE_STRING));
+	ddlAction.Items.AddObject('Generate random string', TObject(ACTION_STRINGS_RANDOM_STRING));
 end;
 
 procedure TfrmSampleApplication.UpdateControls(updates: CONTROL_UPDATES);
@@ -419,6 +440,72 @@ begin
 				'    0x04 = STR_PLUS ("+")' + #13 +
 				'    0x08 = STR_DECIMAL (".")');
 			end;
+
+		ACTION_STRINGS_CONVERT_THOUSANDS:
+			begin
+			updates.astrSampleTitle[1] := 'Number 1';
+			updates.astrSampleText[1] := '1234567.89';
+
+			updates.astrSampleTitle[2] := 'Number 2';
+			updates.astrSampleText[2] := '-34567';
+			end;
+
+		ACTION_STRINGS_CONVERT_SPACES:
+			begin
+			updates.astrSampleTitle[1] := 'Number 1';
+			updates.astrSampleText[1] := '1234567';
+
+			updates.astrSampleTitle[2] := 'Number 2';
+			updates.astrSampleText[2] := '34567';
+			end;
+
+		ACTION_STRINGS_CONVERT_SIG_FIGURES:
+			begin
+			updates.astrSampleTitle[1] := 'Number';
+			updates.astrSampleText[1] := '13.456839';
+
+			updates.astrSampleTitle[2] := 'Significant figures';
+			updates.astrSampleText[2] := '6';
+			end;
+
+		ACTION_STRINGS_TIME_STRING_FROM_SECS: ;
+		ACTION_STRINGS_GET_ISO_DATETIME: ;
+
+		ACTION_STRINGS_CONVERT_TITLE_CASE:
+			begin
+			updates.astrSampleTitle[1] := 'String 1';
+			updates.astrSampleText[1] := 'the cat SAT ON THE MAT';
+
+			updates.astrSampleTitle[2] := 'String 2';
+			updates.astrSampleText[2] := 'FRED LOVES ICE CREAM';
+			end;
+
+		ACTION_STRINGS_INSERT_FORMATTING_CHAR:
+			begin
+			updates.astrSampleTitle[1] := 'String';
+			updates.astrSampleText[1] := '0052C2539000';
+
+			updates.astrSampleTitle[2] := 'Formatting character';
+			updates.astrSampleText[2] := '-';
+
+			updates.astrSampleTitle[3] := 'Every N';
+			updates.astrSampleText[3] := '2';
+			end;
+
+		ACTION_STRINGS_PARSE_STRING:
+			begin
+			updates.astrSampleTitle[1] := 'String';
+			updates.astrSampleText[1] := '192.168.2.108';
+
+			updates.astrSampleTitle[2] := 'Parse string';
+			updates.astrSampleText[2] := '.';
+			end;
+
+		ACTION_STRINGS_RANDOM_STRING:
+			begin
+			updates.astrSampleTitle[1] := 'Length';
+			updates.astrSampleText[1] := '12';
+			end;
 		end;
 
 	UpdateControls(updates);
@@ -514,6 +601,7 @@ procedure TfrmSampleApplication.PerformAction_Strings();
 var
 	nTmp, nValue: Integer;
 	bTmp: Boolean;
+	listTmp: TStringList;
 begin
 	// Strings: Perform the action
 	case m_nActionCurrent of
@@ -543,7 +631,7 @@ begin
 		ACTION_STRINGS_EXTRACT_NUMBER:
 			begin
 			bTmp := False;
-			if (TryStrToInt(ebSample2.Text, nValue)) then
+			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
 				begin
 				if (nValue > Low(BYTE)) and (nValue < High(BYTE)) then
 					bTmp := True;
@@ -551,9 +639,92 @@ begin
 
 			if (bTmp) then
 				AddOutputText(Format('"%s" extracts to %s', [
-					ebSample1.Text, ExtractNumber(ebSample1.Text, nValue)]))
+					m_cache.aebSampleText[1].Text,
+					ExtractNumber(m_cache.aebSampleText[1].Text, nValue)]))
 			else
-				AddOutputText(Format('Option "%s" is invalid or out-of-range', [ebSample2.Text]));
+				AddOutputText(Format('Option "%s" is invalid or out-of-range', [
+					m_cache.aebSampleText[2].Text]));
+			end;
+
+		ACTION_STRINGS_CONVERT_THOUSANDS:
+			begin
+			for nTmp:=1 to 2 do
+				AddOutputText(Format('"%s" converts to %s', [
+					m_cache.aebSampleText[nTmp].Text,
+					ConvertNumberWithThousands(m_cache.aebSampleText[nTmp].Text)]));
+			end;
+
+		ACTION_STRINGS_CONVERT_SPACES:
+			begin
+			for nTmp:=1 to 2 do
+				AddOutputText(Format('"%s" converts to %s', [
+					m_cache.aebSampleText[nTmp].Text,
+					ConvertNumberWithSpaces(StrToInt(m_cache.aebSampleText[nTmp].Text))]));
+			end;
+
+		ACTION_STRINGS_CONVERT_SIG_FIGURES:
+			AddOutputText(Format('"%s" to %s significant figure is %s', [
+				m_cache.aebSampleText[1].Text,
+				m_cache.aebSampleText[2].Text,
+				ConvertNumberWithSigFigures(
+					StrToFloat(m_cache.aebSampleText[1].Text),
+					StrToInt(m_cache.aebSampleText[2].Text))]));
+
+		ACTION_STRINGS_TIME_STRING_FROM_SECS:
+			AddOutputText(Format('Computer has been powered-up for %s', [
+				GetTimeStringFromSeconds(GetTickCount() div 1000)]));
+
+		ACTION_STRINGS_GET_ISO_DATETIME:
+			AddOutputText(Format('The ISO-8601 format for now is %s', [GetIsoDateTimeString(Now())]));
+
+		ACTION_STRINGS_CONVERT_TITLE_CASE:
+			begin
+			for nTmp:=1 to 2 do
+				AddOutputText(Format('"%s" converts to %s', [
+					m_cache.aebSampleText[nTmp].Text,
+					ConvertTitleCase(m_cache.aebSampleText[nTmp].Text)]));
+			end;
+
+		ACTION_STRINGS_INSERT_FORMATTING_CHAR:
+			begin
+			if (TryStrToInt(m_cache.aebSampleText[3].Text, nValue)) then
+				AddOutputText(Format('"%s" converts to %s', [
+					m_cache.aebSampleText[1].Text,
+					InsertFormattingChar(
+						m_cache.aebSampleText[1].Text,
+						m_cache.aebSampleText[2].Text[1],
+						nValue)]))
+			else
+				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[3].Text]));
+			end;
+
+		ACTION_STRINGS_PARSE_STRING:
+			begin
+			listTmp := TStringList.Create();
+			ParseString(m_cache.aebSampleText[1].Text, m_cache.aebSampleText[2].Text, listTmp);
+			if (listTmp.Count > 1) then
+				begin
+				AddOutputText(Format('"%s" has sub-strings:', [m_cache.aebSampleText[1].Text]));
+				for nTmp:=0 to (listTmp.Count - 1) do
+					AddOutputText(Format('    %s', [listTmp[nTmp]]));
+				end
+			else
+				AddOutputText(Format('"%s" has NO sub-strings using delimiter "%s"', [
+					m_cache.aebSampleText[1].Text,
+					m_cache.aebSampleText[2].Text]));
+
+			listTmp.Free();
+			end;
+
+		ACTION_STRINGS_RANDOM_STRING:
+			begin
+			if (TryStrToInt(m_cache.aebSampleText[1].Text, nValue)) then
+				begin
+				AddOutputText(Format('%s   (lowercase letters)', [GetRandomString(nValue, True)]));
+				AddOutputText(Format('%s   (any character)', [GetRandomString(nValue, False)]));
+				end
+			else
+				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[3].Text]));
 			end;
 		end;
 end;

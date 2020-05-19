@@ -68,9 +68,10 @@ procedure ChangeFilename(strOldPath, strNewPath: String);
 function IsNumber(const cstrInput: String) : Boolean;
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 function ExtractNumber(const cstrInput: String; byOptions: BYTE = STR_NUMERIC) : String;
-function ConvertNumberWithThousands(const cfInput: Single) : String;
+function ConvertNumberWithThousands(const cfInput: Single) : String; overload;
+function ConvertNumberWithThousands(const cstrInput: String) : String; overload;
 function ConvertNumberWithSpaces(const cdwInput: DWORD) : String;
-function ConvertNumberWithMaxDigits(const cfInput: Single; nTotalDigits: Integer) : String;
+function ConvertNumberWithSigFigures(const cfInput: Single; nTotalDigits: Integer) : String;
 function ConvertStringToWideString(strInput: String) : WideString;
 function ConvertWideStringToString(wstrInput: WideString): String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
@@ -1415,14 +1416,19 @@ begin
 end;
 
 function ConvertNumberWithThousands(const cfInput: Single) : String;
-var
-	strNumber: String;
-	nPosDecimal: Integer;
 begin
-	// Given the number 1234567.89, convert into "1,234,567"
-	strNumber := Format('%n', [cfInput]);
-	nPosDecimal := Pos(DecimalSeparator, strNumber);
-	Result := AnsiLeftStr(strNumber, nPosDecimal - 1);
+	// An alternative implementation is:
+	//		strNumber := Format('%n', [cfInput]);
+	//		nPosDecimal := Pos(DecimalSeparator, strNumber);
+	//		Result := AnsiLeftStr(strNumber, nPosDecimal - 1);
+	// But this is slower, uses several local variables doesn't deal correctly with rounding
+	Result := FloatToStrF(Round(cfInput), ffNumber, 10, 0);
+end;
+
+function ConvertNumberWithThousands(const cstrInput: String) : String;
+begin
+	// See the other "ConvertNumberWithThousands" overload
+	Result := ConvertNumberWithThousands(StrToFloat(cstrInput));
 end;
 
 function ConvertNumberWithSpaces(const cdwInput: DWORD) : String;
@@ -1447,13 +1453,13 @@ begin
 		Result := IntToStr(dwUnits);
 end;
 
-function ConvertNumberWithMaxDigits(const cfInput: Single; nTotalDigits: Integer) : String;
+function ConvertNumberWithSigFigures(const cfInput: Single; nTotalDigits: Integer) : String;
 var
 	nIntegralDigits: Integer;
 begin
-	// Format a floating point number with a target number of digits. Floats have a the general
-	// format "i.f", where "i" is the "integral" and "f" is the "fractional" part. The total number
-	// of digits is therefore (i + f), or the sum of digits before and after the decimal point.
+	// Format a floating point number with a target number of digits (significant figures). Floats
+	// have the general format "a.b", where "a" is the "integral" and "b" is the "fractional" part.
+	// The total number of digits is (a + b), the sum of digits before and after the decimal point.
 
 	// Examples (with a total of 6 digits):
 	//		1.2				formatted as "1.20000"
