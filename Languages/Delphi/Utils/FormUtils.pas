@@ -7,7 +7,30 @@ uses
   Windows, Classes, Controls, Forms, StdCtrls;
 
 const
-  DUMMY_INTERFACE_CONSTANT = 0;
+  // Control types
+  CONTROL_TLABEL			= $0001;
+  CONTROL_TEDIT				= $0002;
+  CONTROL_TLABELEDEDIT		= $0004;
+  CONTROL_TCHECKBOX			= $0008;	// Includes TCheckBox and TTntCheckBox
+  CONTROL_TBUTTON			= $0010;
+  CONTROL_TBITBTN			= $0020;
+  CONTROL_TCOMBOBOX			= $0040;
+  CONTROL_TRADIO			= $0080;
+  CONTROL_TDATETIMEPICKER	= $0100;
+  CONTROL_TIMAGE			= $0200;
+  CONTROL_TPANEL			= $0400;
+  CONTROL_ALL				= (
+	CONTROL_TLABEL +
+	CONTROL_TEDIT +
+	CONTROL_TLABELEDEDIT +
+	CONTROL_TCHECKBOX +
+	CONTROL_TBUTTON +
+	CONTROL_TBITBTN +
+	CONTROL_TCOMBOBOX +
+	CONTROL_TRADIO +
+	CONTROL_TDATETIMEPICKER +
+	CONTROL_TIMAGE +
+	CONTROL_TPANEL);
 
 type
   // Type pointers
@@ -15,8 +38,13 @@ type
 
 // Public methods
 
-// General / System
+// Initialisation and cache
+procedure InitialiseFormUtils();
+procedure CloseFormUtils();
+
+// General
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
+function GetChildIndex(parent, child: TCustomControl) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
 procedure LockControl(control: TWinControl; bLock: Boolean);
@@ -48,11 +76,36 @@ type
 	procedure ddlComboCloseUp(Sender: TObject);
   end;
 
+  // Cache
+  CACHE_FORM_UTILS = record
+	// Generic device context
+	handleDC: HDC;
+  end;
+
+// Private variables (only modifiable from inside this unit)
 var
-  // Private variables are only modifiable from inside this unit
   eventHandlers: TEventHandlers;
+  m_cache: CACHE_FORM_UTILS;
 
 // Start: Public methods
+
+// Initialisation and cache
+procedure InitialiseFormUtils();
+begin
+	// Initialise the cache (and other private variables used in this unit)
+	ZeroMemory(@m_cache, SizeOf(CACHE_FORM_UTILS));
+
+	// Generic device context. Used to calculate the size of on-screen text. To use call:
+	//		SelectObject(m_cache.handleDC, HANDLE);
+	m_cache.handleDC := GetDC(0);
+end;
+
+procedure CloseFormUtils();
+begin
+	// Generic device context
+	ReleaseDC(0, m_cache.handleDC);
+end;
+
 // General / System
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
 var
@@ -66,6 +119,35 @@ begin
 	finally
 		strmObject.Free();
 	end;
+end;
+
+function GetChildIndex(parent, child: TCustomControl) : Integer;
+var
+	bFoundChild: Boolean;
+	nControl: Integer;
+begin
+	// Find the index of the given child in the list of controls owned by a parent (eg. a TPanel or
+	// TGroupBox). Return "-1" if the child is not found.
+	nControl := -1;
+	bFoundChild := False;
+	if ((parent <> nil) and (child <> nil)) then
+		begin
+		for nControl:=0 to (parent.ControlCount - 1) do
+			begin
+			if (	(parent.Controls[nControl] is TCustomControl) and
+					(parent.Controls[nControl].Name = child.Name)) then
+				begin
+				// Found it!
+				bFoundChild := True;
+				break;
+				end;
+			end;
+		end;
+
+	if (bFoundChild) then
+		Result := nControl
+	else
+		Result := -1;
 end;
 
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;

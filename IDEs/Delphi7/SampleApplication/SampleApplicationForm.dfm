@@ -5,7 +5,7 @@ object frmSampleApplication: TfrmSampleApplication
   BorderStyle = bsDialog
   Caption = 'Sample Application for Testing'
   ClientHeight = 650
-  ClientWidth = 850
+  ClientWidth = 875
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,13 +15,14 @@ object frmSampleApplication: TfrmSampleApplication
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 16
   object gbSettings: TGroupBox
-    Left = 10
+    Left = 5
     Top = 5
-    Width = 835
+    Width = 865
     Height = 600
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -66,9 +67,9 @@ object frmSampleApplication: TfrmSampleApplication
       Caption = 'Variable 3'
     end
     object ebSample1: TEdit
-      Left = 135
+      Left = 150
       Top = 80
-      Width = 400
+      Width = 410
       Height = 28
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
@@ -81,7 +82,7 @@ object frmSampleApplication: TfrmSampleApplication
       Text = 'sample text 1'
     end
     object btnProcess: TButton
-      Left = 545
+      Left = 570
       Top = 45
       Width = 100
       Height = 35
@@ -90,7 +91,7 @@ object frmSampleApplication: TfrmSampleApplication
       OnClick = btnProcessClick
     end
     object ddlCategory: TComboBox
-      Left = 135
+      Left = 150
       Top = 20
       Width = 250
       Height = 28
@@ -107,9 +108,9 @@ object frmSampleApplication: TfrmSampleApplication
       OnChange = ddlCategoryChange
     end
     object ddlAction: TComboBox
-      Left = 135
+      Left = 150
       Top = 50
-      Width = 400
+      Width = 410
       Height = 28
       Style = csDropDownList
       Color = clInfoBk
@@ -126,16 +127,16 @@ object frmSampleApplication: TfrmSampleApplication
     object listOutput: TListBox
       Left = 5
       Top = 175
-      Width = 825
+      Width = 556
       Height = 420
       Color = clInfoBk
       ItemHeight = 16
       TabOrder = 4
     end
     object ebSample2: TEdit
-      Left = 135
+      Left = 150
       Top = 110
-      Width = 400
+      Width = 410
       Height = 28
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
@@ -148,9 +149,9 @@ object frmSampleApplication: TfrmSampleApplication
       Text = 'sample text 2'
     end
     object ebSample3: TEdit
-      Left = 135
+      Left = 150
       Top = 140
-      Width = 400
+      Width = 410
       Height = 28
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
@@ -163,9 +164,9 @@ object frmSampleApplication: TfrmSampleApplication
       Text = 'sample text 3'
     end
     object lblExplanationText: TStaticText
-      Left = 545
+      Left = 570
       Top = 85
-      Width = 280
+      Width = 285
       Height = 85
       AutoSize = False
       BorderStyle = sbsSingle
@@ -181,9 +182,76 @@ object frmSampleApplication: TfrmSampleApplication
       TabOrder = 7
       Visible = False
     end
+    object gbSampleControls: TGroupBox
+      Left = 570
+      Top = 180
+      Width = 285
+      Height = 410
+      Caption = 'Sample controls'
+      TabOrder = 8
+      Visible = False
+      object lblSampleControlsA: TLabel
+        Left = 15
+        Top = 25
+        Width = 255
+        Height = 13
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'There are N child controls in this group'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -10
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblSampleControlsB: TLabel
+        Left = 15
+        Top = 45
+        Width = 219
+        Height = 16
+        Caption = 'Only visible for the  Controls category'
+      end
+      object ebSampleControlC: TEdit
+        Left = 15
+        Top = 70
+        Width = 255
+        Height = 28
+        Color = clInfoBk
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        Text = 'edit box'
+      end
+      object cbSampleControlD: TComboBox
+        Left = 15
+        Top = 101
+        Width = 255
+        Height = 28
+        Style = csDropDownList
+        Color = clInfoBk
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ItemHeight = 20
+        ItemIndex = 0
+        ParentFont = False
+        TabOrder = 1
+        Text = 'combo box'
+        OnClick = ddlActionClick
+        Items.Strings = (
+          'combo box')
+      end
+    end
   end
   object btnExit: TButton
-    Left = 770
+    Left = 795
     Top = 610
     Width = 75
     Height = 35
@@ -192,7 +260,7 @@ object frmSampleApplication: TfrmSampleApplication
     OnClick = btnExitClick
   end
   object btnClearOutput: TButton
-    Left = 650
+    Left = 675
     Top = 610
     Width = 110
     Height = 35

@@ -16,9 +16,14 @@ const
 
 // Public methods
 
+// Initialisation and cache
+procedure InitialiseSystemUtils();
+procedure CloseSystemUtils();
+
 // Windows
 function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
+function GetWindowsLocale() : String;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
 function ExpandEnvironment(const cstrValue: String): String;
 function IsProcessRunning(strProcessName: String) : Boolean;
@@ -177,6 +182,17 @@ type
   end;
   IP_ADAPTER_INFO = _IP_ADAPTER_INFO;
 
+  // Cache
+  CACHE_SYSTEM_UTILS = record
+	// Ping feature
+	hPingHandle: THandle;
+  end;
+
+// Private variables
+var
+  // Cache (used to speed up operations)
+  m_cache: CACHE_SYSTEM_UTILS;
+
 // Functions imported from external DLLs
 function NetShareAdd(strServername: PChar;
 	dwLevel: DWORD; pBuf: pointer; pdwError: PDWORD) : DWORD; stdcall;
@@ -207,6 +223,31 @@ function InternetCheckConnectionA(lpszUrl: PAnsiChar; dwFlags: DWORD; dwReserved
 	external 'wininet.dll' name 'InternetCheckConnectionA';
 
 // Start: Public methods
+// Initialisation and cache
+procedure InitialiseSystemUtils();
+var
+	socketData: TWSADATA;
+begin
+	// Initialise Winsock DLLs
+	WSAStartup($101, socketData);
+
+	// Initialise the cache (and other private variables used in this unit)
+	ZeroMemory(@m_cache, SizeOf(CACHE_SYSTEM_UTILS));
+
+	// Ping feature
+	m_cache.hPingHandle := IcmpCreateFile();
+end;
+
+procedure CloseSystemUtils();
+begin
+	// Release Winsock DLL resources
+	WSACleanup();
+
+	// Ping feature
+	if (m_cache.hPingHandle <> INVALID_HANDLE_VALUE) then
+		IcmpCloseHandle(m_cache.hPingHandle);
+end;
+
 // Windows
 function IsWindows64Bit() : Boolean;
 type
@@ -266,6 +307,32 @@ begin
 	Result := (
 		((osVersionInfo.dwMajorVersion = 6) and (osVersionInfo.dwMinorVersion >= 2)) or
 		(osVersionInfo.dwMajorVersion = 10));
+end;
+
+function GetWindowsLocale() : String;
+var
+	strLocale: String;
+	pData: Pointer;
+	dwBufferSize: DWORD;
+begin
+	// Windows system locale (or code page). This has been tested on Windows XP and 10.
+	strLocale := 'Unknown';
+	if (RegGetValue(HKEY_LOCAL_MACHINE,
+						PChar('SYSTEM\CurrentControlSet\Control\Nls\Language\Default'),
+						REG_SZ, pData, dwBufferSize)) then
+		begin
+		// Got the locale (eg. "0809"), which should be a 4-digit hexadecimal code
+		if (dwBufferSize > 1) then
+			begin
+			SetLength(strLocale, 0);
+			SetLength(strLocale, (dwBufferSize-1));
+			CopyMemory(@strLocale[1], pData, (dwBufferSize-1));
+			end;
+
+		FreeMem(pData);
+		end;
+
+	Result := strLocale;
 end;
 
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);

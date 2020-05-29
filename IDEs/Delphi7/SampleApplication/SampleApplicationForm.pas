@@ -12,13 +12,18 @@ type
   TCategory = (
 	eCategoryNone,
 	eCategoryWindows,
-	eCategoryStrings);
+	eCategoryStrings,
+	eCategoryControls
+  );
 
   CACHE_CONTROL_UPDATES = record
 	// Cache to assist control updates
 	alblSampleTitle: array[1..3] of TLabel;
 	aebSampleText: array[1..3] of TEdit;
 	astrSampleTitleDefault, astrSampleTextDefault: array[1..3] of String;
+
+	// Maximum size to set sample control
+	nMaxControlWidth: Integer;
   end;
 
   CONTROL_UPDATES = record
@@ -46,9 +51,16 @@ type
 	lblExplanationText: TStaticText;
 	listOutput: TListBox;
 
+	gbSampleControls: TGroupBox;
+	lblSampleControlsA: TLabel;
+	lblSampleControlsB: TLabel;
+	ebSampleControlC: TEdit;
+	cbSampleControlD: TComboBox;
+
 	UpdateTimer: TTimer;
 
 	procedure FormCreate(Sender: TObject);
+	procedure FormDestroy(Sender: TObject);
 	procedure FormShow(Sender: TObject);
 	procedure btnExitClick(Sender: TObject);
 	procedure btnClearOutputClick(Sender: TObject);
@@ -75,13 +87,16 @@ type
 	procedure PopulateActions();
 	procedure PopulateActions_Windows();
 	procedure PopulateActions_Strings();
+	procedure PopulateActions_Controls();
 
 	procedure UpdateControls(updates: CONTROL_UPDATES);
 	procedure UpdateControls_Windows();
 	procedure UpdateControls_Strings();
+	procedure UpdateControls_Controls();
 
 	procedure PerformAction_Windows();
 	procedure PerformAction_Strings();
+	procedure PerformAction_Controls();
 
 	procedure AddOutputText(const cstrTxt: String);
 
@@ -95,34 +110,47 @@ var
 implementation
 
 uses
-  Graphics;
+  Graphics, Math;
 
 const
-  // Actions for each category
-  ACTION_WINDOWS_IS_64BIT				= 0;	// eCategoryWindows
-  ACTION_WINDOWS_IS_WIN10				= 1;
-  ACTION_WINDOWS_EXPAND_ENVIRONMENT		= 2;
-  ACTION_WINDOWS_IS_PROCESS_RUNNING		= 3;
-  ACTION_WINDOWS_GET_PROCESS_THREADS	= 4;
-  ACTION_WINDOWS_GET_SYSTEM_THREADS		= 5;
-  ACTION_WINDOWS_FIND_WINDOW_BY_TITLE	= 6;
-  ACTION_WINDOWS_GET_DISK_SPACE			= 7;
-  ACTION_WINDOWS_GET_DRIVE_FILE_SYSTEM	= 8;
-  ACTION_WINDOWS_GET_SYSTEM_DRIVES		= 9;
-  ACTION_WINDOWS_SAVE_TO_CLIPBOARD		= 10;
+  DUMMY_CONST = 0;
 
-  ACTION_STRINGS_IS_NUMBER				= 0;	// eCategoryStrings
-  ACTION_STRINGS_TRY_STRING_TO_INT		= 1;
-  ACTION_STRINGS_EXTRACT_NUMBER			= 2;
-  ACTION_STRINGS_CONVERT_THOUSANDS		= 3;
-  ACTION_STRINGS_CONVERT_SPACES			= 4;
-  ACTION_STRINGS_CONVERT_SIG_FIGURES	= 5;
-  ACTION_STRINGS_TIME_STRING_FROM_SECS	= 6;
-  ACTION_STRINGS_GET_ISO_DATETIME		= 7;
-  ACTION_STRINGS_CONVERT_TITLE_CASE		= 8;
-  ACTION_STRINGS_INSERT_FORMATTING_CHAR	= 9;
-  ACTION_STRINGS_PARSE_STRING			= 10;
-  ACTION_STRINGS_RANDOM_STRING			= 11;
+type
+  // Available actions for each category
+  TCategoryWindows = (
+	eWindowsAction_Is64Bit,
+	eWindowsAction_IsWindows10,
+	eWindowsAction_GetWindowsLocale,
+	eWindowsAction_ExpandEnvironment,
+	eWindowsAction_IsProcessRunning,
+	eWindowsAction_GetProcessThreads,
+	eWindowsAction_GetSystemThreads,
+	eWindowsAction_FindWindowByTitle,
+	eWindowsAction_GetDiskSpace,
+	eWindowsAction_GetDriveFileSystem,
+	eWindowsAction_GetSystemDrives,
+	eWindowsAction_SaveToClipboard
+  );
+
+  TCategoryStrings = (
+	eStringsAction_IsNumber,
+	eStringsAction_TryStringToInteger,
+	eStringsAction_ExtractNumber,
+	eStringsAction_ConvertThousands,
+	eStringsAction_ConvertSpaces,
+	eStringsAction_ConvertSignificantFigures,
+	eStringsAction_TimeStringFromSeconds,
+	eStringsAction_GetIsoDateTime,
+	eStringsAction_ConvertTitleCase,
+	eStringsAction_InsertFormattingCharacter,
+	eStringsAction_ParseString,
+	eStringsAction_GetRandomString
+  );
+
+  TCategoryControls = (
+	eStringsControls_DumpToFile,
+	eStringsControls_WinControlSize
+  );
 
 {$R *.dfm}
 
@@ -137,7 +165,19 @@ begin
 	m_nActionCurrent := -1;
 	m_nActionLastUpdate := -1;
 
-	RandSeed := Integer(GetTickCount() mod 223);
+	// Seed the random number generator (7919 is the 1000th prime number)
+	RandSeed := Integer(GetTickCount() mod 7919);
+
+	// Initialise system and form utilities
+	InitialiseSystemUtils();
+	InitialiseFormUtils();
+end;
+
+procedure TfrmSampleApplication.FormDestroy(Sender: TObject);
+begin
+	// Clean up
+	CloseSystemUtils();
+	CloseFormUtils();
 end;
 
 procedure TfrmSampleApplication.FormShow(Sender: TObject);
@@ -191,6 +231,9 @@ begin
 
 		eCategoryStrings:
 			PerformAction_Strings();
+
+		eCategoryControls:
+			PerformAction_Controls();
 		end;
 end;
 
@@ -220,6 +263,9 @@ begin
 
 			eCategoryStrings:
 				UpdateControls_Strings();
+
+			eCategoryControls:
+				UpdateControls_Controls();
 			end;
 		end;
 
@@ -246,6 +292,9 @@ begin
 		m_cache.astrSampleTitleDefault[nSample] := Format('Variable %d', [nSample]);
 		m_cache.astrSampleTextDefault[nSample] := Format('sample text %d', [nSample]);
 		end;
+
+	// Maximum size to set sample controls
+	m_cache.nMaxControlWidth := lblSampleControlsA.Width;
 end;
 
 procedure TfrmSampleApplication.PopulateCategories();
@@ -254,6 +303,7 @@ begin
 	ddlCategory.Items.Clear();
 	ddlCategory.Items.AddObject('Windows', TObject(eCategoryWindows));
 	ddlCategory.Items.AddObject('Strings', TObject(eCategoryStrings));
+	ddlCategory.Items.AddObject('Controls', TObject(eCategoryControls));
 	ddlCategory.DropDownCount := ddlCategory.Items.Count;
 	ddlCategory.ItemIndex := 0;
 
@@ -272,6 +322,9 @@ begin
 
 		eCategoryStrings:
 			PopulateActions_Strings();
+
+		eCategoryControls:
+			PopulateActions_Controls();
 		end;
 
 	ddlAction.DropDownCount := ddlAction.Items.Count;
@@ -282,35 +335,57 @@ end;
 procedure TfrmSampleApplication.PopulateActions_Windows();
 begin
 	// Windows: Populate actions for this category
-	ddlAction.Items.AddObject('Is Windows 64-bit ?', TObject(ACTION_WINDOWS_IS_64BIT));
-	ddlAction.Items.AddObject('Running Windows 10 ?', TObject(ACTION_WINDOWS_IS_WIN10));
-	ddlAction.Items.AddObject('Expand enviroment variable', TObject(ACTION_WINDOWS_EXPAND_ENVIRONMENT));
-	ddlAction.Items.AddObject('Is process running ?', TObject(ACTION_WINDOWS_IS_PROCESS_RUNNING));
-	ddlAction.Items.AddObject('Get process threads', TObject(ACTION_WINDOWS_GET_PROCESS_THREADS));
-	ddlAction.Items.AddObject('Get system threads', TObject(ACTION_WINDOWS_GET_SYSTEM_THREADS));
-	ddlAction.Items.AddObject('Find windows by title', TObject(ACTION_WINDOWS_FIND_WINDOW_BY_TITLE));
-	ddlAction.Items.AddObject('Get disk free space (in GB)', TObject(ACTION_WINDOWS_GET_DISK_SPACE));
-	ddlAction.Items.AddObject('Get drive filesystem', TObject(ACTION_WINDOWS_GET_DRIVE_FILE_SYSTEM));
-	ddlAction.Items.AddObject('Get system drives', TObject(ACTION_WINDOWS_GET_SYSTEM_DRIVES));
-	ddlAction.Items.AddObject('Save output to clipboard', TObject(ACTION_WINDOWS_SAVE_TO_CLIPBOARD));
+	ddlAction.Items.AddObject('Is Windows 64-bit ?', TObject(eWindowsAction_Is64Bit));
+	ddlAction.Items.AddObject('Running Windows 10 ?', TObject(eWindowsAction_IsWindows10));
+	ddlAction.Items.AddObject('Get Windows locale', TObject(eWindowsAction_GetWindowsLocale));
+	ddlAction.Items.AddObject('Expand enviroment variable', TObject(eWindowsAction_ExpandEnvironment));
+	ddlAction.Items.AddObject('Is process running ?', TObject(eWindowsAction_IsProcessRunning));
+	ddlAction.Items.AddObject('Get process threads', TObject(eWindowsAction_GetProcessThreads));
+	ddlAction.Items.AddObject('Get system threads', TObject(eWindowsAction_GetSystemThreads));
+	ddlAction.Items.AddObject('Find windows by title', TObject(eWindowsAction_FindWindowByTitle));
+	ddlAction.Items.AddObject('Get disk free space (in GB)', TObject(eWindowsAction_GetDiskSpace));
+	ddlAction.Items.AddObject('Get drive filesystem', TObject(eWindowsAction_GetDriveFileSystem));
+	ddlAction.Items.AddObject('Get system drives', TObject(eWindowsAction_GetSystemDrives));
+	ddlAction.Items.AddObject('Save output to clipboard', TObject(eWindowsAction_SaveToClipboard));
+
+	// Set the output window width to the maximum
+	gbSampleControls.Visible := False;
+	listOutput.Width := (gbSettings.Width - (2 * listOutput.Left));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Strings();
 begin
 	// Strings: Populate actions for this category
-	ddlAction.Items.AddObject('Is this a number ?', TObject(ACTION_STRINGS_IS_NUMBER));
-	ddlAction.Items.AddObject('Try convert to integer', TObject(ACTION_STRINGS_TRY_STRING_TO_INT));
-	ddlAction.Items.AddObject('Extract number', TObject(ACTION_STRINGS_EXTRACT_NUMBER));
-	ddlAction.Items.AddObject('Convert with thousand commas', TObject(ACTION_STRINGS_CONVERT_THOUSANDS));
-	ddlAction.Items.AddObject('Convert with thousand spaces', TObject(ACTION_STRINGS_CONVERT_SPACES));
+	ddlAction.Items.AddObject('Is this a number ?', TObject(eStringsAction_IsNumber));
+	ddlAction.Items.AddObject('Try convert to integer', TObject(eStringsAction_TryStringToInteger));
+	ddlAction.Items.AddObject('Extract number', TObject(eStringsAction_ExtractNumber));
+	ddlAction.Items.AddObject('Convert with thousand commas', TObject(eStringsAction_ConvertThousands));
+	ddlAction.Items.AddObject('Convert with thousand spaces', TObject(eStringsAction_ConvertSpaces));
 	ddlAction.Items.AddObject('Format float with specified significant figures',
-		TObject(ACTION_STRINGS_CONVERT_SIG_FIGURES));
-	ddlAction.Items.AddObject('Time string from seconds', TObject(ACTION_STRINGS_TIME_STRING_FROM_SECS));
-	ddlAction.Items.AddObject('Get ISO 8601 date/time string', TObject(ACTION_STRINGS_GET_ISO_DATETIME));
-	ddlAction.Items.AddObject('Convert title case', TObject(ACTION_STRINGS_CONVERT_TITLE_CASE));
-	ddlAction.Items.AddObject('Insert formatting char', TObject(ACTION_STRINGS_INSERT_FORMATTING_CHAR));
-	ddlAction.Items.AddObject('Parse string', TObject(ACTION_STRINGS_PARSE_STRING));
-	ddlAction.Items.AddObject('Generate random string', TObject(ACTION_STRINGS_RANDOM_STRING));
+		TObject(eStringsAction_ConvertSignificantFigures));
+	ddlAction.Items.AddObject('Time string from seconds', TObject(eStringsAction_TimeStringFromSeconds));
+	ddlAction.Items.AddObject('Get ISO 8601 date/time string', TObject(eStringsAction_GetIsoDateTime));
+	ddlAction.Items.AddObject('Convert title case', TObject(eStringsAction_ConvertTitleCase));
+	ddlAction.Items.AddObject('Insert formatting char', TObject(eStringsAction_InsertFormattingCharacter));
+	ddlAction.Items.AddObject('Parse string', TObject(eStringsAction_ParseString));
+	ddlAction.Items.AddObject('Generate random string', TObject(eStringsAction_GetRandomString));
+
+	// Set the output window width to the maximum
+	gbSampleControls.Visible := False;
+	listOutput.Width := (gbSettings.Width - (2 * listOutput.Left));
+end;
+
+procedure TfrmSampleApplication.PopulateActions_Controls();
+begin
+	// Controls: Populate actions for this category
+	ddlAction.Items.AddObject('Dump to file', TObject(eStringsControls_DumpToFile));
+	ddlAction.Items.AddObject('TWinControl size', TObject(eStringsControls_WinControlSize));
+
+	// Set the output window width to reveal some sample controls
+	listOutput.Width := ((ddlAction.Left - listOutput.Left) + ddlAction.Width);
+	lblSampleControlsA.Caption := Format('There are %d child controls in this group', [
+		gbSampleControls.ControlCount]);
+	gbSampleControls.Visible := True;
 end;
 
 procedure TfrmSampleApplication.UpdateControls(updates: CONTROL_UPDATES);
@@ -358,43 +433,44 @@ var
 begin
 	// Windows: Update controls based on the selected action
 	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
-	case ddlAction.ItemIndex of
-		ACTION_WINDOWS_IS_64BIT: ;
-		ACTION_WINDOWS_IS_WIN10: ;
-		ACTION_WINDOWS_EXPAND_ENVIRONMENT:
+	case TCategoryWindows(ddlAction.ItemIndex) of
+		eWindowsAction_Is64Bit: ;
+		eWindowsAction_IsWindows10: ;
+		eWindowsAction_GetWindowsLocale: ;
+		eWindowsAction_ExpandEnvironment:
 			begin
 			updates.astrSampleTitle[1] := 'Variable';
 			updates.astrSampleText[1] := 'APPDATA';
 			end;
 
-		ACTION_WINDOWS_IS_PROCESS_RUNNING:
+		eWindowsAction_IsProcessRunning:
 			begin
 			updates.astrSampleTitle[1] := 'Process name';
 			updates.astrSampleText[1] := ExtractFileName(Application.ExeName);
 			end;
 
-		ACTION_WINDOWS_GET_PROCESS_THREADS: ;
-		ACTION_WINDOWS_GET_SYSTEM_THREADS: ;
-		ACTION_WINDOWS_FIND_WINDOW_BY_TITLE:
+		eWindowsAction_GetProcessThreads: ;
+		eWindowsAction_GetSystemThreads: ;
+		eWindowsAction_FindWindowByTitle:
 			begin
 			updates.astrSampleTitle[1] := 'Window title';
 			updates.astrSampleText[1] := 'Delphi 7';
 			end;
 
-		ACTION_WINDOWS_GET_DISK_SPACE:
+		eWindowsAction_GetDiskSpace:
 			begin
 			updates.astrSampleTitle[1] := 'Drive';
 			updates.astrSampleText[1] := 'C:';
 			end;
 
-		ACTION_WINDOWS_GET_DRIVE_FILE_SYSTEM:
+		eWindowsAction_GetDriveFileSystem:
 			begin
 			updates.astrSampleTitle[1] := 'Drive';
 			updates.astrSampleText[1] := 'C:\';
 			end;
 
-		ACTION_WINDOWS_GET_SYSTEM_DRIVES: ;
-		ACTION_WINDOWS_SAVE_TO_CLIPBOARD: ;
+		eWindowsAction_GetSystemDrives: ;
+		eWindowsAction_SaveToClipboard: ;
 		end;
 
 	UpdateControls(updates);
@@ -406,8 +482,8 @@ var
 begin
 	// Strings: Update controls based on the selected action
 	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
-	case ddlAction.ItemIndex of
-		ACTION_STRINGS_IS_NUMBER:
+	case TCategoryStrings(ddlAction.ItemIndex) of
+		eStringsAction_IsNumber:
 			begin
 			updates.astrSampleTitle[1] := 'Number 1';
 			updates.astrSampleText[1] := '1569';
@@ -416,7 +492,7 @@ begin
 			updates.astrSampleText[2] := '1.569a';
 			end;
 
-		ACTION_STRINGS_TRY_STRING_TO_INT:
+		eStringsAction_TryStringToInteger:
 			begin
 			updates.astrSampleTitle[1] := 'Number 1';
 			updates.astrSampleText[1] := '1569';
@@ -425,7 +501,7 @@ begin
 			updates.astrSampleText[2] := '1.569a';
 			end;
 
-		ACTION_STRINGS_EXTRACT_NUMBER:
+		eStringsAction_ExtractNumber:
 			begin
 			updates.astrSampleTitle[1] := 'Number';
 			updates.astrSampleText[1] := '-23.7m/min';
@@ -441,7 +517,7 @@ begin
 				'    0x08 = STR_DECIMAL (".")');
 			end;
 
-		ACTION_STRINGS_CONVERT_THOUSANDS:
+		eStringsAction_ConvertThousands:
 			begin
 			updates.astrSampleTitle[1] := 'Number 1';
 			updates.astrSampleText[1] := '1234567.89';
@@ -450,7 +526,7 @@ begin
 			updates.astrSampleText[2] := '-34567';
 			end;
 
-		ACTION_STRINGS_CONVERT_SPACES:
+		eStringsAction_ConvertSpaces:
 			begin
 			updates.astrSampleTitle[1] := 'Number 1';
 			updates.astrSampleText[1] := '1234567';
@@ -459,7 +535,7 @@ begin
 			updates.astrSampleText[2] := '34567';
 			end;
 
-		ACTION_STRINGS_CONVERT_SIG_FIGURES:
+		eStringsAction_ConvertSignificantFigures:
 			begin
 			updates.astrSampleTitle[1] := 'Number';
 			updates.astrSampleText[1] := '13.456839';
@@ -468,10 +544,10 @@ begin
 			updates.astrSampleText[2] := '6';
 			end;
 
-		ACTION_STRINGS_TIME_STRING_FROM_SECS: ;
-		ACTION_STRINGS_GET_ISO_DATETIME: ;
+		eStringsAction_TimeStringFromSeconds: ;
+		eStringsAction_GetIsoDateTime: ;
 
-		ACTION_STRINGS_CONVERT_TITLE_CASE:
+		eStringsAction_ConvertTitleCase:
 			begin
 			updates.astrSampleTitle[1] := 'String 1';
 			updates.astrSampleText[1] := 'the cat SAT ON THE MAT';
@@ -480,7 +556,7 @@ begin
 			updates.astrSampleText[2] := 'FRED LOVES ICE CREAM';
 			end;
 
-		ACTION_STRINGS_INSERT_FORMATTING_CHAR:
+		eStringsAction_InsertFormattingCharacter:
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := '0052C2539000';
@@ -492,7 +568,7 @@ begin
 			updates.astrSampleText[3] := '2';
 			end;
 
-		ACTION_STRINGS_PARSE_STRING:
+		eStringsAction_ParseString:
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := '192.168.2.108';
@@ -501,10 +577,33 @@ begin
 			updates.astrSampleText[2] := '.';
 			end;
 
-		ACTION_STRINGS_RANDOM_STRING:
+		eStringsAction_GetRandomString:
 			begin
 			updates.astrSampleTitle[1] := 'Length';
 			updates.astrSampleText[1] := '12';
+			end;
+		end;
+
+	UpdateControls(updates);
+end;
+
+procedure TfrmSampleApplication.UpdateControls_Controls();
+var
+	updates: CONTROL_UPDATES;
+begin
+	// Controls: Update controls based on the selected action
+	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
+	case TCategoryControls(ddlAction.ItemIndex) of
+		eStringsControls_DumpToFile:
+			begin
+			updates.astrSampleTitle[1] := 'Filename';
+			updates.astrSampleText[1] := 'C:\Tmp\ControlDump.txt';
+			end;
+
+		eStringsControls_WinControlSize:
+			begin
+			updates.astrSampleTitle[1] := 'String';
+			updates.astrSampleText[1] := 'Simple message';
 			end;
 		end;
 
@@ -519,8 +618,8 @@ var
 	fTotalGB, fFreeGB: Single;
 begin
 	// Windows: Perform the action
-	case m_nActionCurrent of
-		ACTION_WINDOWS_IS_64BIT:
+	case TCategoryWindows(m_nActionCurrent) of
+		eWindowsAction_Is64Bit:
 			begin
 			if (IsWindows64Bit()) then
 				AddOutputText('Windows is 64-bit')
@@ -528,7 +627,7 @@ begin
 				AddOutputText('Windows is NOT 64-bit');
 			end;
 
-		ACTION_WINDOWS_IS_WIN10:
+		eWindowsAction_IsWindows10:
 			begin
 			if (IsWindows10()) then
 				AddOutputText('Running Windows 10')
@@ -536,13 +635,16 @@ begin
 				AddOutputText('NOT Windows 10...');
 			end;
 
-		ACTION_WINDOWS_EXPAND_ENVIRONMENT:
+		eWindowsAction_GetWindowsLocale:
+			AddOutputText(Format('Windows locale is %s', [GetWindowsLocale()]));
+
+		eWindowsAction_ExpandEnvironment:
 			begin
 			strTmp := ('%' + ebSample1.Text + '%');
 			AddOutputText(Format('%s  =  "%s"', [strTmp, ExpandEnvironment(strTmp)]));
 			end;
 
-		ACTION_WINDOWS_IS_PROCESS_RUNNING:
+		eWindowsAction_IsProcessRunning:
 			begin
 			if (IsProcessRunning(ebSample1.Text)) then
 				AddOutputText('Process is running')
@@ -550,15 +652,15 @@ begin
 				AddOutputText('Process is NOT running');
 			end;
 
-		ACTION_WINDOWS_GET_PROCESS_THREADS:
+		eWindowsAction_GetProcessThreads:
 			AddOutputText(Format('Process threads = %d (process ID = %d)', [
 				GetProcessThreadCount(GetCurrentProcessId()),
 				GetCurrentProcessId()]));
 
-		ACTION_WINDOWS_GET_SYSTEM_THREADS:
+		eWindowsAction_GetSystemThreads:
 			AddOutputText(Format('Total system threads = %d', [GetSystemThreadCount()]));
 
-		ACTION_WINDOWS_FIND_WINDOW_BY_TITLE:
+		eWindowsAction_FindWindowByTitle:
 			begin
 			hWndTmp := FindWindowByTitle(Application.Handle, ebSample1.Text);
 			if (hWndTmp <> 0) then
@@ -567,7 +669,7 @@ begin
 				AddOutputText(Format('Window "%s" NOT found', [ebSample1.Text]));
 			end;
 
-		ACTION_WINDOWS_GET_DISK_SPACE:
+		eWindowsAction_GetDiskSpace:
 			begin
 			GetDiskSpaceGB(ebSample1.Text, fTotalGB, fFreeGB);
 			if (fTotalGB > MIN_SINGLE) then
@@ -577,14 +679,14 @@ begin
 				AddOutputText(Format('%s is not a valid drive', [ebSample1.Text]));
 			end;
 
-		ACTION_WINDOWS_GET_DRIVE_FILE_SYSTEM:
+		eWindowsAction_GetDriveFileSystem:
 			AddOutputText(Format('The filesystem on %s is %s', [
 				ebSample1.Text, GetDriveFileSystem(ebSample1.Text)]));
 
-		ACTION_WINDOWS_GET_SYSTEM_DRIVES:
+		eWindowsAction_GetSystemDrives:
 			AddOutputText(Format('System drives are %s', [GetSystemDrives()]));
 
-		ACTION_WINDOWS_SAVE_TO_CLIPBOARD:
+		eWindowsAction_SaveToClipboard:
 			begin
 			strTmp := '';
 			for nTmp:=0 to (listOutput.Items.Count - 1) do
@@ -604,8 +706,8 @@ var
 	listTmp: TStringList;
 begin
 	// Strings: Perform the action
-	case m_nActionCurrent of
-		ACTION_STRINGS_IS_NUMBER:
+	case TCategoryStrings(m_nActionCurrent) of
+		eStringsAction_IsNumber:
 			begin
 			for nTmp:=1 to 2 do
 				begin
@@ -616,7 +718,7 @@ begin
 				end;
 			end;
 
-		ACTION_STRINGS_TRY_STRING_TO_INT:
+		eStringsAction_TryStringToInteger:
 			begin
 			for nTmp:=1 to 2 do
 				begin
@@ -628,7 +730,7 @@ begin
 				end;
 			end;
 
-		ACTION_STRINGS_EXTRACT_NUMBER:
+		eStringsAction_ExtractNumber:
 			begin
 			bTmp := False;
 			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
@@ -646,7 +748,7 @@ begin
 					m_cache.aebSampleText[2].Text]));
 			end;
 
-		ACTION_STRINGS_CONVERT_THOUSANDS:
+		eStringsAction_ConvertThousands:
 			begin
 			for nTmp:=1 to 2 do
 				AddOutputText(Format('"%s" converts to %s', [
@@ -654,7 +756,7 @@ begin
 					ConvertNumberWithThousands(m_cache.aebSampleText[nTmp].Text)]));
 			end;
 
-		ACTION_STRINGS_CONVERT_SPACES:
+		eStringsAction_ConvertSpaces:
 			begin
 			for nTmp:=1 to 2 do
 				AddOutputText(Format('"%s" converts to %s', [
@@ -662,7 +764,7 @@ begin
 					ConvertNumberWithSpaces(StrToInt(m_cache.aebSampleText[nTmp].Text))]));
 			end;
 
-		ACTION_STRINGS_CONVERT_SIG_FIGURES:
+		eStringsAction_ConvertSignificantFigures:
 			AddOutputText(Format('"%s" to %s significant figure is %s', [
 				m_cache.aebSampleText[1].Text,
 				m_cache.aebSampleText[2].Text,
@@ -670,14 +772,14 @@ begin
 					StrToFloat(m_cache.aebSampleText[1].Text),
 					StrToInt(m_cache.aebSampleText[2].Text))]));
 
-		ACTION_STRINGS_TIME_STRING_FROM_SECS:
+		eStringsAction_TimeStringFromSeconds:
 			AddOutputText(Format('Computer has been powered-up for %s', [
 				GetTimeStringFromSeconds(GetTickCount() div 1000)]));
 
-		ACTION_STRINGS_GET_ISO_DATETIME:
+		eStringsAction_GetIsoDateTime:
 			AddOutputText(Format('The ISO-8601 format for now is %s', [GetIsoDateTimeString(Now())]));
 
-		ACTION_STRINGS_CONVERT_TITLE_CASE:
+		eStringsAction_ConvertTitleCase:
 			begin
 			for nTmp:=1 to 2 do
 				AddOutputText(Format('"%s" converts to %s', [
@@ -685,7 +787,7 @@ begin
 					ConvertTitleCase(m_cache.aebSampleText[nTmp].Text)]));
 			end;
 
-		ACTION_STRINGS_INSERT_FORMATTING_CHAR:
+		eStringsAction_InsertFormattingCharacter:
 			begin
 			if (TryStrToInt(m_cache.aebSampleText[3].Text, nValue)) then
 				AddOutputText(Format('"%s" converts to %s', [
@@ -698,7 +800,7 @@ begin
 				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[3].Text]));
 			end;
 
-		ACTION_STRINGS_PARSE_STRING:
+		eStringsAction_ParseString:
 			begin
 			listTmp := TStringList.Create();
 			ParseString(m_cache.aebSampleText[1].Text, m_cache.aebSampleText[2].Text, listTmp);
@@ -716,7 +818,7 @@ begin
 			listTmp.Free();
 			end;
 
-		ACTION_STRINGS_RANDOM_STRING:
+		eStringsAction_GetRandomString:
 			begin
 			if (TryStrToInt(m_cache.aebSampleText[1].Text, nValue)) then
 				begin
@@ -725,6 +827,35 @@ begin
 				end
 			else
 				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[3].Text]));
+			end;
+		end;
+end;
+
+procedure TfrmSampleApplication.PerformAction_Controls();
+var
+	nTmp: Integer;
+	txtSize: TSize;
+begin
+	// Controls: Perform the action
+	case TCategoryControls(m_nActionCurrent) of
+		eStringsControls_DumpToFile:
+			begin
+			// Dump one of the sample controls (in "gbSampleControls") to disk
+			nTmp := Random(gbSampleControls.ControlCount);
+			DumpToFile(gbSampleControls.Controls[nTmp], m_cache.aebSampleText[1].Text);
+			AddOutputText(Format('"%s" (child %d) was dumped to disk', [
+				gbSampleControls.Controls[nTmp].Name, nTmp]));
+			end;
+
+		eStringsControls_WinControlSize:
+			begin
+			txtSize := GetWinControlPixelSize(ebSampleControlC, m_cache.aebSampleText[1].Text);
+			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+				m_cache.aebSampleText[1].Text,
+				txtSize.cx, txtSize.cy,
+				gbSampleControls.Controls[nTmp].Name]));
+			ebSampleControlC.Width := Min(txtSize.cx + 4, m_cache.nMaxControlWidth);
+			ebSampleControlC.Text := m_cache.aebSampleText[1].Text;
 			end;
 		end;
 end;
