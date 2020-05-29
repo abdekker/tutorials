@@ -58,6 +58,7 @@ type
 	cbSampleControlD: TComboBox;
 
 	UpdateTimer: TTimer;
+    lblMultiLine: TLabel;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -151,6 +152,7 @@ type
 	eStringsControls_DumpToFile,
 	eStringsControls_WinControlSize,
 	eStringsControls_GraphicControlSize,
+	eStringsControls_MultiLineLabel,
 	eStringsControls_SaveScreenshot
   );
 
@@ -383,6 +385,7 @@ begin
 	ddlAction.Items.AddObject('Dump to file', TObject(eStringsControls_DumpToFile));
 	ddlAction.Items.AddObject('TWinControl size', TObject(eStringsControls_WinControlSize));
 	ddlAction.Items.AddObject('TGraphicControl size', TObject(eStringsControls_GraphicControlSize));
+	ddlAction.Items.AddObject('Multi-line label', TObject(eStringsControls_MultiLineLabel));
 	ddlAction.Items.AddObject('Save screenshot', TObject(eStringsControls_SaveScreenshot));
 
 	// Set the output window width to reveal some sample controls
@@ -614,6 +617,15 @@ begin
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := 'TGraphicControl message';
+			end;
+
+		eStringsControls_MultiLineLabel:
+			begin
+			updates.astrSampleTitle[1] := 'String';
+			updates.astrSampleText[1] := 'A message for you...';
+
+			updates.astrSampleTitle[2] := 'Iterations';
+			updates.astrSampleText[2] := '5';
 			end;
 
 		eStringsControls_SaveScreenshot:
@@ -857,8 +869,9 @@ end;
 
 procedure TfrmSampleApplication.PerformAction_Controls();
 var
-	nValue: Integer;
+	nTmp, nValue, nLines, nVerticalSize: Integer;
 	txtSize: TSize;
+	strMsg: String;
 	fImage: File of BYTE;
 begin
 	// Controls: Perform the action
@@ -905,6 +918,29 @@ begin
 				m_cache.aebSampleText[1].Text,
 				txtSize.cx, txtSize.cy,
 				lblSampleControlsB.Name]));
+			end;
+
+		eStringsControls_MultiLineLabel:
+			begin
+			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
+				begin
+				strMsg := '';
+				for nTmp:=1 to nValue do
+					begin
+					if (nTmp < nValue) then
+						strMsg := Format('%s%.2d %s ', [strMsg, nTmp, m_cache.aebSampleText[1].Text])
+					else
+						strMsg := Format('%s%.2d %s', [strMsg, nTmp, m_cache.aebSampleText[1].Text]);
+					end;
+
+				ConfigureMultiLineLabel(lblMultiLine, strMsg, 15, nLines, nVerticalSize);
+				lblMultiLine.Height := (nLines * nVerticalSize);
+				lblMultiLine.Caption := strMsg;
+				AddOutputText(Format('Message required %d lines. Each line has a height of %d pixels.', [
+					nLines, nVerticalSize]));
+				end
+			else
+				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[2].Text]));
 			end;
 
 		eStringsControls_SaveScreenshot:

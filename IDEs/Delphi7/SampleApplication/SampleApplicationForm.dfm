@@ -212,6 +212,23 @@ object frmSampleApplication: TfrmSampleApplication
         Height = 16
         Caption = 'Only visible for the  Controls category'
       end
+      object lblMultiLine: TLabel
+        Left = 15
+        Top = 135
+        Width = 255
+        Height = 64
+        AutoSize = False
+        Caption = 
+          '01 A message for you.... 02 A message for you.... 03 A message f' +
+          'or you.... 04 A message for you.... 05 A message for you....'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        WordWrap = True
+      end
       object ebSampleControlC: TEdit
         Left = 15
         Top = 70

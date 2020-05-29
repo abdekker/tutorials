@@ -47,11 +47,13 @@ procedure InitialiseFormUtils();
 procedure CloseFormUtils();
 
 // General
+procedure LockControl(control: TWinControl; bLock: Boolean);
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
 function GetChildIndex(parent, child: TCustomControl) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
-procedure LockControl(control: TWinControl; bLock: Boolean);
+procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
+	const cnMaxLines: Integer; var nLines: Integer; var nSizeY: Integer);
 procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
 
 // TComboBox
@@ -67,7 +69,7 @@ procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 implementation
 
 uses
-  Buttons, ComCtrls, Graphics, jpeg, Messages, SysUtils;
+  Buttons, ComCtrls, Graphics, jpeg, Messages, StrUtils, SysUtils;
 
 const
   // Maximum level of nesting for iterating child controls (eg. setting character set)
@@ -111,6 +113,37 @@ begin
 end;
 
 // General / System
+procedure LockControl(control: TWinControl; bLock: Boolean);
+begin
+	// Prevents the control from redrawing (for example, while it is being resized)
+
+	// Note to developer: Avoid using this method in the form's OnShow event as in:
+	//		LockControl(frmBlah, True);
+	//		SomeCode();
+	//		LockControl(frmBlah, False);
+	// This is because the Position property (usually "poScreenCenter") only gets applied late in
+	// the form's construction. Forcing a redraw results in flickering as the form gets drawn at
+	// the design-time position (wherever the developer last left it when the IDE was open) and
+	// then re-drawn at the runtime position of the screen centre.
+
+	// If used before the end of OnShow, use "SetFormRuntimePos(Self)" in the form's OnCreate event
+	// to ensure the correct runtime position is set early.
+
+	// Alternatively, use flag to decide whether to use LockControl. The flag is set when the form
+	// (or the section being locked) has been fully initialised.
+	if (control = nil) or (control.Handle = 0) then
+		Exit;
+
+	if (bLock) then
+		SendMessage(control.Handle, WM_SETREDRAW, 0, 0)
+	else
+		begin
+		SendMessage(control.Handle, WM_SETREDRAW, 1, 0);
+		RedrawWindow(control.Handle, nil, 0,
+			(RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN));
+		end;
+end;
+
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
 var
 	strmObject: TFileStream;
@@ -198,35 +231,50 @@ begin
 	Result := txtSize;
 end;
 
-procedure LockControl(control: TWinControl; bLock: Boolean);
+procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
+	const cnMaxLines: Integer; var nLines: Integer; var nSizeY: Integer);
+var
+	txtSizeLabel, txtSizeChar, txtSizeLastSpace: TSize;
+	strChar: String;
+	nChar: Integer;
 begin
-	// Prevents the control from redrawing (for example, while it is being resized)
+	// Used for TLabel controls that will display a string of variable length. The TLabel control
+	// needs to have these properties:
+	// * AutoSize set to False (ie. fixed width)
+	// * WordWrap set to True
 
-	// Note to developer: Avoid using this method in the form's OnShow event as in:
-	//		LockControl(frmBlah, True);
-	//		SomeCode();
-	//		LockControl(frmBlah, False);
-	// This is because the Position property (usually "poScreenCenter") only gets applied late in
-	// the form's construction. Forcing a redraw results in flickering as the form gets drawn at
-	// the design-time position (wherever the developer last left it when the IDE was open) and
-	// then re-drawn at the runtime position of the screen centre.
+	// Assign the font label to our cached DC
+	SelectObject(m_cache.handleDC, lblLabel.Font.Handle);
 
-	// If used before the end of OnShow, use "SetFormRuntimePos(Self)" in the form's OnCreate event
-	// to ensure the correct runtime position is set early.
-
-	// Alternatively, use flag to decide whether to use LockControl. The flag is set when the form
-	// (or the section being locked) has been fully initialised.
-	if (control = nil) or (control.Handle = 0) then
-		Exit;
-
-	if (bLock) then
-		SendMessage(control.Handle, WM_SETREDRAW, 0, 0)
-	else
+	// Now calculate how many lines the label will occupy
+	nLines := 1;
+	nSizeY := 20;	// This will be updated in the loop below
+	txtSizeLabel.cx := 0;
+	txtSizeChar.cy := 0;
+	txtSizeLastSpace.cx := 0;
+	for nChar:=1 to Length(cstrLabel) do
 		begin
-		SendMessage(control.Handle, WM_SETREDRAW, 1, 0);
-		RedrawWindow(control.Handle, nil, 0,
-			(RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN));
+		strChar := AnsiMidStr(cstrLabel, nChar, 1);
+		GetTextExtentPoint32(m_cache.handleDC, PChar(strChar), 1, txtSizeChar);
+		Inc(txtSizeLabel.cx, txtSizeChar.cx);
+		Inc(txtSizeLastSpace.cx, txtSizeChar.cx);
+		if (strChar = ' ') or (strChar = #13) then
+			txtSizeLastSpace.cx := 0;
+
+		if (txtSizeLabel.cx > lblLabel.ClientWidth) or (strChar = #13) then
+			begin
+			// Text will exceed the current line length (or a newline character)
+			nLines := (nLines + 1);
+			txtSizeLabel.cx := txtSizeLastSpace.cx;
+			end;
+
+		// Don't allow the number of lines to exceed the maximum allowed
+		if (nLines >= cnMaxLines) then
+			break;
 		end;
+
+	// Set the vertical size required for each character on this label (and font)
+	nSizeY := txtSizeChar.cy;
 end;
 
 procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
