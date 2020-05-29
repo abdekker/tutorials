@@ -232,7 +232,6 @@ object frmSampleApplication: TfrmSampleApplication
         Top = 101
         Width = 255
         Height = 28
-        Style = csDropDownList
         Color = clInfoBk
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText

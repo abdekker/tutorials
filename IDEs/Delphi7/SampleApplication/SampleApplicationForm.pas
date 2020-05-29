@@ -149,7 +149,9 @@ type
 
   TCategoryControls = (
 	eStringsControls_DumpToFile,
-	eStringsControls_WinControlSize
+	eStringsControls_WinControlSize,
+	eStringsControls_GraphicControlSize,
+	eStringsControls_SaveScreenshot
   );
 
 {$R *.dfm}
@@ -380,6 +382,8 @@ begin
 	// Controls: Populate actions for this category
 	ddlAction.Items.AddObject('Dump to file', TObject(eStringsControls_DumpToFile));
 	ddlAction.Items.AddObject('TWinControl size', TObject(eStringsControls_WinControlSize));
+	ddlAction.Items.AddObject('TGraphicControl size', TObject(eStringsControls_GraphicControlSize));
+	ddlAction.Items.AddObject('Save screenshot', TObject(eStringsControls_SaveScreenshot));
 
 	// Set the output window width to reveal some sample controls
 	listOutput.Width := ((ddlAction.Left - listOutput.Left) + ddlAction.Width);
@@ -603,7 +607,27 @@ begin
 		eStringsControls_WinControlSize:
 			begin
 			updates.astrSampleTitle[1] := 'String';
-			updates.astrSampleText[1] := 'Simple message';
+			updates.astrSampleText[1] := 'TWinControl message';
+			end;
+
+		eStringsControls_GraphicControlSize:
+			begin
+			updates.astrSampleTitle[1] := 'String';
+			updates.astrSampleText[1] := 'TGraphicControl message';
+			end;
+
+		eStringsControls_SaveScreenshot:
+			begin
+			updates.astrSampleTitle[1] := 'Filename';
+			updates.astrSampleText[1] := 'C:\Tmp\Screenshot.jpg';
+
+			updates.astrSampleTitle[2] := 'Image type';
+			updates.astrSampleText[2] := '1';
+
+			updates.strExplanationText := (
+			'The image type can be:' + #13 +
+			'    1 = jpeg (.jpg)' + #13 +
+			'    2 = bitmap (.bmp)' + #13);
 			end;
 		end;
 
@@ -833,29 +857,72 @@ end;
 
 procedure TfrmSampleApplication.PerformAction_Controls();
 var
-	nTmp: Integer;
+	nValue: Integer;
 	txtSize: TSize;
+	fImage: File of BYTE;
 begin
 	// Controls: Perform the action
 	case TCategoryControls(m_nActionCurrent) of
 		eStringsControls_DumpToFile:
 			begin
 			// Dump one of the sample controls (in "gbSampleControls") to disk
-			nTmp := Random(gbSampleControls.ControlCount);
-			DumpToFile(gbSampleControls.Controls[nTmp], m_cache.aebSampleText[1].Text);
+			nValue := Random(gbSampleControls.ControlCount);
+			DumpToFile(gbSampleControls.Controls[nValue], m_cache.aebSampleText[1].Text);
 			AddOutputText(Format('"%s" (child %d) was dumped to disk', [
-				gbSampleControls.Controls[nTmp].Name, nTmp]));
+				gbSampleControls.Controls[nValue].Name, nValue]));
 			end;
 
 		eStringsControls_WinControlSize:
 			begin
+			// Get the padding required to display text in a TEdit
+			nValue := (ebSampleControlC.Width - ebSampleControlC.ClientWidth);
 			txtSize := GetWinControlPixelSize(ebSampleControlC, m_cache.aebSampleText[1].Text);
+			ebSampleControlC.Text := m_cache.aebSampleText[1].Text;
+			ebSampleControlC.Width := Min(txtSize.cx + (2 * nValue), m_cache.nMaxControlWidth);
 			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
 				m_cache.aebSampleText[1].Text,
 				txtSize.cx, txtSize.cy,
-				gbSampleControls.Controls[nTmp].Name]));
-			ebSampleControlC.Width := Min(txtSize.cx + 4, m_cache.nMaxControlWidth);
-			ebSampleControlC.Text := m_cache.aebSampleText[1].Text;
+				ebSampleControlC.Name]));
+
+			// TComboBox padding depends on various registry settings such as:
+			//		HKCU\Control Panel\Desktop\WindowMetricsScrollWidth
+			// We simplify the issue here by using the fixed constant "24"
+			cbSampleControlD.Text := m_cache.aebSampleText[1].Text;
+			cbSampleControlD.Width := Min(txtSize.cx + 24, m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+				m_cache.aebSampleText[1].Text,
+				txtSize.cx, txtSize.cy,
+				cbSampleControlD.Name]));
+			end;
+
+		eStringsControls_GraphicControlSize:
+			begin
+			// No padding is required for TLabel controls
+			txtSize := GetGraphicControlPixelSize(lblSampleControlsB, m_cache.aebSampleText[1].Text);
+			lblSampleControlsB.Caption := m_cache.aebSampleText[1].Text;
+			lblSampleControlsB.Width := Min(txtSize.cx, m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+				m_cache.aebSampleText[1].Text,
+				txtSize.cx, txtSize.cy,
+				lblSampleControlsB.Name]));
+			end;
+
+		eStringsControls_SaveScreenshot:
+			begin
+			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
+				begin
+				SaveScreenshot(@Self, m_cache.aebSampleText[1].Text, nValue);
+				AssignFile(fImage, m_cache.aebSampleText[1].Text);
+				Reset(fImage);
+				try
+					AddOutputText(Format('Screen saved to file (size is %s bytes)', [
+						ConvertNumberWithThousands(FileSize(fImage))]));
+				finally
+					CloseFile(fImage);
+				end;
+				end
+			else
+				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[2].Text]));
 			end;
 		end;
 end;

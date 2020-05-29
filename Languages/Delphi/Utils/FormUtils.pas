@@ -32,6 +32,10 @@ const
 	CONTROL_TIMAGE +
 	CONTROL_TPANEL);
 
+  // Image types
+  IMAGE_JPG		= 1;
+  IMAGE_BMP		= 2;
+
 type
   // Type pointers
   PTForm = ^TForm;
@@ -48,7 +52,7 @@ function GetChildIndex(parent, child: TCustomControl) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
 procedure LockControl(control: TWinControl; bLock: Boolean);
-procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String);
+procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
 
 // TComboBox
 procedure SetComboHandlers(control: TControl);
@@ -153,56 +157,44 @@ end;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 var
 	txtSize: TSize;
-	handleDC: HDC;
 begin
 	// Return the size of text displayed on a TWinControl control (eg. TStaticText)
 	txtSize.cx := 0;
 	txtSize.cy := 0;
 
-	// Get a device context (this can be cached to improve performance)
-	handleDC := GetDC(0);
-
 	// Assign a device context (DC) to the control depending on its type. Add control types
 	// (derived from TWinControl) as required.
-	if (wc is TStaticText) then
-		SelectObject(handleDC, TStaticText(wc).Font.Handle)
+	if (wc is TEdit) then
+		SelectObject(m_cache.handleDC, TEdit(wc).Font.Handle)
+	else if (wc is TStaticText) then
+		SelectObject(m_cache.handleDC, TStaticText(wc).Font.Handle)
 	else if (wc is TMemo) then
-		SelectObject(handleDC, TMemo(wc).Font.Handle)
+		SelectObject(m_cache.handleDC, TMemo(wc).Font.Handle)
 	else if (wc is TListView) then
-		SelectObject(handleDC, TListView(wc).Font.Handle);
+		SelectObject(m_cache.handleDC, TListView(wc).Font.Handle);
 
 	// Calculate the size this text will occupy on-screen (using the current font)
-	GetTextExtentPoint32(handleDC, PChar(strCaption), Length(strCaption), txtSize);
+	GetTextExtentPoint32(m_cache.handleDC, PChar(strCaption), Length(strCaption), txtSize);
 	Result := txtSize;
-
-	// Release the device context
-	ReleaseDC(0, handleDC);
 end;
 
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
 var
 	txtSize: TSize;
-	handleDC: HDC;
 begin
 	// Return the size of text displayed on a TGraphicControl control (eg. TSpeedButton)
 	txtSize.cx := 0;
 	txtSize.cy := 0;
-	if (gc is TSpeedButton) then
-		begin
-		// Get a device context (this can be cached to improve performance)
-		handleDC := GetDC(0);
 
-		// Assign the DC to the control depending on its type
-		// Note: Currently only TSpeedButton is supported
-		SelectObject(handleDC, TSpeedButton(gc).Font.Handle);
+	// Assign a device context (DC) to the control depending on its type. Add control types
+	// (derived from TWinControl) as required.
+	if (gc is TLabel) then
+		SelectObject(m_cache.handleDC, TLabel(gc).Font.Handle)
+	else if (gc is TSpeedButton) then
+		SelectObject(m_cache.handleDC, TSpeedButton(gc).Font.Handle);
 
-		// Calculate the size this text will occupy on-screen (using the current font)
-		GetTextExtentPoint32(handleDC, PChar(strCaption), Length(strCaption), txtSize);
-
-		// Release the device context
-		ReleaseDC(0, handleDC);
-		end;
-
+	// Calculate the size this text will occupy on-screen (using the current font)
+	GetTextExtentPoint32(m_cache.handleDC, PChar(strCaption), Length(strCaption), txtSize);
 	Result := txtSize;
 end;
 
@@ -237,9 +229,8 @@ begin
 		end;
 end;
 
-procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String);
+procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
 var
-	handleDC: HDC;
 	rectRegion: TRect;
 	bmpScreenShot: TBitmap;
 	jpgScreenShot: TJPEGImage;
@@ -248,11 +239,6 @@ var
 begin
 	// Example usage:
 	//		SaveScreenshot(@Self, 'C:\Tmp\Screenshot.bmp');
-
-	// Ensure we have a valid screen DC (this can be cached to improve performance)
-	handleDC := GetDC(0);
-	if (handleDC = 0) then
-		Exit;
 
 	// Set up a rectangle using the form's on-screen location and size
 	// Note: This code came from About.com: Delphi Programming by Zarko Gajic
@@ -269,7 +255,7 @@ begin
 	// Do we have a palette device?
 	// Note to developer: On the developer desktop, the capability of the graphics comes back as
 	// $7E99 ie. the RC_PALETTE bit is not set.
-	nRasterCaps := GetDeviceCaps(handleDC, RASTERCAPS);
+	nRasterCaps := GetDeviceCaps(m_cache.handleDC, RASTERCAPS);
 	if ((nRasterCaps and RC_PALETTE) = RC_PALETTE) then
 		begin
 		// Allocate memory for a logical palette
@@ -283,7 +269,7 @@ begin
 
 		// Grab the system palette entries
 		lpPalette^.palNumEntries := GetSystemPaletteEntries(
-			handleDC, 0, 256, lpPalette^.palPalEntry);
+			m_cache.handleDC, 0, 256, lpPalette^.palPalEntry);
 
 		// Create the palette?
 		if (lpPalette^.palNumEntries <> 0) then
@@ -295,25 +281,27 @@ begin
 
 	// Copy the screen to the bitmap
 	BitBlt(bmpScreenShot.Canvas.Handle,
-		0, 0, bmpScreenShot.Width, bmpScreenShot.Height, handleDC,
+		0, 0, bmpScreenShot.Width, bmpScreenShot.Height, m_cache.handleDC,
 		rectRegion.Left, rectRegion.Top, SRCCOPY);
 
-	// Create a jpeg image, assign to it and save
-	jpgScreenShot := TJPEGImage.Create();
-	try
-		jpgScreenShot.Assign(bmpScreenShot);
-		jpgScreenShot.SaveToFile(cstrFile);
-	finally
-		jpgScreenShot.Free();
-	end;
-
-	// To save a BMP instead, remove the jpeg code above and use this:
-	//		bmSaveMe.SaveToFile(cstrFile);
-	// The JPG format is used because it is smaller and faster.
+	// Save the image to disk
+	// Note: JPG format is much smaller and faster
+	if (cnImgType = IMAGE_JPG) then
+		begin
+		// Create a jpeg image, assign to it and save
+		jpgScreenShot := TJPEGImage.Create();
+			try
+				jpgScreenShot.Assign(bmpScreenShot);
+				jpgScreenShot.SaveToFile(cstrFile);
+			finally
+				jpgScreenShot.Free();
+			end;
+		end
+	else if (cnImgType = IMAGE_BMP) then
+		bmpScreenShot.SaveToFile(cstrFile);
 
 	// Clean up memory
 	bmpScreenShot.Free();
-	ReleaseDC(0, handleDC);
 end;
 
 // TComboBox
