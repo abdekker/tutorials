@@ -1,0 +1,3 @@
+Icon names have the format DESCRIPTION_S1_S2_..SN.ico where
+	* DESCRIPTION is the name of the icon (eg. "World")
+	* S1..SN are the sizes in pixels (always square). For example, "16" means the icon has a 16x16 page.
