@@ -1,0 +1,18 @@
+Windows Registry Editor Version 5.00
+
+; To delete a value:
+; * In Registry Editor: Right-click the value and Delete
+; * Using a .reg file. General format is "Name"=-.
+[HKEY_CLASSES_ROOT\.txt\testKey]
+"testString"=-
+"testBinary"=-
+"testDWORD"=-
+"testQWORD"=-
+"testMultiSZ"=-
+"testExpandSZ"=-
+
+; To delete an entire key:
+; * In Registry Editor: Right-click the parent key (or in right-hand pane) then New > Key
+; * Using a .reg file. Place "-" in front of the key to be deleted.
+[-HKEY_CLASSES_ROOT\.txt\testKey]
+ 

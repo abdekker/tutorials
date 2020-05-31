@@ -1,0 +1,31 @@
+Windows Registry Editor Version 5.00
+
+; Note: Merging registry files may fail on mapped drives. Say you have "subst P: C:\Tmp" in a
+; startup script. Merging "P:\MyFile.reg" in Explorer may fail, but "C:\Tmp\MyFile.reg" will work.
+; The error message will be something like:
+;	Cannot import P:\MyFile.reg: Error opening the file. There may be a disk or file system error.
+
+; To create a new key:
+; * In Registry Editor: Right-click the parent key (or in right-hand pane) then New > Key
+; * Using a .reg file
+[HKEY_CLASSES_ROOT\.txt\testKey]
+
+; To create a new value:
+; * In Registry Editor: Right-click the right-hand pane and New > String Value (etc)
+; * Using a .reg file. General format is "Name"=[type:]Value.
+[HKEY_CLASSES_ROOT\.txt\testKey]
+"testString"="this is a string"
+"testBinary"=hex:12,34,56,78,90,ab,cd,ef
+; testDWORD is the decimal number "123456789"
+"testDWORD"=dword:075bcd15
+; testQWORD is the decimal number "12345678901234567890". QO
+"testQWORD"=hex(b):d2,0a,1f,eb,8c,a9,54,ab
+; testMultiSZ is "line 1 line2 line3"
+"testMultiSZ"=hex(7):6c,00,69,00,6e,00,65,00,20,00,31,00,00,00,6c,00,69,00,6e,00,\
+  65,00,20,00,32,00,00,00,6c,00,69,00,6e,00,65,00,20,00,33,00,00,00,00,00
+; testExpandSZ is "expand string"
+"testExpandSZ"=hex(2):65,00,78,00,70,00,61,00,6e,00,64,00,20,00,73,00,74,00,72,\
+  00,69,00,6e,00,67,00,00,00
+
+; Note: If Registry Editor is open, you will generally need to refresh the view to see the changes
+ 

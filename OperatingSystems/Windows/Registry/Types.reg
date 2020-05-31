@@ -1,0 +1,37 @@
+Windows Registry Editor Version 5.00
+
+;	Type				Registry type		Name in .reg file(1)
+; String				REG_SZ				(none, leave blank)
+; Binary				REG_BINARY			"hex:"
+; DWORD (32-bit)		REG_DWORD			"dword:"
+; QWORD (64-bit)		REG_QWORD			"hex(b):"
+; Multi-String			REG_MULTI_SZ		"hex(7):"
+; Expandable String		REG_EXPAND_SZ		"hex(2):"
+; (1) You can write "hexadecimal" instead of "hex"
+
+; Description of data types
+; Adapted from: https://support.microsoft.com/en-us/help/256986/windows-registry-information-for-advanced-users
+
+; String (REG_SZ)
+; A fixed-length text string
+
+; Binary (REG_BINARY)
+; Raw binary data
+
+; DWORD (REG_DWORD)
+; Data represented by a number that is 4 bytes long (ie. a 32-bit integer)
+
+; QWORD (REG_QWORD)
+; Data represented by a number that is 8 bytes long (ie. a 64-bit integer). Data is displayed in
+; Registry Editor as a binary value and was introduced in Windows 2000.
+
+; Multi-String (REG_MULTI_SZ)
+; Values that contain lists. Entries are separated by spaces, commas, or other marks.
+
+; Expandable string (REG_EXPAND_SZ)
+; Variable-length data string. Includes variables that are resolved when a program uses the data.
+
+; Examples
+; [HKEY_CLASSES_ROOT\.txt\testKey]
+; "testString"="this is a string"
+; "testDWORD"=dword:075bcd15
