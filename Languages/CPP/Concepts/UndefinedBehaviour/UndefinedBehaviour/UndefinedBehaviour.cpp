@@ -14,6 +14,7 @@ int main()
     int myNumber = 1;
     cout << "  MyNumber = " << myNumber << endl;
     cout << "  Now shift left (X << 32)...this generates a compiler warning.\n";
+    // Note: (1 << X) where X is 32 or greater will generate this warning
     myNumber = (1 << 32);           // warning C4293 [MSVC: shift count negative or too big, undefined behavior]
     cout << "  MyNumber = " << myNumber << endl << endl;
 
