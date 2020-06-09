@@ -125,8 +125,9 @@ int main(void)
     // * [MSVC: syntax error: identifier 'A'] (FORWARD_DECLARE_CLASS_FAIL1)
     // * [MSVC: syntax error: identifier 'B'] (FORWARD_DECLARE_CLASS_FAIL2)
 
-    // Pause the program
-    _getch();
+    // Prompt for exit
+    std::cout << "\nFinished...press a key to exit\n";
+    (void) _getch();
     return 0;
 }
 
