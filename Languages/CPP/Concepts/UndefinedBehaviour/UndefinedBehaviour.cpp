@@ -16,10 +16,10 @@ int main()
     cout << "  Now shift left (X << 32)...this generates a compiler warning.\n";
     // Note: (1 << X) where X is 32 or greater will generate this warning
     myNumber = (1 << 32);           // warning C4293 [MSVC: shift count negative or too big, undefined behavior]
-    cout << "  MyNumber = " << myNumber << endl << endl;
+    cout << "  MyNumber = " << myNumber << endl;
 
     // Largest representable integer
-    cout << "### Example 2: Adding 1 to the largest representable integer ###\n";
+    cout << "\n### Example 2a: Adding 1 to the largest representable integer ###\n";
     cout << "  [MSVC compiler warning C4307]\n";
     cout << "  INT_MAX (the largest representable integer) = " << INT_MAX << endl;
     cout << "  Is (INT_MAX + 1) positive or negative?";
@@ -27,7 +27,21 @@ int main()
     if (myNumber < 0)
         cout << " Negative (" << myNumber << ")!\n";
     else
-        cout << " Non-negative (" << myNumber << ")!\n";
+        cout << " Non-negative (" << myNumber << ")!\n\n";
+
+    // Integer overflow (related to the above class)
+    cout << "\n### Example 2b: Catch integer overflow ###\n";
+    myNumber = INT_MAX;
+    if (myNumber > (myNumber + 1))
+        cout << "  Your number is the largest representable integer (" << myNumber << ")\n";
+    else
+        cout << "  This line should not be printed...\n";
+
+    // A better way to catch this error is:
+    if (myNumber == INT_MAX)
+        cout << "  ...and your number is still the largest representable integer\n";
+    else
+        cout << "  This line should not be printed...\n";
 
     // Prompt for exit
     std::cout << "\nFinished...press a key to exit\n";
