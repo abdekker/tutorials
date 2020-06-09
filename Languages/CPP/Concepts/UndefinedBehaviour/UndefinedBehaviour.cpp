@@ -29,7 +29,8 @@ int main()
     else
         cout << " Non-negative (" << myNumber << ")!\n";
  
-    // Pause the program
-    _getch();
+    // Prompt for exit
+    std::cout << "\nFinished...press a key to exit\n";
+    (void) _getch();
 }
 
