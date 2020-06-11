@@ -49,6 +49,7 @@ procedure CloseFormUtils();
 // General
 procedure LockControl(control: TWinControl; bLock: Boolean);
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
+procedure SetSubBackColour(parent: TWinControl; nSubLevel: Integer = 0);
 function GetChildIndex(parent, child: TCustomControl) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
@@ -156,6 +157,62 @@ begin
 	finally
 		strmObject.Free();
 	end;
+end;
+
+procedure SetSubBackColour(parent: TWinControl; nSubLevel: Integer = 0);
+var
+	nControl: Integer;
+begin
+	// Enumerate the TWinControl-derived control (typically a group box). Set the back colour for
+	// Edit and Combo controls to better show they are disabled:
+	// * Enabled = clInfoBk
+	// * Disabled = clSkyBlue
+	if (parent <> nil) and (nSubLevel < MAX_CHILD_CONTROL_ITERATIONS) then
+		begin
+		for nControl:=0 to (parent.ControlCount - 1) do
+			begin
+			if (parent.Controls[nControl] is TEdit) then
+				begin
+				// Edit
+				if (TEdit(parent.Controls[nControl]).Enabled) then
+					TEdit(parent.Controls[nControl]).Color := clInfoBk
+				else
+					TEdit(parent.Controls[nControl]).Color := clSkyBlue;
+				end
+			else if (parent.Controls[nControl] is TComboBox) then
+				begin
+				// Combo box
+				if (TComboBox(parent.Controls[nControl]).Enabled) then
+					begin
+					if (TComboBox(parent.Controls[nControl]).DroppedDown) then
+						TComboBox(parent.Controls[nControl]).Color := clSkyBlue
+					else
+						TComboBox(parent.Controls[nControl]).Color := clInfoBk;
+					end
+				else
+					TComboBox(parent.Controls[nControl]).Color := clSkyBlue;
+				end
+			else if (parent.Controls[nControl] is TDateTimePicker) then
+				begin
+				// Date/Time picker
+				if (TDateTimePicker(parent.Controls[nControl]).Enabled) then
+					begin
+					if (TDateTimePicker(parent.Controls[nControl]).DroppedDown) then
+						TDateTimePicker(parent.Controls[nControl]).Color := clSkyBlue
+					else
+						TDateTimePicker(parent.Controls[nControl]).Color := clInfoBk;
+					end
+				else
+					TDateTimePicker(parent.Controls[nControl]).Color := clSkyBlue;
+				end
+			else
+				begin
+				// None of the above...if it's a group box, recursively check its' child controls
+				if (parent.Controls[nControl] is TWinControl) then
+					SetSubBackColour(TWinControl(parent.Controls[nControl]), (nSubLevel + 1));
+				end;
+			end;
+		end;
 end;
 
 function GetChildIndex(parent, child: TCustomControl) : Integer;

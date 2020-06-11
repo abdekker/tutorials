@@ -100,10 +100,12 @@ const
 
   // User-defined 32-bit colours
   // Note: These are defined in BGR order
-  COLOUR_GREEN				= $00C400;		// Darker green then 'Lime'
-  COLOUR_DARK_ORANGE		= $0080FF;
-  COLOUR_BRIGHT_ORANGE		= $60C0FF;
-  COLOUR_PINK				= $FF00FF;		// Background of transparent icons (eg. Zoom exit)
+  COLOUR_BACKGROUND		= $F9E4DA;		// Light blue/gray colour
+  COLOUR_GREEN			= $00C400;		// Darker green then 'Lime'
+  COLOUR_DARK_ORANGE	= $0080FF;
+  COLOUR_BRIGHT_ORANGE	= $60C0FF;
+  COLOUR_PINK			= $FF00FF;		// Background of transparent icons (eg. Zoom exit)
+  COLOUR_PASTILLE		= $80FF80;
 
   // Maximum level of nesting for iterating child controls (eg. setting character set)
   MAX_CHILD_CONTROL_ITERATIONS = 8;
@@ -112,7 +114,7 @@ type
   // Types used by both the LomaX4 and XrayMini projects
 
   // Types required in order to be able to pass parameters as pointers
-  //PTBitmap = ^TBitmap;
+  PTBitmap = ^TBitmap;
 
   // Simple procedure declarations used for a CALLBACK (within Delphi)
   // Note: For callbacks used by (say) an external C++ DLL, these need to be defined differently
@@ -198,6 +200,18 @@ type
 	dwByteWidth, dwSize: DWORD;
 
 	Histogram: THISTOGRAM;
+  end;
+
+  // OpenGL state (for 3D view)
+  PTOGL_STATE = ^TOGL_STATE;
+  TOGL_STATE = record
+	hDC: HDC;
+	hRC: HGLRC;
+	hInstance: THANDLE;
+	hWnd: HWND;
+	bFullScreen: Integer;
+	nWidth: Integer;
+	nHeight: Integer;
   end;
 
 implementation
