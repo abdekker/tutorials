@@ -192,6 +192,7 @@ void Demonstrate_pragma()
 #pragma message("  Time: " __TIME__)
 #pragma message("  Compiling: " __FILE__)
 #pragma message("  Last modified on: " __TIMESTAMP__)
+    std::cout << "Note: #pragma output only appears during compilation and not when running the application!\n";
 
 	// Uncomment the following section to output a compiler message and termine compilation
 /*#if defined(RANDOM_SYMBOL)
