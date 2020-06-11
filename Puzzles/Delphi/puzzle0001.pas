@@ -1,5 +1,5 @@
 unit puzzle0001;
-{$I ..\..\Languages\Delphi\Utils\CoreOptions.inc}
+{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 { Print all numbers up to 1000 that have the digit 5 in their number }
 
