@@ -130,6 +130,7 @@ type
 	eWindowsAction_GetDiskSpace,
 	eWindowsAction_GetDriveFileSystem,
 	eWindowsAction_GetSystemDrives,
+	eWindowsAction_CheckDriveIsValid,
 	eWindowsAction_SaveToClipboard
   );
 
@@ -350,6 +351,7 @@ begin
 	ddlAction.Items.AddObject('Get disk free space (in GB)', TObject(eWindowsAction_GetDiskSpace));
 	ddlAction.Items.AddObject('Get drive filesystem', TObject(eWindowsAction_GetDriveFileSystem));
 	ddlAction.Items.AddObject('Get system drives', TObject(eWindowsAction_GetSystemDrives));
+	ddlAction.Items.AddObject('Check drive is valud', TObject(eWindowsAction_CheckDriveIsValid));
 	ddlAction.Items.AddObject('Save output to clipboard', TObject(eWindowsAction_SaveToClipboard));
 
 	// Set the output window width to the maximum
@@ -477,6 +479,15 @@ begin
 			end;
 
 		eWindowsAction_GetSystemDrives: ;
+		eWindowsAction_CheckDriveIsValid:
+			begin
+			updates.astrSampleTitle[1] := 'Drive 1';
+			updates.astrSampleText[1] := 'C';
+
+			updates.astrSampleTitle[2] := 'Drive 2';
+			updates.astrSampleText[2] := 'Q';
+			end;
+
 		eWindowsAction_SaveToClipboard: ;
 		end;
 
@@ -649,6 +660,7 @@ end;
 procedure TfrmSampleApplication.PerformAction_Windows();
 var
 	strTmp: String;
+	cTmp: Char;
 	nTmp: Integer;
 	hWndTmp: HWND;
 	fTotalGB, fFreeGB: Single;
@@ -721,6 +733,23 @@ begin
 
 		eWindowsAction_GetSystemDrives:
 			AddOutputText(Format('System drives are %s', [GetSystemDrives()]));
+
+		eWindowsAction_CheckDriveIsValid:
+			begin
+			for nTmp:=1 to 2 do
+				begin
+				if (Length(m_cache.aebSampleText[nTmp].Text) > 0) then
+					begin
+					cTmp := m_cache.aebSampleText[nTmp].Text[1];
+					if (CheckDriveIsValid(cTmp)) then
+						AddOutputText(Format('%s:\ is a valid drive', [cTmp]))
+					else
+						AddOutputText(Format('%s:\ is NOT a valid drive', [cTmp]));
+					end
+				else
+					AddOutputText(Format('"%s" should not be blank', [m_cache.aebSampleText[nTmp].Text]));
+				end;
+			end;
 
 		eWindowsAction_SaveToClipboard:
 			begin

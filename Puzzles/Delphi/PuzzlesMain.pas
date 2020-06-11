@@ -2,7 +2,7 @@
 * ..\Notes-Puzzles.txt
 * ..\Notes-Puzzles-Details.txt }
 unit PuzzlesMain;
-{$I ..\..\Languages\Delphi\Utils\CoreOptions.inc}
+{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 interface
 

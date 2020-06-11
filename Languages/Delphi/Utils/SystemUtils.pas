@@ -34,6 +34,7 @@ function FindWindowByTitle(hStartHandle: HWND; strWindowTitle: string) : HWND;
 procedure GetDiskSpaceGB(const strDrive: String; var fTotalGB: Single; var fTotalFreeGB: Single);
 function GetDriveFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
+function CheckDriveIsValid(cDriveLetter: Char) : Boolean;
 procedure SaveToClipboard(const cstrText: String);
 
 // Registry
@@ -63,11 +64,20 @@ function HasInternet(const strURL: String) : Boolean;
 function FileHasData(const cstrFile: String) : Boolean;
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
-function DeleteFolder(strFolder: String) : Boolean;
-function IsFolderWriteable(const cstrPath: String) : Boolean;
+procedure GetFolderMultipleListing(strFolder, strWildCard: String; astrList: TStringList;
+	bRecursive: Boolean = False);
+procedure SortFolderListingByDate(astrList: TStringList; bReverseOrder: Boolean = False);
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
+function DeleteFolder(strFolder: String) : Boolean;
+procedure EmptyFolder(strFolder: String);
+function IsPathAvailable(const cstrPath: String) : Boolean;
+function IsPathWriteable(const cstrPath: String) : Boolean;
+function RemovePathExtInfo(strFullPath: String) : String;
+function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
 function GetSizeOfFile(strFilename: String) : DWORD;
+function GetFullFileVersion(szFile: PChar) : String;
 procedure ChangeFilename(strOldPath, strNewPath: String);
+function GetNextFilename(strFolder, strName, strExt: String) : String;
 
 // String
 function IsNumber(const cstrInput: String) : Boolean;
@@ -105,6 +115,16 @@ function GetArrayStdDeviation(pfArray: PSingle; dwCount: DWORD; const cfAverage:
 procedure FitLineToData(padY_Values, padX_Values: PDouble; byPoints: BYTE; pdSlope, pdConst: PDouble);
 procedure CalculateRSquared(padY_Values, padX_Values: PDouble; byPoints: BYTE;
 	pdRSquared: PDouble; dSlope, dConst: Double);
+
+// Validation utility functions (used for validating settings)
+procedure Validate_BYTE(pbyVar: PBYTE; byMin, byMax, byDefault: BYTE);
+procedure Validate_WORD(pwVar: PWORD; wMin, wMax, wDefault: WORD);
+procedure Validate_DWORD(pdwVar: PDWORD; dwMin, dwMax, dwDefault: DWORD);
+procedure Validate_ShortInt(pnVar: PShortInt; nMin, nMax, nDefault: ShortInt);
+procedure Validate_SmallInt(pnVar: PSmallInt; nMin, nMax, nDefault: SmallInt);
+procedure Validate_Integer(pnVar: PInteger; nMin, nMax, nDefault: Integer);
+procedure Validate_Single(pfVar: PSingle; fMin, fMax, fDefault: Single);
+procedure Validate_Double(pdVar: PDouble; dMin, dMax, dDefault: Double);
 
 implementation
 
@@ -660,6 +680,31 @@ begin
 		end;
 
 	Result := strAllDrives;
+end;
+
+function CheckDriveIsValid(cDriveLetter: Char) : Boolean;
+var
+	strMask: String[6];
+	sRec: TSearchRec;
+	dwOldMode: Cardinal;
+	nRetCode: Integer;
+begin
+	// Check whether the given drive letter is valid
+	// * Case-insensitive (ie. "C" and "c" are equivalent)
+	// * Will not find mapped drives (eg. using "subst P: C:\Tmp")
+	dwOldMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+	strMask := '?:\*.*';
+	strMask[1] := cDriveLetter;
+
+	{$I-} { Don't raise exceptions if we fail! }
+	nRetCode := FindFirst(strMask, faAnyfile, sRec);
+	if (nRetCode = 0) then
+	FindClose(sRec);
+	{$I+}
+
+	Result := Abs(nRetCode) in
+		[ERROR_SUCCESS, ERROR_FILE_NOT_FOUND, ERROR_NO_MORE_FILES];
+	SetErrorMode(dwOldMode);
 end;
 
 procedure SaveToClipboard(const cstrText: String);
@@ -1251,6 +1296,100 @@ begin
 		end;
 end;
 
+procedure GetFolderMultipleListing(strFolder, strWildCard: String; astrList: TStringList;
+	bRecursive: Boolean = False);
+var
+	astrFileTypes, astrTmp: TStringList;
+	strTypes, strSub: String;
+	nPosX, nFileType, nFile: integer;
+begin
+	// This is related to GetFolderListing except that you can ask for multiple file types,
+	// delimited by a semi-colon (;).
+	strTypes := strWildCard + ';';
+
+	astrFileTypes := TStringList.Create();
+	astrFileTypes.BeginUpdate();
+	astrFileTypes.Clear();
+	try
+		while (Length(strTypes) > 0) do
+			begin
+			nPosX := Pos(';', strTypes);
+			strSub := Copy(strTypes, 0, nPosX-1);
+			astrFileTypes.Add(strSub);
+			strTypes := Copy(strTypes, nPosX+1, MaxInt);
+			end;
+	finally
+		astrFileTypes.EndUpdate();
+	end;
+
+	// Now use GetFolderListing to get a listing of these file types
+	astrTmp := TStringList.Create();
+	for nFileType:=0 to astrFileTypes.Count-1 do
+		begin
+		astrTmp.Clear();
+		GetFolderListing(strFolder, astrFileTypes[nFileType], astrTmp, bRecursive);
+		for nFile:=0 to (astrTmp.Count-1) do
+			astrList.AddObject(astrTmp[nFile], astrTmp.Objects[nFile]);
+		end;
+
+	astrTmp.Free();
+	astrFileTypes.Free();
+end;
+
+function __SortByFileDate(astrList: TStringList; nIndex1, nIndex2: Integer) : Integer;
+var
+	dtFile1, dtFile2: TDateTime;
+begin
+	// Custom sort procedure for ordering files by date
+	dtFile1 := FileDateToDateTime(Integer(astrList.Objects[nIndex1]));
+	dtFile2 := FileDateToDateTime(Integer(astrList.Objects[nIndex2]));
+
+	Result := 0;
+	if (dtFile1 < dtFile2) then
+		Result := -1
+	else if (dtFile1 > dtFile2) then
+		Result := 1;
+end;
+
+function __SortByFileDateReverse(astrList: TStringList; nIndex1, nIndex2: Integer) : Integer;
+var
+	dtFile1, dtFile2: TDateTime;
+begin
+	// Exactly the same as "__SortByFileDate" but with inverted sorting
+	dtFile1 := FileDateToDateTime(Integer(astrList.Objects[nIndex1]));
+	dtFile2 := FileDateToDateTime(Integer(astrList.Objects[nIndex2]));
+
+	Result := 0;
+	if (dtFile1 > dtFile2) then
+		Result := -1
+	else if (dtFile1 < dtFile2) then
+		Result := 1;
+end;
+
+procedure SortFolderListingByDate(astrList: TStringList; bReverseOrder: Boolean = False);
+begin
+	if (bReverseOrder) then
+		astrList.CustomSort(__SortByFileDateReverse)
+	else
+		astrList.CustomSort(__SortByFileDate);
+end;
+
+procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
+var
+	find: TSearchRec;
+begin
+	// Find all files in Source (based on wildcard) and copy to Target
+	if (FindFirst(strSourceFolder + '\' + strWildCard, faAnyFile - faDirectory, find) = 0) then
+		begin
+		repeat
+			CopyFile(PChar(strSourceFolder + '\' + find.Name),
+				PChar(strTargetFolder + '\' + find.Name), False);
+		until (FindNext(find) <> 0);
+
+		FindClose(find);
+		end;
+end;
+
 function DeleteFolder(strFolder: String) : Boolean;
 var
 	find: TSearchRec;
@@ -1273,7 +1412,35 @@ begin
 	Result := RemoveDirectory(PChar(strFolder));
 end;
 
-function IsFolderWriteable(const cstrPath: String) : Boolean;
+procedure EmptyFolder(strFolder: String);
+var
+	find: TSearchRec;
+begin
+	// Delete all files in a folder
+	if (FindFirst(strFolder + '\*.*', faAnyFile, find) = 0) then
+		begin
+		repeat
+			if (find.Attr and faDirectory = 0) then
+				DeleteFile(strFolder + '\' + find.Name);
+
+		until (FindNext(find) <> 0);
+
+		FindClose(find);
+		end;
+end;
+
+function IsPathAvailable(const cstrPath: String) : Boolean;
+var
+	nFreeBytes64, nTotalBytes64, nTotalFreeBytes64: Int64;
+begin
+	// Check for the existence of some folder
+	Result := True;
+	if (not GetDiskFreeSpaceEx(PChar(cstrPath), nFreeBytes64, nTotalBytes64,
+			PLargeInteger(@nTotalFreeBytes64))) then
+		Result := False;
+end;
+
+function IsPathWriteable(const cstrPath: String) : Boolean;
 var
 	fileTest: file;
 	strFile: String;
@@ -1288,7 +1455,7 @@ begin
 	until (not FileExists(strFile));
 
 	// Attempt to write the file to the directory. This will fail on something like a CD drive or
-	// if the user does not have permission, but otherwise should work.
+	// if the user does not have write permissions. Otherwise, this should work.
 	try
 		AssignFile(fileTest, strFile);
 		Rewrite(fileTest, 1);
@@ -1314,24 +1481,32 @@ begin
 	if ((fa and FILE_ATTRIBUTE_DIRECTORY) <> 0) and ((fa and FILE_ATTRIBUTE_READONLY) <> 0) then
 		ShowMessage('Directory is read-only'); }
 
-	// Unfortunately, FILE_ATTRIBUTE_READONLY does not get set by Windows for folders. Attempting
-	// to write a file and catching errors works reliably.
+	// Unfortunately, Windows does not set FILE_ATTRIBUTE_READONLY for folders. Attempting to write
+	// a file and catching errors works reliably.
 end;
 
-procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
+function RemovePathExtInfo(strFullPath: String) : String;
 var
-	find: TSearchRec;
+	nPosPath, nPosExt: Integer;
 begin
-	// Find all files in Source (based on wildcard) and copy to Target
-	if (FindFirst(strSourceFolder + '\' + strWildCard, faAnyFile - faDirectory, find) = 0) then
-		begin
-		repeat
-			CopyFile(PChar(strSourceFolder + '\' + find.Name),
-				PChar(strTargetFolder + '\' + find.Name), False);
-		until (FindNext(find) <> 0);
+	// Take a fully qualified path (eg. "C:\Temp\MyFile.txt") . Remove the path and extension
+	// information, leaving just the filename (ie. "MyFile").
+	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
+	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, strFullPath);
+	Result := Copy(strFullPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
+end;
 
-		FindClose(find);
-		end;
+function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
+var
+	strExtractedExt: String;
+begin
+	// Check whether the file has a particular extension (eg. "bmp")
+	// Note to developer: Ensure that the test extension is already in lowercase (eg. '.jpg' or
+	// similar) to save having to convert case in this method
+	Result := False;
+	strExtractedExt := AnsiLowerCase(ExtractFileExt(strFullFilename));
+	if (AnsiCompareText(strExtractedExt, strTestExt) = 0) then
+		Result := True;
 end;
 
 function GetSizeOfFile(strFilename: String) : DWORD;
@@ -1400,6 +1575,60 @@ begin
 		finally
 		end;
 		end;
+end;
+
+function GetNextFilename(strFolder, strName, strExt: String) : String;
+const
+	MAX_ALLOWED_FILE: Integer = 5000;
+var
+	nFile, nHighestFound, nLowestNotFound: Integer;
+	strBase, strFile: String;
+	bFoundFileName, bFileExists: Boolean;
+begin
+	// First check for file0001. If that is missing, then search through all filenames from
+	// file0002 to file5000 using an efficient binary search algorithm.
+
+	// Note: We could search for the new filename by checking each file in turn (ie. file0001, then
+	// file0002, then file0003, etc). While this is relatively quick when the filename to use is
+	// low, it becomes very inefficient as the filename to use gets large. In one test (looking for
+	// file4995) the algorithm given below consumed ~1.5ms, but searching one file at a time
+	// consumed ~430ms!
+	bFoundFileName := True;
+	nFile := 1;
+	strBase := Format('%s%s', [IncludeTrailingPathDelimiter(strFolder), strName]);
+	strFile := Format('%s%4.4d.%s', [strBase, nFile, strExt]);
+	bFileExists := FileExists(strFile);
+	if (bFileExists) then
+		begin
+		// File0001 was found, so search for the next available filename
+		bFoundFileName := False;
+		nHighestFound := 1;
+		nLowestNotFound := (MAX_ALLOWED_FILE + 1);
+		while ((not bFoundFileName) and (nHighestFound < MAX_ALLOWED_FILE)) do
+			begin
+			nFile := ((nHighestFound + nLowestNotFound) div 2);
+			strFile := Format('%s%4.4d.%s', [strBase, nFile, strExt]);
+			bFileExists := FileExists(strFile);
+			if (bFileExists) then
+				nHighestFound := nFile
+			else
+				nLowestNotFound := nFile;
+
+			if (nLowestNotFound = (nHighestFound + 1)) then
+				begin
+				bFoundFileName := True;
+				nFile := (nHighestFound + 1);
+				end;
+			end;
+		end;
+
+	// Set the filename to use
+	if (bFoundFileName) then
+		strFile := Format('%s%4.4d.%s', [strBase, nFile, strExt])
+	else
+		strFile := Format('%s%4.4d.%s', [strBase, MAX_ALLOWED_FILE, strExt]);
+
+	Result := strFile;
 end;
 
 // String
@@ -2158,6 +2387,79 @@ begin
 		end;
 
 	pdRSquared^ := (1.0 - (dESS / dTSS));
+end;
+
+// Validation utility functions (used for validating settings)
+procedure Validate_BYTE(pbyVar: PBYTE; byMin, byMax, byDefault: BYTE);
+begin
+	if (pbyVar = nil) then
+		Exit;
+
+	if (pbyVar^ < byMin) or (pbyVar^ > byMax) then
+		pbyVar^ := byDefault;
+end;
+
+procedure Validate_WORD(pwVar: PWORD; wMin, wMax, wDefault: WORD);
+begin
+	if (pwVar = nil) then
+		Exit;
+
+	if (pwVar^ < wMin) or (pwVar^ > wMax) then
+		pwVar^ := wDefault;
+end;
+
+procedure Validate_DWORD(pdwVar: PDWORD; dwMin, dwMax, dwDefault: DWORD);
+begin
+	if (pdwVar = nil) then
+		Exit;
+
+	if (pdwVar^ < dwMin) or (pdwVar^ > dwMax) then
+		pdwVar^ := dwDefault;
+end;
+
+procedure Validate_ShortInt(pnVar: PShortInt; nMin, nMax, nDefault: ShortInt);
+begin
+	if (pnVar = nil) then
+		Exit;
+
+	if (pnVar^ < nMin) or (pnVar^ > nMax) then
+		pnVar^ := nDefault;
+end;
+
+procedure Validate_SmallInt(pnVar: PSmallInt; nMin, nMax, nDefault: SmallInt);
+begin
+	if (pnVar = nil) then
+		Exit;
+
+	if (pnVar^ < nMin) or (pnVar^ > nMax) then
+		pnVar^ := nDefault;
+end;
+
+procedure Validate_Integer(pnVar: PInteger; nMin, nMax, nDefault: Integer);
+begin
+	if (pnVar = nil) then
+		Exit;
+
+	if (pnVar^ < nMin) or (pnVar^ > nMax) then
+		pnVar^ := nDefault;
+end;
+
+procedure Validate_Single(pfVar: PSingle; fMin, fMax, fDefault: Single);
+begin
+	if (pfVar = nil) then
+		Exit;
+
+	if (pfVar^ < fMin) or (pfVar^ > fMax) then
+		pfVar^ := fDefault;
+end;
+
+procedure Validate_Double(pdVar: PDouble; dMin, dMax, dDefault: Double);
+begin
+	if (pdVar = nil) then
+		Exit;
+
+	if (pdVar^ < dMin) or (pdVar^ > dMax) then
+		pdVar^ := dDefault;
 end;
 // End: Public methods
 
