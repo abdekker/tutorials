@@ -1,0 +1,86 @@
+EXPORTS
+
+; These are the functions exported from this DLL. The number after the @ symbol
+; represents the size of the function call, 4 BYTEs allocated for each parameter.
+
+; ImageCell initialisation
+	InitialiseImageCell = _InitialiseImageCell@0
+	FreeImageCell = _FreeImageCell@0
+
+; ImageCell Create/Delete functions
+	CreateImageCell = _CreateImageCell@16
+	CreateImageCellFrom = _CreateImageCellFrom@8
+	CreateImageCellFromBMP = _CreateImageCellFromBMP@8
+
+	DeleteImageCell = _DeleteImageCell@4
+	PrepareImageCell = _PrepareImageCell@12
+	ClearImageCell = _ClearImageCell@8
+
+	ExtractImageCell = _ExtractImageCell@12
+	ExtractImageCellToPosition = _ExtractImageCellToPosition@16
+	ExtractImageCell24 = _ExtractImageCell24@12
+	ExtractImageCellToPosition24 = _ExtractImageCellToPosition24@16
+
+; ImageCell Conversion functions
+	ImageCellMinSize = _ImageCellMinSize@12
+	ImageCellConvertSize = _ImageCellConvertSize@12
+	ImageCellCorrectAspect = _ImageCellCorrectAspect@16
+	ImageCellCorrectAspect24 = _ImageCellCorrectAspect24@16
+
+	InvertImageCell = _InvertImageCell@4
+	InvertImageCell24 = _InvertImageCell24@4
+
+	LogOpImageCell = _LogOpImageCell@12
+	LogOpMultiImage = _LogOpMultiImage@12
+
+	RotateImageCell90 = _RotateImageCell90@8
+	RotateImageCellFree = _RotateImageCellFree@12
+
+; ImageCell Characterising / Utility functions
+	FindImageCellBounds = _FindImageCellBounds@12
+
+; ImageCell Drawing functions
+	DrawImageCellBitmap = _DrawImageCellBitmap@16
+	DrawPartImageCellBitmap = _DrawPartImageCellBitmap@24
+	StretchImageCellBitmap = _StretchImageCellBitmap@12
+	DrawTransparentBitmap = _DrawTransparentBitmap@20
+
+	Expand24 = _Expand24@4
+	Expand24Coloured = _Expand24Coloured@8
+	Overlay24 = _Overlay24@12
+	OverlayBlend24 = _OverlayBlend24@16
+	Blend24 = _Blend24@16
+	ColouriseGrey24 = _ColouriseGrey24@8
+
+	DrawBorder24 = _DrawBorder24@8
+
+; Utility functions for loading and saving 24-bit bitmaps
+	LoadBMP = _LoadBMP@12
+	SaveBMP = _SaveBMP@12
+
+; Convolution Filters
+	InitialiseConvolution = _InitialiseConvolution@0
+	FreeConvolution = _FreeConvolution@0
+	DilateImageCell = _DilateImageCell@8
+	ErodeImageCell = _ErodeImageCell@8
+	GrowImageCell = _GrowImageCell@8
+	CloseImageCell = _CloseImageCell@12
+	OpenImageCell = _OpenImageCell@12
+	SobelFilter = _SobelFilter@12
+	ConditionalSobel = _ConditionalSobel@20
+	LaplaceFilter = _LaplaceFilter@12
+	ConditionalLaplace = _ConditionalLaplace@20
+	MedianFilterHistogram = _MedianFilterHistogram@8
+	MedianFilterSorting = _MedianFilterSorting@8
+
+; Image Processing (Gamma/Range (%))
+	ApplyGammaPercRange = _ApplyGammaPercRange@20
+	ErodeThresholdPixels = _ErodeThresholdPixels@20
+	ErodeScreenedPixels = _ErodeScreenedPixels@12
+	AddImages = _AddImages@12
+	SubtractImages = _SubtractImages@12
+
+; OpenGL functions for the 3D view
+	InitImageCellHeightmap = _InitImageCellHeightmap@12
+	DeleteImageCellHeightmap = _DeleteImageCellHeightmap@4
+	DrawImageCellHeightmap = _DrawImageCellHeightmap@20
