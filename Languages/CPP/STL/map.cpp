@@ -4,7 +4,7 @@
 #include <string>
 #include <iterator>
 
-// Forward declare of a function (bottom of file)
+// Forward declare helper functions (at bottom of file)
 template <typename T>
 void ReportIfMapContainsKey(T localMap, std::string item);
 
