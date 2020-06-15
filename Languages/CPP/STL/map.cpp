@@ -1,57 +1,68 @@
 #include <iostream>
+#include <conio.h>
 #include <map>
 #include <string>
 #include <iterator>
 
+// Forward declare of a function (bottom of file)
+template <typename T>
+void ReportIfMapContainsKey(T localMap, std::string item);
+
 void basicMap()
 {
     // Inserting data in std::map
-    std::cout << "Basic tutorial of 'std::map<std::string, int>'\n";
+    std::cout << "### Basic tutorial of 'std::map<std::string, int>' ###\n";
     std::map<std::string, int> mapOfWords;
     mapOfWords.insert(std::make_pair("earth", 1));
     mapOfWords.insert(std::make_pair("moon", 2));
     mapOfWords["sun"] = 3;
 
-    // Replace the value of an existing key
-    int oldValue = mapOfWords["earth"];
-    mapOfWords["earth"] = 4;    // mapOfWords["earth"] was 1, now 4
-    std::cout << "Old value for key 'earth' was " << oldValue << ". Now it is " << mapOfWords["earth"] << ".\n";
-
-    // Check if insertion is successful (this fails because keys must be unique)
-    if (!mapOfWords.insert(std::make_pair("earth", 5)).second) {
-        std::cout << "Element with key 'earth' was not inserted because it already exists\n\n";
-    }
-
     // Number of items in the map
-    std::cout << "Map contains " << mapOfWords.size() << " items\n\n";
-
+    std::cout << "\nMap contains " << mapOfWords.size() << " items\n";
+    
     // Iterate through all elements in std::map
-    std::cout << "Iterate through items" << std::endl;
+    std::cout << "\nIterate through items with 'std::map::iterator'\n";
     std::map<std::string, int>::iterator it = mapOfWords.begin();
     while (it != mapOfWords.end())
     {
-        std::cout << it->first << " :: " << it->second << std::endl;
+        std::cout << "  " << it->first << " :: " << it->second << std::endl;
         it++;
     }
-    std::cout << std::endl;
 
     // Alternative method to iterate through items (requires C++11)
-    std::cout << "Alternate code to iterate through items" << std::endl;
+    std::cout << "\nAlternate code to iterate through items with 'for (auto& elem : map)'\n";
     for (auto& elem : mapOfWords)
     {
-        std::cout << elem.first << " :: " << elem.second << std::endl;
+        std::cout << "  " << elem.first << " :: " << elem.second << std::endl;
     }
-    std::cout << std::endl;
 
-    // Searching element in std::map by key
-    if (mapOfWords.find("sun") != mapOfWords.end())
-        std::cout << "'sun' found" << std::endl;
-    if (mapOfWords.find("mars") == mapOfWords.end())
-        std::cout << "'mars' not found" << std::endl;
+    // Replace the value of an existing key
+    std::cout << "\nChange the mapping (value) of an existing key\n";
+    int oldValue = mapOfWords["earth"];
+    mapOfWords["earth"] = 4;    // mapOfWords["earth"] was 1, now 4
+    std::cout << "  Old value for key 'earth' was " << oldValue << ", now it is " << mapOfWords["earth"] << std::endl;
+    it = mapOfWords.begin();
+    while (it != mapOfWords.end())
+    {
+        std::cout << "  " << it->first << " :: " << it->second << std::endl;
+        it++;
+    }
+
+    // Check if insertion is successful (this fails because keys must be unique)
+    std::cout << "\nAttempt to insert a key with the same name as an existing key\n";
+    if (!mapOfWords.insert(std::make_pair("earth", 5)).second) {
+        std::cout << "  Element with key 'earth' was not inserted because it already exists\n";
+    }
+
+    // Searching for elements by key
+	std::cout << "\nSearch for elements by key using 'std::map::find'\n";
+    ReportIfMapContainsKey<std::map<std::string, int> >(mapOfWords, "sun");
+    ReportIfMapContainsKey<std::map<std::string, int> >(mapOfWords, "mars");
 
     // Clear the map
     mapOfWords.clear();
-    std::cout << "\nMap cleared. There are now " << mapOfWords.size() << " elements.\n";
+    std::cout << "\nMap cleared, there are now " << mapOfWords.size() << " elements\n";
+    std::cout << "#\n";
 }
  
 int main()
@@ -65,5 +76,19 @@ int main()
     // Basic map
     basicMap();
 
+    // Prompt for exit
+    std::cout << "\nFinished...press a key to exit\n";
+    (void) _getch();
     return 0;
 }
+
+// Helper function(s)
+template <typename T>
+void ReportIfMapContainsKey(T localMap, std::string item) 
+{
+    // "localMap" must implement ::find (eg. std::map)
+    if (localMap.find(item) != localMap.end())
+        std::cout << "  '" << item << "' found" << std::endl;
+    else
+        std::cout << "  '" << item << "' NOT found" << std::endl;
+} 
