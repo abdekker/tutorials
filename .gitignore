@@ -1,7 +1,7 @@
 # Note: This .gitignore file will affect all child projects
 #		To override a pattern, include a .gitignore in the child project
 
-# Ignore output files (for example .o or .a on Linux)
+# Ignore output files (for example .o or .a on Linux, or .exe on Windows)
 *.exe
 *.[oa]
 *.out
@@ -12,7 +12,7 @@ output/
 Debug/
 Release/
 
-# Compressed files
+# Compressed files (add manually if required)
 *.zip
 
 ### Visual Studio Code ###
@@ -25,6 +25,7 @@ settings.json
 ### Visual Studio (all versions) ###
 *.aps
 *.ncb
+*.obj
 *.suo
 
 ### Visual Studio (2019) ###
