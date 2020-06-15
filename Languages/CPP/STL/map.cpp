@@ -5,8 +5,8 @@
 
 void basicMap()
 {
-     // Inserting data in std::map
-     std::cout << "Basic tutorial of 'std::map<std::string, int>'\n";
+    // Inserting data in std::map
+    std::cout << "Basic tutorial of 'std::map<std::string, int>'\n";
     std::map<std::string, int> mapOfWords;
     mapOfWords.insert(std::make_pair("earth", 1));
     mapOfWords.insert(std::make_pair("moon", 2));
