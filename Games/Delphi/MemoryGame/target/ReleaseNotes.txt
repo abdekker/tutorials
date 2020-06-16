@@ -1,0 +1,5 @@
+Memory Game, Release Notes
+Note: New entries are entered at the top of the list; older entries will be pushed lower down the list
+
+2020-03-22, version v2.00
+2010-09-08, version v1.01
