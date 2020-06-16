@@ -36,6 +36,7 @@ function GetDriveFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
 function CheckDriveIsValid(cDriveLetter: Char) : Boolean;
 procedure SaveToClipboard(const cstrText: String);
+{$IFDEF DBG} procedure BreakIfScrollLock(); {$ENDIF}
 
 // Registry
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
@@ -712,6 +713,28 @@ begin
 	// Save some text to the Windows clipboard
 	Clipboard.AsText := cstrText;
 end;
+
+{$IFDEF DBG}
+procedure BreakIfScrollLock();
+begin
+	// Debugging feature which forces a breakpoint (by throwing an exception) if Scroll Lock is
+	// pressed while debugging the application in Delphi.
+
+	// Note: It is possible to check for the debugger with a call into kernel32.dll:
+	// {$IFDEF DBG} function IsDebuggerPresent(): BOOL; external 'kernel32.dll'; {$ENDIF}
+	// Using "DebugHook" is simpler.
+	if (	(GetKeyState(VK_SCROLL) = 1) and
+			(DebugHook <> 0)) then
+		begin
+		// Let the developer know about the breakpoint, toggle Scroll Lock off and break
+		keybd_event(VK_SCROLL,
+			MapVirtualKey(VK_SCROLL, 0), KEYEVENTF_EXTENDEDKEY, 0);
+		keybd_event(VK_SCROLL,
+			MapVirtualKey(VK_SCROLL, 0), (KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP), 0);
+		DebugBreak();
+		end;
+end;
+{$ENDIF}
 
 // Registry
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
