@@ -198,20 +198,17 @@ type
 	pBits: PBYTE;
 	nWidth, nHeight: Integer;
 	dwByteWidth, dwSize: DWORD;
-
-	Histogram: THISTOGRAM;
   end;
 
   // OpenGL state (for 3D view)
   PTOGL_STATE = ^TOGL_STATE;
   TOGL_STATE = record
-	hDC: HDC;
-	hRC: HGLRC;
-	hInstance: THANDLE;
-	hWnd: HWND;
+	handleDC: HDC;
+	handleRC: HGLRC;
+	handleInstance: THANDLE;
+	handleWnd: HWND;
 	bFullScreen: Integer;
-	nWidth: Integer;
-	nHeight: Integer;
+	nWidth, nHeight: Integer;
   end;
 
 implementation
