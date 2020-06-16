@@ -1,0 +1,7 @@
+
+EXPORTS
+	EncodeJpgFileFromDIB = _EncodeJpgFileFromDIB@20
+	EncodeJpgFileFromDIBWithComment = _EncodeJpgFileFromDIBWithComment@24
+	DecodeJpgFileToDIB = _DecodeJpgFileToDIB@24
+
+	HackJpgComments = _HackJpgComments@8
