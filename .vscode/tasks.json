@@ -1,9 +1,24 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558 
     // for the documentation about the tasks.json format
+
+    // To run a task (other than the default): Command Palette > Tasks: Run Task
     "version": "2.0.0",
     "tasks": [
         {
+            // Shows some pre-defined variables available in Visual Studio Code
+            "type": "shell",
+            "label": "Pre-defined variables",
+            "command": "echo",
+            "args": [
+                " Use 'Tasks: Run Task' from the command palette\n\n",
+                "workspaceFolder = ${workspaceFolder}\n",
+                "workspaceFolderBasename = ${workspaceFolderBasename}\n"
+                // Modify or add more lines for variables of interest
+            ]
+        },
+        {
+            // Using g++ on Windows
             "type": "shell",
             "label": "g++: Build active file",
             "command": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin\\g++.exe",
@@ -21,6 +36,51 @@
                 "$gcc"
             ],
             "group": "build"
+        },
+        {
+            // Using the MSVC compiler cl.exe (eg. Visual Studio 2019) on Windows
+            // Note: Run the Visual Studio Command Prompt before launching Visual Studio Code
+            "type": "shell",
+            "label": "cl.exe: Build active file (DEBUG)",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/Fe:",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            // Using the MSVC compiler cl.exe (eg. Visual Studio 2019) on Windows
+            // Note: Run the Visual Studio Command Prompt before launching Visual Studio Code
+            "type": "shell",
+            "label": "cl.exe: Build active file (RELEASE)",
+            "command": "cl.exe",
+            "args": [
+                "/EHsc",
+                "/MD",
+                "/O2",
+                "${file}",
+                "/link",
+                "/out:${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
         }
     ]
 }
