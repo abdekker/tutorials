@@ -6,8 +6,6 @@
 
 using namespace std;
 
-// Forward declare of a function (bottom of file)
-
 void basicVector()
 {
     // Inserting data in std::vector
@@ -51,7 +49,7 @@ void basicVector()
     std::cout << "\nVector cleared, there are now " << vecOfInts.size() << " elements\n";
     std::cout << "#\n";
 }
- 
+
 int main()
 {
     // References for the std::map data structure:
