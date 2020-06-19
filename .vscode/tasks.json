@@ -3,6 +3,9 @@
     // for the documentation about the tasks.json format
 
     // To run a task (other than the default): Command Palette > Tasks: Run Task
+
+    // Note: To use the MSvc compiler (cl.exe), run the Visual Studio Command Prompt before launching
+    // Visual Studio Code
     "version": "2.0.0",
     "tasks": [
         {
@@ -18,7 +21,7 @@
             ]
         },
         {
-            // Using g++ on Windows
+            // Use g++ on Windows
             "type": "shell",
             "label": "g++: Build active file",
             "command": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin\\g++.exe",
@@ -38,8 +41,7 @@
             "group": "build"
         },
         {
-            // Using the MSVC compiler cl.exe (eg. Visual Studio 2019) on Windows
-            // Note: Run the Visual Studio Command Prompt before launching Visual Studio Code
+            // Use MSVC cl.exe (eg. Visual Studio 2019) on Windows
             "type": "shell",
             "label": "cl.exe: Build active file (DEBUG)",
             "command": "cl.exe",
@@ -62,8 +64,7 @@
             }
         },
         {
-            // Using the MSVC compiler cl.exe (eg. Visual Studio 2019) on Windows
-            // Note: Run the Visual Studio Command Prompt before launching Visual Studio Code
+            // Use MSVC cl.exe (eg. Visual Studio 2019) on Windows
             "type": "shell",
             "label": "cl.exe: Build active file (RELEASE)",
             "command": "cl.exe",
@@ -81,6 +82,28 @@
             "problemMatcher": [
                 "$msCompile"
             ]
-        }
+        },
+        {
+            // Use MSVC cl.exe (eg. Visual Studio 2019) on Windows with Qt
+            "type": "shell",
+            "label": "cl.exe: Build active file (RELEASE/Qt)",
+            "command": "cl.exe",
+            "args": [
+                "/EHsc",
+                "/MD",
+                "/O2",
+                "/IC:\\Qt\\5.15.0\\msvc2019_64\\include",
+                "/IC:\\Qt\\5.15.0\\msvc2019_64\\include\\QtCore",
+                "${file}",
+                "/link",
+                "/out:${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
     ]
 }
