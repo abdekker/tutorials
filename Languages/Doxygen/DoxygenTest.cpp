@@ -23,7 +23,6 @@
 // exact formatting differs with each application. Note that comments blocks with std C++ "//" or C "/**/" will
 // also appear in the Intellisense popup.
 
-
 // * There are alternatives for the formatting of the comments (eg. "/**" or "/*!"). See:
 //      https://www.doxygen.nl/manual/docblocks.html
 // * The sections also have alternatives. For example, "\brief" and "@brief" are equivalent.
