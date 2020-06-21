@@ -126,7 +126,7 @@ begin
 	// Cache
 	ZeroMemory(@GameCache, SizeOf(GAME_CACHE));
 	GameCache.szAppPath := ExtractFilePath(Application.ExeName);
-	GameCache.szAppINI := (GameCache.szAppPath + 'MemoryGame.ini');
+	GameCache.szAppINI := (GameCache.szAppPath + 'ChocolateBox.ini');
 
 	GameCache.nScreenWidth := Screen.Width;		// Or use "GetSystemMetrics(SM_CXSCREEN)"
 	GameCache.nScreenHeight := Screen.Height;	// Or use "GetSystemMetrics(SM_CYSCREEN)"

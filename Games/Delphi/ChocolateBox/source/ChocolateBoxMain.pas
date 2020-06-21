@@ -132,6 +132,49 @@ begin
 		begin
 		// Settings have been changed, copy them back
 		ChocolateBox.GameSettings := frmGameSettings.settings;
+		UpdateGameBoard();
+		{
+
+		/ // Latest pack weights
+	//alblWeights: TObjectList;
+
+			TLabel(m_cache.alblWeights[byWeight]).Caption := Format('%.1f', [
+					Product.ProdStats.afLatestWeight[byPos]]);
+
+	if (m_cache.alblWeights <> nil) then
+		m_cache.alblWeights.Free();
+
+		// Latest N pack weights
+	m_cache.alblWeights := TObjectList.Create();
+	for byWeight:=0 to (NUM_LATEST_WEIGHTS-1) do
+		begin
+		// Create labels dynamically
+		lblWeight := TLabel.Create(Self);
+		lblWeight.Visible := False;
+
+		// Set the properties for each label
+		with lblWeight do
+			begin
+			// Main properties
+			Name := Format('lblLatestWeight%d', [byWeight]);
+			Parent := gbLatestPackWeights;
+			ParentFont := False;
+			Font.Size := 10;
+
+			// Label position
+			Left := WEIGHT_LEFT;
+			Top := (lblLatestWeightTitle.Top + (byWeight * WEIGHT_GAP));
+			Alignment := taRightJustify;
+			AutoSize := False;
+			Width := WEIGHT_WIDTH;
+			Caption := '?';
+			end;
+
+		// Add label to list
+		m_cache.alblWeights.Add(lblWeight);
+		end;
+
+		}
 		end;
 
 	// Clean up
