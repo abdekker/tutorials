@@ -1,13 +1,10 @@
-{
-This program uses these C++ DLLs:
-* ..\..\..\Languages\CPP\Utils\Imaging
-* ..\..\..\Languages\CPP\Utils\JPGTools
+{ This program uses these C++ DLLs:
+	* ..\..\..\Languages\CPP\Utils\Imaging
+	* ..\..\..\Languages\CPP\Utils\JPGTools
+If the DLLs are not in the target folder, rebuild those projects and (if required) manually copy
+the DLLs to this folder.
 
-The DLLs will not be copied automatically to this folder and you
-
-
-Conditional definitions from CoreOptions.inc alter the way this program functions.
-}
+Note: Conditional definitions from CoreOptions.inc alter the way this program functions. }
 unit Main;
 {$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
@@ -205,6 +202,9 @@ var
 	nOldHeight, nHeightChange: Integer;
 	strStartImagePath: String;
 begin
+	// Cache settings
+	CacheSettings();
+
 	// Load main game settings
 	MemoryGame := TSystem.Create();
 	MemoryGame.InitSystem();
@@ -225,8 +225,7 @@ begin
 	Self.Constraints.MaxWidth := Round(Self.Constraints.MaxHeight * (Screen.Width / Screen.Height));
 
 	// If we have had to make the screen smaller (this might happens when we try and display the
-	// game on a 800x600 screen, for example), move the components components to fill the
-	// available space.
+	// game on a 800x600 screen, for example), move components to fill the available space.
 	if (nOldWidth <> Self.ClientWidth) or (nOldHeight <> Self.ClientHeight) then
 		begin
 		nWidthChange := (Self.ClientWidth - nOldWidth);
@@ -245,11 +244,6 @@ begin
 		btnSettings.Left := (btnSettings.Left + nWidthChange);
 		btnExit.Left := (btnExit.Left + nWidthChange);
 
-		{lblScreenWidth.Top := (lblScreenWidth.Top + nHeightChange);
-		lblScreenHeight.Top := (lblScreenHeight.Top + nHeightChange);
-		lblFormWidth.Top := (lblFormWidth.Top + nHeightChange);
-		lblFormHeight.Top := (lblFormHeight.Top + nHeightChange);}
-
 		// Also resize our "whole game" image
 		PrepareImageCell(m_pImgWholeGame, GameImageBox.Width, GameImageBox.Height);
 		Expand24Coloured(m_pImgWholeGame, COLOUR_BACKGROUND);
@@ -257,19 +251,15 @@ begin
 		Expand24Coloured(m_pImgLastCompletedGame, COLOUR_BACKGROUND);
 		end;
 
-	// Cache settings to help with resize
-	CacheSettings();
-
-	// Load a sample image
-	strStartImagePath := (ExtractFilePath(Application.ExeName) + 'StartingImage.jpg');
+	// Load the starting sample image
+	strStartImagePath := (MemoryGame.GameCache.szAppPath + 'StartingImage.jpg');
 	LoadJpgNoComments24(m_pStartImageOriginal, strStartImagePath);
 
 	ExtractImageCell24(m_pStartImageCorrected, m_pStartImageOriginal, nil);
 	ImageCellCorrectAspect24(@m_pStartImageCorrected, COLOUR_BACKGROUND,
 		GameImageBox.Width, GameImageBox.Height);
 
-	// Many changes based on the fact that this the application is being
-	// compiled in other configurations
+	// Set main GUI elements (English only)
 	lblGameName.Caption := 'Memory Game';
 	gbCurrentGame.Caption := 'Current';
 	gbLastGame.Caption := 'Last';
@@ -320,8 +310,7 @@ procedure TfrmMain.GenerateGameImages();
 var
 	nRow, nCol: Integer;
 begin
-	// How big can each image be? We need to leave a few pixels either side of
-	// each image for a border.
+	// How big can each image be? Leave a few pixels either side of each image for a border.
 	m_game.nImgWidth :=
 		((GameImageBox.Width - MemoryGame.GameSettings.nColumns * MemoryGame.GameSettings.nGridWidth) div
 			MemoryGame.GameSettings.nColumns);
@@ -354,7 +343,7 @@ begin
 			end;
 		end;
 
-	// Prepare the blank image
+	// Prepare the blank (face down) image
 	DeleteImageCell(m_pImgBlank);
 	m_pImgBlank := CreateImageCell(1,1,0,0);
 	PrepareImageCell(m_pImgBlank, m_game.nImgWidth, m_game.nImgHeight);
@@ -373,7 +362,7 @@ begin
 		end;
 
 	// What type of image are we going to load? We could be loading:
-	// * "Internal" > Image of Sarah
+	// * "Internal" > Personal images
 	// * "Internal" > Numbers
 	// * "Internal" > Letters
 	// * "Folder" > User selected folder of images
@@ -398,8 +387,7 @@ begin
 	nImageCount := m_astrGameImages.Count;
 	if (nImageCount >= m_cache.nImagesRqd) then
 		begin
-		// We have enough images...randomly choose "nImagesRequired" of them
-		// to use for the game
+		// We have enough images...randomly choose "nImagesRequired" to use for the game
 
 		// Create some lists to use
 		anImageNumbers := TList.Create();
@@ -413,8 +401,7 @@ begin
 		for nImage:=1 to nImageCount do
 			anImageNumbers.Add(Pointer(nImage));
 
-		// Random select nImagesRequired of them (this changes the images
-		// used for each game, making every game unique!)
+		// Random selection so that each game is unique!
 		DecodeTime(Now(), wHours, wMins, wSecs, wMilliSecs);
 		RandSeed := wMilliSecs;
 		RandSeed := (1 + Random(21474843647));
@@ -425,12 +412,12 @@ begin
 			anImageNumbers.Delete(nImage-1);
 			end;
 
-		// Assign a list of nImagesRqd numbers to random locations in the grid
+		// Assign the images to random locations in the grid
 		AssignRandomLocations(anImageLocations, m_cache.nImagesRqd);
 
 		// Now load the images
-		if (anImagesToUse.Count = m_cache.nImagesRqd) and
-				(anImageLocations.Count = m_cache.nGridSize) then
+		if (	(anImagesToUse.Count = m_cache.nImagesRqd) and
+				(anImageLocations.Count = m_cache.nGridSize)) then
 			begin
 			pTmpImg := CreateImageCell(1,1,0,0);
 			nPosition := 1;
@@ -448,8 +435,7 @@ begin
 					m_game.nImgWidth, m_game.nImgHeight);
 
 				// ...and stretch it onto our sample image
-				GetRowColumnFromPosition(
-					Integer(anImageLocations[nPosition-1]), nRow, nColumn);
+				GetRowColumnFromPosition(Integer(anImageLocations[nPosition-1]), nRow, nColumn);
 				rct.Left := 0;
 				rct.Right := m_game.nImgWidth;
 				rct.Top := 0;
@@ -482,18 +468,17 @@ var
 	nImage, nPos, nLocation1, nLocation2: Integer;
 	anLocation_Row, anLocation_Col: array[1..2] of Integer;
 begin
-	// Assume that the grid size is 4x4 (16 locations) and that the number of
-	// images to assign is therefore 8. This function will attempt to assign
-	// each number to the grid twice (each instance is one of a pair of matching
-	// cards). For example:
+	// Assume the grid size is 4x4 (16 locations). Since each image is duplicated, the total number
+	// of images is therefore 8. This function attempts to assign each number to the grid twice
+	// (each instance is one of a pair of matching cards). For example:
 	// 3 1 8 3		[Locations 1 to 4]
 	// 2 4 7 6		[Locations 5 to 8]
 	// 1 2 6 8		[Locations 9 to 12]
 	// 5 4 5 7		[Locations 13 to 16]
 
-	// The above grid will generate this list:
-	// 2,9,5,10,1,4,6,14,13,15,8,11,7,16,3,12
-	// (where the first two elements represent the locations of "1", etc)
+	// The above grid generates this list:
+	//		2,9,5,10,1,4,6,14,13,15,8,11,7,16,3,12
+	// The first two elements (2,9) represents the location of image "1", etc.
 
 	// Generate the list of possible locations
 	anLocations := TList.Create();
@@ -526,7 +511,7 @@ begin
 		m_game.anMatchSquare_Col[anLocation_Row[2], anLocation_Col[2]] := anLocation_Col[1];
 		end;
 
-	// For the last image, just assign to the two remaining locations
+	// Assign the last image to the two remaining locations
 	nLocation1 := Integer(anLocations[0]);
 	anImages.Add(Pointer(nLocation1));
 	nLocation2 := Integer(anLocations[1]);
@@ -554,7 +539,7 @@ end;
 
 procedure TfrmMain.ResetLastBestGameStats();
 begin
-	// Statistics for the last game and best game times
+	// Statistics for the last (completed) and best game times
 	m_game.dwLastCompletedTime := 0;
 	m_game.dwBestCompletedTime := 999999999;
 end;
@@ -569,7 +554,7 @@ end;
 
 procedure TfrmMain.SetGameControls();
 begin
-	// If the game is running, show the game status, otherwise disable them
+	// If the game is running, show the game status
 	lblTimeStartedTitle.Enabled := (m_game.bRunning);
 	lblTimeStarted.Enabled := (m_game.bRunning);
 	lblElapsedTimeTitle.Enabled := (m_game.bRunning);
@@ -584,8 +569,7 @@ procedure TfrmMain.TurnOverCards();
 var
 	byCard: BYTE;
 begin
-	// When two tentative cards are face up (but don't match), turn them back
-	// to face down
+	// When two tentative cards are face up (but don't match), turn them back to face down
 	m_game.aSquares[m_game.anSelectedRow[1], m_game.anSelectedCol[1]] := eFaceDown;
 	m_game.aSquares[m_game.anSelectedRow[2], m_game.anSelectedCol[2]] := eFaceDown;
 
@@ -605,8 +589,7 @@ begin
 	// The user has finished a game!
 	GameImageBoxPaint(Self);
 
-	// Save the final image so that it can be displayed on-screen if we need to
-	// repaint
+	// Save the final image so that it can be displayed on-screen if we need to repaint
 	ExtractImageCell24(m_pImgLastCompletedGame, m_pImgWholeGame, nil);
 	m_bLastGameImage := True;
 
@@ -638,8 +621,7 @@ procedure TfrmMain.DrawBorderTentative(nRow, nCol: Integer);
 var
 	rct: TRect;
 begin
-	// Draw border around an image when its not yet matched with another (this
-	// is termed "tentative" in the software)
+	// Draw a border around an image when its not yet matched with another (termed "tentative")
 	m_hBorderTentativePen.Width := 1;
 	SelectObject(m_pImgWholeGame.handleDC, m_hBorderTentativePen.Handle);
 	rct := m_game.arctImages[nRow, nCol];
@@ -721,9 +703,9 @@ end;
 procedure TfrmMain.GetRowColumnFromPosition(const cnPos: Integer;
 	var nRow: Integer; var nColumn: Integer);
 begin
-	// Given the position in the grid, return its row and column. Assume a 3x4
-	// grid (meaning 3 rows, 4 columns). On the left we show the positions and
-	// on the right we show the corresponding co-ordinate pair (row,column):
+	// Given the position in the grid, return its row and column. Assume a 3x4 grid (meaning 3 rows,
+	// 4 columns). On the left we show the positions and on the right we show the corresponding
+	// co-ordinate pair (row,column):
 	// 01  02  03  04			1,1  1,2  1,3  1,4
 	// 05  06  07  08			2,1  2,2  2,3  2,4
 	// 09  10  11  12			3,1  3,2  3,3  3,4
@@ -766,8 +748,7 @@ var
 	dcScreen: HDC;
 	lpPalette: PLOGPALETTE;
 begin
-	// This code to grab the screen comes from About.com: Delphi Programming by
-	// Zarko Gajic
+	// This code to grab the screen comes from About.com: Delphi Programming by Zarko Gajic
 
 	// Test width and height
 	if (nWidth = 0) or (nHeight = 0) or (bmScreen = nil) then
@@ -777,7 +758,7 @@ begin
 	bmScreen.Width := nWidth;
 	bmScreen.Height := nHeight;
 
-	// Get the screen dc
+	// Get the screen DC
 	dcScreen := GetDC(0);
 	if (dcScreen = 0) then
 		Exit;
@@ -938,9 +919,10 @@ procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: WORD; Shift: TShiftStat
 var
 	bmScreenShot: TBitmap;
 begin
-	// Most forms will propagate key presses back to the main form for processing,
-	// such as loading images. Be careful about whether to propagate the VK_ESC key
-	// back because that shuts the application down!
+	// Most forms will propagate key presses back to the main form for processing, such as loading
+	// images. Be careful about whether to propagate the VK_ESC key back because that shuts the
+	// application down!
+
 	// Note: In order to trap key press events on the form, do the following:
 	// (1) Set the KeyPreview property to True
 	// (2) Handle the form OnKeyDown event
@@ -971,7 +953,7 @@ end;
 
 procedure TfrmMain.FormResize(Sender: TObject);
 begin
-	// TODO: Handle resizing the main form, currently we've fixed the border
+	// TODO: Handle resizing the main form, currently the border is fixed
 
 	// Handles form resizing
 	Inc(m_dwResizeCount);
@@ -987,17 +969,6 @@ begin
 	// Resize the controls on the form
 	GameBackPanel.Width := (Self.ClientWidth - m_cache.nBackPanelWidthOffset);
 	GameBackPanel.Height := (Self.ClientHeight - m_cache.nBackPanelHeightOffset);
-
-	{NameBackPanel.Width := (Self.ClientWidth - 100);
-	lblGameName.Width := (GameBackPanel.Width -9);
-
-	GameBackPanel.Width := NameBackPanel.Width;
-	GamePanel.Width := (GameBackPanel.Width - 6);}
-
-	// Correct the aspect ratio of the sample image
-	//ExtractImageCell24(m_pSampleImageCorrected, m_pSampleImageOriginal, nil);
-	//ImageCellCorrectAspect24(@m_pSampleImageCorrected, COLOUR_BACKGROUND,
-	//	GameImageBox.Width, GameImageBox.Height);
 end;
 
 procedure TfrmMain.btnNewGameClick(Sender: TObject);
@@ -1018,8 +989,8 @@ begin
 		end
 	else
 		begin
-		// Disable the "New" button while we initialise which can be slow on
-		// removable media (such as CDs or pen drives)
+		// Disable the "New" button while we initialise. This can be slow on removable media (such
+		// as CDs or pen drives).
 		btnNewGame.Enabled := False;
 
 		// Start a new game
@@ -1056,10 +1027,9 @@ begin
 	frmSettings.SetGameRunning(m_game.bRunning);
 	if (frmSettings.ShowModal() = mrOk) then
 		begin
-		// Has the game size changed? If so, reset the last and best completed
-		// game times.
-		if (MemoryGame.GameSettings.nRows <> frmSettings.settings.nRows) or
-				(MemoryGame.GameSettings.nRows <> frmSettings.settings.nRows) then
+		// Has the game size changed? If so, reset the last completed and best game times.
+		if (	(MemoryGame.GameSettings.nRows <> frmSettings.settings.nRows) or
+				(MemoryGame.GameSettings.nColumns <> frmSettings.settings.nColumns)) then
 			ResetLastBestGameStats();
 
 		// Settings have been changed, copy them back
@@ -1188,9 +1158,8 @@ begin
 	if (not m_bAllowDraw) then
 		Exit;
 
-	// Block drawing for a short time? This is often required when the end-of-game
-	// confirmation message is displayed, which forces a repaint of the screen
-	// as the dialog disappears.
+	// Block drawing for a short time? This is often required when the end-of-game confirmation
+	// message is displayed, which forces a repaint of the screen as the dialog disappears.
 	if (GetTickCount() < m_dwBlockDrawTime) then
 		begin
 		BitBlt(GameImageBox.Canvas.Handle, 0, 0, GameImageBox.Width, GameImageBox.Height,
@@ -1232,8 +1201,7 @@ begin
 		end
 	else
 		begin
-		// Game is not running, show the sample image or the image of the last
-		// completed game
+		// Game is not running, show the sample image or the image of the last completed game
 		if (m_bLastGameImage) then
 			begin
 			// We have an image for the last completed game, so show that
@@ -1271,10 +1239,9 @@ begin
 		nThisCol := ((pt.X div m_cache.nImgWidthWithBorder) + 1);
 		if (m_game.aSquares[nThisRow, nThisCol] = eFaceDown) then
 			begin
-			// Card is face down. If two tentative cards are face up, turn them
-			// both face down. If one or no tentative cards are face up, turn
-			// this card over and check whether it matches the other tentative
-			// card (if applicable).
+			// Card is face down. If two tentative cards are face up, turn them both face down. If
+			// one or none tentative cards are face up, turn this card over and (if applicable)
+			// check whether it matches the other tentative card.
 			// Note: There should only ever be 0, 1 or 2 tentative cards face up!
 			if (m_game.byUnmatchedCardsFaceUp < 2) then
 				begin
@@ -1305,7 +1272,7 @@ begin
 						(m_game.anMatchSquare_Col[nThisRow, nThisCol] = m_game.anSelectedCol[1]);
 					if (bMatchedRow) and (bMatchedCol) then
 						begin
-						// Yes, matched cards!
+						// Matched cards!
 						m_game.aSquares[nThisRow, nThisCol] := eFaceUpComplete;
 						m_game.aSquares[
 							m_game.anMatchSquare_Row[nThisRow, nThisCol],
@@ -1340,9 +1307,8 @@ begin
 				end		// if (m_game.byUnmatchedCardsFaceUp < 2) then
 			else
 				begin
-				// Two or more tentative cards are face up, put them face down
-				// Note: There should never be more than two tentative cards
-				// face up!
+				// Two or more tentative cards are face up, but did not match. Put them face down.
+				// Note: There should never be more than two tentative cards face up!
 				TurnOverCards();
 
 				// Now select the new card
@@ -1357,15 +1323,14 @@ begin
 			end
 		else if (m_game.aSquares[nThisRow, nThisCol] = eFaceUpTentative) then
 			begin
-			// Card is face up, tentative. If two tentaive cards are face up,
-			// turn them both face down. If the count is one, do nothing.
+			// Card is face up, tentative. If two tentaive cards are face up, turn them both face
+			// down. If the count is one, do nothing.
 			if (m_game.byUnmatchedCardsFaceUp = 2) then
 				TurnOverCards();
 			end
 		else if (m_game.aSquares[nThisRow, nThisCol] = eFaceUpComplete) then
 			begin
-			// Card is already complete, take no action unless two tentative
-			// cards are face up
+			// Card is already complete, take no action unless two tentative cards are face up
 			if (m_game.byUnmatchedCardsFaceUp = 2) then
 				TurnOverCards();
 			end;

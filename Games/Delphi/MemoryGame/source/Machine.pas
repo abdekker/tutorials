@@ -32,10 +32,17 @@ type
 	nRows, nColumns: Integer;
   end;
 
+  // General cache
+  PGAME_CACHE = ^GAME_CACHE;
+  GAME_CACHE = record
+	// Application path
+	szAppPath, szAppINI: String;
+  end;
+
   TSystem = class
   private
 	{ Private declarations }
-	m_dwAppStartTicks: DWORD;
+	m_bInitialised: Boolean;
 
 	procedure Load();
 	procedure Save();
@@ -45,6 +52,7 @@ type
 	{ Public declarations }
 	// Settings
 	GameSettings: GAME_SETTINGS;
+	GameCache: GAME_CACHE;
 
 	// System status flags
 	bySystemExitRequest: BYTE;
@@ -75,12 +83,12 @@ var
 	pIniFile: TIniFile;
 begin
 	// Read settings from the INI file
-	pIniFile := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'MemoryGame.ini');
+	pIniFile := TIniFile.Create(GameCache.szAppINI);
 
 	// Image source
 	GameSettings.eSource := IMAGE_SOURCE(pIniFile.ReadInteger('Images', 'Location', BYTE(eInternal)));
 	GameSettings.strSourceFolder := pIniFile.ReadString('Images', 'SourceFolder',
-		(ExtractFilePath(Application.ExeName) + 'Internal sample pics\Food Images'));
+		(GameCache.szAppPath + 'Internal sample pics\Food Images'));
 
 	// Graphics
 	GameSettings.clGridColour := pIniFile.ReadInteger('Graphics', 'GridColour', clRed);
@@ -108,18 +116,17 @@ var
 	pIniFile: TIniFile;
 begin
 	// Save settings to the INI file
-	// Note: This can fail if the INI file is read-only, such as on a CD drive.
-	// We could try and remove the read-only attribute, but its just simpler to
-	// not bother saving at all. The code below code tries to remove the
-	// read-only (and other system flags) attributes:
-	// RemoveAttributes(strFile, (faReadOnly or faHidden or faSysFile));
+	// Note: This can fail if the INI file is read-only, such as on a CD drive. We could try and
+	// remove the read-only attribute, but its just simpler to not bother saving at all. The code
+	// below code tries to remove the read-only (and other system flags) attributes:
+	//		RemoveAttributes(strFile, (faReadOnly or faHidden or faSysFile));
 
-	// If the program is running on a CD, do not try to save)
+	// If the program is running on a CD, do not try to save!
 	if (not ProgramRunningOnCD()) then
 		begin
-		try
 			try
-				pIniFile := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'MemoryGame.ini');
+				// Open INI
+				pIniFile := TIniFile.Create(GameCache.szAppINI);
 
 				// Image source
 				pIniFile.WriteInteger('Images', 'Location', BYTE(GameSettings.eSource));
@@ -135,13 +142,11 @@ begin
 
 				// Flush the file
 				pIniFile.UpdateFile();
-			except
+			finally
+				// Close the file
+				if (pIniFile <> nil) then
+					pIniFile.Free();
 			end;
-		finally
-		// Close the file
-		if (pIniFile <> nil) then
-			pIniFile.Free();
-		end;
 		end;	// if (not ProgramRunningOnCD()) then
 end;
 
@@ -150,7 +155,7 @@ var
 	strDrivesCD, strAppDrive: String;
 begin
 	strDrivesCD := GetSystemDrives(DRIVE_CDROM);
-	strAppDrive := AnsiMidStr(ExtractFilePath(Application.ExeName), 1, 2);
+	strAppDrive := AnsiMidStr(GameCache.szAppPath, 1, 2);
 	Result := AnsiContainsStr(strDrivesCD, strAppDrive);
 end;
 // Private functions: Eng [TSystem]
@@ -158,8 +163,16 @@ end;
 // Public functions: Start [TSystem]
 procedure TSystem.InitSystem();
 begin
-	// General intialisation
-	m_dwAppStartTicks := GetTickCount();
+	// Initialise the machine object available throughout the game
+	m_bInitialised := False;
+
+	// Settings
+	ZeroMemory(@GameSettings, SizeOf(GAME_SETTINGS));
+
+	// Cache
+	ZeroMemory(@GameCache, SizeOf(GAME_CACHE));
+	GameCache.szAppPath := ExtractFilePath(Application.ExeName);
+	GameCache.szAppINI := (GameCache.szAppPath + 'MemoryGame.ini');
 
 	// System status flags
 	bySystemExitRequest := 0;
@@ -168,6 +181,7 @@ begin
 	Load();
 
 	// Machine object initialisation complete!
+	m_bInitialised := True;
 end;
 
 procedure TSystem.PrepareToExit();
@@ -190,11 +204,11 @@ var
 begin
 	// Return the path to the source files
 	if (settings.eSource = eInternal) then
-		strFolder := (ExtractFilePath(Application.ExeName) + 'Internal Sample Pics\General Images')
+		strFolder := (GameCache.szAppPath + 'Internal sample pics\General Images')
 	else if (settings.eSource = eNumbers) then
-		strFolder := (ExtractFilePath(Application.ExeName) + 'Internal Sample Pics\Numbers')
+		strFolder := (GameCache.szAppPath + 'Internal sample pics\Numbers')
 	else if (settings.eSource = eLetters) then
-		strFolder := (ExtractFilePath(Application.ExeName) + 'Internal Sample Pics\Letters')
+		strFolder := (GameCache.szAppPath + 'Internal sample pics\Letters')
 	else
 		strFolder := settings.strSourceFolder;
 
@@ -205,7 +219,8 @@ procedure TSystem.SaveBitmapToUSB(strTitle, strFilename: String; bmSaveMe: TBitM
 var
 	strFile: String;
 begin
-	strFile := GetNextFilename('C:\', strFilename, 'bmp');
+	// Could this use FormUtils::SaveScreenshot?
+	strFile := GetNextFilename('C:\Tmp\', strFilename, 'bmp');
 	bmSaveMe.SaveToFile(strFile);
 end;
 
@@ -213,8 +228,8 @@ procedure TSystem.Rest(dwPeriod: DWORD);
 var
 	dwTarget: DWORD;
 begin
-	// We generally use this "Rest" function instead of Sleep(...) in most
-	// places in the code, but we should use Sleep(...) in the Threads module.
+	// We generally use this "Rest" function instead of Sleep(...) in most places in the code, but
+	// we should use Sleep(...) in threads
 	dwTarget := (GetTickCount() + dwPeriod);
 	repeat
 		Sleep(20);

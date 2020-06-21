@@ -168,8 +168,7 @@ end;
 
 procedure TfrmSettings.EnableDisableControls();
 begin
-	// Enable / disable conrols based on other settings or whether we are
-	// currently playing a game
+	// Enable controls based on other settings or whether we are currently playing a game
 
 	// Disable "Folder" control if "Image source" is not set to "Folder"
 	lblFolder.Enabled := (settings.eSource = eFolder);
@@ -225,8 +224,8 @@ var
 	nSuggestedRows, nSuggestedColumns: Integer;
 	strMsg: String;
 begin
-	// We cannot allow a grid that has both an odd number of rows and an odd
-	// number of columns. Warn the user if this is the case.
+	// We cannot allow a grid that has both an odd number of rows and an odd number of columns.
+	// Warn the user if this is the case.
 	Result := True;
 	if (Odd(settings.nRows)) and (Odd(settings.nColumns)) then
 		begin
@@ -241,7 +240,7 @@ begin
 			nSuggestedColumns := (settings.nColumns + 1);
 			end;
 
-		strMsg := Format('An odd-shaped grid is not allowed! Suggested size is %d rows and %d columns. Is that OK ?', [
+		strMsg := Format('Odd-shaped grids are not allowed! Suggest %d rows and %d columns. Is that OK ?', [
 			nSuggestedRows, nSuggestedColumns]);
 		if (MessageDlg(strMsg, mtConfirmation, [mbYes, mbNo], 0) = mrYes) then
 			begin
@@ -258,8 +257,8 @@ var
 	strFolder: String;
 	astrImages: TStringList;
 begin
-	// Show the number of JPG and BMP files in the selected folder. Currently
-	// only JPG and BMP are supported!
+	// Show the number of JPG and BMP files in the selected folder. Currently only JPG and BMP are
+	// supported!
 	m_nJPGs := 0;
 	m_nBMPs := 0;
 
@@ -292,8 +291,7 @@ begin
 		end;
 
 	// Show the results
-	lblFolderDetails.Caption := Format('(Images: %d JPGs and %d BMPs)', [
-		m_nJPGs, m_nBMPs]);
+	lblFolderDetails.Caption := Format('(Images: %d JPGs and %d BMPs)', [m_nJPGs, m_nBMPs]);
 end;
 
 function TfrmSettings.ValidateDrive(strFolder : String) : Boolean;
@@ -317,8 +315,9 @@ begin
 		nImagesToDisplay := (m_nJPGs + m_nBMPs);
 		if (nImagesToDisplay < nImagesRequired) then
 			begin
-			strWarning := Format('Not enough images! %d required for a %dx%d grid. Add more images or reduce the grid size.', [
-				nImagesRequired, settings.nRows, settings.nColumns]);
+			strWarning :=
+				Format('Not enough images! %d required for a %dx%d grid. Add more images or reduce the grid size.', [
+					nImagesRequired, settings.nRows, settings.nColumns]);
 			MessageDlg(strWarning, mtWarning, [mbOK], 0);
 			end;
 		end;
@@ -338,8 +337,7 @@ var
 begin
 	// Create sample images from the user selection
 
-	// How big can each image be? We need to leave a few pixels either side of
-	// each image for a border.
+	// How big can each image be? Leave a few pixels either side of each image for a border.
 	nImgWidth := ((SampleGameBox.Width - 2 * settings.nGridWidth) div 2);
 	nImgHeight := ((SampleGameBox.Height - 2 * settings.nGridWidth) div 2);
 
@@ -374,8 +372,7 @@ begin
 		Expand24(m_apImages[nImage]);
 		end;
 
-	// Internal pitures or a user-slected folder (the default folder shows
-	// some pictures of food!)
+	// Internal pitures or a user-slected folder (the default folder shows some pictures of food!)
 	strFolder := MemoryGame.GetSourceFolder(settings);
 
 	astrImages := TStringList.Create();
@@ -395,12 +392,12 @@ begin
 			anImgToLoad[2] := Random(nImgCount);
 
 		anImgToLoad[3] := anImgToLoad[2];
-		while ((anImgToLoad[3] = anImgToLoad[1]) or
+		while (		(anImgToLoad[3] = anImgToLoad[1]) or
 					(anImgToLoad[3] = anImgToLoad[2])) do
 			anImgToLoad[3] := Random(nImgCount);
 
 		anImgToLoad[4] := anImgToLoad[3];
-		while ((anImgToLoad[4] = anImgToLoad[1]) or
+		while (		(anImgToLoad[4] = anImgToLoad[1]) or
 					(anImgToLoad[4] = anImgToLoad[2]) or
 					(anImgToLoad[4] = anImgToLoad[3])) do
 			anImgToLoad[4] := Random(nImgCount);
@@ -596,8 +593,8 @@ end;
 
 procedure TfrmSettings.btnDisclaimerClick(Sender: TObject);
 begin
-	// Show a disclaimer form showing details of who wrote this program and some
-	// notes on how to generate new images
+	// Show a disclaimer form showing details of who wrote this program and some notes on how to
+	// generate new images
 	frmDisclaimer := TfrmDisclaimer.Create(Self);
 	frmDisclaimer.ShowModal();
 	frmDisclaimer.Free();
@@ -606,7 +603,7 @@ end;
 
 procedure TfrmSettings.btnSetDefaultsClick(Sender: TObject);
 begin
-	if (MessageDlg('This will reset all settings to the defaults. Are you sure you wish to continue?',
+	if (MessageDlg('This will reset all settings to default. Are you sure you wish to continue?',
 			mtConfirmation, [mbYes, mbCancel], 0) = mrYes) then
 		ResetSettings();
 end;
@@ -631,8 +628,7 @@ begin
 
 	// Get the new image source
 	eOldSource := settings.eSource;
-	settings.eSource :=
-		IMAGE_SOURCE(cbImageSource.Items.Objects[cbImageSource.ItemIndex]);
+	settings.eSource := IMAGE_SOURCE(cbImageSource.Items.Objects[cbImageSource.ItemIndex]);
 	EnableDisableControls();
 
 	// Has it changed?
@@ -652,7 +648,7 @@ end;
 procedure TfrmSettings.ebFolderClick(Sender: TObject);
 begin
 	// The user should only enter values via the browse button
-	MessageDlg('Please only enter the folder via the Browse button on the right !', mtWarning, [mbOK], 0);
+	MessageDlg('Please use the Browse button on the right !', mtWarning, [mbOK], 0);
 end;
 
 procedure TfrmSettings.btnBrowseForFolderClick(Sender: TObject);
@@ -730,7 +726,8 @@ begin
 		for byCol:=1 to (SAMPLE_GAME_SIZE div 2) do
 			begin
 			rct := m_gameSample.arctImages[byRow, byCol];
-			ExtractImageCellToPosition24(m_pImgWholeGame, m_apImages[2*(byRow-1) + byCol], rct.Left, rct.Top);
+			ExtractImageCellToPosition24(
+				m_pImgWholeGame, m_apImages[2*(byRow-1) + byCol], rct.Left, rct.Top);
 			end;
 		end;
 
