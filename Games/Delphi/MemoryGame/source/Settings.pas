@@ -156,12 +156,6 @@ begin
 	// Enable/disable related controls
 	EnableDisableControls();
 
-	// If the game is running, show this in the title of the form
-	if (m_bGameRunning) then
-		Caption := 'Memory Game Settings [Game is running !]'
-	else
-		Caption := 'Memory Game Settings';
-
 	// No longer setting up
 	m_bSettingUp := False;
 end;
@@ -531,7 +525,12 @@ begin
 	if (MemoryGame.bySystemExitRequest > 0) then
 		Exit;
 
-	// Set up the various combo boxes on the form
+	// If the game is running, show this in the title of the form
+	if (m_bGameRunning) then
+		Caption := 'Memory Game Settings [Game is running!]'
+	else
+		Caption := 'Memory Game Settings';
+
 	// Images location
 	cbImageSource.Items.Clear();
 	cbImageSource.Items.AddObject('Internal (Default)', TObject(eInternal));
@@ -552,12 +551,6 @@ begin
 		cbRows.Items.AddObject(IntToStr(byTmp), TObject(byTmp));
 		cbColumns.Items.AddObject(IntToStr(byTmp), TObject(byTmp));
 		end;
-
-	// If the game is running, show this in the title of the form
-	if (m_bGameRunning) then
-		Caption := 'Memory Game Settings [Game is running!]'
-	else
-		Caption := 'Memory Game Settings';
 
 	// Update folder list (only relevant for "Internal" and "Folder")
 	UpdateFolderListing();

@@ -850,6 +850,10 @@ begin
 	m_timers.dwLastLabelsUpdate := (GetTickCount() - 1000);
 	ZeroMemory(@m_cache, SizeOf(CACHE_SETTINGS));
 
+	// Initialise system and form utilities
+	InitialiseSystemUtils();
+	InitialiseFormUtils();
+
 	// Debugging
 	gbDebugging.Visible := {$IFDEF DBG} True {$ELSE} False {$ENDIF};
 	m_dwRedrawCount := 0;
@@ -884,9 +888,12 @@ begin
 	m_hBorderTentativePen.Free();
 	m_hBorderPen.Free();
 
-	// Stop various services
+	// Close system and form utilities
+	CloseSystemUtils();
+	CloseFormUtils();
+
+	// Close machine object (which will save settings)
 	MemoryGame.PrepareToExit();
-	MemoryGame.Rest(200);
 	MemoryGame.Free();
 end;
 
