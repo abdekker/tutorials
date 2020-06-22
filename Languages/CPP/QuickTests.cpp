@@ -14,7 +14,7 @@
 using namespace std;
 int main(int argc, char* args[])
 {
-    // Quick tests in C++ (do not update in Git)
+    // Quick tests in C/C++ (do not update in Git)
     int test1 = 0x00000200;
     int test2 = (test1 >> 8);
     cout << "test >> 8 is " << test2 << endl;
