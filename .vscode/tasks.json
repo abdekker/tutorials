@@ -74,7 +74,7 @@
                 "/O2",
                 "${file}",
                 "/link",
-                "/out:${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "/OUT:${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -96,7 +96,7 @@
                 "/IC:\\Qt\\5.15.0\\msvc2019_64\\include\\QtCore",
                 "${file}",
                 "/link",
-                "/out:${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "/OUT:${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
