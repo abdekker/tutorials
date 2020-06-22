@@ -4,6 +4,7 @@
 #include <QDebug>
 
 int main()
+{
     //QString test("Hello world!");
     QString test = "Hello world!";
     //qDebug() << test;
