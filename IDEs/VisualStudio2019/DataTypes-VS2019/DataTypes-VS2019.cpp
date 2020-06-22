@@ -5,8 +5,6 @@
 // In VS2003 "#include <limits.h>" was required to get ranges for in-built types. This is implicit
 // or automatic in VS2019.
 
-// Another test comment
-
 // Compiler trick to see what the largest number is when the preprocessor compiles this code. All
 // unsigned values are required to be of type "uintmax_t", and therefore "~0U", "0U-1" and "-1U"
 // should all represent the maximum representable number. In future this may change, but when this
