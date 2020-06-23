@@ -4,10 +4,16 @@ unit ChocolateBoxMain;
 interface
 
 uses
-  Windows, Messages, Classes, Controls, ExtCtrls, Forms, Graphics, StdCtrls, SysUtils,
+  Windows, Messages, Classes, Contnrs, Controls, ExtCtrls, Forms, Graphics, StdCtrls, SysUtils,
   CoreFormClasses, CoreTypes, FormUtils, GameMachine, SystemUtils;
 
 type
+  CACHE_GAME_BOARD = record
+	// Main board cache
+	bInitialisedBoxes: Boolean;
+	aBoxes: TObjectList;
+  end;
+
   // Main form
   TfrmChocolateBox = class(TGeneralBaseForm)
 
@@ -32,8 +38,12 @@ type
 	// Initialisation and system-state flags
 	m_bFirstTimeShow, m_bExiting, m_bAllowDraw: Boolean;
 
+	// Cache
+	m_cache: CACHE_GAME_BOARD;
+
 	// Initialisation
 	procedure FirstTimeInit();
+	procedure UpdateGameBoard();
 
   public
 	{ Public declarations }
@@ -133,48 +143,6 @@ begin
 		// Settings have been changed, copy them back
 		ChocolateBox.GameSettings := frmGameSettings.settings;
 		UpdateGameBoard();
-		{
-
-		/ // Latest pack weights
-	//alblWeights: TObjectList;
-
-			TLabel(m_cache.alblWeights[byWeight]).Caption := Format('%.1f', [
-					Product.ProdStats.afLatestWeight[byPos]]);
-
-	if (m_cache.alblWeights <> nil) then
-		m_cache.alblWeights.Free();
-
-		// Latest N pack weights
-	m_cache.alblWeights := TObjectList.Create();
-	for byWeight:=0 to (NUM_LATEST_WEIGHTS-1) do
-		begin
-		// Create labels dynamically
-		lblWeight := TLabel.Create(Self);
-		lblWeight.Visible := False;
-
-		// Set the properties for each label
-		with lblWeight do
-			begin
-			// Main properties
-			Name := Format('lblLatestWeight%d', [byWeight]);
-			Parent := gbLatestPackWeights;
-			ParentFont := False;
-			Font.Size := 10;
-
-			// Label position
-			Left := WEIGHT_LEFT;
-			Top := (lblLatestWeightTitle.Top + (byWeight * WEIGHT_GAP));
-			Alignment := taRightJustify;
-			AutoSize := False;
-			Width := WEIGHT_WIDTH;
-			Caption := '?';
-			end;
-
-		// Add label to list
-		m_cache.alblWeights.Add(lblWeight);
-		end;
-
-		}
 		end;
 
 	// Clean up
@@ -199,9 +167,75 @@ end;
 // Private functions: Start
 procedure TfrmChocolateBox.FirstTimeInit();
 begin
+	// Initialise the local cache
+	ZeroMemory(@m_cache, SizeOf(CACHE_GAME_BOARD));
+	m_cache.bInitialisedBoxes := False;
+
 	// Load main game settings
 	ChocolateBox := TGameMachine.Create();
 	ChocolateBox.InitSystem();
+end;
+
+procedure TfrmChocolateBox.UpdateGameBoard();
+const
+	BOXES_LEFT: Integer		= 70;
+	BOXES_TOP: Integer		= 90;
+	BOXES_WIDTH: Integer	= 64;
+	BOXES_HEIGHT: Integer	= 64;
+	BOXES_GAP: Integer		= 18;
+var
+	nBox, nRow, nCol: Integer;
+	imgBox: TImage;
+begin
+	// Clear the current boxes
+	if (	(m_cache.bInitialisedBoxes) and
+			(m_cache.aBoxes <> nil)) then
+		begin
+		for nBox:=0 to (m_cache.aBoxes.Count-1) do
+			begin
+			TImage(m_cache.aBoxes[nBox]).Visible := False;
+			Self.RemoveControl(TImage(m_cache.aBoxes[nBox]));
+			end;
+
+		m_cache.aBoxes.Free();
+		m_cache.aBoxes := nil;
+		m_cache.bInitialisedBoxes := False;
+		end;
+
+	// Create a new grid of boxes
+	m_cache.aBoxes := TObjectList.Create();
+	for nRow:=1 to ChocolateBox.GameSettings.nRows do
+		begin
+		for nCol:=1 to ChocolateBox.GameSettings.nColumns do
+			begin
+			imgBox := TImage.Create(Self);
+			imgBox.Visible := False;
+
+			// Set the properties for each label
+			with imgBox do
+				begin
+				// Main properties
+				Tag := (nCol + (nRow - 1)*ChocolateBox.GameSettings.nColumns);
+				Name := Format('imgBox%d', [Tag]);
+				Parent := Self;
+				Picture := imgSettings.Picture;
+
+				// Image position
+				Left := (BOXES_LEFT + (BOXES_WIDTH + BOXES_GAP)*(nCol - 1));
+				Top := (BOXES_TOP + (BOXES_HEIGHT + BOXES_GAP)*(nRow - 1));
+				end;
+
+			// Add box to list
+			m_cache.aBoxes.Add(imgBox);
+			end;
+		end;
+
+	// Make all the boxes visible
+	for nBox:=0 to (m_cache.aBoxes.Count-1) do
+		TLabel(m_cache.aBoxes[nBox]).Visible := True;
+
+	// Boxes are initialised!
+	m_cache.bInitialisedBoxes := True;
 end;
 // Private functions: Start
 

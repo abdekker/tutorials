@@ -8,16 +8,7 @@ uses
   StdCtrls, StrUtils, SysUtils,
   CoreTypes, GameMachine, ChocolateBoxMain, SystemUtils;
 
-const
-	// Number of images used in the sample game (which is always a 2x2 grid)
-	SAMPLE_GAME_SIZE = 4;
-
 type
-  // Sample game setings (always just show a 2x2 grid)
-  SAMPLE_GAME_STATE = record
-	arctImages: array[1..(SAMPLE_GAME_SIZE div 2), 1..(SAMPLE_GAME_SIZE div 2)] of TRect;
-  end;
-
   TfrmGameSettings = class(TForm)
 	btnSetDefaults: TBitBtn;
 	btnDisclaimer: TBitBtn;
@@ -27,9 +18,9 @@ type
 
 	gbGame: TGroupBox;
 	lblRows: TLabel;
-	cbRows: TComboBox;
 	lblColumns: TLabel;
-	cbColumns: TComboBox;
+	ebRows: TEdit;
+	ebColumns: TEdit;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -39,10 +30,6 @@ type
 
 	procedure btnSetDefaultsClick(Sender: TObject);
 	procedure btnDisclaimerClick(Sender: TObject);
-
-	procedure cbDropDown(Sender: TObject);
-	procedure cbCloseUp(Sender: TObject);
-	procedure cbGridSizeChange(Sender: TObject);
 
 	procedure OnSettingsTimerTick(Sender: TObject);
 
@@ -80,8 +67,8 @@ begin
 	m_bSettingUp := True;
 
 	// Game, rows and columns
-	cbRows.ItemIndex := (settings.nRows - 1);
-	cbColumns.ItemIndex := (settings.nColumns - 1);
+	ebRows.Text := IntToStr(settings.nRows);
+	ebColumns.Text := IntToStr(settings.nColumns);
 
 	// Enable/disable related controls
 	EnableDisableControls();
@@ -98,9 +85,9 @@ begin
 	if (m_bGameRunning) then
 		begin
 		lblRows.Enabled := False;
-		cbRows.Enabled := False;
+		ebRows.Enabled := False;
 		lblColumns.Enabled := False;
-		cbColumns.Enabled := False;
+		ebColumns.Enabled := False;
 
 		btnSetDefaults.Enabled := False;
 		end;
@@ -154,15 +141,6 @@ begin
 	else
 		Caption := 'Chocolate Box Settings';
 
-	// Game rows / columns
-	cbRows.Items.Clear();
-	cbColumns.Items.Clear();
-	for byTmp:=1 to GRID_SIZE_MAX do
-		begin
-		cbRows.Items.AddObject(IntToStr(byTmp), TObject(byTmp));
-		cbColumns.Items.AddObject(IntToStr(byTmp), TObject(byTmp));
-		end;
-
 	// Show the game settings
 	RefreshSettings();
 
@@ -174,8 +152,44 @@ begin
 end;
 
 procedure TfrmGameSettings.btnOkClick(Sender: TObject);
+var
+	bEntryValid: Boolean;
 begin
 	// Save settings
+	SettingsTimer.Enabled := False;
+	bEntryValid := TryStrToInt(ebRows.Text, settings.nRows);
+	if (bEntryValid) then
+		begin
+		if (settings.nRows < 1) or (settings.nRows > GRID_SIZE_MAX) then
+			bEntryValid := False;
+		end;
+
+	if (not bEntryValid) then
+		begin
+		MessageDlg(
+			Format('Please enter a valid value. Range is 1 to %d', [GRID_SIZE_MAX]), mtWarning, [mbOK], 0);
+		SelectAllText(ebRows);
+		ModalResult := mrNone;
+		Exit;
+		end;
+
+	bEntryValid := TryStrToInt(ebColumns.Text, settings.nColumns);
+	if (bEntryValid) then
+		begin
+		if (settings.nColumns < 1) or (settings.nColumns > GRID_SIZE_MAX) then
+			bEntryValid := False;
+		end;
+
+	if (not bEntryValid) then
+		begin
+		MessageDlg(
+			Format('Please enter a valid value. Range is 1 to %d', [GRID_SIZE_MAX]), mtWarning, [mbOK], 0);
+		SelectAllText(ebColumns);
+		ModalResult := mrNone;
+		Exit;
+		end;
+
+	// If we get here, then the settings are valid!
 	m_bExiting := True;
 	ModalResult := mrOk;
 end;
@@ -200,26 +214,6 @@ begin
 	if (MessageDlg('This will reset all settings to default. Are you sure you wish to continue?',
 			mtConfirmation, [mbYes, mbCancel], 0) = mrYes) then
 		ResetSettings();
-end;
-
-procedure TfrmGameSettings.cbDropDown(Sender: TObject);
-begin
-	// Change the colour of the dropdown
-	TComboBox(Sender).Color := clSkyBlue;
-end;
-
-procedure TfrmGameSettings.cbCloseUp(Sender: TObject);
-begin
-	TComboBox(Sender).Color := clInfoBk;
-end;
-
-procedure TfrmGameSettings.cbGridSizeChange(Sender: TObject);
-begin
-	if (m_bSettingUp) then
-		Exit;
-
-	settings.nRows := (cbRows.ItemIndex + 1);
-	settings.nColumns := (cbColumns.ItemIndex + 1);
 end;
 
 procedure TfrmGameSettings.OnSettingsTimerTick(Sender: TObject);
