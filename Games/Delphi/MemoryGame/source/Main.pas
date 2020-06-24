@@ -13,7 +13,7 @@ interface
 uses
   Windows, Messages, Buttons, Controls, Classes, Dialogs, ExtCtrls, Forms, Graphics, ShellAPI,
   StdCtrls, SysUtils,
-  Imaging, JPGTools, CoreTypes, Machine, MemoryGameTypes, SystemUtils, WinSkinData;
+  FormUtils, Imaging, JPGTools, CoreTypes, Machine, MemoryGameTypes, SystemUtils, WinSkinData;
 
 const
 	cdwBlockDrawTime: DWORD = 500;
@@ -191,7 +191,8 @@ var
 
 implementation
 
-uses Settings;
+uses
+  Settings;
 
 {$R *.dfm}
 
