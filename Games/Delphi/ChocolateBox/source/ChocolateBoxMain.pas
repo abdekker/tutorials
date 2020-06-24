@@ -30,6 +30,7 @@ type
 	procedure FormShow(Sender: TObject);
 	procedure imgSettingsClick(Sender: TObject);
 	procedure imgExitClick(Sender: TObject);
+	procedure imgChocolateBoxClick(Sender: TObject);
 
 	procedure OnUpdateTimer(Sender: TObject);
 
@@ -55,7 +56,7 @@ var
 implementation
 
 uses
-  Math, GameSettings;
+  Dialogs, Math, GameSettings;
 
 const
   DUMMY_CONST = 0;
@@ -117,18 +118,11 @@ begin
 		imgBackground.Width := Self.Width;
 		imgBackground.Height := Self.Height;
 		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-2.jpg');
+		//imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-1.jpg');
 
 		// Start the update timer
 		UpdateTimer.Enabled := True;
 	end;
-end;
-
-procedure TfrmChocolateBox.imgExitClick(Sender: TObject);
-begin
-	// Close form
-	m_bExiting := True;
-	ChocolateBox.PrepareToExit();
-	Close();
 end;
 
 procedure TfrmChocolateBox.imgSettingsClick(Sender: TObject);
@@ -151,6 +145,29 @@ begin
 	m_bAllowDraw := False;
 end;
 
+procedure TfrmChocolateBox.imgExitClick(Sender: TObject);
+begin
+	// Close form
+	m_bExiting := True;
+	ChocolateBox.PrepareToExit();
+	Close();
+end;
+
+procedure TfrmChocolateBox.imgChocolateBoxClick(Sender: TObject);
+var
+	nRow, nCol: Integer;
+begin
+	// One of the chocolates has been clicked! The tag encodes the row and column.
+	nCol := (TImage(Sender).Tag mod ChocolateBox.GameSettings.nColumns);
+	if (nCol = 0) then
+		nCol := ChocolateBox.GameSettings.nColumns;
+
+	nRow := (((TImage(Sender).Tag - nCol) div ChocolateBox.GameSettings.nColumns) + 1);
+
+	// Debug: Pop up a message
+	MessageDlg(Format('Tag: %d, row: %d, col: %d', [TImage(Sender).Tag, nRow, nCol]), mtWarning, [mbOK], 0);
+end;
+
 procedure TfrmChocolateBox.OnUpdateTimer(Sender: TObject);
 begin
 	// An update timer event...
@@ -167,6 +184,9 @@ end;
 // Private functions: Start
 procedure TfrmChocolateBox.FirstTimeInit();
 begin
+	// See the random number generator
+	RandSeed := Integer(GetTickCount() mod 1009);	// 1009 is the first prime > 1000
+
 	// Initialise the local cache
 	ZeroMemory(@m_cache, SizeOf(CACHE_GAME_BOARD));
 	m_cache.bInitialisedBoxes := False;
@@ -174,17 +194,22 @@ begin
 	// Load main game settings
 	ChocolateBox := TGameMachine.Create();
 	ChocolateBox.InitSystem();
+	UpdateGameBoard();
 end;
 
 procedure TfrmChocolateBox.UpdateGameBoard();
 const
-	BOXES_LEFT: Integer		= 70;
-	BOXES_TOP: Integer		= 90;
+	BOXES_LEFT: Integer		= 60;
+	BOXES_RIGHT: Integer	= 40;
+	BOXES_TOP: Integer		= 150;
+	BOXES_BOTTOM: Integer	= 40;
 	BOXES_WIDTH: Integer	= 64;
 	BOXES_HEIGHT: Integer	= 64;
-	BOXES_GAP: Integer		= 18;
 var
+	nAvailableSpace, nGapHorizontal, nGapVertical: Integer;
 	nBox, nRow, nCol: Integer;
+	strImagePath: String;
+	astrImages: TStringList;
 	imgBox: TImage;
 begin
 	// Clear the current boxes
@@ -202,6 +227,36 @@ begin
 		m_cache.bInitialisedBoxes := False;
 		end;
 
+	// Calculate where the new boxes should go to spread them nicely over the available space
+	if (ChocolateBox.GameSettings.nColumns > 1) then
+		begin
+		nAvailableSpace := (
+			ChocolateBox.GameCache.nScreenWidth -
+			BOXES_LEFT -
+			BOXES_RIGHT -
+			(BOXES_WIDTH * ChocolateBox.GameSettings.nColumns));
+		nGapHorizontal := (nAvailableSpace div (ChocolateBox.GameSettings.nColumns - 1));
+		end
+	else
+		nGapHorizontal := 0;
+
+	if (ChocolateBox.GameSettings.nRows > 1) then
+		begin
+		nAvailableSpace := (
+			ChocolateBox.GameCache.nScreenHeight -
+			BOXES_TOP -
+			BOXES_BOTTOM -
+			(BOXES_HEIGHT * ChocolateBox.GameSettings.nRows));
+		nGapVertical := (nAvailableSpace div (ChocolateBox.GameSettings.nRows - 1));
+		end
+	else
+		nGapVertical := 0;
+
+	// Get a listing of available image files
+	astrImages := TStringList.Create();
+	strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons');
+	GetFolderListing(strImagePath, '*.ico', astrImages);
+
 	// Create a new grid of boxes
 	m_cache.aBoxes := TObjectList.Create();
 	for nRow:=1 to ChocolateBox.GameSettings.nRows do
@@ -218,11 +273,16 @@ begin
 				Tag := (nCol + (nRow - 1)*ChocolateBox.GameSettings.nColumns);
 				Name := Format('imgBox%d', [Tag]);
 				Parent := Self;
-				Picture := imgSettings.Picture;
+				if (astrImages.Count > 0) then
+					Picture.LoadFromFile(astrImages[Random(astrImages.Count)])
+				else
+					Picture := imgSettings.Picture;
+
+				OnClick := imgChocolateBoxClick;
 
 				// Image position
-				Left := (BOXES_LEFT + (BOXES_WIDTH + BOXES_GAP)*(nCol - 1));
-				Top := (BOXES_TOP + (BOXES_HEIGHT + BOXES_GAP)*(nRow - 1));
+				Left := (BOXES_LEFT + (BOXES_WIDTH + nGapHorizontal)*(nCol - 1));
+				Top := (BOXES_TOP + (BOXES_HEIGHT + nGapVertical)*(nRow - 1));
 				end;
 
 			// Add box to list
@@ -233,6 +293,9 @@ begin
 	// Make all the boxes visible
 	for nBox:=0 to (m_cache.aBoxes.Count-1) do
 		TLabel(m_cache.aBoxes[nBox]).Visible := True;
+
+	// Clean up
+	astrImages.Free();
 
 	// Boxes are initialised!
 	m_cache.bInitialisedBoxes := True;
