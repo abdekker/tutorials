@@ -72,6 +72,7 @@ int main()
     // * https://en.cppreference.com/w/cpp/container/map
 
     // Tutorial adapted from https://thispointer.com/stdmap-tutorial-part-1-usage-detail-with-examples
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     // Basic map
     basicMap();
