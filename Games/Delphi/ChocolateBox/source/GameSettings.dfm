@@ -451,7 +451,7 @@ object frmGameSettings: TfrmGameSettings
   object gbGame: TGroupBox
     Left = 10
     Top = 10
-    Width = 205
+    Width = 210
     Height = 95
     Caption = 'Game'
     TabOrder = 0
@@ -469,31 +469,35 @@ object frmGameSettings: TfrmGameSettings
       Height = 16
       Caption = 'Columns'
     end
-    object cbRows: TComboBox
-      Left = 110
+    object ebRows: TEdit
+      Left = 115
       Top = 25
       Width = 80
-      Height = 24
-      Style = csDropDownList
+      Height = 26
       Color = clInfoBk
-      ItemHeight = 16
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
-      OnChange = cbGridSizeChange
-      OnCloseUp = cbCloseUp
-      OnDropDown = cbDropDown
+      Text = '4'
     end
-    object cbColumns: TComboBox
-      Left = 110
+    object ebColumns: TEdit
+      Left = 115
       Top = 55
       Width = 80
-      Height = 24
-      Style = csDropDownList
+      Height = 26
       Color = clInfoBk
-      ItemHeight = 16
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
-      OnChange = cbGridSizeChange
-      OnCloseUp = cbCloseUp
-      OnDropDown = cbDropDown
+      Text = '4'
     end
   end
   object btnDisclaimer: TBitBtn

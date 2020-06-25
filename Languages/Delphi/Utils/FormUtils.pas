@@ -57,6 +57,9 @@ procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
 	const cnMaxLines: Integer; var nLines: Integer; var nSizeY: Integer);
 procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
 
+// TEdit
+procedure SelectAllText(edit: TCustomEdit);
+
 // TComboBox
 procedure SetComboHandlers(control: TControl);
 procedure SetChildComboHandlers(parent: TWinControl; nSubLevel: Integer = 0);
@@ -407,6 +410,20 @@ begin
 
 	// Clean up memory
 	bmpScreenShot.Free();
+end;
+
+// TEdit
+procedure SelectAllText(edit: TCustomEdit);
+begin
+	// Select all the text in a TCustomEdit control (usually a TEdit). Other controls which derive
+	// from TCustomEdit include TCustomMemo.
+	LockControl(edit, True);
+	SendMessage(edit.Handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(edit.Width, 0));
+	SendMessage(edit.Handle, WM_LBUTTONUP, 0, MAKELPARAM(edit.Width, 0));
+
+	edit.SetFocus();
+	edit.SelectAll();
+	LockControl(edit, False);
 end;
 
 // TComboBox
