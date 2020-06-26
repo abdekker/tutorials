@@ -15,7 +15,7 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",    
+            "MIMode": "gdb",
             "miDebuggerPath": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin\\gdb.exe",
             "setupCommands": [
                 {
