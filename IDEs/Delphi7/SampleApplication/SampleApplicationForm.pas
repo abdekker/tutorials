@@ -56,9 +56,9 @@ type
 	lblSampleControlsB: TLabel;
 	ebSampleControlC: TEdit;
 	cbSampleControlD: TComboBox;
+	lblMultiLine: TLabel;
 
 	UpdateTimer: TTimer;
-    lblMultiLine: TLabel;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -150,11 +150,13 @@ type
   );
 
   TCategoryControls = (
-	eStringsControls_DumpToFile,
-	eStringsControls_WinControlSize,
-	eStringsControls_GraphicControlSize,
-	eStringsControls_MultiLineLabel,
-	eStringsControls_SaveScreenshot
+	eControls_DumpToFile,
+	eControls_WinControlSize,
+	eControls_GraphicControlSize,
+	eControls_MultiLineLabel,
+	eControls_SaveScreenshot,
+	eControls_SelectAllText,
+	eControls_GetListVisibleRows
   );
 
 {$R *.dfm}
@@ -384,11 +386,13 @@ end;
 procedure TfrmSampleApplication.PopulateActions_Controls();
 begin
 	// Controls: Populate actions for this category
-	ddlAction.Items.AddObject('Dump to file', TObject(eStringsControls_DumpToFile));
-	ddlAction.Items.AddObject('TWinControl size', TObject(eStringsControls_WinControlSize));
-	ddlAction.Items.AddObject('TGraphicControl size', TObject(eStringsControls_GraphicControlSize));
-	ddlAction.Items.AddObject('Multi-line label', TObject(eStringsControls_MultiLineLabel));
-	ddlAction.Items.AddObject('Save screenshot', TObject(eStringsControls_SaveScreenshot));
+	ddlAction.Items.AddObject('Dump to file', TObject(eControls_DumpToFile));
+	ddlAction.Items.AddObject('TWinControl size', TObject(eControls_WinControlSize));
+	ddlAction.Items.AddObject('TGraphicControl size', TObject(eControls_GraphicControlSize));
+	ddlAction.Items.AddObject('Multi-line label', TObject(eControls_MultiLineLabel));
+	ddlAction.Items.AddObject('Save screenshot', TObject(eControls_SaveScreenshot));
+	ddlAction.Items.AddObject('Select all text (TEdit)', TObject(eControls_SelectAllText));
+	ddlAction.Items.AddObject('Get visible rows (TListBox)', TObject(eControls_GetListVisibleRows));
 
 	// Set the output window width to reveal some sample controls
 	listOutput.Width := ((ddlAction.Left - listOutput.Left) + ddlAction.Width);
@@ -612,25 +616,25 @@ begin
 	// Controls: Update controls based on the selected action
 	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
 	case TCategoryControls(ddlAction.ItemIndex) of
-		eStringsControls_DumpToFile:
+		eControls_DumpToFile:
 			begin
 			updates.astrSampleTitle[1] := 'Filename';
 			updates.astrSampleText[1] := 'C:\Tmp\ControlDump.txt';
 			end;
 
-		eStringsControls_WinControlSize:
+		eControls_WinControlSize:
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := 'TWinControl message';
 			end;
 
-		eStringsControls_GraphicControlSize:
+		eControls_GraphicControlSize:
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := 'TGraphicControl message';
 			end;
 
-		eStringsControls_MultiLineLabel:
+		eControls_MultiLineLabel:
 			begin
 			updates.astrSampleTitle[1] := 'String';
 			updates.astrSampleText[1] := 'A message for you...';
@@ -639,7 +643,7 @@ begin
 			updates.astrSampleText[2] := '5';
 			end;
 
-		eStringsControls_SaveScreenshot:
+		eControls_SaveScreenshot:
 			begin
 			updates.astrSampleTitle[1] := 'Filename';
 			updates.astrSampleText[1] := 'C:\Tmp\Screenshot.jpg';
@@ -652,6 +656,14 @@ begin
 			'    1 = jpeg (.jpg)' + #13 +
 			'    2 = bitmap (.bmp)' + #13);
 			end;
+
+		eControls_SelectAllText:
+			begin
+			updates.astrSampleTitle[1] := 'Edit';
+			updates.astrSampleText[1] := 'This text will be selected';
+			end;
+
+		eControls_GetListVisibleRows: ;
 		end;
 
 	UpdateControls(updates);
@@ -905,7 +917,7 @@ var
 begin
 	// Controls: Perform the action
 	case TCategoryControls(m_nActionCurrent) of
-		eStringsControls_DumpToFile:
+		eControls_DumpToFile:
 			begin
 			// Dump one of the sample controls (in "gbSampleControls") to disk
 			nValue := Random(gbSampleControls.ControlCount);
@@ -914,7 +926,7 @@ begin
 				gbSampleControls.Controls[nValue].Name, nValue]));
 			end;
 
-		eStringsControls_WinControlSize:
+		eControls_WinControlSize:
 			begin
 			// Get the padding required to display text in a TEdit
 			nValue := (ebSampleControlC.Width - ebSampleControlC.ClientWidth);
@@ -929,6 +941,7 @@ begin
 			// TComboBox padding depends on various registry settings such as:
 			//		HKCU\Control Panel\Desktop\WindowMetricsScrollWidth
 			// We simplify the issue here by using the fixed constant "24"
+			cbSampleControlD.Clear();
 			cbSampleControlD.Text := m_cache.aebSampleText[1].Text;
 			cbSampleControlD.Width := Min(txtSize.cx + 24, m_cache.nMaxControlWidth);
 			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
@@ -937,7 +950,7 @@ begin
 				cbSampleControlD.Name]));
 			end;
 
-		eStringsControls_GraphicControlSize:
+		eControls_GraphicControlSize:
 			begin
 			// No padding is required for TLabel controls
 			txtSize := GetGraphicControlPixelSize(lblSampleControlsB, m_cache.aebSampleText[1].Text);
@@ -949,7 +962,7 @@ begin
 				lblSampleControlsB.Name]));
 			end;
 
-		eStringsControls_MultiLineLabel:
+		eControls_MultiLineLabel:
 			begin
 			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
 				begin
@@ -972,7 +985,7 @@ begin
 				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[2].Text]));
 			end;
 
-		eStringsControls_SaveScreenshot:
+		eControls_SaveScreenshot:
 			begin
 			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
 				begin
@@ -989,6 +1002,13 @@ begin
 			else
 				AddOutputText(Format('"%s" is not a valid number', [m_cache.aebSampleText[2].Text]));
 			end;
+
+		eControls_SelectAllText:
+			SelectAllText(m_cache.aebSampleText[1]);
+
+		eControls_GetListVisibleRows:
+			AddOutputText(Format('There are %d rows visible in this TListBox', [
+				GetListVisibleRows(listOutput)]));
 		end;
 end;
 
