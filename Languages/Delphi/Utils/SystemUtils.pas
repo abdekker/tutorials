@@ -63,6 +63,7 @@ function HasInternet(const strURL: String) : Boolean;
 
 // File utilities
 function FileHasData(const cstrFile: String) : Boolean;
+procedure GetListingSubFolders(strParentFolder: String; astrList: TStringList);
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
 procedure GetFolderMultipleListing(strFolder, strWildCard: String; astrList: TStringList;
@@ -74,6 +75,7 @@ procedure EmptyFolder(strFolder: String);
 function IsPathAvailable(const cstrPath: String) : Boolean;
 function IsPathWriteable(const cstrPath: String) : Boolean;
 function RemovePathExtInfo(strFullPath: String) : String;
+function RemovePathInfo(strFullPath: String) : String;
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
 function GetSizeOfFile(strFilename: String) : DWORD;
 function GetFullFileVersion(szFile: PChar) : String;
@@ -1280,13 +1282,36 @@ begin
 	end;
 end;
 
+procedure GetListingSubFolders(strParentFolder: String; astrList: TStringList);
+var
+	find: TSearchRec;
+begin
+	// Find the name of all sub-folders in the given parent folder (not recursive). Caller should
+	// ensure the list is created and empty.
+
+	// Add a final backslash to the path (if required, eg. C:\Temp\)
+	if (RightStr(strParentFolder, 1) <> '\') then
+		strParentFolder := (strParentFolder + '\');
+
+	if (FindFirst(strParentFolder + '*.*', faDirectory, find) = 0) then
+		try
+			repeat
+				if ((find.Attr and faDirectory) <> 0) and
+						(find.Name <> '.') and
+						(find.Name <> '..') then
+					astrList.AddObject(strParentFolder + find.Name, TObject(find.Time));
+			until FindNext(find) <> 0;
+		finally
+			FindClose(find);
+		end;
+end;
+
 procedure GetFolderListing(strFolder, strWildCard: String; astrList: TStringList;
 	bRecursive: Boolean = False);
 var
 	find: TSearchRec;
 begin
-	// Find all files in a folder and add to a list. The caller has responsibility for ensuring the
-	// list is in the right state (ie. created and empty!).
+	// Find all files in a given folder. Caller should ensure the list is created and empty.
 
 	// Add a final backslash to the path (if required, eg. C:\Temp\)
 	if (RightStr(strFolder, 1) <> '\') then
@@ -1512,11 +1537,21 @@ function RemovePathExtInfo(strFullPath: String) : String;
 var
 	nPosPath, nPosExt: Integer;
 begin
-	// Take a fully qualified path (eg. "C:\Temp\MyFile.txt") . Remove the path and extension
-	// information, leaving just the filename (ie. "MyFile").
+	// Take a fully qualified path, and remove path and extension information, leaving just the
+	// filename. Example: "C:\Temp\MyFile.txt" is converted to "MyFile".
 	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
 	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, strFullPath);
 	Result := Copy(strFullPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
+end;
+
+function RemovePathInfo(strFullPath: String) : String;
+var
+	nPosPath: Integer;
+begin
+	// Take a fully qualified path, and remove path information, leaving just the filename (or
+	// folder name). Example: "C:\Temp\MyFile.txt" is converted to "MyFile.txt".
+	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
+	Result := Copy(strFullPath, (nPosPath + 1), Length(strFullPath));
 end;
 
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
