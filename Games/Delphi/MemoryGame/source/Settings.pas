@@ -6,7 +6,8 @@ interface
 uses
   Windows, Messages, Buttons, Classes, ComCtrls, Controls, ExtCtrls, FileCtrl, Forms, Graphics,
   StdCtrls, StrUtils, SysUtils,
-  CoreTypes, Disclaimer, Imaging, JPGTools, Machine, Main, MemoryGameTypes, SystemUtils;
+  CoreFormClasses, CoreTypes, Disclaimer, Imaging, JPGTools, Machine, Main, MemoryGameTypes,
+  SystemUtils;
 
 const
 	// Number of images used in the sample game (which is always a 2x2 grid)
@@ -18,7 +19,7 @@ type
 	arctImages: array[1..(SAMPLE_GAME_SIZE div 2), 1..(SAMPLE_GAME_SIZE div 2)] of TRect;
   end;
 
-  TfrmSettings = class(TForm)
+  TfrmSettings = class(TGeneralBaseForm)
 	btnSetDefaults: TBitBtn;
 	btnDisclaimer: TBitBtn;
 	btnCancel: TBitBtn;
@@ -56,9 +57,6 @@ type
 	procedure btnCancelClick(Sender: TObject);
 	procedure btnSetDefaultsClick(Sender: TObject);
 	procedure btnDisclaimerClick(Sender: TObject);
-
-	procedure cbDropDown(Sender: TObject);
-	procedure cbCloseUp(Sender: TObject);
 
 	procedure cbImageSourceChange(Sender: TObject);
 	procedure ebFolderClick(Sender: TObject);
@@ -531,6 +529,11 @@ begin
 	else
 		Caption := 'Memory Game Settings';
 
+	// Set combobox handlers
+	SetChildComboHandlers(gbImages);
+	SetChildComboHandlers(gbGrid);
+	SetChildComboHandlers(gbGame);
+
 	// Images location
 	cbImageSource.Items.Clear();
 	cbImageSource.Items.AddObject('Internal (Default)', TObject(eInternal));
@@ -599,17 +602,6 @@ begin
 	if (MessageDlg('This will reset all settings to default. Are you sure you wish to continue?',
 			mtConfirmation, [mbYes, mbCancel], 0) = mrYes) then
 		ResetSettings();
-end;
-
-procedure TfrmSettings.cbDropDown(Sender: TObject);
-begin
-	// Change the colour of the dropdown
-	TComboBox(Sender).Color := clSkyBlue;
-end;
-
-procedure TfrmSettings.cbCloseUp(Sender: TObject);
-begin
-	TComboBox(Sender).Color := clInfoBk;
 end;
 
 procedure TfrmSettings.cbImageSourceChange(Sender: TObject);

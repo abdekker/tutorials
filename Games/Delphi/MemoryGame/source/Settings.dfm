@@ -312,8 +312,6 @@ object frmSettings: TfrmSettings
       ItemHeight = 16
       TabOrder = 0
       OnChange = cbImageSourceChange
-      OnCloseUp = cbCloseUp
-      OnDropDown = cbDropDown
     end
   end
   object gbGraphics: TGroupBox
@@ -364,8 +362,6 @@ object frmSettings: TfrmSettings
         ItemHeight = 16
         TabOrder = 1
         OnChange = cbGridWidthChange
-        OnCloseUp = cbCloseUp
-        OnDropDown = cbDropDown
       end
     end
   end
@@ -619,8 +615,6 @@ object frmSettings: TfrmSettings
       ItemHeight = 16
       TabOrder = 0
       OnChange = cbRowsChange
-      OnCloseUp = cbCloseUp
-      OnDropDown = cbDropDown
     end
     object cbColumns: TComboBox
       Left = 110
@@ -632,8 +626,6 @@ object frmSettings: TfrmSettings
       ItemHeight = 16
       TabOrder = 1
       OnChange = cbColumnsChange
-      OnCloseUp = cbCloseUp
-      OnDropDown = cbDropDown
     end
   end
   object btnDisclaimer: TBitBtn
