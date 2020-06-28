@@ -1,1 +1,3 @@
 Currently only icon (.ico) files are supported. These should be 64x64 pixels.
+* Replace these icons with your own
+* Or create a sub-folder (the software will automatically find the folder)
