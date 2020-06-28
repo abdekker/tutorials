@@ -123,6 +123,7 @@ type
   TProcedureCallback = procedure() of object;
   TProcedureCallbackInt = procedure(nValue: Integer) of object;
   TProcedureCallbackDWORD = procedure(dwValue: DWORD) of object;
+  TProcedureCallbackPointer = procedure(pValue: Pointer) of object;
 
   // Information about a specific network adapter
   ADAPTER_INFO = record
