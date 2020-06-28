@@ -5,13 +5,22 @@ interface
 
 uses
   Windows, Messages, Classes, Contnrs, Controls, ExtCtrls, Forms, Graphics, StdCtrls, SysUtils,
-  CoreFormClasses, CoreTypes, FormUtils, GameMachine, SystemUtils;
+  CoreFormClasses, CoreTypes, FormUtils, GameMachine, GameTypes, SystemUtils;
 
 type
   CACHE_GAME_BOARD = record
 	// Main board cache
 	bInitialisedBoxes: Boolean;
 	aBoxes: TObjectList;
+
+	// Settings
+	nLastGridRows, nLastGridColumns: Integer;
+	eLastBackground: TGameBackground;
+	tLastBackgroundColour: Integer;
+	eLastIconSet: TGameIconSet;
+
+	// Last selected item
+	nLastSelectedTag, nLastSelectedRow, nLastSelectedColumn: Integer;
   end;
 
   // Main form
@@ -28,6 +37,7 @@ type
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
 	procedure FormShow(Sender: TObject);
+	procedure imgBackgroundClick(Sender: TObject);
 	procedure imgSettingsClick(Sender: TObject);
 	procedure imgExitClick(Sender: TObject);
 	procedure imgChocolateBoxClick(Sender: TObject);
@@ -44,7 +54,11 @@ type
 
 	// Initialisation
 	procedure FirstTimeInit();
-	procedure UpdateGameBoard();
+	procedure UpdateGameBackground(settings: GAME_SETTINGS);
+	procedure UpdateGameBoard(settings: GAME_SETTINGS);
+
+	// Feedback for settings
+	procedure SettingsCallback(pSettings: Pointer);
 
   public
 	{ Public declarations }
@@ -114,30 +128,67 @@ begin
 		Self.Top := 5;
 		Self.Left := ((Screen.Width - Self.ClientWidth) div 2);
 
-		// Load the starting background image
+		// Set up the game background (which is the full screen)
 		imgBackground.Width := Self.Width;
 		imgBackground.Height := Self.Height;
-		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-2.jpg');
-		//imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-1.jpg');
 
 		// Start the update timer
 		UpdateTimer.Enabled := True;
-	end;
+
+		// Completed once-off initialisation
+		m_bFirstTimeShow := False;
+		end;
+end;
+
+procedure TfrmChocolateBox.imgBackgroundClick(Sender: TObject);
+var
+	nControl, nImageBackground, nImageCloseClick: Integer;
+begin
+	// Find the index of the background image (because we ignore clicks on this image)
+	nImageBackground := -1;
+	for nControl:=0 to (Self.ControlCount - 1) do
+		begin
+		if (Self.Controls[nControl].Name = 'imgBackground') then
+			begin
+			nImageBackground := nControl;
+			break;
+			end;
+		end;
+
+	// Find a nearby TImage (or sub-class of TImage) control...and click it!
+	nImageCloseClick := GetCloseControlClick(Self, CONTROL_TIMAGE, nImageBackground);
+	if (nImageCloseClick > -1) then
+		begin
+		// Close to a TImage control
+		TImage(Self.Controls[nImageCloseClick]).OnClick(Self.Controls[nImageCloseClick]);
+		end
 end;
 
 procedure TfrmChocolateBox.imgSettingsClick(Sender: TObject);
+var
+	settingsBackup: GAME_SETTINGS;
 begin
 	// Display game settings
 	m_bAllowDraw := False;
+	settingsBackup := ChocolateBox.GameSettings;
 	frmGameSettings := TfrmGameSettings.Create(Self);
 	frmGameSettings.settings := ChocolateBox.GameSettings;
 	frmGameSettings.SetGameRunning(False);
+	frmGameSettings.RegisterSettingsCallback(SettingsCallback);
 	if (frmGameSettings.ShowModal() = mrOk) then
 		begin
 		// Settings have been changed, copy them back
 		ChocolateBox.GameSettings := frmGameSettings.settings;
-		UpdateGameBoard();
+		end
+	else
+		begin
+		// User cancelled, so use the backup settings
+		ChocolateBox.GameSettings := settingsBackup;
 		end;
+
+	// Redraw the board
+	UpdateGameBackground(ChocolateBox.GameSettings);
+	UpdateGameBoard(ChocolateBox.GameSettings);
 
 	// Clean up
 	frmGameSettings.Free();
@@ -155,17 +206,41 @@ end;
 
 procedure TfrmChocolateBox.imgChocolateBoxClick(Sender: TObject);
 var
-	nRow, nCol: Integer;
+	nRow, nColumn, nBox: Integer;
 begin
-	// One of the chocolates has been clicked! The tag encodes the row and column.
-	nCol := (TImage(Sender).Tag mod ChocolateBox.GameSettings.nColumns);
-	if (nCol = 0) then
-		nCol := ChocolateBox.GameSettings.nColumns;
+	// One of the chocolates has been clicked! Make sure this is a new selection...
+	if (TRectangleImage(Sender).Tag = m_cache.nLastSelectedTag) then
+		Exit;
 
-	nRow := (((TImage(Sender).Tag - nCol) div ChocolateBox.GameSettings.nColumns) + 1);
+	// Clear the selection of the previously selected box
+	if (m_cache.nLastSelectedTag > -1) then
+		begin
+		for nBox:=0 to (m_cache.aBoxes.Count-1) do
+			begin
+			if (TRectangleImage(m_cache.aBoxes[nBox]).Tag = m_cache.nLastSelectedTag) then
+				TRectangleImage(m_cache.aBoxes[nBox]).ShowSelected := False;
+			end;
+		end;
+
+	// The tag encodes the row and column
+	nColumn := (TRectangleImage(Sender).Tag mod ChocolateBox.GameSettings.nColumns);
+	if (nColumn = 0) then
+		nColumn := ChocolateBox.GameSettings.nColumns;
+
+	nRow := (((TRectangleImage(Sender).Tag - nColumn) div ChocolateBox.GameSettings.nColumns) + 1);
+
+	// Save this index
+	m_cache.nLastSelectedTag := TRectangleImage(Sender).Tag;
+	m_cache.nLastSelectedRow := nRow;
+	m_cache.nLastSelectedColumn := nColumn;
+
+	// Show the selection
+	TRectangleImage(Sender).ShowSelected := True;
 
 	// Debug: Pop up a message
-	MessageDlg(Format('Tag: %d, row: %d, col: %d', [TImage(Sender).Tag, nRow, nCol]), mtWarning, [mbOK], 0);
+	MessageDlg(
+		Format('Tag: %d, row: %d, col: %d', [TRectangleImage(Sender).Tag, nRow, nColumn]),
+		mtWarning, [mbOK], 0);
 end;
 
 procedure TfrmChocolateBox.OnUpdateTimer(Sender: TObject);
@@ -191,35 +266,81 @@ begin
 	ZeroMemory(@m_cache, SizeOf(CACHE_GAME_BOARD));
 	m_cache.bInitialisedBoxes := False;
 
+	m_cache.nLastGridRows := -1;
+	m_cache.nLastGridColumns := -1;
+	m_cache.eLastBackground := eBackgroundNone;
+	m_cache.tLastBackgroundColour := -1;
+
+	m_cache.nLastSelectedTag := -1;
+	m_cache.nLastSelectedRow := -1;
+	m_cache.nLastSelectedColumn := -1;
+
 	// Load main game settings
 	ChocolateBox := TGameMachine.Create();
 	ChocolateBox.InitSystem();
-	UpdateGameBoard();
+	UpdateGameBackground(ChocolateBox.GameSettings);
+	UpdateGameBoard(ChocolateBox.GameSettings);
 end;
 
-procedure TfrmChocolateBox.UpdateGameBoard();
-const
-	BOXES_LEFT: Integer		= 60;
-	BOXES_RIGHT: Integer	= 40;
-	BOXES_TOP: Integer		= 150;
-	BOXES_BOTTOM: Integer	= 40;
-	BOXES_WIDTH: Integer	= 64;
-	BOXES_HEIGHT: Integer	= 64;
+procedure TfrmChocolateBox.UpdateGameBackground(settings: GAME_SETTINGS);
 var
-	nAvailableSpace, nGapHorizontal, nGapVertical: Integer;
+	bmp : TBitmap;
+begin
+	// Change in the background?
+	if (	(m_cache.eLastBackground = settings.eBackground) and
+			(m_cache.tLastBackgroundColour = settings.tBackgroundColour)) then
+		Exit;
+
+	// Image or solid colour?
+	if (settings.eBackground = eBackgroundImg1) then
+		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-1.jpg')
+	else if (settings.eBackground = eBackgroundImg2) then
+		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-2.jpg')
+	else if (settings.eBackground = eBackgroundSolidColour) then
+		begin
+		imgBackground.Picture := nil;
+		bmp := TBitmap.Create;
+		try
+			bmp.PixelFormat := pf24bit;
+			bmp.Width := imgBackground.Width;
+			bmp.Height := imgBackground.Height;
+			bmp.Canvas.Brush.Color := TColor(settings.tBackgroundColour);
+			bmp.Canvas.FillRect(Rect(0, 0, Width, Height));
+			imgBackground.Picture.Bitmap := bmp;
+		finally
+			bmp.Free();
+		end;
+		end;
+
+	// Background has been changed
+	m_cache.eLastBackground := settings.eBackground;
+	m_cache.tLastBackgroundColour := settings.tBackgroundColour;
+end;
+
+procedure TfrmChocolateBox.UpdateGameBoard(settings: GAME_SETTINGS);
+const
+	BOXES_TOP: Integer		= 120;
+var
+	nIconSetSize, nAvailableSpace, nGapHorizontal, nGapVertical: Integer;
 	nBox, nRow, nCol: Integer;
 	strImagePath: String;
 	astrImages: TStringList;
 	imgBox: TImage;
 begin
+	// Only create the boxes if there is a change in settings
+	if (	(m_cache.nLastGridRows = settings.nRows) and
+			(m_cache.nLastGridColumns = settings.nColumns) and
+			(m_cache.eLastIconSet = settings.eIconSet)) then
+		Exit;
+
 	// Clear the current boxes
 	if (	(m_cache.bInitialisedBoxes) and
 			(m_cache.aBoxes <> nil)) then
 		begin
 		for nBox:=0 to (m_cache.aBoxes.Count-1) do
 			begin
-			TImage(m_cache.aBoxes[nBox]).Visible := False;
-			Self.RemoveControl(TImage(m_cache.aBoxes[nBox]));
+			TRectangleImage(m_cache.aBoxes[nBox]).Visible := False;
+			Self.RemoveControl(TRectangleImage(m_cache.aBoxes[nBox]));
 			end;
 
 		m_cache.aBoxes.Free();
@@ -227,52 +348,72 @@ begin
 		m_cache.bInitialisedBoxes := False;
 		end;
 
-	// Calculate where the new boxes should go to spread them nicely over the available space
-	if (ChocolateBox.GameSettings.nColumns > 1) then
+	// Calculate where the new boxes should go to spread them nicely over the available space. Use
+	// the rectangle (0,150 to ScreenWidth,ScreenHeight).
+	nIconSetSize := ChocolateBox.GetIconSetSize(settings.eIconSet);
+	if (settings.nColumns > 1) then
 		begin
+		// Put icons slightly closer to the left/right edges
 		nAvailableSpace := (
 			ChocolateBox.GameCache.nScreenWidth -
-			BOXES_LEFT -
-			BOXES_RIGHT -
-			(BOXES_WIDTH * ChocolateBox.GameSettings.nColumns));
-		nGapHorizontal := (nAvailableSpace div (ChocolateBox.GameSettings.nColumns - 1));
+			(nIconSetSize * settings.nColumns));
+		nGapHorizontal := (nAvailableSpace div (settings.nColumns * 2));
 		end
 	else
 		nGapHorizontal := 0;
 
-	if (ChocolateBox.GameSettings.nRows > 1) then
+	if (settings.nRows > 1) then
 		begin
 		nAvailableSpace := (
 			ChocolateBox.GameCache.nScreenHeight -
 			BOXES_TOP -
-			BOXES_BOTTOM -
-			(BOXES_HEIGHT * ChocolateBox.GameSettings.nRows));
-		nGapVertical := (nAvailableSpace div (ChocolateBox.GameSettings.nRows - 1));
+			(nIconSetSize * settings.nRows));
+		nGapVertical := (nAvailableSpace div (settings.nRows + 1));
 		end
 	else
 		nGapVertical := 0;
 
 	// Get a listing of available image files
 	astrImages := TStringList.Create();
-	strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons');
+	case settings.eIconSet of
+		eIconSetStd_64x64:
+			strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons\Std-64x64');
+
+		eIconSetStd_128x128:
+			strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons\Std-128x128');
+
+		eIconSetFruitSalad_64x64:
+			strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons\FruitSalad-64x64');
+
+		eIconSetFruitSalad_128x128:
+			strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons\FruitSalad-128x128');
+
+		eIconSetFuturama_128x128:
+			strImagePath := (ChocolateBox.GameCache.szAppPath + 'Icons\Futurama-128x128');
+	end;
+
 	GetFolderListing(strImagePath, '*.ico', astrImages);
 
 	// Create a new grid of boxes
 	m_cache.aBoxes := TObjectList.Create();
-	for nRow:=1 to ChocolateBox.GameSettings.nRows do
+	for nRow:=1 to settings.nRows do
 		begin
-		for nCol:=1 to ChocolateBox.GameSettings.nColumns do
+		for nCol:=1 to settings.nColumns do
 			begin
-			imgBox := TImage.Create(Self);
+			imgBox := TRectangleImage.Create(Self);
 			imgBox.Visible := False;
 
 			// Set the properties for each label
 			with imgBox do
 				begin
 				// Main properties
-				Tag := (nCol + (nRow - 1)*ChocolateBox.GameSettings.nColumns);
+				Tag := (nCol + (nRow - 1)*settings.nColumns);
 				Name := Format('imgBox%d', [Tag]);
 				Parent := Self;
+				Width := nIconSetSize;
+				Height := nIconSetSize;
+
+				// Load image and set click event
 				if (astrImages.Count > 0) then
 					Picture.LoadFromFile(astrImages[Random(astrImages.Count)])
 				else
@@ -281,8 +422,12 @@ begin
 				OnClick := imgChocolateBoxClick;
 
 				// Image position
-				Left := (BOXES_LEFT + (BOXES_WIDTH + nGapHorizontal)*(nCol - 1));
-				Top := (BOXES_TOP + (BOXES_HEIGHT + nGapVertical)*(nRow - 1));
+				Left := (nGapHorizontal + ((nIconSetSize + (nGapHorizontal * 2))*(nCol - 1)));
+				Top := (BOXES_TOP + nGapVertical + (nIconSetSize + nGapVertical)*(nRow - 1));
+
+				// Budge the positions slightly (so they don't look too much like a fixed grid!)
+				Left := (Left + Random(21) - 10);
+				Top := (Top + Random(11) - 5);
 				end;
 
 			// Add box to list
@@ -290,15 +435,29 @@ begin
 			end;
 		end;
 
-	// Make all the boxes visible
+	// In debug mode, show "not selected" boxes, then make all the boxes visible
 	for nBox:=0 to (m_cache.aBoxes.Count-1) do
-		TLabel(m_cache.aBoxes[nBox]).Visible := True;
+		begin
+		{$IFDEF DBG} TRectangleImage(m_cache.aBoxes[nBox]).ShowNotSelected := True; {$ENDIF}
+		TRectangleImage(m_cache.aBoxes[nBox]).Visible := True;
+		end;
 
 	// Clean up
 	astrImages.Free();
 
 	// Boxes are initialised!
 	m_cache.bInitialisedBoxes := True;
+	m_cache.nLastGridRows := settings.nRows;
+	m_cache.nLastGridColumns := settings.nColumns;
+	m_cache.eLastIconSet := settings.eIconSet
+end;
+
+// Feedback for settings
+procedure TfrmChocolateBox.SettingsCallback(pSettings: Pointer);
+begin
+	// Callback for when settings are changed
+	UpdateGameBackground(GAME_SETTINGS(pSettings^));
+	UpdateGameBoard(GAME_SETTINGS(pSettings^));
 end;
 // Private functions: Start
 

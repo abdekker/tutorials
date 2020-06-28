@@ -5,7 +5,7 @@ interface
 
 uses
   Windows, Forms, IniFiles, psAPI, SystemUtils, StrUtils, SysUtils, WinSvc,
-  CoreTypes;
+  CoreTypes, GameTypes;
 
 type
   // Game settings
@@ -13,6 +13,11 @@ type
   GAME_SETTINGS = record
 	// Grid size
 	nRows, nColumns: Integer;
+
+	// Graphics
+	eBackground: TGameBackground;
+	tBackgroundColour: Integer;		// TColor = -$7FFFFFFF-1..$7FFFFFFF; (ie. an int)
+	eIconSet: TGameIconSet;
   end;
 
   // General cache
@@ -47,7 +52,9 @@ type
 	procedure InitSystem();
 	procedure PrepareToExit();
 
-	// Timing utility functions
+	// Utility functions
+	procedure ResetSettings(var settings: GAME_SETTINGS);
+	function GetIconSetSize(eIconSet: TGameIconSet) : Integer;
 	procedure Rest(dwPeriod: DWORD);
   end;
 
@@ -57,7 +64,7 @@ var
 implementation
 
 uses
-  ChocolateBoxMain, GameTypes;
+  Graphics, ChocolateBoxMain;
 
 // Private functions: Start [TGameMachine]
 procedure TGameMachine.Load();
@@ -71,9 +78,30 @@ begin
 	GameSettings.nRows := pIniFile.ReadInteger('Game', 'Rows', GRID_SIZE_DEFAULT);
 	GameSettings.nColumns := pIniFile.ReadInteger('Game', 'Columns', GRID_SIZE_DEFAULT);
 
+	// Graphics
+	GameSettings.eBackground := TGameBackground(
+		pIniFile.ReadInteger('Game', 'Background', BYTE(eBackgroundImg1)));
+	GameSettings.tBackgroundColour :=
+		pIniFile.ReadInteger('Game', 'BackgroundColour', Integer(clPurple));
+	GameSettings.eIconSet := TGameIconSet(
+		pIniFile.ReadInteger('Game', 'IconSet', BYTE(eIconSetStd_64x64)));
+
 	// Validate settings
 	Validate_Integer(@GameSettings.nRows, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
 	Validate_Integer(@GameSettings.nColumns, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
+
+	Validate_BYTE(@GameSettings.eBackground,
+		BYTE(eBackgroundFirst),
+		BYTE(eBackgroundLast),
+		BYTE(eBackgroundImg1));
+	Validate_Integer(@Integer(GameSettings.tBackgroundColour),
+		Integer(clBlack),
+		Integer(clWhite),
+		Integer(clPurple));
+	Validate_BYTE(@GameSettings.eIconSet,
+		BYTE(eIconSetFirst),
+		BYTE(eIconSetLast),
+		BYTE(eIconSetStd_64x64));
 
 	// Close INI file
 	pIniFile.Free();
@@ -93,6 +121,12 @@ begin
 				// Grid size
 				pIniFile.WriteInteger('Game', 'Rows', GameSettings.nRows);
 				pIniFile.WriteInteger('Game', 'Columns', GameSettings.nColumns);
+
+				// Graphics
+				pIniFile.WriteInteger('Game', 'Background', BYTE(GameSettings.eBackground));
+				pIniFile.WriteInteger('Game', 'BackgroundColour',
+					Integer(GameSettings.tBackgroundColour));
+				pIniFile.WriteInteger('Game', 'IconSet', BYTE(GameSettings.eIconSet));
 
 				// Flush the file
 				pIniFile.UpdateFile();
@@ -153,6 +187,31 @@ begin
 	// Save settings
 	Save();
 	Rest(200);
+end;
+
+// Utility functions
+procedure TGameMachine.ResetSettings(var settings: GAME_SETTINGS);
+begin
+	// Grid size
+	settings.nRows := GRID_SIZE_DEFAULT;
+	settings.nColumns := GRID_SIZE_DEFAULT;
+
+	// Graphics
+	settings.eBackground := eBackgroundSolidColour;
+	settings.tBackgroundColour := clPurple;
+	settings.eIconSet := eIconSetStd_64x64;
+end;
+
+function TGameMachine.GetIconSetSize(eIconSet: TGameIconSet) : Integer;
+begin
+	Result := 64;
+	case eIconSet of
+		eIconSetStd_64x64:				Result := 64;
+		eIconSetStd_128x128:			Result := 128;
+		eIconSetFruitSalad_64x64:		Result := 64;
+		eIconSetFruitSalad_128x128:		Result := 128;
+		eIconSetFuturama_128x128:		Result := 128;
+	end;
 end;
 
 procedure TGameMachine.Rest(dwPeriod: DWORD);

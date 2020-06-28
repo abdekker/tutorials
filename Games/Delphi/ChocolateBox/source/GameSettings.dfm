@@ -1,11 +1,13 @@
 object frmGameSettings: TfrmGameSettings
   Left = 401
   Top = 139
+  AlphaBlend = True
+  AlphaBlendValue = 224
   BorderIcons = []
-  BorderStyle = bsDialog
+  BorderStyle = bsNone
   Caption = 'Memory Game Settings'
-  ClientHeight = 380
-  ClientWidth = 650
+  ClientHeight = 215
+  ClientWidth = 585
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -14,16 +16,16 @@ object frmGameSettings: TfrmGameSettings
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDefault
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 16
   object btnCancel: TBitBtn
-    Left = 260
-    Top = 330
-    Width = 185
+    Left = 230
+    Top = 160
+    Width = 165
     Height = 45
     Caption = 'Cancel'
     ModalResult = 2
@@ -130,9 +132,9 @@ object frmGameSettings: TfrmGameSettings
       00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
   end
   object btnOk: TBitBtn
-    Left = 455
-    Top = 330
-    Width = 185
+    Left = 410
+    Top = 160
+    Width = 165
     Height = 45
     Caption = 'Ok'
     Font.Charset = ANSI_CHARSET
@@ -245,8 +247,8 @@ object frmGameSettings: TfrmGameSettings
   end
   object btnSetDefaults: TBitBtn
     Left = 10
-    Top = 330
-    Width = 185
+    Top = 160
+    Width = 210
     Height = 45
     Caption = 'Factory Defaults'
     TabOrder = 2
@@ -448,12 +450,12 @@ object frmGameSettings: TfrmGameSettings
       FEFEFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     NumGlyphs = 2
   end
-  object gbGame: TGroupBox
+  object gbGrid: TGroupBox
     Left = 10
     Top = 10
     Width = 210
     Height = 95
-    Caption = 'Game'
+    Caption = 'Grid'
     TabOrder = 0
     object lblRows: TLabel
       Left = 15
@@ -483,6 +485,7 @@ object frmGameSettings: TfrmGameSettings
       ParentFont = False
       TabOrder = 0
       Text = '4'
+      OnChange = ebGridSizeChange
     end
     object ebColumns: TEdit
       Left = 115
@@ -498,12 +501,13 @@ object frmGameSettings: TfrmGameSettings
       ParentFont = False
       TabOrder = 1
       Text = '4'
+      OnChange = ebGridSizeChange
     end
   end
   object btnDisclaimer: TBitBtn
     Left = 10
-    Top = 280
-    Width = 185
+    Top = 110
+    Width = 210
     Height = 45
     Caption = 'Notes'
     TabOrder = 1
@@ -705,11 +709,93 @@ object frmGameSettings: TfrmGameSettings
       00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     NumGlyphs = 2
   end
+  object gbGraphics: TGroupBox
+    Left = 230
+    Top = 10
+    Width = 345
+    Height = 110
+    Caption = 'Graphics'
+    TabOrder = 5
+    object lblBackground: TLabel
+      Left = 15
+      Top = 30
+      Width = 76
+      Height = 16
+      Caption = 'Background'
+    end
+    object lblIconSet: TLabel
+      Left = 15
+      Top = 60
+      Width = 55
+      Height = 16
+      Caption = 'Icon set'
+    end
+    object lblIconSetSize: TLabel
+      Left = 110
+      Top = 82
+      Width = 100
+      Height = 13
+      Caption = '[ Size: 256x256 ]'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Verdana'
+      Font.Style = []
+      ParentFont = False
+    end
+    object cbBackground: TComboBox
+      Left = 110
+      Top = 25
+      Width = 160
+      Height = 26
+      Style = csDropDownList
+      Color = clInfoBk
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = []
+      ItemHeight = 18
+      ParentFont = False
+      TabOrder = 0
+      OnChange = cbBackgroundChange
+    end
+    object pnlBackgroundColour: TPanel
+      Left = 280
+      Top = 25
+      Width = 50
+      Height = 26
+      Color = clLime
+      TabOrder = 1
+      OnClick = pnlBackgroundColourClick
+    end
+    object cbIconSet: TComboBox
+      Left = 110
+      Top = 55
+      Width = 220
+      Height = 26
+      Style = csDropDownList
+      Color = clInfoBk
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = []
+      ItemHeight = 18
+      ParentFont = False
+      TabOrder = 2
+      OnChange = cbIconSetChange
+    end
+  end
   object SettingsTimer: TTimer
     Enabled = False
     Interval = 500
     OnTimer = OnSettingsTimerTick
-    Left = 545
-    Top = 25
+    Left = 230
+    Top = 125
+  end
+  object colours: TColorDialog
+    Left = 265
+    Top = 125
   end
 end

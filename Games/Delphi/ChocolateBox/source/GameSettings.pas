@@ -4,29 +4,50 @@ unit GameSettings;
 interface
 
 uses
-  Windows, Buttons, Classes, ComCtrls, Controls, ExtCtrls, FileCtrl, Forms, Graphics,
+  Windows, Buttons, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics,
   StdCtrls, StrUtils, SysUtils,
-  CoreTypes, GameMachine, ChocolateBoxMain, SystemUtils;
+  CoreFormClasses, CoreTypes, GameMachine, ChocolateBoxMain, SystemUtils;
 
 type
-  TfrmGameSettings = class(TForm)
+  // Enumeration
+  TMouseClickClientArea = (
+	eMouseClickClientAreaUnknown = 0,
+	eMouseClickClientArea,
+	eMouseClickNonClientArea);
+
+  TfrmGameSettings = class(TGeneralBaseForm)
 	btnSetDefaults: TBitBtn;
 	btnDisclaimer: TBitBtn;
 	btnCancel: TBitBtn;
 	btnOk: TBitBtn;
-	SettingsTimer: TTimer;
 
-	gbGame: TGroupBox;
+	SettingsTimer: TTimer;
+	colours: TColorDialog;
+
+	gbGrid: TGroupBox;
 	lblRows: TLabel;
 	lblColumns: TLabel;
 	ebRows: TEdit;
 	ebColumns: TEdit;
+
+	gbGraphics: TGroupBox;
+	lblBackground: TLabel;
+	cbBackground: TComboBox;
+	pnlBackgroundColour: TPanel;
+	lblIconSet: TLabel;
+	cbIconSet: TComboBox;
+	lblIconSetSize: TLabel;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
 	procedure FormShow(Sender: TObject);
 	procedure btnOkClick(Sender: TObject);
 	procedure btnCancelClick(Sender: TObject);
+
+	procedure ebGridSizeChange(Sender: TObject);
+	procedure cbBackgroundChange(Sender: TObject);
+	procedure pnlBackgroundColourClick(Sender: TObject);
+	procedure cbIconSetChange(Sender: TObject);
 
 	procedure btnSetDefaultsClick(Sender: TObject);
 	procedure btnDisclaimerClick(Sender: TObject);
@@ -35,11 +56,25 @@ type
 
   private
 	{ Private declarations }
+	// Parent form
+	m_pParent: TForm;
+
 	// Status flags
 	m_bSettingUp, m_bExiting, m_bGameRunning: Boolean;
 
-	procedure RefreshSettings();
+	// Callback
+	m_callbackSettings: TProcedureCallbackPointer;
+
+	// Mouse hook (to change the form transparency)
+	m_eMouseClickClientArea: TMouseClickClientArea;
+	m_bHookStarted: Boolean;
+	procedure MouseClickEvent(bClientArea: Boolean);
+
+	procedure InitialiseControls();
 	procedure EnableDisableControls();
+	procedure RefreshSettings();
+	procedure SetBackgroundColourPanel();
+	procedure SetIconSetSize();
 	procedure ResetSettings();
 
   public
@@ -48,19 +83,127 @@ type
 	settings: GAME_SETTINGS;
 
 	procedure SetGameRunning(bRunning: Boolean);
+	procedure RegisterSettingsCallback(callBack: TProcedureCallbackPointer);
   end;
 
 var
   frmGameSettings: TfrmGameSettings;
+  hMouseHook: THandle;
 
 implementation
 
 uses
-  Dialogs, FormUtils, GameAbout, GameTypes;
+  Messages, FormUtils, GameAbout, GameTypes;
 
 {$R *.dfm}
 
+// Hook functions: Start
+function MouseHookProc(nCode: Integer; wPar: WParam; lPar: LParam) : Integer; stdcall;
+begin
+	// CallNextHookEX is not really needed since it is not really in a hook chain, but it's
+	// standard for a Hook.
+	Result := CallNextHookEx(hMouseHook, nCode, wPar, lPar);
+	if (nCode < 0) then
+		Exit;
+
+	if (nCode = HC_ACTION) then
+		begin
+		// A mouse event! We are only interested in these two CLICK messages:
+		// WM_NCLBUTTONUP ($00A0)	Mouse in the non-client area of the window (ie. outside)
+		// WM_LBUTTONUP ($0202)		Mouse in the client area of the window (ie. inside)
+
+		// Other mouse events of interest might include WM_NCMOUSEMOVE and WM_MOUSEMOVE.
+
+		// If you want to get detailed information about the mouse message, declare a variable of
+		// type PMOUSEHOOKSTRUCT and then call:
+		//		pVariable := PMOUSEHOOKSTRUCT(lPar);
+		// In there you will find the position of the mouse event and the hWnd of the main window
+		// receiving the event.
+		if (wPar = WM_NCLBUTTONUP) then
+			frmGameSettings.MouseClickEvent(False)
+		else if (wPar = WM_LBUTTONUP) then
+			frmGameSettings.MouseClickEvent(True);
+		end;
+end;
+// Hook functions: End
+
 // Private functions: Start
+procedure TfrmGameSettings.MouseClickEvent(bClientArea: Boolean);
+var
+	eLocalMouseClickClientArea: TMouseClickClientArea;
+begin
+	// Mouse click event on the form
+	if (bClientArea) then
+		eLocalMouseClickClientArea := eMouseClickClientArea
+	else
+		eLocalMouseClickClientArea := eMouseClickNonClientArea;
+
+	// Change in the client area where the last click occurred ?
+	if (m_eMouseClickClientArea <> eLocalMouseClickClientArea) then
+		begin
+		m_eMouseClickClientArea := eLocalMouseClickClientArea;
+		if (bClientArea) then
+			AlphaBlendValue := 255
+		else
+			AlphaBlendValue := 224;
+		end;
+end;
+
+procedure TfrmGameSettings.InitialiseControls();
+begin
+	// Set up controls for user settings
+
+	// Game rows / columns
+	cbBackground.Items.Clear();
+	cbBackground.Items.AddObject('Background 1', TObject(eBackgroundImg1));
+	cbBackground.Items.AddObject('Background 2', TObject(eBackgroundImg2));
+	cbBackground.Items.AddObject('Solid colour', TObject(eBackgroundSolidColour));
+
+	// Graphics
+	cbIconSet.Items.Clear();
+	cbIconSet.Items.AddObject('Standard (small)', TObject(eIconSetStd_64x64));
+	cbIconSet.Items.AddObject('Standard (large)', TObject(eIconSetStd_128x128));
+	cbIconSet.Items.AddObject('Fruit Salad (small)', TObject(eIconSetFruitSalad_64x64));
+	cbIconSet.Items.AddObject('Fruit Salad (large)', TObject(eIconSetFruitSalad_128x128));
+	cbIconSet.Items.AddObject('Futurama (large)', TObject(eIconSetFuturama_128x128));
+end;
+
+procedure TfrmGameSettings.SetBackgroundColourPanel();
+begin
+	// If the background is set to a solid colour, the user can update this
+	if (settings.eBackground = eBackgroundSolidColour) then
+		pnlBackgroundColour.Color := TColor(settings.tBackgroundColour)
+	else
+		pnlBackgroundColour.Color := clBtnFace;
+end;
+
+procedure TfrmGameSettings.SetIconSetSize();
+var
+	nIconSetSize: Integer;
+begin
+	// Show the size of the icon size
+	nIconSetSize := ChocolateBox.GetIconSetSize(settings.eIconSet);
+	lblIconSetSize.Caption := Format('[ Size: %dx%d ]', [nIconSetSize, nIconSetSize]);
+end;
+
+procedure TfrmGameSettings.EnableDisableControls();
+begin
+	// Enable controls based on other settings or whether we are currently playing a game
+
+	// Some settings should not be altered while the game is in progress
+	if (m_bGameRunning) then
+		begin
+		SetSubControlsEnabled(
+			gbGrid,
+			(CONTROL_TLABEL + CONTROL_TEDIT), False);
+		SetSubControlsEnabled(
+			gbGraphics,
+			(CONTROL_TLABEL + CONTROL_TCOMBOBOX), False);
+
+		btnSetDefaults.Enabled := False;
+		end;
+end;
+
 procedure TfrmGameSettings.RefreshSettings();
 begin
 	// Set all controls to the correct system settings
@@ -70,36 +213,23 @@ begin
 	ebRows.Text := IntToStr(settings.nRows);
 	ebColumns.Text := IntToStr(settings.nColumns);
 
-	// Enable/disable related controls
+	// Graphics
+	cbBackground.ItemIndex := cbBackground.Items.IndexOfObject(TObject(settings.eBackground));
+	pnlBackgroundColour.Color := TColor(settings.tBackgroundColour);
+	cbIconSet.ItemIndex := cbIconSet.Items.IndexOfObject(TObject(settings.eIconSet));
+	SetIconSetSize();
+
+	// Enable or disable related controls
 	EnableDisableControls();
 
 	// No longer setting up
 	m_bSettingUp := False;
 end;
 
-procedure TfrmGameSettings.EnableDisableControls();
-begin
-	// Enable conrols based on other settings or whether we are currently playing a game
-
-	// Some settings must not be altered while the game is in progress
-	if (m_bGameRunning) then
-		begin
-		lblRows.Enabled := False;
-		ebRows.Enabled := False;
-		lblColumns.Enabled := False;
-		ebColumns.Enabled := False;
-
-		btnSetDefaults.Enabled := False;
-		end;
-end;
-
 procedure TfrmGameSettings.ResetSettings();
 begin
 	// Set everything to the default
-
-	// Grid size
-	settings.nRows := GRID_SIZE_DEFAULT;
-	settings.nColumns := GRID_SIZE_DEFAULT;
+	ChocolateBox.ResetSettings(settings);
 
 	// Refresh settings
 	RefreshSettings();
@@ -112,28 +242,47 @@ begin
 	// When the game is running, certain settings should not be changed
 	m_bGameRunning := bRunning;
 end;
+
+procedure TfrmGameSettings.RegisterSettingsCallback(callBack: TProcedureCallbackPointer);
+begin
+	// Callback used when the settings changes
+	m_callbackSettings := callBack;
+end;
 // Public functions: End
 
 procedure TfrmGameSettings.FormCreate(Sender: TObject);
 begin
 	// Initialise form
+	m_pParent := TForm(Sender);
 	m_bSettingUp := False;
 	m_bExiting := False;
 	m_bGameRunning := False;
+
+	// Start a local Windows hook procedure for peeking mouse messages that have been removed from
+	// the message queue for this thread
+	m_eMouseClickClientArea := eMouseClickClientAreaUnknown;
+	m_bHookStarted := False;
+	hMouseHook := SetWindowsHookEx(WH_MOUSE, @MouseHookProc, 0, GetCurrentThreadID());
+	if (hMouseHook > 0) then
+		m_bHookStarted := True;
 end;
 
 procedure TfrmGameSettings.FormDestroy(Sender: TObject);
 begin
-	// Clean up...
+	// Exiting form, so unhook the mouse message hook
+	if (m_bHookStarted) then
+		UnhookWindowsHookEx(hMouseHook);
 end;
 
 procedure TfrmGameSettings.FormShow(Sender: TObject);
-var
-	byTmp: BYTE;
 begin
 	// Exiting system?
 	if (ChocolateBox.bySystemExitRequest > 0) then
 		Exit;
+
+	// Set the form to the top right (so that the user can see the effect on the main grid)
+	Self.Top := 0;
+	Self.Left := (ChocolateBox.GameCache.nScreenWidth - Self.Width);
 
 	// If the game is running, show this in the title of the form
 	if (m_bGameRunning) then
@@ -141,8 +290,13 @@ begin
 	else
 		Caption := 'Chocolate Box Settings';
 
+	// Initialise controls for game settings
+	SetChildComboHandlers(gbGraphics);
+	InitialiseControls();
+
 	// Show the game settings
 	RefreshSettings();
+	SetBackgroundColourPanel();
 
 	// Set focus to the OK button
 	btnOk.SetFocus();
@@ -157,6 +311,8 @@ var
 begin
 	// Save settings
 	SettingsTimer.Enabled := False;
+
+	// Grid size
 	bEntryValid := TryStrToInt(ebRows.Text, settings.nRows);
 	if (bEntryValid) then
 		begin
@@ -189,6 +345,13 @@ begin
 		Exit;
 		end;
 
+	// Graphics
+	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
+	if (settings.eBackground = eBackgroundSolidColour) then
+		settings.tBackgroundColour := Integer(pnlBackgroundColour.Color);
+
+	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
+
 	// If we get here, then the settings are valid!
 	m_bExiting := True;
 	ModalResult := mrOk;
@@ -198,6 +361,56 @@ procedure TfrmGameSettings.btnCancelClick(Sender: TObject);
 begin
 	// Cancel any changes ?
 	m_bExiting := True;
+end;
+
+procedure TfrmGameSettings.ebGridSizeChange(Sender: TObject);
+var
+	bRowsValid, bColumnsValid: Boolean;
+begin
+	// Check whether the gride size values are valid
+	bRowsValid := TryStrToInt(ebRows.Text, settings.nRows);
+	if (bRowsValid) then
+		begin
+		if (settings.nRows < 1) or (settings.nRows > GRID_SIZE_MAX) then
+			bRowsValid := False;
+		end;
+
+	bColumnsValid := TryStrToInt(ebColumns.Text, settings.nColumns);
+	if (bColumnsValid) then
+		begin
+		if (settings.nColumns < 1) or (settings.nColumns > GRID_SIZE_MAX) then
+			bColumnsValid := False;
+		end;
+
+	// If the rows/columns are valid, update the main form
+	if (bRowsValid and bColumnsValid) then
+		m_callbackSettings(@settings);
+end;
+
+procedure TfrmGameSettings.cbBackgroundChange(Sender: TObject);
+begin
+	// When the background changes, we may allow the user to set a solid background colour
+	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
+	SetBackgroundColourPanel();
+	m_callbackSettings(@settings);
+end;
+
+procedure TfrmGameSettings.cbIconSetChange(Sender: TObject);
+begin
+	// Show the size of the icons in the icon set
+	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
+	SetIconSetSize();
+	m_callbackSettings(@settings);
+end;
+
+procedure TfrmGameSettings.pnlBackgroundColourClick(Sender: TObject);
+begin
+	if (settings.eBackground = eBackgroundSolidColour) then
+		begin
+		colours.Color := pnlBackgroundColour.Color;
+		if (colours.Execute()) then
+			pnlBackgroundColour.Color := colours.Color;
+		end;
 end;
 
 procedure TfrmGameSettings.btnDisclaimerClick(Sender: TObject);
@@ -224,7 +437,7 @@ begin
 		Exit;
 
 	// Change the background colour of controls if they are disabled
-	SetSubBackColour(gbGame);
+	SetSubBackColour(gbGrid);
 
 	// Re-enable the timer
 	SettingsTimer.Enabled := True;

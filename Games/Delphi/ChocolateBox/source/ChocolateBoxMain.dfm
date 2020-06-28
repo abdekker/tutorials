@@ -4,8 +4,8 @@ object frmChocolateBox: TfrmChocolateBox
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'Chocolate Box by Bronwen Dekker'
-  ClientHeight = 113
-  ClientWidth = 212
+  ClientHeight = 115
+  ClientWidth = 210
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,6 +25,7 @@ object frmChocolateBox: TfrmChocolateBox
     Width = 20
     Height = 20
     Stretch = True
+    OnClick = imgBackgroundClick
   end
   object imgExit: TImage
     Left = 100
