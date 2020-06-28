@@ -4,7 +4,7 @@ unit FormUtils;
 interface
 
 uses
-  Windows, Classes, Controls, Forms, StdCtrls;
+  Windows, Classes, Controls, Forms, ExtCtrls, StdCtrls;
 
 const
   // Control types
@@ -49,8 +49,12 @@ procedure CloseFormUtils();
 // General
 procedure LockControl(control: TWinControl; bLock: Boolean);
 procedure DumpToFile(comp: TComponent; const cstrFile: String);
+function IsControlType(control: TControl; wControls: WORD) : Boolean;
+procedure SetSubControlsEnabled(parent: TWinControl; wControls: WORD; bEnabled: Boolean;
+	nSubLevel: Integer = 0);
 procedure SetSubBackColour(parent: TWinControl; nSubLevel: Integer = 0);
-function GetChildIndex(parent, child: TCustomControl) : Integer;
+function GetChildIndex(parent, child: TWinControl) : Integer;
+function GetCloseControlClick(parent: TWinControl; wControls: WORD; nIgnoreControl: Integer = -1) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
 procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
@@ -162,6 +166,61 @@ begin
 	end;
 end;
 
+function IsControlType(control: TControl; wControls: WORD) : Boolean;
+var
+	bControlIsType: Boolean;
+begin
+	// Check whether the control type is one we are interested in
+	bControlIsType := False;
+	if ((wControls and CONTROL_TLABEL) <> 0) and (control is TLabel) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TEDIT) <> 0) and (control is TEdit) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TLABELEDEDIT) <> 0) and (control is TLabeledEdit) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TCHECKBOX) <> 0) and (control is TCheckBox) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TBUTTON) <> 0) and (control is TButton) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TBITBTN) <> 0) and (control is TBitBtn) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TCOMBOBOX) <> 0) and (control is TComboBox) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TRADIO) <> 0) and (control is TRadioButton) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TDATETIMEPICKER) <> 0) and (control is TDateTimePicker) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TIMAGE) <> 0) and (control is TImage) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TPANEL) <> 0) and (control is TPanel) then
+		bControlIsType := True;
+
+	Result := bControlIsType;
+end;
+
+procedure SetSubControlsEnabled(parent: TWinControl; wControls: WORD; bEnabled: Boolean;
+	nSubLevel: Integer = 0);
+var
+	nControl: Integer;
+begin
+	// See "EnumSubControlsCharset" for further comments
+	if (parent <> nil) and (nSubLevel < MAX_CHILD_CONTROL_ITERATIONS) then
+		begin
+		for nControl:=0 to (parent.ControlCount - 1) do
+			begin
+			if (IsControlType(parent.Controls[nControl], wControls)) then
+				parent.Controls[nControl].Enabled := bEnabled
+			else
+				begin
+				// None of the above...if it's a group box, recursively check its' child controls
+				if (parent.Controls[nControl] is TWinControl) then
+					SetSubControlsEnabled(TWinControl(parent.Controls[nControl]),
+						wControls, bEnabled, (nSubLevel + 1));
+				end;
+			end;
+		end;
+end;
+
 procedure SetSubBackColour(parent: TWinControl; nSubLevel: Integer = 0);
 var
 	nControl: Integer;
@@ -218,7 +277,7 @@ begin
 		end;
 end;
 
-function GetChildIndex(parent, child: TCustomControl) : Integer;
+function GetChildIndex(parent, child: TWinControl) : Integer;
 var
 	bFoundChild: Boolean;
 	nControl: Integer;
@@ -245,6 +304,61 @@ begin
 		Result := nControl
 	else
 		Result := -1;
+end;
+
+function GetCloseControlClick(parent: TWinControl; wControls: WORD; nIgnoreControl: Integer = -1) : Integer;
+var
+	nControl, nLeft, nRight, nTop, nBottom: Integer;
+	nControlIndex: Integer;
+	bPotentialControl, bCloseX, bCloseY: Boolean;
+	pt: TPoint;
+begin
+	// Find any control (within a TGroupBox or TPanel) and determine whether it is close to the
+	// user's click point. Especially useful for TCheckBox and TRadioButton since operating these
+	// controls can be awkward on a touchscreen.
+	nControlIndex := -1;
+	if (parent <> nil) then
+		begin
+		// Where did the user click?
+		pt := TWinControl(parent).ScreenToClient(Mouse.CursorPos);
+		for nControl:=0 to (parent.ControlCount - 1) do
+			begin
+			// Ignore this control?
+			if (nIgnoreControl > -1) and (nControl = nIgnoreControl) then
+				continue;
+
+			// Control must be both visible and enabled!
+			bPotentialControl :=
+				(parent.Controls[nControl].Visible) and (parent.Controls[nControl].Enabled);
+
+			// Is this control's type one that the caller is interested in?
+			if (bPotentialControl) then
+				bPotentialControl := IsControlType(parent.Controls[nControl], wControls);
+
+			// Control must be close to the users' click point
+			if (bPotentialControl) then
+				begin
+				// Get the controls' bounding rectangle
+				nLeft := parent.Controls[nControl].Left;
+				nRight := (nLeft + parent.Controls[nControl].Width);
+
+				nTop := parent.Controls[nControl].Top;
+				nBottom := (nTop + parent.Controls[nControl].Height);
+
+				// Set the X direction to be slightly more sensitive than the Y direction
+				bCloseX := (pt.X >= (nLeft - 6)) and (pt.X < (nRight + 6));
+				bCloseY := (pt.Y >= (nTop - 4)) and (pt.Y < (nBottom + 4));
+				if (bCloseX) and (bCloseY) then
+					begin
+					// Got it!
+					nControlIndex := nControl;
+					break;
+					end;
+				end;
+			end;
+		end;
+
+	Result := nControlIndex;
 end;
 
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
