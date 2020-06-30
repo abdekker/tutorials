@@ -19,5 +19,6 @@ int main()
     // Show results
     std::chrono::duration<double> elapsedSeconds = (std::chrono::system_clock::now() - startTime);
     std::cout << "Elapsed time: " << elapsedSeconds.count() << "s\n";
+    std::cout << "All done!\n";
     return 0;
 }
