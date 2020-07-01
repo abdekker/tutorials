@@ -8,7 +8,10 @@ int main()
     setvbuf(stdout, NULL, _IONBF, 0);
     std::cout << "Measuring performance using std::chrono\n\n";
 
+    // Testing commiting individual lines, Visual Studio Code 1
+
     // Measure some time-consuming operation
+    // blah1
     std::chrono::system_clock::time_point tmp;
     auto startTime = std::chrono::system_clock::now();
 
