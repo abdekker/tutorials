@@ -19,6 +19,8 @@ int main()
     for (int loop=0; loop < 100000000; loop++)
         tmp = std::chrono::system_clock::now();
 
+    // Testing commiting individual lines, Visual Studio Code 2
+
     // Show results
     std::chrono::duration<double> elapsedSeconds = (std::chrono::system_clock::now() - startTime);
     std::cout << "Elapsed time: " << elapsedSeconds.count() << "s\n";
