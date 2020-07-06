@@ -1,6 +1,6 @@
 @echo off
 
-rem This script demonstrates simple counting of files in a folder
+rem This script demonstrates counting files in a folder
 
 echo ### Count files in current folder (syntax 1) ###
 rem Using "for /f" with pipe (|) command. This searches for the line "X File(s)" when calling "dir".
