@@ -149,5 +149,17 @@ echo Combine into an ISO 8601 format (suitable for a log file): %TimeStamp%
 rem Note: TimeStamp=%TimeStamp: =0% replaces all spaces with 0s
 echo .
 
+echo ### Escaping characters ###
+echo Inside parentheses, you may need to escape characters to get them to echo correctly.
+echo For example, the following fails:
+echo    if 3 GEQ 2 (echo Some (more) potatoes)
+echo .
+echo Two solutions:
+echo   1) Change character eg. if 3 GEQ 2 (echo Some [more] potatoes)
+echo   2) Escape character eg. if 3 GEQ 2 (echo Some ^^(more^^) potatoes)
+if 3 GEQ 2 (echo Example 1: Some [more] potatoes)
+if 3 GEQ 2 (echo Example 2: Some ^(more^) potatoes)
+echo .
+
 :StringsEnd
 echo All done!
