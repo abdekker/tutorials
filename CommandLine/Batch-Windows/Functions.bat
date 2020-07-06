@@ -31,8 +31,8 @@ echo block use ^^!VAR^^! (not %%VAR%%).
 if defined MY_VAR (
     echo   Before: MY_VAR = "%MY_VAR%"
     call :funcSetParamThree MY_VAR
-    echo   After:  MY_VAR = "%MY_VAR%" (global)
-    echo   After:  MY_VAR = "!MY_VAR!" (local)
+    echo   After:  MY_VAR = "%MY_VAR%" ^(global^)
+    echo   After:  MY_VAR = "!MY_VAR!" ^(local^)
 )
 echo .
 
