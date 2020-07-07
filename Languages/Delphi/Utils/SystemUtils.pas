@@ -41,8 +41,18 @@ procedure SaveToClipboard(const cstrText: String);
 // Registry
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
+function RegGetString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+function RegGetMultiString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+function RegGetExpandString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+function RegGetDWORD(hRootKey: HKEY; const cstrName: String; var dwValue: Cardinal): Boolean;
+function RegGetBinary(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
 function RegSetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	pValue: Pointer; dwValueSize: Cardinal): Boolean;
+function RegSetString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+function RegSetMultiString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+function RegSetExpandString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+function RegSetDWORD(hRootKey: HKEY; const cstrName: String; dwValue: Cardinal): Boolean;
+function RegSetBinary(hRootKey: HKEY; const cstrName: String; abyValue: array of Byte): Boolean;
 function RegKeyExists(hRootKey: HKEY; const cstrName: String): Boolean;
 function RegValueExists(hRootKey: HKEY; const cstrName: String): Boolean;
 procedure RegEnumSubKeys(hRootKey: HKEY; const cstrName: String; astrKeys: TStringList);
@@ -728,7 +738,7 @@ begin
 	if (	(GetKeyState(VK_SCROLL) = 1) and
 			(DebugHook <> 0)) then
 		begin
-		// Let the developer know about the breakpoint, toggle Scroll Lock off and break
+		// Toggle Scroll Lock off and break
 		keybd_event(VK_SCROLL,
 			MapVirtualKey(VK_SCROLL, 0), KEYEVENTF_EXTENDEDKEY, 0);
 		keybd_event(VK_SCROLL,
@@ -796,6 +806,94 @@ begin
 		end;
 end;
 
+function RegGetString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_SZ value
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_SZ, pBuffer, dwBufferSize)) then
+		begin
+		Dec(dwBufferSize);
+		SetLength(strValue, dwBufferSize);
+		if (dwBufferSize > 0) then
+			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
+
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
+function RegGetMultiString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_MULTI_SZ value
+	Result := False;
+	 if (RegGetValue(hRootKey, cstrName, REG_MULTI_SZ, pBuffer, dwBufferSize)) then
+		begin
+		Dec(dwBufferSize);
+		SetLength(strValue, dwBufferSize);
+		if (dwBufferSize > 0) then
+			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
+
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
+function RegGetExpandString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_EXPAND_SZ value
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_EXPAND_SZ, pBuffer, dwBufferSize)) then
+		begin
+		Dec(dwBufferSize);
+		SetLength(strValue, dwBufferSize);
+		if (dwBufferSize > 0) then
+			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
+
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
+function RegGetDWORD(hRootKey: HKEY; const cstrName: String; var dwValue: Cardinal): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_DWORD value
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_DWORD, pBuffer, dwBufferSize)) then
+		begin
+		CopyMemory(@dwValue, pBuffer, dwBufferSize);
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
+function RegGetBinary(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_BINARY value
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_DWORD, pBuffer, dwBufferSize)) then
+		begin
+		SetLength(strValue, dwBufferSize);
+		CopyMemory(@strValue[1], pBuffer, dwBufferSize);
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
 function RegSetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	pValue: Pointer; dwValueSize: Cardinal): Boolean;
 var
@@ -821,6 +919,36 @@ begin
 			RegCloseKey(hTemp);
 			end;
 		end;
+end;
+
+function RegSetString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+begin
+	// Write a REG_SZ value
+	Result := RegSetValue(hRootKey, cstrName, REG_SZ, PChar(strValue + #0), Length(strValue) + 1);
+end;
+
+function RegSetMultiString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+begin
+	// Write a REG_MULTI_SZ value
+	Result := RegSetValue(hRootKey, cstrName, REG_MULTI_SZ, PChar(strValue + #0#0), Length(strValue) + 2);
+end;
+
+function RegSetExpandString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
+begin
+	// Write a REG_MULTI_SZ value
+	Result := RegSetValue(hRootKey, cstrName, REG_EXPAND_SZ, PChar(strValue + #0), Length(strValue) + 1);
+end;
+
+function RegSetDWORD(hRootKey: HKEY; const cstrName: String; dwValue: Cardinal): Boolean;
+begin
+	// Write a REG_DWORD value
+	Result := RegSetValue(hRootKey, cstrName, REG_DWORD, @dwValue, SizeOf(Cardinal));
+end;
+
+function RegSetBinary(hRootKey: HKEY; const cstrName: String; abyValue: array of Byte): Boolean;
+begin
+	// Write a REG_BINARY value
+	Result := RegSetValue(hRootKey, cstrName, REG_BINARY, @abyValue[Low(abyValue)], Length(abyValue));
 end;
 
 function RegKeyExists(hRootKey: HKEY; const cstrName: String): Boolean;
