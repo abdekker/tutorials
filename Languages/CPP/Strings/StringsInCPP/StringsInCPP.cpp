@@ -35,7 +35,7 @@ void ConstructStdString()
 	{
 		const char* c = "Hello std::string 4b";
 		size_t len = strlen(c);
-		string s(c, len);		// Use "len-2" (eg) to remove the last two characters
+		string s(c, len);		// To remove the last two characters (as an example), use "len-2"
 		cout << "  From char*\t\t\t\t" << s << "\n";
 	}
 
@@ -46,16 +46,16 @@ void ConstructStdString()
 	}
 
 	{
-		string s;
 		const char* c = "Hello std::string 5";
 		size_t len = strlen(c);
-		s.assign(c, len);	// Only if the string already exists
+        string s;
+		s.assign(c, len);	// Only if the string already exists!
 		cout << "  Using std::string::assign\t\t" << s << "\n";
 	}
 
 	{
 		const char* c = "Hello std::string 6";
-		std::string s;
+		string s;
 		s.append(c);
 		cout << "  Using std::string::append\t\t" << s << "\n";
 	}
@@ -93,7 +93,7 @@ void ConstructCharPointers()
 		string s = "Hello char* 1b";
 		char c[20];
 		strcpy_s(c, &s[0]);
-		printf("  Using std::string::c_str\t\t%s\n", c);
+		printf("  Using address of std::string[0]\t%s\n", c);
 	}
 
 	{
@@ -123,4 +123,6 @@ int main()
 
 	// Construct char* from std::string
 	ConstructCharPointers();
+
+    cout << "\nAll Done!\n";
 }
