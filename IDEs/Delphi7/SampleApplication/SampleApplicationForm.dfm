@@ -83,7 +83,7 @@ object frmSampleApplication: TfrmSampleApplication
     end
     object btnProcess: TButton
       Left = 570
-      Top = 45
+      Top = 40
       Width = 100
       Height = 35
       Caption = 'Process...'

@@ -12,6 +12,7 @@ type
   TCategory = (
 	eCategoryNone,
 	eCategoryWindows,
+	eCategoryRegistry,
 	eCategoryStrings,
 	eCategoryControls
   );
@@ -22,8 +23,15 @@ type
 	aebSampleText: array[1..3] of TEdit;
 	astrSampleTitleDefault, astrSampleTextDefault: array[1..3] of String;
 
+	// Edit box and output list size (which can change depending on the selections made)
+	nEditBoxWidthInitial, nEditBoxWidthMax: Integer;
+	nOutputWidthInitial, nOutputWidthMax: Integer;
+
 	// Maximum size to set sample control
 	nMaxControlWidth: Integer;
+
+	// Whether to display some advanced explanation text
+	strLastExplanationText: String;
   end;
 
   CONTROL_UPDATES = record
@@ -87,15 +95,18 @@ type
 
 	procedure PopulateActions();
 	procedure PopulateActions_Windows();
+	procedure PopulateActions_Registry();
 	procedure PopulateActions_Strings();
 	procedure PopulateActions_Controls();
 
 	procedure UpdateControls(updates: CONTROL_UPDATES);
 	procedure UpdateControls_Windows();
+	procedure UpdateControls_Registry();
 	procedure UpdateControls_Strings();
 	procedure UpdateControls_Controls();
 
 	procedure PerformAction_Windows();
+	procedure PerformAction_Registry();
 	procedure PerformAction_Strings();
 	procedure PerformAction_Controls();
 
@@ -131,7 +142,12 @@ type
 	eWindowsAction_GetDriveFileSystem,
 	eWindowsAction_GetSystemDrives,
 	eWindowsAction_CheckDriveIsValid,
-	eWindowsAction_SaveToClipboard
+	eWindowsAction_SaveToClipboard,
+	eWindowsAction_BreakIfScrollLock
+  );
+
+  TCategoryRegistry = (
+	eRegistryAction_GetString
   );
 
   TCategoryStrings = (
@@ -236,6 +252,9 @@ begin
 		eCategoryWindows:
 			PerformAction_Windows();
 
+		eCategoryRegistry:
+			PerformAction_Registry();
+
 		eCategoryStrings:
 			PerformAction_Strings();
 
@@ -267,6 +286,9 @@ begin
 		case m_eCategoryCurrent of
 			eCategoryWindows:
 				UpdateControls_Windows();
+
+			eCategoryRegistry:
+				UpdateControls_Registry();
 
 			eCategoryStrings:
 				UpdateControls_Strings();
@@ -300,8 +322,18 @@ begin
 		m_cache.astrSampleTextDefault[nSample] := Format('sample text %d', [nSample]);
 		end;
 
+	// Initial and maximum width of edit boxes and the output list
+	m_cache.nEditBoxWidthInitial := ebSample1.Width;
+	m_cache.nEditBoxWidthMax := (gbSettings.Width - ebSample1.Left - listOutput.Left);
+
+	m_cache.nOutputWidthInitial := listOutput.Width;
+	m_cache.nOutputWidthMax := (gbSettings.Width - (2 * listOutput.Left));
+
 	// Maximum size to set sample controls
 	m_cache.nMaxControlWidth := lblSampleControlsA.Width;
+
+	// Last explanation text
+	m_cache.strLastExplanationText := 'z';
 end;
 
 procedure TfrmSampleApplication.PopulateCategories();
@@ -309,6 +341,7 @@ begin
 	// Add categories
 	ddlCategory.Items.Clear();
 	ddlCategory.Items.AddObject('Windows', TObject(eCategoryWindows));
+	ddlCategory.Items.AddObject('Registry', TObject(eCategoryRegistry));
 	ddlCategory.Items.AddObject('Strings', TObject(eCategoryStrings));
 	ddlCategory.Items.AddObject('Controls', TObject(eCategoryControls));
 	ddlCategory.DropDownCount := ddlCategory.Items.Count;
@@ -327,6 +360,9 @@ begin
 		eCategoryWindows:
 			PopulateActions_Windows();
 
+		eCategoryRegistry:
+			PopulateActions_Registry();
+
 		eCategoryStrings:
 			PopulateActions_Strings();
 
@@ -334,6 +370,24 @@ begin
 			PopulateActions_Controls();
 		end;
 
+	// Set the width of the output window and controls
+	if (	(m_eCategoryCurrent = eCategoryWindows) or
+			(m_eCategoryCurrent = eCategoryRegistry) or
+			(m_eCategoryCurrent = eCategoryStrings)) then
+		begin
+		gbSampleControls.Visible := False;
+		listOutput.Width := m_cache.nOutputWidthMax;
+		end
+	else if (m_eCategoryCurrent = eCategoryControls) then
+		begin
+		// Set the output window width to reveal some sample controls
+		listOutput.Width := m_cache.nOutputWidthInitial;
+		lblSampleControlsA.Caption := Format('There are %d child controls in this group', [
+			gbSampleControls.ControlCount]);
+		gbSampleControls.Visible := True;
+		end;
+
+	// Set dropdown count and force an update
 	ddlAction.DropDownCount := ddlAction.Items.Count;
 	ddlAction.ItemIndex := 0;
 	m_nActionLastUpdate := -1;
@@ -355,10 +409,15 @@ begin
 	ddlAction.Items.AddObject('Get system drives', TObject(eWindowsAction_GetSystemDrives));
 	ddlAction.Items.AddObject('Check drive is valud', TObject(eWindowsAction_CheckDriveIsValid));
 	ddlAction.Items.AddObject('Save output to clipboard', TObject(eWindowsAction_SaveToClipboard));
+{$IFDEF DBG}
+	ddlAction.Items.AddObject('Break if Scroll Lock is pressed', TObject(eWindowsAction_BreakIfScrollLock));
+{$ENDIF}
+end;
 
-	// Set the output window width to the maximum
-	gbSampleControls.Visible := False;
-	listOutput.Width := (gbSettings.Width - (2 * listOutput.Left));
+procedure TfrmSampleApplication.PopulateActions_Registry();
+begin
+	// Registry: Populate actions for this category
+	ddlAction.Items.AddObject('Read string value (REG_SZ)', TObject(eRegistryAction_GetString));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Strings();
@@ -377,10 +436,6 @@ begin
 	ddlAction.Items.AddObject('Insert formatting char', TObject(eStringsAction_InsertFormattingCharacter));
 	ddlAction.Items.AddObject('Parse string', TObject(eStringsAction_ParseString));
 	ddlAction.Items.AddObject('Generate random string', TObject(eStringsAction_GetRandomString));
-
-	// Set the output window width to the maximum
-	gbSampleControls.Visible := False;
-	listOutput.Width := (gbSettings.Width - (2 * listOutput.Left));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Controls();
@@ -393,12 +448,6 @@ begin
 	ddlAction.Items.AddObject('Save screenshot', TObject(eControls_SaveScreenshot));
 	ddlAction.Items.AddObject('Select all text (TEdit)', TObject(eControls_SelectAllText));
 	ddlAction.Items.AddObject('Get visible rows (TListBox)', TObject(eControls_GetListVisibleRows));
-
-	// Set the output window width to reveal some sample controls
-	listOutput.Width := ((ddlAction.Left - listOutput.Left) + ddlAction.Width);
-	lblSampleControlsA.Caption := Format('There are %d child controls in this group', [
-		gbSampleControls.ControlCount]);
-	gbSampleControls.Visible := True;
 end;
 
 procedure TfrmSampleApplication.UpdateControls(updates: CONTROL_UPDATES);
@@ -433,11 +482,28 @@ begin
 	// Explanation text?
 	if (Length(updates.strExplanationText) <> 0) then
 		begin
-		lblExplanationText.Caption := updates.strExplanationText;
-		lblExplanationText.Visible := True;
+		// Show explanation text
+		if (updates.strExplanationText <> m_cache.strLastExplanationText) then
+			begin
+			m_cache.strLastExplanationText := updates.strExplanationText;
+			for nSample:=1 to 3 do
+				m_cache.aebSampleText[nSample].Width := m_cache.nEditBoxWidthInitial;
+
+			lblExplanationText.Caption := updates.strExplanationText;
+			lblExplanationText.Visible := True;
+			end;
 		end
 	else
-		lblExplanationText.Visible := False;
+		begin
+		// Hide explanation text
+		if (Length(m_cache.strLastExplanationText) <> 0) then
+			begin
+			m_cache.strLastExplanationText := '';
+			lblExplanationText.Visible := False;
+			for nSample:=1 to 3 do
+				m_cache.aebSampleText[nSample].Width := m_cache.nEditBoxWidthMax;
+			end;
+		end;
 end;
 
 procedure TfrmSampleApplication.UpdateControls_Windows();
@@ -493,6 +559,33 @@ begin
 			end;
 
 		eWindowsAction_SaveToClipboard: ;
+{$IFDEF DBG}
+		eWindowsAction_BreakIfScrollLock:
+			begin
+			updates.astrSampleTitle[1] := 'Instructions';
+			updates.astrSampleText[1] := 'Press Scroll Lock while debugging';
+			end;
+{$ENDIF}
+		end;
+
+	UpdateControls(updates);
+end;
+
+procedure TfrmSampleApplication.UpdateControls_Registry();
+var
+	updates: CONTROL_UPDATES;
+begin
+	// Registry: Update controls based on the selected action
+	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
+	case TCategoryRegistry(ddlAction.ItemIndex) of
+		eRegistryAction_GetString:
+			begin
+			updates.astrSampleTitle[1] := 'Root key';
+			updates.astrSampleText[1] := 'HKLM';
+
+			updates.astrSampleTitle[2] := 'Key name';
+			updates.astrSampleText[2] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\ProgramFilesDir';
+			end;
 		end;
 
 	UpdateControls(updates);
@@ -772,6 +865,42 @@ begin
 			SaveToClipboard(strTmp);
 			Application.MessageBox(
 				PAnsiChar('Output saved to the clipboard)'), 'Windows', MB_ICONEXCLAMATION);
+			end;
+
+{$IFDEF DBG}
+		eWindowsAction_BreakIfScrollLock:
+			begin
+			if (BreakIfScrollLock()) then
+				AddOutputText('Scroll Lock detected while debugging - breakpoint forced!')
+			else
+				AddOutputText('Scroll Lock not detected or not debugging');
+			end;
+{$ENDIF}
+		end;
+end;
+
+procedure TfrmSampleApplication.PerformAction_Registry();
+var
+	hRootKey: HKEY;
+	strRegValue: String;
+begin
+	// Registry: Perform the action
+
+	// Get the root key (all registry actions require this)
+	hRootKey := GetRootKey(m_cache.aebSampleText[1].Text);
+	if (hRootKey = 0) then
+		begin
+		AddOutputText(Format('"%s" is not a valid registry key', [m_cache.aebSampleText[1].Text]));
+		Exit;
+		end;
+
+	case TCategoryRegistry(m_nActionCurrent) of
+		eRegistryAction_GetString:
+			begin
+			if (RegGetString(hRootKey, m_cache.aebSampleText[2].Text, strRegValue)) then
+				AddOutputText(Format('Registry value = %s', [strRegValue]))
+			else
+				AddOutputText('Failed to read registry value');
 			end;
 		end;
 end;
