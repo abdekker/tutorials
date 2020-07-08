@@ -6,7 +6,6 @@
 typedef std::vector<int> ARRAY;
 typedef std::vector< std::vector<int>> MATRIX;
 
-
 // Data structures
 
 // Simple (x,y) point. Usage example: POINT<int> location = {1, 2};
