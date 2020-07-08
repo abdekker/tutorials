@@ -1,5 +1,6 @@
 { General system utilities designed for Windows applications }
 unit SystemUtils;
+{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 interface
 
@@ -36,9 +37,10 @@ function GetDriveFileSystem(const cstrDrive: String) : String;
 function GetSystemDrives(cdwDrives: DWORD = DRIVE_ALL_TYPES) : String;
 function CheckDriveIsValid(cDriveLetter: Char) : Boolean;
 procedure SaveToClipboard(const cstrText: String);
-{$IFDEF DBG} procedure BreakIfScrollLock(); {$ENDIF}
+{$IFDEF DBG} function BreakIfScrollLock() : Boolean; {$ENDIF}
 
 // Registry
+function GetRootKey(const cstrKey: String) : HKEY;
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
 function RegGetString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
@@ -727,7 +729,7 @@ begin
 end;
 
 {$IFDEF DBG}
-procedure BreakIfScrollLock();
+function BreakIfScrollLock() : Boolean;
 begin
 	// Debugging feature which forces a breakpoint (by throwing an exception) if Scroll Lock is
 	// pressed while debugging the application in Delphi.
@@ -735,10 +737,12 @@ begin
 	// Note: It is possible to check for the debugger with a call into kernel32.dll:
 	// {$IFDEF DBG} function IsDebuggerPresent(): BOOL; external 'kernel32.dll'; {$ENDIF}
 	// Using "DebugHook" is simpler.
+	Result := False;
 	if (	(GetKeyState(VK_SCROLL) = 1) and
 			(DebugHook <> 0)) then
 		begin
 		// Toggle Scroll Lock off and break
+		Result := True;
 		keybd_event(VK_SCROLL,
 			MapVirtualKey(VK_SCROLL, 0), KEYEVENTF_EXTENDEDKEY, 0);
 		keybd_event(VK_SCROLL,
@@ -749,6 +753,22 @@ end;
 {$ENDIF}
 
 // Registry
+function GetRootKey(const cstrKey: String) : HKEY;
+begin
+	// Utility function which returns the Windows key for the given key name
+	// Note: HKEY_USERS is not supported
+	Result := 0;
+	if (	(AnsiCompareText(cstrKey, 'HKCR') = 0) or
+			(AnsiCompareText(cstrKey, 'HKEY_CLASSES_ROOT') = 0)) then
+		Result := HKEY_CLASSES_ROOT
+	else if (	(AnsiCompareText(cstrKey, 'HKCU') = 0) or
+				(AnsiCompareText(cstrKey, 'HKEY_CURRENT_USER') = 0)) then
+		Result := HKEY_CURRENT_USER
+	else if (	(AnsiCompareText(cstrKey, 'HKLM') = 0) or
+				(AnsiCompareText(cstrKey, 'HKEY_LOCAL_MACHINE') = 0)) then
+		Result := HKEY_LOCAL_MACHINE;
+end;
+
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
 var
