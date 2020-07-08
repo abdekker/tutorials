@@ -137,7 +137,7 @@ void ClassPuzzle0001::DoAttempt(const AttemptNumber attempt, const int target, c
 
 		default:
 			cout << "\nUnknown attempt...\n";
-				break;
+			break;
 	}
 
 	// Show the results!
