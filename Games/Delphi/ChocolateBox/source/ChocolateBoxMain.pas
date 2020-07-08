@@ -112,6 +112,8 @@ begin
 end;
 
 procedure TfrmChocolateBox.FormShow(Sender: TObject);
+var
+	strTest1, strTest2: String;
 begin
 	// Show form
 	if (m_bFirstTimeShow) then
@@ -134,6 +136,9 @@ begin
 
 		// Start the update timer
 		UpdateTimer.Enabled := True;
+
+		RegGetString(HKEY_CLASSES_ROOT, '.txt', strTest1);
+		RegGetExpandString(HKEY_CLASSES_ROOT, strTest1 + '\shell\open\command\', strTest2);
 
 		// Completed once-off initialisation
 		m_bFirstTimeShow := False;
