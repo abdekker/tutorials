@@ -7,15 +7,9 @@ using namespace std;
 class stringHelper
 {
 public:
-    stringHelper()
-    {
-        // Constructor
-    }
-
-    ~stringHelper()
-    {
-        // Destructor
-    }
+    // Constructor / destructor
+    stringHelper() {}
+    ~stringHelper() {}
 
     // Template functions (using C++11 or later)
     template <typename... Args>
