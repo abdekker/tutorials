@@ -7,8 +7,8 @@
 typedef std::vector<int> ARRAY;
 typedef std::vector< std::vector<int>> MATRIX;
 
-typedef std::vector<unsigned long> ARRAY_UL;
-typedef std::vector< std::vector<unsigned long>> MATRIX_UL;
+typedef std::vector<unsigned int> ARRAY_U;
+typedef std::vector< std::vector<unsigned int>> MATRIX_U;
 
 // Data structures
 
