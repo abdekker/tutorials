@@ -20,10 +20,12 @@ Windows comes with a special "hosts" file which helps resolving DNS records. In 
 # Stop Skype updating itself
 127.0.0.1       download.skype.com
 
-# Online chess
+# Online games
 127.0.0.1	play.chessbase.com
 0.0.0.0		chess.com
 0.0.0.0		lichess.org
+0.0.0.0		playok.com
+0.0.0.0		www.playok.com
 
 # friv.com
 0.0.0.0		friv.com
