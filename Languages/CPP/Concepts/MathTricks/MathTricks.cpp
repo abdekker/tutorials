@@ -18,7 +18,7 @@ int main()
 
     {
         cout << "\nCount the number of bits set in a bitmask\n";
-        ARRAY_UL bitmask{
+        ARRAY_U bitmask{
             0x00000000,     // 0
             0x00000001,     // 1
             0x01000071,     // 5
@@ -26,7 +26,8 @@ int main()
             };
         for (auto in : bitmask)
         {
-            cout << sHelper.formatString("  0x%08x (%d bits are set)", in, mHelper.BitsSet_UL(in)) << endl;
+            cout << sHelper.formatString("  Algorithm 1: 0x%08x (%d bits are set)", in, mHelper.CountBitsSet_U1(in)) << endl;
+            cout << sHelper.formatString("  Algorithm 2: 0x%08x (%d bits are set)", in, mHelper.CountBitsSet_U2(in)) << endl;
         }
     }
 
