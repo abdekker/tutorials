@@ -1,6 +1,6 @@
 object frmSampleApplication: TfrmSampleApplication
-  Left = 255
-  Top = 130
+  Left = 311
+  Top = 143
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Sample Application for Testing'
@@ -187,10 +187,10 @@ object frmSampleApplication: TfrmSampleApplication
       Top = 180
       Width = 285
       Height = 410
-      Caption = 'Sample controls'
+      Caption = 'Sample controls (Controls category only)'
       TabOrder = 8
       Visible = False
-      object lblSampleControlsA: TLabel
+      object lblChildControls: TLabel
         Left = 15
         Top = 25
         Width = 255
@@ -205,22 +205,20 @@ object frmSampleApplication: TfrmSampleApplication
         Font.Style = []
         ParentFont = False
       end
-      object lblSampleControlsB: TLabel
+      object lblSingleLine: TLabel
         Left = 15
-        Top = 45
-        Width = 219
+        Top = 140
+        Width = 84
         Height = 16
-        Caption = 'Only visible for the  Controls category'
+        Caption = 'label (TLabel)'
       end
       object lblMultiLine: TLabel
         Left = 15
-        Top = 135
+        Top = 165
         Width = 255
         Height = 64
         AutoSize = False
-        Caption = 
-          '01 A message for you.... 02 A message for you.... 03 A message f' +
-          'or you.... 04 A message for you.... 05 A message for you....'
+        Caption = 'multi-line label (TLabel with WordWrap set to True)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -229,9 +227,9 @@ object frmSampleApplication: TfrmSampleApplication
         ParentFont = False
         WordWrap = True
       end
-      object ebSampleControlC: TEdit
+      object ebEditBox: TEdit
         Left = 15
-        Top = 70
+        Top = 50
         Width = 255
         Height = 28
         Color = clInfoBk
@@ -242,11 +240,11 @@ object frmSampleApplication: TfrmSampleApplication
         Font.Style = []
         ParentFont = False
         TabOrder = 0
-        Text = 'edit box'
+        Text = 'edit box (TEdit)'
       end
-      object cbSampleControlD: TComboBox
+      object cbComboBox: TComboBox
         Left = 15
-        Top = 101
+        Top = 81
         Width = 255
         Height = 28
         Color = clInfoBk
@@ -259,10 +257,19 @@ object frmSampleApplication: TfrmSampleApplication
         ItemIndex = 0
         ParentFont = False
         TabOrder = 1
-        Text = 'combo box'
+        Text = 'combo box (TComboBox)'
         OnClick = ddlActionClick
         Items.Strings = (
           'combo box')
+      end
+      object lblStatic: TStaticText
+        Left = 15
+        Top = 115
+        Width = 113
+        Height = 20
+        BorderStyle = sbsSingle
+        Caption = 'label (TStaticText)'
+        TabOrder = 2
       end
     end
   end

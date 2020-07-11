@@ -26,6 +26,7 @@ type
 	// Edit box and output list size (which can change depending on the selections made)
 	nEditBoxWidthInitial, nEditBoxWidthMax: Integer;
 	nOutputWidthInitial, nOutputWidthMax: Integer;
+	bInitControlsGroup: Boolean;
 
 	// Maximum size to set sample control
 	nMaxControlWidth: Integer;
@@ -60,10 +61,11 @@ type
 	listOutput: TListBox;
 
 	gbSampleControls: TGroupBox;
-	lblSampleControlsA: TLabel;
-	lblSampleControlsB: TLabel;
-	ebSampleControlC: TEdit;
-	cbSampleControlD: TComboBox;
+	lblChildControls: TLabel;
+	lblStatic: TStaticText;
+	lblSingleLine: TLabel;
+	ebEditBox: TEdit;
+	cbComboBox: TComboBox;
 	lblMultiLine: TLabel;
 
 	UpdateTimer: TTimer;
@@ -329,8 +331,10 @@ begin
 	m_cache.nOutputWidthInitial := listOutput.Width;
 	m_cache.nOutputWidthMax := (gbSettings.Width - (2 * listOutput.Left));
 
+	m_cache.bInitControlsGroup := True;
+
 	// Maximum size to set sample controls
-	m_cache.nMaxControlWidth := lblSampleControlsA.Width;
+	m_cache.nMaxControlWidth := lblChildControls.Width;
 
 	// Last explanation text
 	m_cache.strLastExplanationText := 'z';
@@ -382,8 +386,14 @@ begin
 		begin
 		// Set the output window width to reveal some sample controls
 		listOutput.Width := m_cache.nOutputWidthInitial;
-		lblSampleControlsA.Caption := Format('There are %d child controls in this group', [
-			gbSampleControls.ControlCount]);
+		if (m_cache.bInitControlsGroup) then
+			begin
+			m_cache.bInitControlsGroup := False;
+			lblChildControls.Caption := Format('There are %d child controls in this group', [
+				gbSampleControls.ControlCount]);
+			gbSampleControls.Caption := 'Sample controls';
+			end;
+
 		gbSampleControls.Visible := True;
 		end;
 
@@ -718,19 +728,19 @@ begin
 		eControls_WinControlSize:
 			begin
 			updates.astrSampleTitle[1] := 'String';
-			updates.astrSampleText[1] := 'TWinControl message';
+			updates.astrSampleText[1] := 'Hello TWinControl';
 			end;
 
 		eControls_GraphicControlSize:
 			begin
 			updates.astrSampleTitle[1] := 'String';
-			updates.astrSampleText[1] := 'TGraphicControl message';
+			updates.astrSampleText[1] := 'Hello TGraphicControl';
 			end;
 
 		eControls_MultiLineLabel:
 			begin
 			updates.astrSampleTitle[1] := 'String';
-			updates.astrSampleText[1] := 'A message for you...';
+			updates.astrSampleText[1] := 'Hello multi-line label...';
 
 			updates.astrSampleTitle[2] := 'Iterations';
 			updates.astrSampleText[2] := '5';
@@ -1057,38 +1067,48 @@ begin
 
 		eControls_WinControlSize:
 			begin
-			// Get the padding required to display text in a TEdit
-			nValue := (ebSampleControlC.Width - ebSampleControlC.ClientWidth);
-			txtSize := GetWinControlPixelSize(ebSampleControlC, m_cache.aebSampleText[1].Text);
-			ebSampleControlC.Text := m_cache.aebSampleText[1].Text;
-			ebSampleControlC.Width := Min(txtSize.cx + (2 * nValue), m_cache.nMaxControlWidth);
-			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+			// TEdit padding
+			nValue := (ebEditBox.Width - ebEditBox.ClientWidth);
+			txtSize := GetWinControlPixelSize(ebEditBox, m_cache.aebSampleText[1].Text);
+			ebEditBox.Text := m_cache.aebSampleText[1].Text;
+			ebEditBox.Width := Min(txtSize.cx + (2 * nValue), m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" pixel size is (x:%d, y:%d) in %s (%s)', [
 				m_cache.aebSampleText[1].Text,
 				txtSize.cx, txtSize.cy,
-				ebSampleControlC.Name]));
+				ebEditBox.ClassName, ebEditBox.Name]));
 
 			// TComboBox padding depends on various registry settings such as:
 			//		HKCU\Control Panel\Desktop\WindowMetricsScrollWidth
 			// We simplify the issue here by using the fixed constant "24"
-			cbSampleControlD.Clear();
-			cbSampleControlD.Text := m_cache.aebSampleText[1].Text;
-			cbSampleControlD.Width := Min(txtSize.cx + 24, m_cache.nMaxControlWidth);
-			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+			cbComboBox.Clear();
+			cbComboBox.Text := m_cache.aebSampleText[1].Text;
+			cbComboBox.Width := Min(txtSize.cx + 24, m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" pixel size is (x:%d, y:%d) in %s (%s)', [
 				m_cache.aebSampleText[1].Text,
 				txtSize.cx, txtSize.cy,
-				cbSampleControlD.Name]));
+				cbComboBox.ClassName, cbComboBox.Name]));
+
+			// TStaticText padding
+			nValue := (lblStatic.Width - lblStatic.ClientWidth);
+			txtSize := GetWinControlPixelSize(lblStatic, m_cache.aebSampleText[1].Text);
+			lblStatic.Caption := m_cache.aebSampleText[1].Text;
+			lblStatic.Width := Min(txtSize.cx + (2 * nValue), m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" pixel size is (x:%d, y:%d) in %s (%s)', [
+				m_cache.aebSampleText[1].Text,
+				txtSize.cx, txtSize.cy,
+				lblStatic.ClassName, lblStatic.Name]));
 			end;
 
 		eControls_GraphicControlSize:
 			begin
 			// No padding is required for TLabel controls
-			txtSize := GetGraphicControlPixelSize(lblSampleControlsB, m_cache.aebSampleText[1].Text);
-			lblSampleControlsB.Caption := m_cache.aebSampleText[1].Text;
-			lblSampleControlsB.Width := Min(txtSize.cx, m_cache.nMaxControlWidth);
-			AddOutputText(Format('"%s" has a pixel size of (x:%d, y:%d) in %s', [
+			txtSize := GetGraphicControlPixelSize(lblSingleLine, m_cache.aebSampleText[1].Text);
+			lblSingleLine.Caption := m_cache.aebSampleText[1].Text;
+			lblSingleLine.Width := Min(txtSize.cx, m_cache.nMaxControlWidth);
+			AddOutputText(Format('"%s" pixel size id (x:%d, y:%d) in %s (%s)', [
 				m_cache.aebSampleText[1].Text,
 				txtSize.cx, txtSize.cy,
-				lblSampleControlsB.Name]));
+				lblSingleLine.ClassName, lblSingleLine.Name]));
 			end;
 
 		eControls_MultiLineLabel:
@@ -1107,7 +1127,7 @@ begin
 				ConfigureMultiLineLabel(lblMultiLine, strMsg, 15, nLines, nVerticalSize);
 				lblMultiLine.Height := (nLines * nVerticalSize);
 				lblMultiLine.Caption := strMsg;
-				AddOutputText(Format('Message required %d lines. Each line has a height of %d pixels.', [
+				AddOutputText(Format('Message used %d lines. Each line has a height of %d pixels.', [
 					nLines, nVerticalSize]));
 				end
 			else
