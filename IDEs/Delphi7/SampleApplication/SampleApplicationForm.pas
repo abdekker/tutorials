@@ -4,7 +4,7 @@ unit SampleApplicationForm;
 interface
 
 uses
-  Windows, Messages, Classes, Controls, ExtCtrls, Forms, SysUtils, StdCtrls,
+  Windows, Messages, Buttons, Classes, Controls, ExtCtrls, Forms, SysUtils, StdCtrls,
   CoreFormClasses, CoreTypes, FormUtils, SystemUtils;
 
 type
@@ -149,7 +149,12 @@ type
   );
 
   TCategoryRegistry = (
-	eRegistryAction_GetString
+	eRegistryAction_GetString,			// REG_SZ
+	eRegistryAction_GetMultiString,		// REG_MULTI_SZ
+	eRegistryAction_GetExpandString,	// REG_EXPAND_SZ
+	eRegistryAction_GetBinary,			// REG_BINARY
+	eRegistryAction_GetDWORD			// REG_DWORD
+	// REG_QWORD (not supported)
   );
 
   TCategoryStrings = (
@@ -427,7 +432,13 @@ end;
 procedure TfrmSampleApplication.PopulateActions_Registry();
 begin
 	// Registry: Populate actions for this category
-	ddlAction.Items.AddObject('Read string value (REG_SZ)', TObject(eRegistryAction_GetString));
+	ddlAction.Items.AddObject('Read string (REG_SZ)', TObject(eRegistryAction_GetString));
+	ddlAction.Items.AddObject('Read sequence of strings (REG_MULTI_SZ)',
+		TObject(eRegistryAction_GetMultiString));
+	ddlAction.Items.AddObject('String with environment variables (REG_EXPAND_SZ)',
+		TObject(eRegistryAction_GetExpandString));
+	ddlAction.Items.AddObject('Binary data (REG_BINARY)', TObject(eRegistryAction_GetBinary));
+	ddlAction.Items.AddObject('32-bit integer (REG_DWORD)', TObject(eRegistryAction_GetDWORD));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Strings();
@@ -595,6 +606,42 @@ begin
 
 			updates.astrSampleTitle[2] := 'Key name';
 			updates.astrSampleText[2] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\ProgramFilesDir';
+			end;
+
+		eRegistryAction_GetMultiString:
+			begin
+			updates.astrSampleTitle[1] := 'Root key';
+			updates.astrSampleText[1] := 'HKLM';
+
+			updates.astrSampleTitle[2] := 'Key name';
+			updates.astrSampleText[2] := 'SYSTEM\CurrentControlSet\Services\RpcSs\RequiredPrivileges';
+			end;
+
+		eRegistryAction_GetExpandString:
+			begin
+			updates.astrSampleTitle[1] := 'Root key';
+			updates.astrSampleText[1] := 'HKCR';
+
+			updates.astrSampleTitle[2] := 'Key name';
+			updates.astrSampleText[2] := 'txtfile\DefaultIcon\';
+			end;
+
+		eRegistryAction_GetBinary:
+			begin
+			updates.astrSampleTitle[1] := 'Root key';
+			updates.astrSampleText[1] := 'HKCU';
+
+			updates.astrSampleTitle[2] := 'Key name';
+			updates.astrSampleText[2] := 'Control Panel\Desktop\WindowMetrics\CaptionFont';
+			end;
+
+		eRegistryAction_GetDWORD:
+			begin
+			updates.astrSampleTitle[1] := 'Root key';
+			updates.astrSampleText[1] := 'HKCU';
+
+			updates.astrSampleTitle[2] := 'Key name';
+			updates.astrSampleText[2] := 'Software\Microsoft\Notepad\iWindowPosX';
 			end;
 		end;
 
@@ -898,6 +945,10 @@ procedure TfrmSampleApplication.PerformAction_Registry();
 var
 	hRootKey: HKEY;
 	strRegValue: String;
+	dwRegValue, dwBufferSize: DWORD;
+	pRegBuffer: Pointer;
+	listTmp: TStringList;
+	nTmp: Integer;
 begin
 	// Registry: Perform the action
 
@@ -913,7 +964,67 @@ begin
 		eRegistryAction_GetString:
 			begin
 			if (RegGetString(hRootKey, m_cache.aebSampleText[2].Text, strRegValue)) then
-				AddOutputText(Format('Registry value = %s', [strRegValue]))
+				AddOutputText(Format('REG_SZ value = %s', [strRegValue]))
+			else
+				AddOutputText('Failed to read registry value');
+			end;
+
+		eRegistryAction_GetMultiString:
+			begin
+			listTmp := TStringList.Create();
+			if (RegGetMultiString(hRootKey, m_cache.aebSampleText[2].Text, listTmp)) then
+				begin
+				if (listTmp.Count > 0) then
+					begin
+					AddOutputText('REG_MULTI_SZ value has sub-strings:');
+					for nTmp:=0 to (listTmp.Count - 1) do
+						AddOutputText(Format('    %s', [listTmp[nTmp]]));
+					end
+				else
+					AddOutputText('REG_MULTI_SZ value is empty');
+				end
+			else
+				AddOutputText('Failed to read registry value');
+
+			listTmp.Free();
+			end;
+
+		eRegistryAction_GetExpandString:
+			begin
+			if (RegGetExpandString(hRootKey, m_cache.aebSampleText[2].Text, strRegValue)) then
+				begin
+				// REG_EXPAND_SZ values have unexpended environment variables (eg. "%PATH%)
+				AddOutputText(Format('REG_EXPAND_SZ value = %s', [strRegValue]));
+				AddOutputText(Format('    [ This expands to %s ]', [
+					ReplaceEnvironmentVariables(strRegValue)]));
+				end
+			else
+				AddOutputText('Failed to read registry value');
+			end;
+
+		eRegistryAction_GetBinary:
+			begin
+			if (RegGetBinaryAsPointer(hRootKey, m_cache.aebSampleText[2].Text, pRegBuffer, dwBufferSize)) then
+				begin
+				if (dwBufferSize > 0) then
+					begin
+					AddOutputText('REG_BINARY value has the value:');
+					AddOutputText(Format('    %s', [ConvertRawBuffer(pRegBuffer, dwBufferSize, ' ')]))
+					end
+				else
+					AddOutputText('REG_BINARY value is empty');
+
+				// Remember to free memory allocated in "RegGetBinaryAsPointer"
+				FreeMem(pRegBuffer);
+				end
+			else
+				AddOutputText('Failed to read registry value');
+			end;
+
+		eRegistryAction_GetDWORD:
+			begin
+			if (RegGetDWORD(hRootKey, m_cache.aebSampleText[2].Text, dwRegValue)) then
+				AddOutputText(Format('REG_DWORD value = %d (0x%8.8x)', [dwRegValue, dwRegValue]))
 			else
 				AddOutputText('Failed to read registry value');
 			end;
@@ -1083,7 +1194,7 @@ begin
 				ebEditBox.ClassName, ebEditBox.Name]));
 
 			// TComboBox padding depends on various registry settings such as:
-			//		HKCU\Control Panel\Desktop\WindowMetricsScrollWidth
+			//		HKCU\Control Panel\Desktop\WindowMetricsScroll\Width
 			// We simplify the issue here by using the fixed constant "24"
 			cbComboBox.Clear();
 			cbComboBox.Text := m_cache.aebSampleText[1].Text;
