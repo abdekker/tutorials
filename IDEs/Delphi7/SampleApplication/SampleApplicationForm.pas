@@ -803,7 +803,12 @@ begin
 
 		eWindowsAction_ExpandEnvironment:
 			begin
-			strTmp := ('%' + ebSample1.Text + '%');
+			// If required, add % symbols either side of the value
+			if (Pos('%', ebSample1.Text) <> 0) then
+				strTmp := ebSample1.Text
+			else
+				strTmp := ('%' + ebSample1.Text + '%');
+
 			AddOutputText(Format('%s  =  "%s"', [strTmp, ExpandEnvironment(strTmp)]));
 			end;
 
