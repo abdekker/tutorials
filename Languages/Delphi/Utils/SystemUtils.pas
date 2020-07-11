@@ -877,6 +877,30 @@ begin
 		FreeMem(pBuffer);
 		Result := True;
 		end;
+end;}
+
+function RegGetMultiString(hRootKey: HKEY; const cstrName: String; astrValues: TStringList): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+	strValue: String;
+begin
+	// Read a REG_MULTI_SZ value (sequence of null-terminated strings)
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_MULTI_SZ, pBuffer, dwBufferSize)) then
+		begin
+		Dec(dwBufferSize);
+		SetLength(strValue, dwBufferSize);
+		if (dwBufferSize > 0) then
+			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
+
+		FreeMem(pBuffer);
+
+		// Each string is terminated with a null character
+		//strValue := 'fred went for trhe first time to america and it was fun!';
+		ParseStringNull(strValue, astrValues);
+		Result := True;
+		end;
 end;
 
 function RegGetExpandString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
@@ -884,7 +908,7 @@ var
 	pBuffer: Pointer;
 	dwBufferSize: Cardinal;
 begin
-	// Read a REG_EXPAND_SZ value
+	// Read a REG_EXPAND_SZ value (string with references to environment variables)
 	Result := False;
 	if (RegGetValue(hRootKey, cstrName, REG_EXPAND_SZ, pBuffer, dwBufferSize)) then
 		begin
@@ -2132,7 +2156,7 @@ var
 	nPos, nSpaces: Integer;
 begin
 	// Utility function which inserts a formatting character into a string. Example:
-	// * You have a MAC address "0052C2539000" you wish to format as "00-52-C2-53-90-00"
+	// * You wish to format the MAC address "0052C2539000" as "00-52-C2-53-90-00"
 	// * Input = "0052C2539000", character = '-', spacing = 2
 	strFormatted := '';
 	if (cnSpacing > 0) then
