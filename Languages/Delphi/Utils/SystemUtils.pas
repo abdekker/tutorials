@@ -781,6 +781,21 @@ begin
 	// Get a value from the registry
 	// Note: This and the next function were originally adapted from:
 	//		http://www.swissdelphicenter.ch/torry/showcode.php?id=2008
+
+	// ### Common registry key types ###
+	// * REG_SZ			Null-terminated string
+	//		Example: "Description"="@combase.dll,-5011"
+	// * REG_MULTI_SZ	Sequence of null-terminated strings, terminated by an empty string (\0)
+	//		Example: "DependOnService"=hex(7):52,00,70,00,63,00,45,(etc)
+	// * REG_EXPAND_SZ	Null-terminated string that contains unexpanded references to environment
+	//					variables (for example, "%PATH%")
+	//		Example: "ImagePath"=hex(2):25,00,53,00,79,00,73,00,74,(etc)
+	// * REG_BINARY		Binary data in any form
+	//		Example: "FailureActions"=hex:00,02,00,00,00,60,ea,00,(etc)
+	// * REG_DWORD		32-bit number
+	//		Example: "Type"=dword:00000020
+	// * REG_QWORD		64-bit number (not supported yet)
+	//		Example: "MaximumRecordLength"=hex(b):00,d0,88,c3,10,00,00,00
 	Result := False;
 	strNameReversed := AnsiReverseString(cstrName);
 	nPos := (Length(cstrName) - Pos('\', strNameReversed));
