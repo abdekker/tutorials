@@ -44,7 +44,7 @@ function GetRootKey(const cstrKey: String) : HKEY;
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	var pValue: Pointer; var dwValSize: Cardinal): Boolean;
 function RegGetString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
-function RegGetMultiString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+function RegGetMultiString(hRootKey: HKEY; const cstrName: String; astrValues: TStringList): Boolean;
 function RegGetExpandString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
 function RegGetDWORD(hRootKey: HKEY; const cstrName: String; var dwValue: Cardinal): Boolean;
 function RegGetBinary(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
@@ -861,25 +861,6 @@ begin
 		end;
 end;
 
-function RegGetMultiString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
-var
-	pBuffer: Pointer;
-	dwBufferSize: Cardinal;
-begin
-	// Read a REG_MULTI_SZ value
-	Result := False;
-	 if (RegGetValue(hRootKey, cstrName, REG_MULTI_SZ, pBuffer, dwBufferSize)) then
-		begin
-		Dec(dwBufferSize);
-		SetLength(strValue, dwBufferSize);
-		if (dwBufferSize > 0) then
-			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
-
-		FreeMem(pBuffer);
-		Result := True;
-		end;
-end;}
-
 function RegGetMultiString(hRootKey: HKEY; const cstrName: String; astrValues: TStringList): Boolean;
 var
 	pBuffer: Pointer;
@@ -896,10 +877,7 @@ begin
 			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
 
 		FreeMem(pBuffer);
-
-		// Each string is terminated with a null character
-		//strValue := 'fred went for trhe first time to america and it was fun!';
-		ParseStringNull(strValue, astrValues);
+		ParseStringNull(strValue, astrValues);	// Strings are separated with null characters
 		Result := True;
 		end;
 end;
