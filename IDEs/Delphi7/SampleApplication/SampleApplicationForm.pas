@@ -43,6 +43,7 @@ type
 
   TfrmSampleApplication = class(TGeneralBaseForm)
 	gbSettings: TGroupBox;
+	btnProcess: TBitBtn;
 	btnExit: TButton;
 	btnClearOutput: TButton;
 
@@ -56,7 +57,6 @@ type
 	ebSample2: TEdit;
 	lblSample3: TLabel;
 	ebSample3: TEdit;
-	btnProcess: TButton;
 	lblExplanationText: TStaticText;
 	listOutput: TListBox;
 
