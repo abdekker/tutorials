@@ -409,7 +409,11 @@ begin
 		begin
 		colours.Color := pnlBackgroundColour.Color;
 		if (colours.Execute()) then
+			begin
 			pnlBackgroundColour.Color := colours.Color;
+			settings.tBackgroundColour := Integer(pnlBackgroundColour.Color);
+			m_callbackSettings(@settings);
+			end;
 		end;
 end;
 
