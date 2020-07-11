@@ -26,7 +26,8 @@ function IsWindows64Bit() : Boolean;
 function IsWindows10() : Boolean;
 function GetWindowsLocale() : String;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
-function ExpandEnvironment(const cstrValue: String): String;
+function ExpandEnvironment(const cstrInput: String): String;
+function ReplaceEnvironmentVariables(const cstrInput: String): String;
 function IsProcessRunning(strProcessName: String) : Boolean;
 function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
 function GetSystemThreadCount() : Integer;
@@ -397,27 +398,82 @@ begin
 		end;
 end;
 
-function ExpandEnvironment(const cstrValue: String): String;
+function ExpandEnvironment(const cstrInput: String): String;
 var
 	szResult: array[0..1023] of Char;
 	dwReturn: DWORD;
 begin
 	// Use this function as follows:
-	// strWindowsDir = ExpandEnvironment('%SystemRoot%');
-	// which will return "C:\Windows".
+	//		strWindowsDir = ExpandEnvironment('%SystemRoot%');
+	// which will return "C:\Windows" (no trailing backslash)
 
-	// You can also get this by calling:
-	// var
-	//		szSystemFolder: array[0..(MAX_PATH+1)] of Char;
-	// ...
-	// GetWindowsDirectory(szSystemFolder, MAX_PATH+1);
-	// strWindowsDir := IncludeTrailingPathDelimiter(szSystemFolder);
-	// which will return "C:\Windows\"
-	dwReturn := ExpandEnvironmentStrings(PChar(cstrValue), szResult, 1024);
+	// Alternatively use:
+	//		var
+	//			szSystemFolder: array[0..(MAX_PATH+1)] of Char;
+	//		...
+	//		GetWindowsDirectory(szSystemFolder, MAX_PATH+1);
+	//		strWindowsDir := IncludeTrailingPathDelimiter(szSystemFolder);
+	// which will return "C:\Windows\" (with trailing backslash)
+	dwReturn := ExpandEnvironmentStrings(PChar(cstrInput), szResult, 1024);
 	if (dwReturn = 0) then
-		Result := cstrValue
+		Result := cstrInput
 	else
 		Result := Trim(szResult);
+end;
+
+function ReplaceEnvironmentVariables(const cstrInput: String): String;
+var
+	strResult, strTmp: String;
+	nPos, nPosStart: Integer;
+begin
+	// Replace delimited environment variables with their expanded value. For example:
+	//		"abc %SystemRoot% 123"
+	// is converted to:
+	//		"abc C:\Windows 123"
+
+	// Another example is registry key HKEY_CLASSES_ROOT\txtfile\shell\open\command:
+	//		"%SystemRoot%\system32\NOTEPAD.EXE %1"
+	// which should be converted to:
+	//		C:\Windows\system32\NOTEPAD.EXE %1
+
+	// Note: The final "%1" should be left intact! This algorithm may need to be adapted to
+	// handle multiple parameters like "%1 %2".
+	strResult := '';
+	nPosStart := -1;
+	for nPos:=1 to Length(cstrInput) do
+		begin
+		if (cstrInput[nPos] = '%') then
+			begin
+			// Delimiter
+			if (nPosStart = -1) then
+				begin
+				// Start delimiter
+				nPosStart := nPos;
+				end
+			else
+				begin
+				// End delimiter
+				strTmp := AnsiMidStr(cstrInput, nPosStart, (nPos - nPosStart + 1));
+				strResult := (strResult +
+					ExpandEnvironment(AnsiMidStr(cstrInput, nPosStart, (nPos - nPosStart + 1))));
+				nPosStart := -1;
+				end;
+			end
+		else if (nPosStart = -1) then
+			begin
+			// Normal character (outside an environment variable)
+			strResult := (strResult + cstrInput[nPos]);
+			end;
+		end;
+
+	// If the position of the starting delimiter is set, we probably have a parameter such as "%1".
+	// Add this back into the final result.
+	if (nPosStart <> -1) then
+		strResult := (strResult +
+			 AnsiMidStr(cstrInput, nPosStart, (Length(cstrInput) - nPosStart + 1)));
+
+	// Return the result
+	Result := strResult;
 end;
 
 function IsProcessRunning(strProcessName: String) : Boolean;
@@ -782,9 +838,11 @@ var
 	hTemp: HKEY;
 	pBuffer: Pointer;
 begin
-	// Get a value from the registry
-	// Note: This and the next function were originally adapted from:
+	// Read a value from the registry. Adapted from:
 	//		http://www.swissdelphicenter.ch/torry/showcode.php?id=2008
+
+	// Note: To read the value of a key, add a trailing backslash (ie. a blank value). In the
+	// Windows registry editor, this has a type of REG_SZ and is displayed as "Name=(Default)".
 
 	// ### Common registry key types ###
 	// * REG_SZ			Null-terminated string
@@ -2051,7 +2109,6 @@ function ConvertRawBuffer(pBuffer: PBYTE; const cdwBufferSize: DWORD; const cstr
 var
 	strConverted: String;
 	dwPos: DWORD;
-	byByte: BYTE;
 begin
 	// Convert a raw buffer into a string representation, using the given separator. Each byte is
 	// converted to its' 2-digit hexadecimal representation (ie. "00" to "FF").
