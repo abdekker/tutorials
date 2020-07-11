@@ -108,7 +108,8 @@ function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = T
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
 function InsertFormattingChar(const cstrInput: String; const cChar: Char; const cnSpacing: Integer) : String;
-procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
+procedure ParseString(const cstrSource: String; const strDelimiter: String; list: TStringList);
+procedure ParseStringNull(const cstrSource: String; list: TStringList);
 function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
 
 // Mathematics and geometry
@@ -2178,14 +2179,32 @@ begin
 	Result := strFormatted;
 end;
 
-procedure ParseString(const strSource: String; const strDelimiter: String; list: TStringList);
+procedure ParseString(const cstrSource: String; const strDelimiter: String; list: TStringList);
 begin
 	// Parse a string based on the delimiter. For example the string "a.b.11.22" is converted
 	// into the list {a, b, 11, 22}.
 
 	// A Delphi 7 bug in "ExtractStrings" is apparently addressed in later versions of Delphi. The
 	// solution below was suggested in: https://stackoverflow.com/questions/2625707
-	list.Text := AnsiReplaceStr(strSource, strDelimiter, #13#10);
+	list.Text := AnsiReplaceStr(cstrSource, strDelimiter, #13#10);
+end;
+
+procedure ParseStringNull(const cstrSource: String; list: TStringList);
+var
+	nPos: Integer;
+	strTmp: String;
+begin
+	// Similar to ParseString. Used for strings separated by null (#0) characters.
+	for nPos:=1 to Length(cstrSource) do
+		begin
+		if (cstrSource[nPos] = #0) then
+			begin
+			list.Add(strTmp);
+			strTmp := '';
+			end
+		else
+			strTmp := (strTmp + cstrSource[nPos]);
+		end;
 end;
 
 function GetRandomString(const cbyLength: BYTE; const cbLettersOnly: Boolean) : String;
