@@ -430,7 +430,10 @@ procedure TfrmGameSettings.btnSetDefaultsClick(Sender: TObject);
 begin
 	if (MessageDlg('This will reset all settings to default. Are you sure you wish to continue?',
 			mtConfirmation, [mbYes, mbCancel], 0) = mrYes) then
+		begin
 		ResetSettings();
+		m_callbackSettings(@settings);
+		end;
 end;
 
 procedure TfrmGameSettings.OnSettingsTimerTick(Sender: TObject);
