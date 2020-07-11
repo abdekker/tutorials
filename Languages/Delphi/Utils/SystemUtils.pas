@@ -46,8 +46,10 @@ function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal
 function RegGetString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
 function RegGetMultiString(hRootKey: HKEY; const cstrName: String; astrValues: TStringList): Boolean;
 function RegGetExpandString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+function RegGetBinaryAsPointer(hRootKey: HKEY; const cstrName: String;
+	var pBuffer: Pointer; var dwBufferSize: Cardinal): Boolean;
+function RegGetBinaryAsString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
 function RegGetDWORD(hRootKey: HKEY; const cstrName: String; var dwValue: Cardinal): Boolean;
-function RegGetBinary(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
 function RegSetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
 	pValue: Pointer; dwValueSize: Cardinal): Boolean;
 function RegSetString(hRootKey: HKEY; const cstrName: String; strValue: String): Boolean;
@@ -94,7 +96,7 @@ function GetFullFileVersion(szFile: PChar) : String;
 procedure ChangeFilename(strOldPath, strNewPath: String);
 function GetNextFilename(strFolder, strName, strExt: String) : String;
 
-// String
+// Strings
 function IsNumber(const cstrInput: String) : Boolean;
 function TryStrToInt(const cstrInput: String; out nOutput: Integer) : Boolean;
 function ExtractNumber(const cstrInput: String; byOptions: BYTE = STR_NUMERIC) : String;
@@ -102,8 +104,9 @@ function ConvertNumberWithThousands(const cfInput: Single) : String; overload;
 function ConvertNumberWithThousands(const cstrInput: String) : String; overload;
 function ConvertNumberWithSpaces(const cdwInput: DWORD) : String;
 function ConvertNumberWithSigFigures(const cfInput: Single; nTotalDigits: Integer) : String;
-function ConvertStringToWideString(strInput: String) : WideString;
-function ConvertWideStringToString(wstrInput: WideString): String;
+function ConvertStringToWideString(const cstrInput: String) : WideString;
+function ConvertWideStringToString(const cwstrInput: WideString): String;
+function ConvertRawBuffer(pBuffer: PBYTE; const cdwBufferSize: DWORD; const cstrSeparator: String) : String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
 function GetIsoDateTimeString(dtSource: TDateTime) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
@@ -887,7 +890,7 @@ var
 	pBuffer: Pointer;
 	dwBufferSize: Cardinal;
 begin
-	// Read a REG_EXPAND_SZ value (string with references to environment variables)
+	// Read a REG_EXPAND_SZ value (string with references to unexpanded environment variables)
 	Result := False;
 	if (RegGetValue(hRootKey, cstrName, REG_EXPAND_SZ, pBuffer, dwBufferSize)) then
 		begin
@@ -896,6 +899,33 @@ begin
 		if (dwBufferSize > 0) then
 			CopyMemory(@strValue[1], pBuffer, dwBufferSize);
 
+		FreeMem(pBuffer);
+		Result := True;
+		end;
+end;
+
+function RegGetBinaryAsPointer(hRootKey: HKEY; const cstrName: String;
+	var pBuffer: Pointer; var dwBufferSize: Cardinal): Boolean;
+begin
+	// Read a REG_BINARY value (returned as a raw buffer). The caller should call "FreeMem" on the
+	// returned buffer to prevent memory leaks.
+	// Note: See RegGetBinaryAsString for how this raw buffer might be converted to a string
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_BINARY, pBuffer, dwBufferSize)) then
+		Result := True;
+end;
+
+function RegGetBinaryAsString(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
+var
+	pBuffer: Pointer;
+	dwBufferSize: Cardinal;
+begin
+	// Read a REG_BINARY value (returned as raw data)
+	Result := False;
+	if (RegGetValue(hRootKey, cstrName, REG_BINARY, pBuffer, dwBufferSize)) then
+		begin
+		SetLength(strValue, dwBufferSize);
+		CopyMemory(@strValue[1], pBuffer, dwBufferSize);
 		FreeMem(pBuffer);
 		Result := True;
 		end;
@@ -911,22 +941,6 @@ begin
 	if (RegGetValue(hRootKey, cstrName, REG_DWORD, pBuffer, dwBufferSize)) then
 		begin
 		CopyMemory(@dwValue, pBuffer, dwBufferSize);
-		FreeMem(pBuffer);
-		Result := True;
-		end;
-end;
-
-function RegGetBinary(hRootKey: HKEY; const cstrName: String; var strValue: String): Boolean;
-var
-	pBuffer: Pointer;
-	dwBufferSize: Cardinal;
-begin
-	// Read a REG_BINARY value
-	Result := False;
-	if (RegGetValue(hRootKey, cstrName, REG_DWORD, pBuffer, dwBufferSize)) then
-		begin
-		SetLength(strValue, dwBufferSize);
-		CopyMemory(@strValue[1], pBuffer, dwBufferSize);
 		FreeMem(pBuffer);
 		Result := True;
 		end;
@@ -1855,7 +1869,7 @@ begin
 	Result := strFile;
 end;
 
-// String
+// Strings
 function IsNumber(const cstrInput: String) : Boolean;
 var
 	nChar: Integer;
@@ -1998,23 +2012,23 @@ begin
 		Result := FloatToStrF(cfInput, ffFixed, 7, (nTotalDigits - nIntegralDigits));
 end;
 
-function ConvertStringToWideString(strInput: String) : WideString;
+function ConvertStringToWideString(const cstrInput: String) : WideString;
 var
 	wstrConverted: WideString;
 	nLength: Integer;
 begin
 	// Given the input AnsiString command, convert to the WideString equivalent
 	nLength := MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
-		PChar(@strInput[1]), -1, nil, 0);
+		PChar(@cstrInput[1]), -1, nil, 0);
 	SetLength(wstrConverted, (nLength - 1));
 	if (nLength > 1) then
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PChar(@strInput[1]),
-			-1, PWideChar(@wstrConverted[1]), (nLength - 1));
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
+			PChar(@cstrInput[1]), -1, PWideChar(@wstrConverted[1]), (nLength - 1));
 
 	Result := wstrConverted;
 end;
 
-function ConvertWideStringToString(wstrInput: WideString): String;
+function ConvertWideStringToString(const cwstrInput: WideString): String;
 const
 	// String <-> WideString conversions
 	CONVERT_WIDE_TO_ANSI_OPTIONS: DWORD =
@@ -2024,11 +2038,30 @@ var
 	nLength: Integer;
 begin
 	nLength := WideCharToMultiByte(CP_ACP, CONVERT_WIDE_TO_ANSI_OPTIONS,
-		@wstrInput[1], -1, nil, 0, nil, nil);
+		@cwstrInput[1], -1, nil, 0, nil, nil);
 	SetLength(strConverted, (nLength - 1));
 	if (nLength > 1) then
 		WideCharToMultiByte(CP_ACP, CONVERT_WIDE_TO_ANSI_OPTIONS,
-			@wstrInput[1], - 1, @strConverted[1], nLength - 1, nil, nil);
+			@cwstrInput[1], - 1, @strConverted[1], nLength - 1, nil, nil);
+
+	Result := strConverted;
+end;
+
+function ConvertRawBuffer(pBuffer: PBYTE; const cdwBufferSize: DWORD; const cstrSeparator: String) : String;
+var
+	strConverted: String;
+	dwPos: DWORD;
+	byByte: BYTE;
+begin
+	// Convert a raw buffer into a string representation, using the given separator. Each byte is
+	// converted to its' 2-digit hexadecimal representation (ie. "00" to "FF").
+	// Note: The Windows registry displays REG_BINARY lowercase
+	strConverted := '';
+	for dwPos:=0 to (cdwBufferSize - 1) do
+		begin
+		strConverted := (strConverted + Format('%2.2x', [BYTE(pBuffer^)]) + cstrSeparator);
+		Inc(pBuffer);
+		end;
 
 	Result := strConverted;
 end;
