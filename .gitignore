@@ -15,6 +15,9 @@ Release/
 # Compressed files (add manually if required)
 *.zip
 
+# Links in Windows
+*.lnk
+
 # General Windows files
 thumbs.db
 
