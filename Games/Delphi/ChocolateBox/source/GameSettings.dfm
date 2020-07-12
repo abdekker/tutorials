@@ -5,9 +5,9 @@ object frmGameSettings: TfrmGameSettings
   AlphaBlendValue = 224
   BorderIcons = []
   BorderStyle = bsNone
-  Caption = 'Memory Game Settings'
+  Caption = 'Game Settings'
   ClientHeight = 215
-  ClientWidth = 585
+  ClientWidth = 575
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -23,7 +23,7 @@ object frmGameSettings: TfrmGameSettings
   PixelsPerInch = 96
   TextHeight = 16
   object btnCancel: TBitBtn
-    Left = 230
+    Left = 220
     Top = 160
     Width = 165
     Height = 45
@@ -132,7 +132,7 @@ object frmGameSettings: TfrmGameSettings
       00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
   end
   object btnOk: TBitBtn
-    Left = 410
+    Left = 400
     Top = 160
     Width = 165
     Height = 45
@@ -248,7 +248,7 @@ object frmGameSettings: TfrmGameSettings
   object btnSetDefaults: TBitBtn
     Left = 10
     Top = 160
-    Width = 210
+    Width = 200
     Height = 45
     Caption = 'Factory Defaults'
     TabOrder = 2
@@ -453,7 +453,7 @@ object frmGameSettings: TfrmGameSettings
   object gbGrid: TGroupBox
     Left = 10
     Top = 10
-    Width = 210
+    Width = 200
     Height = 95
     Caption = 'Grid'
     TabOrder = 0
@@ -472,9 +472,9 @@ object frmGameSettings: TfrmGameSettings
       Caption = 'Columns'
     end
     object ebRows: TEdit
-      Left = 115
+      Left = 110
       Top = 25
-      Width = 80
+      Width = 75
       Height = 26
       Color = clInfoBk
       Font.Charset = ANSI_CHARSET
@@ -488,9 +488,9 @@ object frmGameSettings: TfrmGameSettings
       OnChange = ebGridSizeChange
     end
     object ebColumns: TEdit
-      Left = 115
+      Left = 110
       Top = 55
-      Width = 80
+      Width = 75
       Height = 26
       Color = clInfoBk
       Font.Charset = ANSI_CHARSET
@@ -507,7 +507,7 @@ object frmGameSettings: TfrmGameSettings
   object btnDisclaimer: TBitBtn
     Left = 10
     Top = 110
-    Width = 210
+    Width = 200
     Height = 45
     Caption = 'Notes'
     TabOrder = 1
@@ -710,7 +710,7 @@ object frmGameSettings: TfrmGameSettings
     NumGlyphs = 2
   end
   object gbGraphics: TGroupBox
-    Left = 230
+    Left = 220
     Top = 10
     Width = 345
     Height = 110
@@ -791,11 +791,11 @@ object frmGameSettings: TfrmGameSettings
     Enabled = False
     Interval = 500
     OnTimer = OnSettingsTimerTick
-    Left = 230
+    Left = 220
     Top = 125
   end
   object colours: TColorDialog
-    Left = 265
+    Left = 255
     Top = 125
   end
 end
