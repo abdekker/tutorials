@@ -151,7 +151,7 @@ end;
 
 procedure TfrmChocolateBox.imgBackgroundClick(Sender: TObject);
 var
-	nControl, nImageBackground, nImageCloseClick: Integer;
+	nControl, nImageBackground, nControlCloseClick: Integer;
 begin
 	// Find the index of the background image (because we ignore clicks on this image)
 	nImageBackground := -1;
@@ -164,13 +164,18 @@ begin
 			end;
 		end;
 
-	// Find a nearby TImage (or sub-class of TImage) control...and click it!
-	nImageCloseClick := GetCloseControlClick(Self, CONTROL_TIMAGE, nImageBackground);
-	if (nImageCloseClick > -1) then
+	// Find a nearby TImage (or sub-class of TImage) control...and click it! We also look for
+	// TStaticText controls
+	nControlCloseClick := GetCloseControlClick(Self,
+		(CONTROL_TIMAGE + CONTROL_TSTATICTEXT), nImageBackground);
+	if (nControlCloseClick > -1) then
 		begin
 		// Close to a TImage control
-		TImage(Self.Controls[nImageCloseClick]).OnClick(Self.Controls[nImageCloseClick]);
-		end
+		if (IsControlType(Self.Controls[nControlCloseClick], CONTROL_TIMAGE)) then
+			TImage(Self.Controls[nControlCloseClick]).OnClick(Self.Controls[nControlCloseClick])
+		else if (IsControlType(Self.Controls[nControlCloseClick], CONTROL_TSTATICTEXT)) then
+			TStaticText(Self.Controls[nControlCloseClick]).OnClick(Self.Controls[nControlCloseClick]);
+		end;
 end;
 
 procedure TfrmChocolateBox.imgSettingsClick(Sender: TObject);
