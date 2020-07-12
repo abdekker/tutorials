@@ -16,6 +16,7 @@ uses
   GameAbout  in 'source\GameAbout.pas' {frmGameAbout},
   GameMachine in 'source\GameMachine.pas',
   GameTypes in 'source\GameTypes.pas',
+  GameMediaSettings in 'source\GameMediaSettings.pas', {frmGameMediaSettings}
   GameSettings in 'source\GameSettings.pas' {frmGameSettings};
 
 {$R *.res}
