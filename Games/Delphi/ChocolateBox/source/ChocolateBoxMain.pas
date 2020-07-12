@@ -31,6 +31,8 @@ type
 
 	imgSettings: TImage;
 	lblSettings: TStaticText;
+	imgMedia: TImage;
+	lblMedia: TStaticText;
 	imgExit: TImage;
 	lblExit: TStaticText;
 
@@ -39,6 +41,7 @@ type
 	procedure FormShow(Sender: TObject);
 	procedure imgBackgroundClick(Sender: TObject);
 	procedure imgSettingsClick(Sender: TObject);
+	procedure imgMediaClick(Sender: TObject);
 	procedure imgExitClick(Sender: TObject);
 	procedure imgChocolateBoxClick(Sender: TObject);
 
@@ -70,7 +73,8 @@ var
 implementation
 
 uses
-  Dialogs, Math, GameSettings;
+  Dialogs, Math,
+  GameMediaSettings, GameSettings;
 
 const
   DUMMY_CONST = 0;
@@ -198,6 +202,34 @@ begin
 	// Clean up
 	frmGameSettings.Free();
 	frmGameSettings := nil;
+	m_bAllowDraw := False;
+end;
+
+procedure TfrmChocolateBox.imgMediaClick(Sender: TObject);
+var
+	settingsBackup: GAME_SETTINGS;
+begin
+	// Display media settings
+	m_bAllowDraw := False;
+	settingsBackup := ChocolateBox.GameSettings;
+	frmGameMediaSettings := TfrmGameMediaSettings.Create(Self);
+	frmGameMediaSettings.settings := ChocolateBox.GameSettings;
+	frmGameMediaSettings.SetGameRunning(False);
+	// No need to registry a callback for media settings
+	if (frmGameMediaSettings.ShowModal() = mrOk) then
+		begin
+		// Settings have been changed, copy them back
+		ChocolateBox.GameSettings := frmGameMediaSettings.settings;
+		end
+	else
+		begin
+		// User cancelled, so use the backup settings
+		ChocolateBox.GameSettings := settingsBackup;
+		end;
+
+	// Clean up
+	frmGameMediaSettings.Free();
+	frmGameMediaSettings := nil;
 	m_bAllowDraw := False;
 end;
 
