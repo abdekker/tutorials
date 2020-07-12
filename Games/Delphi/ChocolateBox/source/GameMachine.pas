@@ -18,6 +18,9 @@ type
 	eBackground: TGameBackground;
 	tBackgroundColour: Integer;		// TColor = -$7FFFFFFF-1..$7FFFFFFF; (ie. an int)
 	eIconSet: TGameIconSet;
+
+	// Media
+	strMediaFolder: String;
   end;
 
   // General cache
@@ -55,6 +58,7 @@ type
 	// Utility functions
 	procedure ResetSettings(var settings: GAME_SETTINGS);
 	function GetIconSetSize(eIconSet: TGameIconSet) : Integer;
+	function GetMediaPath(const cstrInput: String) : String;
 	procedure Rest(dwPeriod: DWORD);
   end;
 
@@ -85,6 +89,9 @@ begin
 		pIniFile.ReadInteger('Game', 'BackgroundColour', Integer(clPurple));
 	GameSettings.eIconSet := TGameIconSet(
 		pIniFile.ReadInteger('Game', 'IconSet', BYTE(eIconSetStd_64x64)));
+
+	// Media
+	GameSettings.strMediaFolder := pIniFile.ReadString('Game', 'Media', 'Media');
 
 	// Validate settings
 	Validate_Integer(@GameSettings.nRows, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
@@ -127,6 +134,9 @@ begin
 				pIniFile.WriteInteger('Game', 'BackgroundColour',
 					Integer(GameSettings.tBackgroundColour));
 				pIniFile.WriteInteger('Game', 'IconSet', BYTE(GameSettings.eIconSet));
+
+				// Media
+				pIniFile.WriteString('Game', 'Media', GameSettings.strMediaFolder);
 
 				// Flush the file
 				pIniFile.UpdateFile();
@@ -212,6 +222,22 @@ begin
 		eIconSetFruitSalad_128x128:		Result := 128;
 		eIconSetFuturama_128x128:		Result := 128;
 	end;
+end;
+
+function TGameMachine.GetMediaPath(const cstrInput: String) : String;
+begin
+	// Work out the (user-supplied) folder name to media. If the folder name has a colon ":",
+	// assume the path is absolute. Otherwise assume it is relative to the application.
+	if (AnsiPos(':', cstrInput) > 0) then
+		begin
+		// Assumed an absolute path (no change required)
+		Result := cstrInput;
+		end
+	else
+		begin
+		// Assumed a relative path
+		Result := (GameCache.szAppPath + cstrInput);
+		end;
 end;
 
 procedure TGameMachine.Rest(dwPeriod: DWORD);
