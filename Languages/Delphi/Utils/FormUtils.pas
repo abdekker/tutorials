@@ -9,18 +9,20 @@ uses
 const
   // Control types
   CONTROL_TLABEL			= $0001;
-  CONTROL_TEDIT				= $0002;
-  CONTROL_TLABELEDEDIT		= $0004;
-  CONTROL_TCHECKBOX			= $0008;	// Includes TCheckBox and TTntCheckBox
-  CONTROL_TBUTTON			= $0010;
-  CONTROL_TBITBTN			= $0020;
-  CONTROL_TCOMBOBOX			= $0040;
-  CONTROL_TRADIO			= $0080;
-  CONTROL_TDATETIMEPICKER	= $0100;
-  CONTROL_TIMAGE			= $0200;
-  CONTROL_TPANEL			= $0400;
+  CONTROL_TSTATICTEXT		= $0002;
+  CONTROL_TEDIT				= $0004;
+  CONTROL_TLABELEDEDIT		= $0008;
+  CONTROL_TCHECKBOX			= $0010;	// Includes TCheckBox and TTntCheckBox
+  CONTROL_TBUTTON			= $0020;
+  CONTROL_TBITBTN			= $0040;
+  CONTROL_TCOMBOBOX			= $0080;
+  CONTROL_TRADIO			= $0100;
+  CONTROL_TDATETIMEPICKER	= $0200;
+  CONTROL_TIMAGE			= $0400;
+  CONTROL_TPANEL			= $0800;
   CONTROL_ALL				= (
 	CONTROL_TLABEL +
+	CONTROL_TSTATICTEXT +
 	CONTROL_TEDIT +
 	CONTROL_TLABELEDEDIT +
 	CONTROL_TCHECKBOX +
@@ -173,6 +175,8 @@ begin
 	// Check whether the control type is one we are interested in
 	bControlIsType := False;
 	if ((wControls and CONTROL_TLABEL) <> 0) and (control is TLabel) then
+		bControlIsType := True
+	else if ((wControls and CONTROL_TSTATICTEXT) <> 0) and (control is TStaticText) then
 		bControlIsType := True
 	else if ((wControls and CONTROL_TEDIT) <> 0) and (control is TEdit) then
 		bControlIsType := True
