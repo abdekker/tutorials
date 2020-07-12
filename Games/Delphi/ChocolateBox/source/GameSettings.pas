@@ -352,7 +352,7 @@ begin
 
 	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
 
-	// If we get here, then the settings are valid!
+	// If we get here, then settings are valid!
 	m_bExiting := True;
 	ModalResult := mrOk;
 end;
@@ -383,8 +383,11 @@ begin
 		end;
 
 	// If the rows/columns are valid, update the main form
-	if (bRowsValid and bColumnsValid) then
-		m_callbackSettings(@settings);
+	if (not m_bSettingUp) then
+		begin
+		if (bRowsValid and bColumnsValid) then
+			m_callbackSettings(@settings);
+		end;
 end;
 
 procedure TfrmGameSettings.cbBackgroundChange(Sender: TObject);
@@ -392,7 +395,8 @@ begin
 	// When the background changes, we may allow the user to set a solid background colour
 	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
 	SetBackgroundColourPanel();
-	m_callbackSettings(@settings);
+	if (not m_bSettingUp) then
+		m_callbackSettings(@settings);
 end;
 
 procedure TfrmGameSettings.cbIconSetChange(Sender: TObject);
@@ -400,7 +404,8 @@ begin
 	// Show the size of the icons in the icon set
 	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
 	SetIconSetSize();
-	m_callbackSettings(@settings);
+	if (not m_bSettingUp) then
+		m_callbackSettings(@settings);
 end;
 
 procedure TfrmGameSettings.pnlBackgroundColourClick(Sender: TObject);
