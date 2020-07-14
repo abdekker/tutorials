@@ -364,6 +364,31 @@ int indexOf(const QRegularExpression &re, int from, QRegularExpressionMatch *rma
 */
 }
 
+int main(int argc, char *argv[])
+{
+    // Ensure the output buffer is flushed on each insertion operation
+    setvbuf(stdout, NULL, _IONBF, 0);
+    //std::cout << std::unitbuf;
+
+    // Demonstrates some aspects of using strings in Qt
+    // You must install the Qt library and the "Qt VS Tools" extension to build in VS 2019
+    cout << "Using QString and QChar from the Qt library\n";
+    cout << "  Includes Qt debugging options to the console\n";
+    cout << "  Install Qt (eg. C:\\Qt\\5.15.0) and the 'Qt VS Tools' extension in VS 2019\n\n";
+
+    StringsOutputToConsole();
+
+    StringsConstructA();
+    StringsConstructB();
+    StringsConstructC();
+    StringsConstructD();
+
+    StringsModify();
+    StringsExtract();
+    StringsCompare();
+    StringsSearch();
+
+    // Exit
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
