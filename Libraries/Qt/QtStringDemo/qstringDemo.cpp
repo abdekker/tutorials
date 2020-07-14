@@ -206,6 +206,52 @@ void StringsConstructB()
     cout << "#\n";
 }
 
+void StringsConstructC()
+{
+    // Constructing QString objects - part C (operator= overloads)
+    cout << "\n### Constructing strings - C ###\n";
+    cout << "(Using QString::operator= overloads)\n";
+
+    {
+        QByteArray ba("Hello QByteArray");
+        QString s = ba;
+        cout << "  QString &operator=(const QByteArray &ba)\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s1("Hello QString (using std::move)");
+        QString s2 = std::move(s1);
+        cout << "  QString &operator=(QString &&other)\t\t\t" << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s1("Hello QString");
+        QString s2 = s1;
+        cout << "  QString &operator=(const QString &other)\t\t" << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = "Hello QString";
+        cout << "  QString &operator=(QChar ch)\t\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QLatin1String s1("Hello QLatin1String");
+        QString s2 = s1;
+        cout << "  QString &operator=(QLatin1String str)\t\t\t" << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = "Hello char *";
+        cout << "  QString &operator=(const char *str)\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = 'z';
+        cout << "  QString &operator=(char ch)\t\t\t\t" << s.toLatin1().data() << endl;
+    }
+    cout << "#\n";
+}
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
