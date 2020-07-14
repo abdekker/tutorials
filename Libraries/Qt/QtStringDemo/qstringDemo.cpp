@@ -349,6 +349,21 @@ bool operator>=(const char *other) const
 bool operator>=(const QByteArray &other) const*/
 }
 
+void StringsSearch()
+{
+/*
+int indexOf(QLatin1String str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+int indexOf(QChar ch, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+int indexOf(const QString &str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+int indexOf(const QStringRef &str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+int indexOf(QStringView str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+int indexOf(const QRegExp &rx, int from = 0) const
+int indexOf(QRegExp &rx, int from = 0) const
+int indexOf(const QRegularExpression &re, int from = 0) const
+int indexOf(const QRegularExpression &re, int from, QRegularExpressionMatch *rmatch) const
+*/
+}
+
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
