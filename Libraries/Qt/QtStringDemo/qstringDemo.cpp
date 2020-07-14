@@ -107,7 +107,104 @@ void StringsConstructA()
     }
     cout << "#\n";
 }
+
+void StringsConstructB()
+{
+    // Constructing QString objects - part B (static QString::fromXYZ methods)
+    cout << "\n### Constructing strings - B ###\n";
+    cout << "(Using QString::fromXYZ methods, which are static)\n";
+
+    // "QString::fromCFString" is only available on MacOS
+    {
+        QString s = QString::fromLatin1("constructed using 'QString::fromLatin1(const char *str, int size = -1)'");
+        cout << "  01: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        QByteArray ba("constructed using 'QString::fromLatin1(const QByteArray &str)'");
+        QString s = QString::fromLatin1(ba);
+        cout << "  02: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        // "QString::fromLocal8Bit" is similar to "QString::fromLatin1". Uses "QTextCodec::codecForLocale()"
+        // internally for the conversion.
+        QString s1 = QString::fromLocal8Bit("constructed using 'QString::fromLocal8Bit(const char *str, int size = -1)'");
+        cout << "  03a: " << s1.toLatin1().data() << endl;
+
+        QByteArray ba("constructed using 'QString::fromLocal8Bit(const QByteArray &str)'");
+        QString s2 = QString::fromLocal8Bit(ba);
+        cout << "  03b: " << s2.toLatin1().data() << endl;
+    }
+
+    // "QString::fromNSString" is only available on MacOS
+
+    {
+        // Note: "QString::fromRawData" uses, but does not copy, the characters from the array. If the QString
+        // is modified in any way, this triggers a deep copy of the data.
+        QString s1("constructed using 'QString::fromRawData(const QChar *unicode, int size)'");
+        QString s2 = QString::fromRawData(s1.data(), s1.size());
+        cout << "  04: " << s2.toLatin1().data() << endl;
+    }
+
+    cout << "(Some QString methods crash / do not link in DEBUG mode, and require the 'd' versions of Qt.\n";
+    cout << "These methods include: fromStdString, fromStdU16String, fromStdU32String, fromStdWString)\n";
+#ifdef NDEBUG
+    {
+        string s1 = "constructed using 'QString::fromStdString(const std::string &str)'";
+        QString s2 = QString::fromStdString(s1);
+        cout << "  05: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        u16string s1 = u"constructed using 'QString::fromStdU16String(const std::u16string &str)'"s;
+        QString s2 = QString::fromStdU16String(s1);
+        cout << "  06: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        u32string s1 = U"constructed using 'QString::fromStdU32String(const std::u32string &str)'"s;
+        QString s2 = QString::fromStdU32String(s1);
+        cout << "  07: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        wstring s1 = L"constructed using 'QString::fromStdWString(const std::wstring &str)'"s;
+        QString s2 = QString::fromStdWString(s1);
+        cout << "  08: " << s2.toLatin1().data() << endl;
+    }
+#endif
+
+    // 09: QString fromUcs4(const uint *unicode, int size = -1)
+    // 10: QString fromUcs4(const char32_t *str, int size = -1)
+    cout << "  09: QString::fromUcs4 (TODO)\n";
+    cout << "  10: QString::fromUcs4 (TODO)\n";
+
+    {
+        QString s = QString::fromUtf8("constructed using 'QString::fromUtf8(const char *str, int size = -1)'");
+        cout << "  11: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        QByteArray ba("constructed using 'QString::fromUtf8(const QByteArray &str)'");
+        QString s = QString::fromUtf8(ba);
+        cout << "  12: " << s.toLatin1().data() << endl;
+    }
+
+    // 14: QString fromUtf16(const ushort *unicode, int size = -1)
+    cout << "  13: QString::fromUtf16 (TODO)\n";
+
+    {
+        QString s = QString::fromUtf16(u"constructed using 'QString::fromUtf16(const char16_t *str, int size = -1)'");
+        cout << "  14: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = QString::fromWCharArray(L"constructed using 'QString::fromWCharArray(const wchar_t *str, int size = -1)'");
+        cout << "  15: " << s.toLatin1().data() << endl;
+    }
     cout << "#\n";
+}
 
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
