@@ -326,6 +326,29 @@ void StringsExtract()
 {
 }
 
+void StringsCompare()
+{
+/*bool operator!=(QLatin1String other) const
+bool operator!=(const char *other) const
+bool operator!=(const QByteArray &other) const
+
+bool operator<(QLatin1String other) const
+bool operator<(const char *other) const
+bool operator<(const QByteArray &other) const
+bool operator<=(QLatin1String other) const
+bool operator<=(const char *other) const
+bool operator<=(const QByteArray &other) const
+bool operator==(QLatin1String other) const
+bool operator==(const char *other) const
+bool operator==(const QByteArray &other) const
+bool operator>(QLatin1String other) const
+bool operator>(const char *other) const
+bool operator>(const QByteArray &other) const
+bool operator>=(QLatin1String other) const
+bool operator>=(const char *other) const
+bool operator>=(const QByteArray &other) const*/
+}
+
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
