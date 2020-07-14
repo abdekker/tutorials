@@ -252,6 +252,65 @@ void StringsConstructC()
     }
     cout << "#\n";
 }
+
+void StringsConstructD()
+{
+    // Constructing QString objects - part D (miscellaneous)
+    cout << "\n### Constructing strings - D ###\n";
+    cout << "(Miscellaneous construction of strings)\n";
+
+    QString sBase = "Hello World!";
+    QString sAppend = "1234567890";
+    cout << "\n(Base string = " << sBase.toLatin1().data() << ")\n";
+    cout << "(Append string = " << sAppend.toLatin1().data() << ")\n";
+
+    {
+        QString s = sBase;
+        s.append(sAppend);
+        cout << "  QString &append(const QString &str)\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        s.append(sAppend[0]);
+        cout << "  QString &append(QChar ch)\t\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        s.append(sAppend.data(), 5);
+        cout << "  QString &append(const QChar *str, int len)\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        QStringRef ref(&sAppend);
+        s.append(ref);
+        cout << "  QString &append(const QStringRef &reference)\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        s.append(QLatin1String(sAppend.toLatin1()));
+        cout << "  QString &append(QLatin1String str)\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        s.append(sAppend.toLatin1().data());
+        cout << "  QString &append(const char *str)\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s = sBase;
+        s.append(sAppend.toLatin1());
+        cout << "  QString &append(const QByteArray &ba)\t\t\t" << s.toLatin1().data() << endl;
+    }
+
+    //QString repeated(int times) const
+    cout << "#\n";
+}
+
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
