@@ -311,6 +311,17 @@ void StringsConstructD()
     cout << "#\n";
 }
 
+void StringsModify()
+{
+    // Modifying existing QString objects
+    cout << "\n### Modifying existing strings ###\n";
+
+    //string s
+
+    //sTest2.push_back(QString::number(2));
+    cout << "#\n";
+}
+
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
