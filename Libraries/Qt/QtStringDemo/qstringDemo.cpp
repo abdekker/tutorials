@@ -46,12 +46,67 @@ void StringsOutputToConsole()
     cout << "#\n";
 }
 
-    cout << "\n### Constructing QString objects ###\n";
-    QString sTest1("test1");
-    QString sTest2 = "test";
-    sTest2.push_back(QString::number(2));
-    cout << "  cout 1: " << sTest1.toLatin1().data() << endl;
-    cout << "  cout 2: " << sTest2.toLatin1().data() << endl;
+void StringsConstructA()
+{
+    // Constructing QString objects - part A (direct construction)
+    cout << "\n### Constructing strings - A ###\n";
+    cout << "(Using QString constructors)\n";
+
+    {
+        QByteArray ba("constructed using 'QString(const QByteArray &ba)'");
+        QString s(ba);
+        cout << "  01: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s("constructed using 'QString(const char *str)'");
+        cout << "  02: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        QString s1("constructed using 'QString(QString &&other)'");
+        QString s2(std::move(s1));
+        cout << "  03: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s1("constructed using 'QString(const QString &other)'");
+        QString s2(s1);
+        cout << "  04: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s(QString::fromLatin1("constructed using 'QString(QLatin1String str)'"));
+        cout << "  05: " << s.toLatin1().data() << endl;
+    }
+
+    {
+        cout << "(Next strings are constructed using 'QString(int size, QChar ch)')\n";
+        QString s1(10, QChar('z'));
+        QString s2(10, 'x');
+        cout << "  06a: " << s1.toLatin1().data() << endl;
+        cout << "  06b: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        cout << "(Next strings are constructed using 'QString(QChar ch)')\n";
+        QString s1(QChar('a'));
+        QString s2('b');
+        cout << "  07a: " << s1.toLatin1().data() << endl;
+        cout << "  07b: " << s2.toLatin1().data() << endl;
+    }
+
+    {
+        QString s1("constructed using 'QString(const QChar *unicode, int size = -1)'");
+        QString s2(s1.data());
+        cout << "  08a: " << s2.toLatin1().data() << endl;
+
+        QChar c[] = { 'A', 'n', 'o', 't', 'h', 'e', 'r', ' ', 'Q', 'C', 'h', 'a', 'r', '*', '\0' };
+        QString s3(&c[0]);
+        cout << "  08b: " << s3.toLatin1().data() << endl;
+    }
+    cout << "#\n";
+}
     cout << "#\n";
 
     cout << "\nAll done! Press a key to exit...\n";
