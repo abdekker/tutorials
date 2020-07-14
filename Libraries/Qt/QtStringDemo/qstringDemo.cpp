@@ -322,6 +322,10 @@ void StringsModify()
     cout << "#\n";
 }
 
+void StringsExtract()
+{
+}
+
     cout << "\nAll done! Press a key to exit...\n";
     _getch();
     return 0;
