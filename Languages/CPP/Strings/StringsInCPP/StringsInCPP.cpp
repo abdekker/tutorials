@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>		// For std::stringstream
+#include <codecvt>      // For char16_t and char32_t conversions
 using namespace std;
 
 void ConstructStdString()
@@ -77,6 +78,31 @@ void ConstructStdString()
 	cout << endl;
 }
 
+void ConstructOtherStdStrings()
+{
+	// Other std string types
+	cout << "Construct other std string types (u16string, u32string, wstring)\n";
+    cout << "  Note: Conversions between char16_t and char32_t require features from C++14/17\n\n";
+
+	{
+        wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
+        u16string s = u"Hello std::u16string"s;
+        cout << "  Using std::wstring_convert\t\t" << utf16conv.to_bytes(s) << " [ std::u16string s = u\"TEXT\"s; ]\n";
+	}
+
+    {
+        wstring_convert<codecvt_utf8_utf16<char32_t>, char32_t> utf32conv;
+        u32string s = U"Hello std::u32string"s;
+        cout << "  Using std::wstring_convert\t\t" << utf32conv.to_bytes(s) << " [ std::u32string s = U\"TEXT\"s; ]\n";
+	}
+
+    {
+        wstring s = L"Hello std::wstring"s;
+        wcout << "  Using std::wcout\t\t\t" << s << "   [ std::wstring s = L\"TEXT\"s; ]\n";
+	}
+	cout << endl;
+}
+
 void ConstructCharPointers()
 {
 	// Various ways to construct a char* from std::string
@@ -120,6 +146,9 @@ int main()
 
 	// Construct a std::string
 	ConstructStdString();
+
+    // Other std string types (eg. std::u16string)
+    ConstructOtherStdStrings();
 
 	// Construct char* from std::string
 	ConstructCharPointers();
