@@ -51,7 +51,7 @@ int main()
         Good,
         Bad };
 
-    // An enum value can now be used to create variables
+    // An enum value can now be used to name variables (this of doubtful value, of course!)
     int Green = 10;
   
     // Instantiating the enum class
@@ -59,8 +59,9 @@ int main()
     Color2 x2 = Color2::Black;
     People p = People::Good;
 
-    // This won't work as there is no implicit conversion to int
-    //      cout << "  x1 is " << x1 << " (Green)\n";
+    // There is no implicit conversion of enum class to int (explicit conversions are fine)
+        //int myColour = x1;                            // error C2440: cannot convert from 'main::Color1' to 'int'
+        //cout << "  x1 is " << x1 << " (Green)\n";     // error C2679
     cout << "  x1 is " << int(x1) << " (Color1::Green)\n";
     cout << "  x2 is " << int(x2) << " (Color2::Black)\n";
     cout << "  p is " << int(p) << " (People::Good)\n";
