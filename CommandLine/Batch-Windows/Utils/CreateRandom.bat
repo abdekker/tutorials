@@ -4,7 +4,7 @@ setlocal EnableDelayedExpansion
 rem Utility to create a random (alphanumeric) file or folder in the specified path
 rem Usage: CreateRandom [--file --dir] PATH [length (optional)]
 rem Example: CreateRandom --file C:\Tmp 16
-rem     Might create the file C:\Tmp\Px8I3BAZIKTuA4f7.txt (".txt" is appended to files)
+rem     Might create the file C:\Tmp\Px8I3BAZIKTuA4f7.txt (".txt" is appended to all files)
 
 rem Put parameters into a (1-based) temporary array
 set argCount=0
