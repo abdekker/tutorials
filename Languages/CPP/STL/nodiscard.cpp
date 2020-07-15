@@ -1,6 +1,13 @@
 #include <iostream>
 // Adapted from: https://en.cppreference.com/w/cpp/language/attributes/nodiscard
 
+/* Notes:
+# Introduced in C++17
+# If a function declared nodiscard (or a function returning an enumeration or class declared nodiscard by value) is
+    called from a discarded-value expression other than a cast to void, the compiler is encouraged to issue a warning.
+# From C++20, a string literal can be provided to explain the rationale for why the result should not be discarded
+*/
+
 // Structure marked with "[[nodiscard]]"
 struct [[nodiscard]] error_info_nodiscard { };
 error_info_nodiscard global_error_nodiscard;
