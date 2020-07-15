@@ -6,6 +6,7 @@ rem Example: ./Parameters.bat --help --version
 set SCRIPT_VERSION=1.0.23
 
 echo ### The first parameter to batch files (%%0) is the batch filename ###
+echo   %%cd%%    Current path            %cd%
 echo   %%~f0    Fully qualified name    %~f0
 echo   %%~d0    Drive                   %~d0
 echo   %%~p0    Path only               %~p0
