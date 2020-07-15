@@ -15,6 +15,10 @@ echo   %%~x0    File extension          %~x0
 echo   %%~nx0   File with extension     %~nx0
 echo .
 
+echo ### Quick check for whether one or more parameters have been supplied ###
+if "%*"=="" (echo   No parameters) else (echo   At least one parameter was provided)
+echo .
+
 echo ### Count arguments and place them in an array ###
 set argCount=0
 for %%x in (%*) do (
@@ -22,6 +26,7 @@ for %%x in (%*) do (
    set "argVec[!argCount!]=%%~x"
 )
 echo   Number of processed arguments: %argCount%
+echo .
 
 if %argCount% GTR 0 (
     rem One or more arguments (which are now stored in the "argVec" array)
