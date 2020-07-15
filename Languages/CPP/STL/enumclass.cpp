@@ -22,6 +22,8 @@ int main()
         Dog };
 
     // An enum values cannot be used to name variables
+        //int Cat = 10;   // error C2365: 'main::Cat': redefinition
+
     // Create type variables
     Gender person = Male;
     Animal pet = Cat;
