@@ -21,6 +21,7 @@ int main()
         Cat,
         Dog };
 
+    // An enum values cannot be used to name variables
     // Create type variables
     Gender person = Male;
     Animal pet = Cat;
