@@ -46,6 +46,7 @@
             "label": "cl.exe: Build active file (DEBUG)",
             "command": "cl.exe",
             "args": [
+                "/std:c++17",
                 "/Zi",
                 "/EHsc",
                 "/Fe:",
@@ -69,6 +70,7 @@
             "label": "cl.exe: Build active file (RELEASE)",
             "command": "cl.exe",
             "args": [
+                "/std:c++17",
                 "/EHsc",
                 "/MD",
                 "/O2",
@@ -89,6 +91,7 @@
             "label": "cl.exe: Build active file (RELEASE/Qt)",
             "command": "cl.exe",
             "args": [
+                "/std:c++17",
                 "/EHsc",
                 "/MD",
                 "/O2",
