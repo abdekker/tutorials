@@ -311,10 +311,57 @@ void StringsConstructD()
     cout << "#\n";
 }
 
-void StringsModify()
+void StringsModifyA()
 {
-    // Modifying existing QString objects
-    cout << "\n### Modifying existing strings ###\n";
+    // Modifying existing QString objects - part A (QString::arg)
+    cout << "\n### Modifying existing strings - A ###\n";
+    cout << "(Using QString::arg overloads)\n\n";
+
+    {
+        QString s1("World!");
+        QString s2 = QString("Hello %1").arg(s1);
+        cout << "  QString::arg(const QString &a,...)\t\t\t" << s2.toLatin1().data() << endl;
+
+        QString s3 = QString("Hello %1").arg(s1, 10, QChar(' '));
+        cout << "  QString::arg(const QString &a, int, QChar)\t\t" << s3.toLatin1().data() << endl;
+    }
+
+    {
+        qlonglong n = 12345;    // qlonglong == __int64
+        QString s1 = QString("Hello %1").arg(n);
+        cout << "  QString::arg(const QString &a,...)\t\t\t" << s1.toLatin1().data() << endl;
+    
+        QString s2 = QString("Hello %1").arg(n, 10, 10, QChar(' '));
+        cout << "  QString::arg(const QString &a, int, int QChar)\t" << s2.toLatin1().data() << endl;
+    }
+
+/*
+QString arg(qlonglong a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(qulonglong a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(long a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(ulong a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(int a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(uint a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(short a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(ushort a, int fieldWidth = 0, int base = 10, QChar fillChar = QLatin1Char(' ')) const
+QString arg(double a, int fieldWidth = 0, char format = 'g', int precision = -1, QChar fillChar = QLatin1Char(' ')) const
+QString arg(char a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
+QString arg(QChar a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
+QString arg(QStringView a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
+QString arg(QLatin1String a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
+QString arg(const QString &a1, const QString &a2) const
+QString arg(const QString &a1, const QString &a2, const QString &a3) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4, const QString &a5) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4, const QString &a5, const QString &a6) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4, const QString &a5, const QString &a6, const QString &a7) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4, const QString &a5, const QString &a6, const QString &a7, const QString &a8) const
+QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4, const QString &a5, const QString &a6, const QString &a7, const QString &a8, const QString &a9) const
+QString arg(Args &&... args) const
+*/
+
+    //entry.textS = QString("Item %1").arg(item++);
+    //entry.textS = QString("Item %1").arg(item++);
 
     //string s
 
@@ -383,7 +430,8 @@ int main(int argc, char *argv[])
     StringsConstructC();
     StringsConstructD();
 
-    StringsModify();
+    StringsModifyA();
+
     StringsExtract();
     StringsCompare();
     StringsSearch();
