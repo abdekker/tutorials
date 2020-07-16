@@ -18,23 +18,21 @@ void UpdateRow(const std::string cszSymbol, const bool cbDefined, const std::str
 
 void Demonstrate_if()
 {
-	// Define a simple symbol and #if / #ifdef
+	// Define a simple symbol and use #if / #ifdef
 	// Note: Preprocessor commands must be the first non-whitespace on a line. Consequently, it is
 	// typical for #if/#else/#endif to cover several lines.
-	std::string szSymbolName;
 	bool bIsDefined;
 
 	std::cout << "=== #if and #ifdef: Define a symbol ===\n";
 #define SYMBOL1
 
-	szSymbolName = "SYMBOL1";
 	bIsDefined =
 #if defined(SYMBOL1)
 		true;
 #else
 		false;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " [ #if defined(X) ]");
+	UpdateRow("SYMBOL1", bIsDefined, " [ #if defined(X) ]");
 
 	bIsDefined =
 #if !defined(SYMBOL1)
@@ -42,7 +40,7 @@ void Demonstrate_if()
 #else
 		true;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " [ #if !defined(X) ]");
+	UpdateRow("SYMBOL1", bIsDefined, " [ #if !defined(X) ]");
 
 	bIsDefined =
 #ifdef SYMBOL1
@@ -50,7 +48,7 @@ void Demonstrate_if()
 #else
 		false;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " [ #ifdef X ]");
+	UpdateRow("SYMBOL1", bIsDefined, " [ #ifdef X ]");
 
 	bIsDefined =
 #ifndef SYMBOL1
@@ -58,12 +56,12 @@ void Demonstrate_if()
 #else
 		true;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, " [ #ifndef X ]");
+	UpdateRow("SYMBOL1", bIsDefined, " [ #ifndef X ]");
 
 	// Undefine the symbol and repeat
 	std::cout << "\nUndefine the symbol\n";
 #if defined(SYMBOL1)
-#undef SYMBOL1
+    #undef SYMBOL1
 #endif
 
 	bIsDefined =
@@ -72,7 +70,55 @@ void Demonstrate_if()
 #else
 		false;
 #endif
-	UpdateRow(szSymbolName, bIsDefined, "");
+	UpdateRow("SYMBOL1", bIsDefined, "");
+
+    // Other differences between #ifdef and #if:
+    // * #ifdef checks whether a macro by that name has been defined
+    // * #if evaluates the expression and checks for a true value
+    // To make use of this distinction, assign a value to the symbol
+#if defined(SYMBOL1)
+	#undef SYMBOL1
+#endif
+#if defined(SYMBOL2)
+	#undef SYMBOL2
+#endif
+
+#define SYMBOL1 1
+#define SYMBOL2 0
+
+    std::cout << "\nUsing values, for example #define SYMBOL X, shows another difference between #ifdef and #if\n";
+    std::cout << "SYMBOL1 is \"1\" and SYMBOL2 is \"0\"\n";
+	bIsDefined =
+#ifdef SYMBOL1
+		true;
+#else
+		false;
+#endif
+	UpdateRow("SYMBOL1", bIsDefined, "    [ #ifdef X ]");
+
+    bIsDefined =
+#ifdef SYMBOL2
+		true;
+#else
+		false;
+#endif
+	UpdateRow("SYMBOL2", bIsDefined, "    [ #ifdef X ]");
+
+    bIsDefined =
+#if SYMBOL1
+		true;
+#else
+		false;
+#endif
+	UpdateRow("SYMBOL1", bIsDefined, "    [ #if X ]");
+
+    	bIsDefined =
+#if SYMBOL2
+		true;
+#else
+		false;
+#endif
+	UpdateRow("SYMBOL2", bIsDefined, " [ #if X ]");
 }
 
 void Demonstrate_if_logic()
