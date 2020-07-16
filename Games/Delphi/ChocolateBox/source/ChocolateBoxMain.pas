@@ -35,6 +35,8 @@ type
 	lblMedia: TStaticText;
 	imgExit: TImage;
 	lblExit: TStaticText;
+	imgAbout: TImage;
+	imgEngineer: TImage;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -46,6 +48,8 @@ type
 	procedure imgChocolateBoxClick(Sender: TObject);
 
 	procedure OnUpdateTimer(Sender: TObject);
+    procedure imgEngineerClick(Sender: TObject);
+    procedure imgAboutClick(Sender: TObject);
 
   private
 	{ Private declarations }
@@ -74,7 +78,7 @@ implementation
 
 uses
   Dialogs, Math,
-  GameMediaSettings, GameSettings;
+  GameAbout, SettingsAdvanced, SettingsMedia, SettingsUserInterface;
 
 const
   DUMMY_CONST = 0;
@@ -138,6 +142,13 @@ begin
 		imgBackground.Width := Self.Width;
 		imgBackground.Height := Self.Height;
 
+		// Show Help and Engineer (advanced) icons in the upper right
+		imgEngineer.Top := imgSettings.Top;
+		imgEngineer.Left := (imgBackground.Width - imgEngineer.Width - imgSettings.Left);
+		imgAbout.Top := imgEngineer.Top;
+		imgAbout.Left := (imgEngineer.Left - imgAbout.Width - 15);
+			//(imgMedia.Left - imgSettings.Left - imgSettings.Width));
+
 		// Start the update timer
 		UpdateTimer.Enabled := True;
 
@@ -182,17 +193,16 @@ procedure TfrmChocolateBox.imgSettingsClick(Sender: TObject);
 var
 	settingsBackup: GAME_SETTINGS;
 begin
-	// Display game settings
+	// Display user interface settings
 	m_bAllowDraw := False;
 	settingsBackup := ChocolateBox.GameSettings;
-	frmGameSettings := TfrmGameSettings.Create(Self);
-	frmGameSettings.settings := ChocolateBox.GameSettings;
-	frmGameSettings.SetGameRunning(False);
-	frmGameSettings.RegisterSettingsCallback(SettingsCallback);
-	if (frmGameSettings.ShowModal() = mrOk) then
+	frmSettingsUserInterface := TfrmSettingsUserInterface.Create(Self);
+	frmSettingsUserInterface.settings := ChocolateBox.GameSettings;
+	frmSettingsUserInterface.RegisterSettingsCallback(SettingsCallback);
+	if (frmSettingsUserInterface.ShowModal() = mrOk) then
 		begin
 		// Settings have been changed, copy them back
-		ChocolateBox.GameSettings := frmGameSettings.settings;
+		ChocolateBox.GameSettings := frmSettingsUserInterface.settings;
 		end
 	else
 		begin
@@ -205,8 +215,8 @@ begin
 	UpdateGameBoard(ChocolateBox.GameSettings);
 
 	// Clean up
-	frmGameSettings.Free();
-	frmGameSettings := nil;
+	frmSettingsUserInterface.Free();
+	frmSettingsUserInterface := nil;
 	m_bAllowDraw := False;
 end;
 
@@ -217,14 +227,13 @@ begin
 	// Display media settings
 	m_bAllowDraw := False;
 	settingsBackup := ChocolateBox.GameSettings;
-	frmGameMediaSettings := TfrmGameMediaSettings.Create(Self);
-	frmGameMediaSettings.settings := ChocolateBox.GameSettings;
-	frmGameMediaSettings.SetGameRunning(False);
-	// No need to registry a callback for media settings
-	if (frmGameMediaSettings.ShowModal() = mrOk) then
+	frmSettingsMedia := TfrmSettingsMedia.Create(Self);
+	frmSettingsMedia.settings := ChocolateBox.GameSettings;
+	// No need to register a callback for media settings
+	if (frmSettingsMedia.ShowModal() = mrOk) then
 		begin
 		// Settings have been changed, copy them back
-		ChocolateBox.GameSettings := frmGameMediaSettings.settings;
+		ChocolateBox.GameSettings := frmSettingsMedia.settings;
 		end
 	else
 		begin
@@ -233,8 +242,8 @@ begin
 		end;
 
 	// Clean up
-	frmGameMediaSettings.Free();
-	frmGameMediaSettings := nil;
+	frmSettingsMedia.Free();
+	frmSettingsMedia := nil;
 	m_bAllowDraw := False;
 end;
 
@@ -244,6 +253,42 @@ begin
 	m_bExiting := True;
 	ChocolateBox.PrepareToExit();
 	Close();
+end;
+
+procedure TfrmChocolateBox.imgAboutClick(Sender: TObject);
+begin
+	// Show a Help > About box
+	frmGameAbout := TfrmGameAbout.Create(Self);
+	frmGameAbout.ShowModal();
+	frmGameAbout.Free();
+	frmGameAbout := nil;
+end;
+
+procedure TfrmChocolateBox.imgEngineerClick(Sender: TObject);
+var
+	settingsBackup: GAME_SETTINGS;
+begin
+	// Display advanced settings (where the chocolate box is wrapped up and exported)
+	m_bAllowDraw := False;
+	settingsBackup := ChocolateBox.GameSettings;
+	frmSettingsAdvanced := TfrmSettingsAdvanced.Create(Self);
+	frmSettingsAdvanced.settings := ChocolateBox.GameSettings;
+	// No need to registry a callback for media settings
+	if (frmSettingsAdvanced.ShowModal() = mrOk) then
+		begin
+		// Settings have been changed, copy them back
+		ChocolateBox.GameSettings := frmSettingsAdvanced.settings;
+		end
+	else
+		begin
+		// User cancelled, so use the backup settings
+		ChocolateBox.GameSettings := settingsBackup;
+		end;
+
+	// Clean up
+	frmSettingsAdvanced.Free();
+	frmSettingsAdvanced := nil;
+	m_bAllowDraw := False;
 end;
 
 procedure TfrmChocolateBox.imgChocolateBoxClick(Sender: TObject);

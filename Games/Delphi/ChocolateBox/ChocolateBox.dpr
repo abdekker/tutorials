@@ -16,8 +16,9 @@ uses
   GameAbout  in 'source\GameAbout.pas' {frmGameAbout},
   GameMachine in 'source\GameMachine.pas',
   GameTypes in 'source\GameTypes.pas',
-  GameMediaSettings in 'source\GameMediaSettings.pas', {frmGameMediaSettings}
-  GameSettings in 'source\GameSettings.pas' {frmGameSettings};
+  SettingsAdvanced in 'source\SettingsAdvanced.pas', {frmSettingsAdvanced}
+  SettingsMedia in 'source\SettingsMedia.pas', {frmSettingsMedia}
+  SettingsUserInterface in 'source\SettingsUserInterface.pas' {frmSettingsUserInterface};
 
 {$R *.res}
 
