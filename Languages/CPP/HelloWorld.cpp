@@ -110,12 +110,9 @@
 using namespace std;
 int main(int argc, char* args[])
 {
-    // There appears to be an issue with the Visual Studio Code debugger on Windows 10. This may be
-    // be related to the output being buffered on Windows 10. The next line ensures that debug
-    // output is directed immediately to the in-built DEBUG CONSOLE window. See:
-    //      https://github.com/microsoft/vscode-cpptools/issues/583
-    // Not sure if there is a more elegant solution...
+    // Ensure the output buffer is flushed on each insertion operation (either line below achieve this)
     setvbuf(stdout, NULL, _IONBF, 0);
+    //std::cout << std::unitbuf;
 
     // Version 1 (using simple printf)
     printf("Hello World 1! (using printf)\n");
