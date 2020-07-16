@@ -1608,7 +1608,7 @@ begin
 		astrFileTypes.EndUpdate();
 	end;
 
-	// Now use GetFolderListing to get a listing of these file types
+	// Now use GetFolderListing to get a listing for each file type separately
 	astrTmp := TStringList.Create();
 	for nFileType:=0 to astrFileTypes.Count-1 do
 		begin
