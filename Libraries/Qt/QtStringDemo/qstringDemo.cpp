@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 
 /*
 This list taken from: https://doc.qt.io/qt-5/qstring.html
-Tabbed out items have been implemented in this test program
+[ Items that are tabbed out have been implemented in this test program ]
 
         QString(const QByteArray &ba)
         QString(const char *str)
