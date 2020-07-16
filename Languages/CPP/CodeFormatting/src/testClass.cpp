@@ -26,7 +26,7 @@ void TestClass::printMessage(string szMessage)
     m_szLastMessage = szMessage;
     cout << "TestClass::printMessage::" << szMessage << endl;
 
-    /* Multi-line c-style comment:
+    /* Multi-line C-style comment:
     2nd line...let's go! */
     double sumDouble = adder(1.1, 2.2);
     cout << "  TestClass::printMessage::Double sum = " << sumDouble << endl;
