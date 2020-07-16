@@ -59,6 +59,8 @@ function GetChildIndex(parent, child: TWinControl) : Integer;
 function GetCloseControlClick(parent: TWinControl; wControls: WORD; nIgnoreControl: Integer = -1) : Integer;
 function GetWinControlPixelSize(wc: TWinControl; const strCaption: String) : TSize;
 function GetGraphicControlPixelSize(gc: TGraphicControl; const strCaption: String) : TSize;
+function LimitStringLength(const cstrInput: String; hCanvas: HDC;
+	nMaxLength: Integer; nEndCharsToKeep: Integer = 2) : String;
 procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
 	const cnMaxLines: Integer; var nLines: Integer; var nSizeY: Integer);
 procedure SaveScreenshot(pSubScreen: PTForm; const cstrFile: String; const cnImgType: Integer);
@@ -407,6 +409,57 @@ begin
 	// Calculate the size this text will occupy on-screen (using the current font)
 	GetTextExtentPoint32(m_cache.handleDC, PChar(strCaption), Length(strCaption), txtSize);
 	Result := txtSize;
+end;
+
+function LimitStringLength(const cstrInput: String; hCanvas: HDC;
+	nMaxLength: Integer; nEndCharsToKeep: Integer = 2) : String;
+var
+	nTextLength, nCutPos, nEndPos: Integer;
+	fSpacePerChar: Single;
+	strOutput, strEnding: String;
+	txtSize: TSize;
+begin
+	// Convert a (potentially) very long string to one that will fit into the available space
+	// on-screen. Always show the last N characters (usually two).
+
+	// Note to developer: The text size is not calculated correctly if the TControl.Canvas.AutoSize
+	// property is "False". To fix this, first set the font on the TCanvas as follows:
+	//		label.Canvas.Font.Assign(label.Font);
+	strOutput := cstrInput;
+	nTextLength := Length(cstrInput);
+	GetTextExtentPoint32(hCanvas, PChar(strOutput), nTextLength, txtSize);
+	if (txtSize.cx > nMaxLength) then
+		begin
+		// Text is too long...
+		if (nEndCharsToKeep >= nTextLength) then
+			nEndCharsToKeep := (nTextLength - 2);
+		if (nEndCharsToKeep < 2) then
+			nEndCharsToKeep := 2;
+
+		// Construct the ending (characters that must be displayed)
+		for nEndPos:=(nTextLength - nEndCharsToKeep + 1) to (nTextLength) do
+			strEnding := (strEnding + cstrInput[nEndPos]);
+
+		// Estimate the cut point. Thereafter characters are removed one-by-one.
+		// Note: Since "..." is inserted where characters are being removed, we remove "3"
+		fSpacePerChar := (txtSize.cx / nTextLength);
+		nCutPos :=
+			(nTextLength - Trunc((txtSize.cx - nMaxLength) / fSpacePerChar) - nEndCharsToKeep - 3);
+
+		while (txtSize.cx > nMaxLength) and (nCutPos >= 0) do
+			begin
+			// Remove a character
+			strOutput := (AnsiLeftStr(cstrInput, nCutPos) + '...' +  strEnding);
+			Dec(nCutPos);
+
+			// What is the length of our new string? This while loop exits when enough characters
+			// have been removed so the text fits into the available space.
+			GetTextExtentPoint32(hCanvas, PChar(strOutput), Length(strOutput), txtSize);
+			end;
+		end;
+
+	// Return string to display
+	Result := strOutput;
 end;
 
 procedure ConfigureMultiLineLabel(lblLabel: TLabel; const cstrLabel: String;
