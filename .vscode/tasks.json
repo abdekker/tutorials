@@ -2,10 +2,17 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558 
     // for the documentation about the tasks.json format
 
-    // To run a task (other than the default): Command Palette > Tasks: Run Task
+    // General notes:
+    // * To run a task (other than the default): Command Palette > Tasks: Run Task
 
-    // Note: To use the MSvc compiler (cl.exe), run the Visual Studio Command Prompt before launching
-    // Visual Studio Code
+    // * To use the MSVC compiler (cl.exe), run the Visual Studio Command Prompt before launching
+    //      Visual Studio Code
+
+    // * To build multiple C++ files use "${workspaceFolder}\\*.cpp" instead of "${file}"
+    
+    // * Modify the output filename by replacing "${fileDirname}\\${fileBasenameNoExtension}.exe"
+    //      with a hard-coded filename (for example "${workspaceFolder}\\myProgram.exe")
+
     "version": "2.0.0",
     "tasks": [
         {
