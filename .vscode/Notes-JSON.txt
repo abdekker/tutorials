@@ -1,0 +1,32 @@
+### tasks.json ###
+* Defines tasks, such as building files
+
+* To run a task (other than the default): Command Palette > Tasks: Run Task
+* To use the MSVC compiler (cl.exe), run the Visual Studio Command Prompt before launching Visual Studio Code
+
+* To build multiple C++ files use "${workspaceFolder}\\*.cpp" instead of "${file}"
+* Modify the output filename by replacing "${fileDirname}\\${fileBasenameNoExtension}.exe" with a hard-coded
+    filename (for example "${workspaceFolder}\\myProgram.exe")
+#
+
+### launch.json ###
+* Defines tools for running and debugging programs
+
+* By default, the C++ extension won't add any breakpoints to your source code and "stopAtEntry" will be false.
+    Change "stopAtEntry" to true to cause the debugger to stop on the main method when you start debugging.
+#
+
+### c_cpp_properties.json ###
+* Defines properties for the C/C++ (ms-vscode.cpptools) extension
+
+* To use the MSVC cl.exe compiler, you can run the Visual Studio Command Prompt. This defines a number of
+    environment variables, such as the path to the compiler and %INCLUDE%. Add "${INCLUDE}", to the
+    "includePath" variable. Alternatively, if VS Code is run standalone, add something like:
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\include",
+        "C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt",
+        "C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared",
+        "C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um",
+        "C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt",
+        "C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"
+    to the "includePath" variable.
+#
