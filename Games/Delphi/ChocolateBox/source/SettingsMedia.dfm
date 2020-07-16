@@ -1,8 +1,8 @@
-object frmGameMediaSettings: TfrmGameMediaSettings
+object frmSettingsMedia: TfrmSettingsMedia
   Left = 401
   Top = 139
   BorderIcons = []
-  BorderStyle = bsNone
+  BorderStyle = bsDialog
   Caption = 'Media Settings'
   ClientHeight = 215
   ClientWidth = 725
@@ -272,7 +272,7 @@ object frmGameMediaSettings: TfrmGameMediaSettings
     end
     object imgRefresh: TImage
       Left = 95
-      Top = 55
+      Top = 58
       Width = 32
       Height = 32
       Picture.Data = {
@@ -383,7 +383,7 @@ object frmGameMediaSettings: TfrmGameMediaSettings
     end
     object imgWarning: TImage
       Left = 660
-      Top = 55
+      Top = 60
       Width = 32
       Height = 32
       Picture.Data = {
@@ -523,10 +523,11 @@ object frmGameMediaSettings: TfrmGameMediaSettings
         FF8003FFFF8003FFFFC007FFFFC007FFFFE00FFFFFE00FFFFFF01FFFFFF03FFF
         FFFFFFFF}
       Visible = False
+      OnClick = imgRefreshClick
     end
     object imgMedia: TImage
       Left = 135
-      Top = 55
+      Top = 58
       Width = 32
       Height = 32
       Picture.Data = {
@@ -666,6 +667,7 @@ object frmGameMediaSettings: TfrmGameMediaSettings
         80000000C0000000C0000000E0000004F000000CF800000CFC000000FF000000
         FFC00200}
       Visible = False
+      OnClick = imgRefreshClick
     end
     object ebMediaFolder: TEdit
       Left = 95

@@ -1,4 +1,4 @@
-unit GameSettings;
+unit SettingsUserInterface;
 {$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 interface
@@ -15,9 +15,8 @@ type
 	eMouseClickClientArea,
 	eMouseClickNonClientArea);
 
-  TfrmGameSettings = class(TGeneralBaseForm)
+  TfrmSettingsUserInterface = class(TGeneralBaseForm)
 	btnSetDefaults: TBitBtn;
-	btnDisclaimer: TBitBtn;
 	btnCancel: TBitBtn;
 	btnOk: TBitBtn;
 
@@ -37,6 +36,7 @@ type
 	lblIconSet: TLabel;
 	cbIconSet: TComboBox;
 	lblIconSetSize: TLabel;
+    CheckBox1: TCheckBox;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -50,7 +50,6 @@ type
 	procedure cbIconSetChange(Sender: TObject);
 
 	procedure btnSetDefaultsClick(Sender: TObject);
-	procedure btnDisclaimerClick(Sender: TObject);
 
 	procedure OnSettingsTimerTick(Sender: TObject);
 
@@ -60,7 +59,7 @@ type
 	m_pParent: TForm;
 
 	// Status flags
-	m_bSettingUp, m_bExiting, m_bGameRunning: Boolean;
+	m_bSettingUp, m_bExiting: Boolean;
 
 	// Callback
 	m_callbackSettings: TProcedureCallbackPointer;
@@ -82,18 +81,17 @@ type
 	// Local copy of system settings
 	settings: GAME_SETTINGS;
 
-	procedure SetGameRunning(bRunning: Boolean);
 	procedure RegisterSettingsCallback(callBack: TProcedureCallbackPointer);
   end;
 
 var
-  frmGameSettings: TfrmGameSettings;
+  frmSettingsUserInterface: TfrmSettingsUserInterface;
   hMouseHook: THandle;
 
 implementation
 
 uses
-  Messages, FormUtils, GameAbout, GameTypes;
+  Messages, FormUtils, GameTypes;
 
 {$R *.dfm}
 
@@ -120,15 +118,15 @@ begin
 		// In there you will find the position of the mouse event and the hWnd of the main window
 		// receiving the event.
 		if (wPar = WM_NCLBUTTONUP) then
-			frmGameSettings.MouseClickEvent(False)
+			frmSettingsUserInterface.MouseClickEvent(False)
 		else if (wPar = WM_LBUTTONUP) then
-			frmGameSettings.MouseClickEvent(True);
+			frmSettingsUserInterface.MouseClickEvent(True);
 		end;
 end;
 // Hook functions: End
 
 // Private functions: Start
-procedure TfrmGameSettings.MouseClickEvent(bClientArea: Boolean);
+procedure TfrmSettingsUserInterface.MouseClickEvent(bClientArea: Boolean);
 var
 	eLocalMouseClickClientArea: TMouseClickClientArea;
 begin
@@ -149,7 +147,7 @@ begin
 		end;
 end;
 
-procedure TfrmGameSettings.InitialiseControls();
+procedure TfrmSettingsUserInterface.InitialiseControls();
 begin
 	// Set up controls for user settings
 
@@ -168,7 +166,7 @@ begin
 	cbIconSet.Items.AddObject('Futurama (large)', TObject(eIconSetFuturama_128x128));
 end;
 
-procedure TfrmGameSettings.SetBackgroundColourPanel();
+procedure TfrmSettingsUserInterface.SetBackgroundColourPanel();
 begin
 	// If the background is set to a solid colour, the user can update this
 	if (settings.eBackground = eBackgroundSolidColour) then
@@ -177,7 +175,7 @@ begin
 		pnlBackgroundColour.Color := clBtnFace;
 end;
 
-procedure TfrmGameSettings.SetIconSetSize();
+procedure TfrmSettingsUserInterface.SetIconSetSize();
 var
 	nIconSetSize: Integer;
 begin
@@ -186,12 +184,10 @@ begin
 	lblIconSetSize.Caption := Format('[ Size: %dx%d ]', [nIconSetSize, nIconSetSize]);
 end;
 
-procedure TfrmGameSettings.EnableDisableControls();
+procedure TfrmSettingsUserInterface.EnableDisableControls();
 begin
-	// Enable controls based on other settings or whether we are currently playing a game
-
 	// Some settings should not be altered while the game is in progress
-	if (m_bGameRunning) then
+	{if (m_bGameRunning) then
 		begin
 		SetSubControlsEnabled(
 			gbGrid,
@@ -201,10 +197,10 @@ begin
 			(CONTROL_TLABEL + CONTROL_TCOMBOBOX), False);
 
 		btnSetDefaults.Enabled := False;
-		end;
+		end;}
 end;
 
-procedure TfrmGameSettings.RefreshSettings();
+procedure TfrmSettingsUserInterface.RefreshSettings();
 begin
 	// Set all controls to the correct system settings
 	m_bSettingUp := True;
@@ -226,7 +222,7 @@ begin
 	m_bSettingUp := False;
 end;
 
-procedure TfrmGameSettings.ResetSettings();
+procedure TfrmSettingsUserInterface.ResetSettings();
 begin
 	// Set everything to the default
 	ChocolateBox.ResetSettings(settings);
@@ -237,26 +233,19 @@ end;
 // Private functions: End
 
 // Public functions: Start
-procedure TfrmGameSettings.SetGameRunning(bRunning: Boolean);
-begin
-	// When the game is running, certain settings should not be changed
-	m_bGameRunning := bRunning;
-end;
-
-procedure TfrmGameSettings.RegisterSettingsCallback(callBack: TProcedureCallbackPointer);
+procedure TfrmSettingsUserInterface.RegisterSettingsCallback(callBack: TProcedureCallbackPointer);
 begin
 	// Callback used when the settings changes
 	m_callbackSettings := callBack;
 end;
 // Public functions: End
 
-procedure TfrmGameSettings.FormCreate(Sender: TObject);
+procedure TfrmSettingsUserInterface.FormCreate(Sender: TObject);
 begin
 	// Initialise form
 	m_pParent := TForm(Sender);
 	m_bSettingUp := False;
 	m_bExiting := False;
-	m_bGameRunning := False;
 
 	// Start a local Windows hook procedure for peeking mouse messages that have been removed from
 	// the message queue for this thread
@@ -267,14 +256,14 @@ begin
 		m_bHookStarted := True;
 end;
 
-procedure TfrmGameSettings.FormDestroy(Sender: TObject);
+procedure TfrmSettingsUserInterface.FormDestroy(Sender: TObject);
 begin
 	// Exiting form, so unhook the mouse message hook
 	if (m_bHookStarted) then
 		UnhookWindowsHookEx(hMouseHook);
 end;
 
-procedure TfrmGameSettings.FormShow(Sender: TObject);
+procedure TfrmSettingsUserInterface.FormShow(Sender: TObject);
 begin
 	// Exiting system?
 	if (ChocolateBox.bySystemExitRequest > 0) then
@@ -283,12 +272,6 @@ begin
 	// Set the form to the top right (so that the user can see the effect on the main grid)
 	Self.Top := 0;
 	Self.Left := (ChocolateBox.GameCache.nScreenWidth - Self.Width);
-
-	// If the game is running, show this in the title of the form
-	if (m_bGameRunning) then
-		Caption := 'Chocolate Box Settings [Busy !]'
-	else
-		Caption := 'Chocolate Box Settings';
 
 	// Initialise controls for game settings
 	SetChildComboHandlers(gbGraphics);
@@ -305,7 +288,7 @@ begin
 	SettingsTimer.Enabled := True;
 end;
 
-procedure TfrmGameSettings.btnOkClick(Sender: TObject);
+procedure TfrmSettingsUserInterface.btnOkClick(Sender: TObject);
 var
 	bEntryValid: Boolean;
 begin
@@ -357,13 +340,13 @@ begin
 	ModalResult := mrOk;
 end;
 
-procedure TfrmGameSettings.btnCancelClick(Sender: TObject);
+procedure TfrmSettingsUserInterface.btnCancelClick(Sender: TObject);
 begin
 	// Cancel any changes ?
 	m_bExiting := True;
 end;
 
-procedure TfrmGameSettings.ebGridSizeChange(Sender: TObject);
+procedure TfrmSettingsUserInterface.ebGridSizeChange(Sender: TObject);
 var
 	bRowsValid, bColumnsValid: Boolean;
 begin
@@ -390,7 +373,7 @@ begin
 		end;
 end;
 
-procedure TfrmGameSettings.cbBackgroundChange(Sender: TObject);
+procedure TfrmSettingsUserInterface.cbBackgroundChange(Sender: TObject);
 begin
 	// When the background changes, we may allow the user to set a solid background colour
 	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
@@ -399,7 +382,7 @@ begin
 		m_callbackSettings(@settings);
 end;
 
-procedure TfrmGameSettings.cbIconSetChange(Sender: TObject);
+procedure TfrmSettingsUserInterface.cbIconSetChange(Sender: TObject);
 begin
 	// Show the size of the icons in the icon set
 	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
@@ -408,7 +391,7 @@ begin
 		m_callbackSettings(@settings);
 end;
 
-procedure TfrmGameSettings.pnlBackgroundColourClick(Sender: TObject);
+procedure TfrmSettingsUserInterface.pnlBackgroundColourClick(Sender: TObject);
 begin
 	if (settings.eBackground = eBackgroundSolidColour) then
 		begin
@@ -422,16 +405,7 @@ begin
 		end;
 end;
 
-procedure TfrmGameSettings.btnDisclaimerClick(Sender: TObject);
-begin
-	// Show a Help > About box
-	frmGameAbout := TfrmGameAbout.Create(Self);
-	frmGameAbout.ShowModal();
-	frmGameAbout.Free();
-	frmGameAbout := nil;
-end;
-
-procedure TfrmGameSettings.btnSetDefaultsClick(Sender: TObject);
+procedure TfrmSettingsUserInterface.btnSetDefaultsClick(Sender: TObject);
 begin
 	if (MessageDlg('This will reset all settings to default. Are you sure you wish to continue?',
 			mtConfirmation, [mbYes, mbCancel], 0) = mrYes) then
@@ -441,7 +415,7 @@ begin
 		end;
 end;
 
-procedure TfrmGameSettings.OnSettingsTimerTick(Sender: TObject);
+procedure TfrmSettingsUserInterface.OnSettingsTimerTick(Sender: TObject);
 begin
 	// Disable the timer
 	SettingsTimer.Enabled := False;

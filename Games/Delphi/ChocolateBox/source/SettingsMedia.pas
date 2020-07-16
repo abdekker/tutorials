@@ -1,4 +1,4 @@
-unit GameMediaSettings;
+unit SettingsMedia;
 {$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 interface
@@ -15,7 +15,7 @@ type
 	eMouseClickClientArea,
 	eMouseClickNonClientArea);
 
-  TfrmGameMediaSettings = class(TGeneralBaseForm)
+  TfrmSettingsMedia = class(TGeneralBaseForm)
 	btnCancel: TBitBtn;
 	btnOk: TBitBtn;
 
@@ -23,11 +23,11 @@ type
 	gbMedia: TGroupBox;
 	lblMediaFolder: TLabel;
 	ebMediaFolder: TEdit;
-    lblFolderInformation: TLabel;
-    btnBrowse: TBitBtn;
-    imgRefresh: TImage;
-    imgWarning: TImage;
-    imgMedia: TImage;
+	btnBrowse: TBitBtn;
+	lblFolderInformation: TLabel;
+	imgRefresh: TImage;
+	imgMedia: TImage;
+	imgWarning: TImage;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -45,7 +45,7 @@ type
 	m_pParent: TForm;
 
 	// Status flags
-	m_bSettingUp, m_bExiting, m_bGameRunning: Boolean;
+	m_bSettingUp, m_bExiting: Boolean;
 
 	procedure EnableDisableControls();
 	procedure RefreshSettings();
@@ -55,12 +55,10 @@ type
 	{ Public declarations }
 	// Local copy of system settings
 	settings: GAME_SETTINGS;
-
-	procedure SetGameRunning(bRunning: Boolean);
   end;
 
 var
-  frmGameMediaSettings: TfrmGameMediaSettings;
+  frmSettingsMedia: TfrmSettingsMedia;
 
 implementation
 
@@ -70,20 +68,18 @@ uses
 {$R *.dfm}
 
 // Private functions: Start
-procedure TfrmGameMediaSettings.EnableDisableControls();
+procedure TfrmSettingsMedia.EnableDisableControls();
 begin
-	// Enable controls based on other settings or whether we are currently playing a game
-
 	// Some settings should not be altered while the game is in progress
-	if (m_bGameRunning) then
+	{if (m_bGameRunning) then
 		begin
 		SetSubControlsEnabled(
 			gbMedia,
 			(CONTROL_TLABEL + CONTROL_TEDIT + CONTROL_TBUTTON), False);
-		end;
+		end; }
 end;
 
-procedure TfrmGameMediaSettings.RefreshSettings();
+procedure TfrmSettingsMedia.RefreshSettings();
 begin
 	// Set all controls to the correct system settings
 	m_bSettingUp := True;
@@ -99,7 +95,7 @@ begin
 	m_bSettingUp := False;
 end;
 
-procedure TfrmGameMediaSettings.UpdateMediaDetails();
+procedure TfrmSettingsMedia.UpdateMediaDetails();
 var
 	strMediaPath: String;
 	astrFiles: TStringList;
@@ -134,41 +130,29 @@ end;
 // Private functions: End
 
 // Public functions: Start
-procedure TfrmGameMediaSettings.SetGameRunning(bRunning: Boolean);
-begin
-	// When the game is running, certain settings should not be changed
-	m_bGameRunning := bRunning;
-end;
 // Public functions: End
 
-procedure TfrmGameMediaSettings.FormCreate(Sender: TObject);
+procedure TfrmSettingsMedia.FormCreate(Sender: TObject);
 begin
 	// Initialise form
 	m_pParent := TForm(Sender);
 	m_bSettingUp := False;
 	m_bExiting := False;
-	m_bGameRunning := False;
 
 	imgWarning.Top := imgMedia.Top;
 	imgWarning.Left := imgMedia.Left;
 end;
 
-procedure TfrmGameMediaSettings.FormDestroy(Sender: TObject);
+procedure TfrmSettingsMedia.FormDestroy(Sender: TObject);
 begin
 	// Exiting form
 end;
 
-procedure TfrmGameMediaSettings.FormShow(Sender: TObject);
+procedure TfrmSettingsMedia.FormShow(Sender: TObject);
 begin
 	// Exiting system?
 	if (ChocolateBox.bySystemExitRequest > 0) then
 		Exit;
-
-	// If the game is running, show this in the title of the form
-	if (m_bGameRunning) then
-		Caption := 'Chocolate Box Media [Busy !]'
-	else
-		Caption := 'Chocolate Box Media';
 
 	// Initialise controls for game settings
 	SetChildComboHandlers(gbMedia);
@@ -183,7 +167,7 @@ begin
 	SettingsTimer.Enabled := True;
 end;
 
-procedure TfrmGameMediaSettings.btnOkClick(Sender: TObject);
+procedure TfrmSettingsMedia.btnOkClick(Sender: TObject);
 begin
 	// Save settings
 	SettingsTimer.Enabled := False;
@@ -196,38 +180,57 @@ begin
 	ModalResult := mrOk;
 end;
 
-procedure TfrmGameMediaSettings.btnCancelClick(Sender: TObject);
+procedure TfrmSettingsMedia.btnCancelClick(Sender: TObject);
 begin
 	// Cancel any changes ?
 	m_bExiting := True;
 end;
 
-procedure TfrmGameMediaSettings.btnBrowseClick(Sender: TObject);
+procedure TfrmSettingsMedia.btnBrowseClick(Sender: TObject);
 var
-	strDirectory: String;
-begin
-	SelectDirectory(strDirectory, [], 0);
-	SelectDirectory('Select a directory', 'C:\', strDirectory);
-	{dlgOpenFile.InitialDir := ebMediaFolder.Text;
-	dlgOpenFile.FileName := '';
-	strChosenDirectory := ebMediaFolder.Text;
-	if (SelectDirectory(strChosenDirectory, options, 0)) then
-		begin
-		settings.strMediaFolder := strChosenDirectory;
-		ebMediaFolder.Text := settings.strMediaFolder;
-		UpdateMediaDetails();
-		end; }
+	strMsgLn1, strMsgLn2, strSelectedDir, strTest: String;
+	nAppPathPos: Integer;
 
-	// SelectDirectory
+	//ADAD
+	nTest: Integer;
+begin
+	// Ask the user user to select a directory. Alternative is:
+	//		SelectDirectory(strDirectory, [], 0);
+	// Note: The "410" used (which is the available width of the FileCtrl.TSelectDirDlg component)
+	// was determined empirically
+	SetCurrentDir(ChocolateBox.GameCache.szAppPath);
+	strMsgLn1 := 'Select media folder. Current full path is:';
+	strMsgLn2 := LimitStringLength(
+		Format('%s', [ChocolateBox.GameCache.szAppPath]),
+		lblFolderInformation.Canvas.Handle, 410, 10);
+	if (SelectDirectory(strMsgLn1 + #13#10 + strMsgLn2, 'C:\', strSelectedDir)) then
+		begin
+		// New folder selected! If this folder is relative to the application directory, keep only
+		// the relative information. Otherwise use the full path.
+		nAppPathPos := AnsiPos(ChocolateBox.GameCache.szAppPath, strSelectedDir);
+		if (nAppPathPos > 0) then
+			begin
+			// Path relative to the application
+			settings.strMediaFolder := AnsiRightStr(strSelectedDir,
+				Length(strSelectedDir) - (nAppPathPos + Length(ChocolateBox.GameCache.szAppPath) - 1));
+			end
+		else
+			begin
+			// Path separate from the application
+			settings.strMediaFolder := strSelectedDir;
+			end;
+
+		RefreshSettings();
+		end;
 end;
 
-procedure TfrmGameMediaSettings.imgRefreshClick(Sender: TObject);
+procedure TfrmSettingsMedia.imgRefreshClick(Sender: TObject);
 begin
-	// Update media details (user may have modified the path, added or removed files, etc)
+	// Update media details (the user may have added or removed files)
 	UpdateMediaDetails();
 end;
 
-procedure TfrmGameMediaSettings.OnSettingsTimerTick(Sender: TObject);
+procedure TfrmSettingsMedia.OnSettingsTimerTick(Sender: TObject);
 begin
 	// Disable the timer
 	SettingsTimer.Enabled := False;
