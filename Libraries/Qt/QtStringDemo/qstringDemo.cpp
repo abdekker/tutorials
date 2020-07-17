@@ -444,6 +444,7 @@ void StringsRandom(RandomString type, int length)
     // Creates a randomised string
     static int numCalls = 0;
     QString szRandom;
+    qsrand(clock());    // "clock" returns the ms since the process starts
     switch (type) {
         case RandomString::RandomTypeCapitalsOnly:
         {
