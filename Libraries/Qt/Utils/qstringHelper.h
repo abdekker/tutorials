@@ -3,7 +3,7 @@
 
 #include <QString>
 
-// Header-only helper class for QString
+// Header-only helper class for QString. To use, simply define a variable of type "qstringHelper".
 class qstringHelper
 {
 public:
