@@ -351,11 +351,19 @@ void StringsModifyA()
     
         QString s2 = QString("Hello %1").arg(a, 10, 10, QChar(' '));
         cout << "  QString::arg(long a, int, int, QChar)\t\t\t" << s2.toLatin1().data() << endl;
-		cout << "    ...and similarly for 'ulong', 'int', 'uint', 'short', and 'ushort'\n";
+		cout << "    (...and similarly for 'ulong', 'int', 'uint', 'short', and 'ushort')\n";
+    }
+
+    {
+        double a = 3.14159265358979;
+        QString s1 = QString("Hello %1").arg(a);
+        cout << "  QString::arg(double a,...)\t\t\t\t" << s1.toLatin1().data() << endl;
+    
+        QString s2 = QString("Hello %1").arg(a, 15, 'g', 12, QChar(' '));
+        cout << "  QString::arg(double a, int, char, int, QChar)\t\t" << s2.toLatin1().data() << endl;
     }
 
 /*
-QString::arg(double a, int fieldWidth = 0, char format = 'g', int precision = -1, QChar fillChar = QLatin1Char(' ')) const
 QString::arg(char a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
 QString::arg(QChar a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
 QString::arg(QStringView a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' ')) const
