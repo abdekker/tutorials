@@ -3,13 +3,13 @@
 
 #include <QString>
 
-// Header-only helper class for QString. To use, simply define a variable of type "qstringHelper".
-class qstringHelper
+// Header-only helper class for QString. To use, simply define a variable of type "QStringHelper".
+class QStringHelper
 {
 public:
     // Constructor / destructor
-    qstringHelper() {}
-    ~qstringHelper() {}
+    QStringHelper() {}
+    ~QStringHelper() {}
 
     QString GetRandomString(const int cLength)
     {
