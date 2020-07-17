@@ -1,5 +1,6 @@
-#include <iostream> 
-using namespace std; 
+#include <iostream>
+#include "..\Utils\magicEnum.h"
+using namespace std;
 
 // Adapted from:
 //  https://www.geeksforgeeks.org/enum-classes-in-c-and-their-advantage-over-enum-datatype/
@@ -20,6 +21,10 @@ int main()
     enum Animal {
         Cat,
         Dog };
+
+    // ADAD, testing...
+    auto gender_name = magic_enum::enum_name(Male);
+    cout << "  Gender::0 = " << gender_name << "\n";
 
     // An enum values cannot be used to name variables
         //int Cat = 10;   // error C2365: 'main::Cat': redefinition
