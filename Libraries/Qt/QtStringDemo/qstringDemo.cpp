@@ -2,7 +2,16 @@
 #include <iostream>
 
 #include <QString>
+#include <QUuid>                // For QUuid::createUuid()
+#include <QRegularExpression>   // For regular expressions
 #include <QDebug>
+
+// Used when generating a randomised string
+enum class RandomString {
+    RandomTypeCapitalsOnly,
+    RandomTypeAlphabetical,
+    RandomTypeUUID
+};
 
 /* Demonstrates using QString (and Qt debug tools like "qDebug" to output to the console).
 Initially compiled in Visual Studio 2019.
@@ -430,6 +439,46 @@ int indexOf(const QRegularExpression &re, int from, QRegularExpressionMatch *rma
 */
 }
 
+void StringsRandom(RandomString type, int length)
+{
+    // Creates a randomised string
+    static int numCalls = 0;
+    QString szRandom;
+    switch (type) {
+        case RandomString::RandomTypeCapitalsOnly:
+        {
+            // Capital letters only
+            szRandom.resize(length);
+            for (int pos = 0; pos < length; pos++)
+                szRandom[pos] = (QChar('A' + char(qrand() % ('Z' - 'A'))));
+        }
+        break;
+
+        case RandomString::RandomTypeAlphabetical:
+        {
+            // Upper, lowercase letters and numbers
+            const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+            for (int pos = 0; pos < length; pos++)
+                szRandom.append(possibleCharacters.at(qrand() % possibleCharacters.length()));
+        }
+        break;
+
+        case RandomString::RandomTypeUUID:
+        {
+            // Generate a UUIID (pseudo-random string guaranteed to be unique)
+            szRandom = QUuid::createUuid().toString();
+            szRandom.remove(QRegularExpression("{|}|-"));   // To have only hex numbers
+        }
+        break;
+    }
+
+    if (szRandom.size()) {
+        QString szResult = QString("  Random string (type=%1, length=%2):\t%3").arg(
+            QString::number(numCalls++), QString::number(length), szRandom);
+        cout << szResult.toLatin1().data() << endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // Ensure the output buffer is flushed on each insertion operation
@@ -454,6 +503,12 @@ int main(int argc, char *argv[])
     StringsExtract();
     StringsCompare();
     StringsSearch();
+
+    cout << "\n### Randomising strings ###\n";
+    StringsRandom(RandomString::RandomTypeCapitalsOnly, 9);
+    StringsRandom(RandomString::RandomTypeAlphabetical, 15);
+    StringsRandom(RandomString::RandomTypeUUID, 0);
+    cout << "#\n";
 
     // Exit
     cout << "\nAll done! Press a key to exit...\n";
