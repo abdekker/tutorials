@@ -108,7 +108,7 @@ function ConvertStringToWideString(const cstrInput: String) : WideString;
 function ConvertWideStringToString(const cwstrInput: WideString): String;
 function ConvertRawBuffer(pBuffer: PBYTE; const cdwBufferSize: DWORD; const cstrSeparator: String) : String;
 function GetTimeStringFromSeconds(dwSeconds: DWORD; bIncludeSeconds: Boolean = True) : String;
-function GetIsoDateTimeString(dtSource: TDateTime) : String;
+function GetIsoDateTimeString(const cdtSource: TDateTime; bUseUnderscore: Boolean = False) : String;
 function ConvertTitleCase(const cstrInput: String) : String;
 function InsertFormattingChar(const cstrInput: String; const cChar: Char; const cnSpacing: Integer) : String;
 procedure ParseString(const cstrSource: String; const strDelimiter: String; list: TStringList);
@@ -2192,16 +2192,21 @@ begin
 	Result := strTimeString;
 end;
 
-function GetIsoDateTimeString(dtSource: TDateTime) : String;
+function GetIsoDateTimeString(const cdtSource: TDateTime; bUseUnderscore: Boolean = False) : String;
 begin
 	// Return a formatted date/time using the ISO 8601 specification "yyyy-mm-ddThh:nn:ss"
 	// Note: You cannot use a single call to "FormatDateTime" as in:
 	//		strDateTime := FormatDateTime('yyyy-mm-ddThh:nn:ss', Now());
 	// According to the documentation, "T" has a special format meaning (displaying the time using
 	// the system ShortTimeFormat setting). We need to construct the string manually.
-	Result := (
-		FormatDateTime(DATE_FORMAT, dtSource) + 'T' +
-		FormatDateTime(TIME_FORMAT, dtSource));
+	if (bUseUnderscore) then
+		Result := (
+			FormatDateTime(DATE_FORMAT, cdtSource) + 'T' +
+			FormatDateTime(TIME_FORMAT_UNDERSCORE, cdtSource))
+	else
+		Result := (
+			FormatDateTime(DATE_FORMAT, cdtSource) + 'T' +
+			FormatDateTime(TIME_FORMAT, cdtSource));
 end;
 
 function ConvertTitleCase(const cstrInput: String) : String;
