@@ -1,6 +1,6 @@
 { General system utilities designed for Windows applications }
 unit SystemUtils;
-{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
+{$I CoreOptions.inc}
 
 interface
 
