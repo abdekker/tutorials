@@ -91,6 +91,7 @@ function IsPathAvailable(const cstrPath: String) : Boolean;
 function IsPathWriteable(const cstrPath: String) : Boolean;
 function RemovePathExtInfo(strFullPath: String) : String;
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
+function DetectImageType(const cstrInput: String) : String;
 function GetSizeOfFile(strFilename: String) : DWORD;
 function GetFullFileVersion(szFile: PChar) : String;
 procedure ChangeFilename(strOldPath, strNewPath: String);
@@ -1799,6 +1800,32 @@ begin
 	strExtractedExt := AnsiLowerCase(ExtractFileExt(strFullFilename));
 	if (AnsiCompareText(strExtractedExt, strTestExt) = 0) then
 		Result := True;
+end;
+
+function DetectImageType(const cstrInput: String) : String;
+var
+	fs: TFileStream;
+	firstBytes: AnsiString;
+begin
+	// Attempts to read the file type. Useful where the extension has been renamed or is missing.
+	Result := '';
+	fs := TFileStream.Create(cstrInput, fmOpenRead);
+	try
+		SetLength(firstBytes, 8);
+		fs.Read(firstBytes[1], 8);
+		if (Copy(firstBytes, 1, 2) = 'BM') then
+			Result := 'bmp'
+		else if (firstBytes = #137'PNG'#13#10#26#10) then
+			Result := 'png'
+		else if (Copy(firstBytes, 1, 3) = 'GIF') then
+			Result := 'gif'
+		else if (Copy(firstBytes, 1, 2) = #$FF#$D8) then
+			Result := 'jpg'
+		else if (Copy(firstBytes, 1, 4) = #00#$10) then
+			Result := 'ico';
+	finally
+		fs.Free();
+	end;
 end;
 
 function GetSizeOfFile(strFilename: String) : DWORD;
