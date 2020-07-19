@@ -90,7 +90,6 @@ procedure EmptyFolder(strFolder: String);
 function IsPathAvailable(const cstrPath: String) : Boolean;
 function IsPathWriteable(const cstrPath: String) : Boolean;
 function RemovePathExtInfo(strFullPath: String) : String;
-function RemovePathInfo(strFullPath: String) : String;
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
 function GetSizeOfFile(strFilename: String) : DWORD;
 function GetFullFileVersion(szFile: PChar) : String;
@@ -1780,16 +1779,13 @@ begin
 	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
 	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, strFullPath);
 	Result := Copy(strFullPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
-end;
 
-function RemovePathInfo(strFullPath: String) : String;
-var
-	nPosPath: Integer;
-begin
-	// Take a fully qualified path, and remove path information, leaving just the filename (or
-	// folder name). Example: "C:\Temp\MyFile.txt" is converted to "MyFile.txt".
-	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
-	Result := Copy(strFullPath, (nPosPath + 1), Length(strFullPath));
+	// Note: SysUtils provides additional methods, each example uses "C:\Temp\MyFile.txt":
+	// * ExtractFileDrive		C:
+	// * ExtractFileDir			C:\Temp
+	// * ExtractFilePath		C:\Temp\
+	// * ExtractFileName		MyFile.txt
+	// * ExtractFileExt			.txt (see also "ChangeFileExt")
 end;
 
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
