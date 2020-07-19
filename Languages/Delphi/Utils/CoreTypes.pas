@@ -76,6 +76,7 @@ const
   DATETIME_FORMAT_ISO8601	= '%.4d-%.2d-%.2dT%.2d:%.2d:%.2d';
   DATE_FORMAT				= 'yyyy-mm-dd';
   TIME_FORMAT				= 'hh:nn:ss';
+  TIME_FORMAT_UNDERSCORE	= 'hh_nn_ss';	// Time format suitable for filenames
 
   // Impulse filter (used for generating a smoothed average for various processes, such as the
   // average processing time used in the setup screens). The impulse filter works by adding a
