@@ -4,7 +4,7 @@ unit FormUtils;
 interface
 
 uses
-  Windows, Classes, Controls, Forms, ExtCtrls, StdCtrls;
+  Windows, Classes, Controls, Forms, ExtCtrls, Graphics, StdCtrls;
 
 const
   // Control types
@@ -78,10 +78,16 @@ function GetListVisibleRows(list: TCustomListControl) : Integer;
 // TMemo
 procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 
+// TBitmap, TPicture and other image types
+procedure AssignPictureFromFile(pic: TPicture; const cstrFile: String);
+function SavePictureAsBMP(pic: TPicture; const cstrFile: String) : Boolean;
+procedure GetTrueIconSize(const cstrIcon: String; var nTrueWidth: Integer; var nTrueHeight: Integer);
+
 implementation
 
 uses
-  Buttons, ComCtrls, Graphics, jpeg, Messages, StrUtils, SysUtils;
+  Buttons, ComCtrls, jpeg, Messages, StrUtils, SysUtils,
+  SystemUtils;		// SystemUtils is in this folder
 
 const
   // Maximum level of nesting for iterating child controls (eg. setting character set)
@@ -668,6 +674,94 @@ end;
 procedure ScrollMemoLastLine(handle: HWND; nLines: Integer);
 begin
 	SendMessage(handle, EM_LINESCROLL, 0, nLines);
+end;
+
+// TBitmap, TPicture and other image types
+procedure AssignPictureFromFile(pic: TPicture; const cstrFile: String);
+begin
+	// Load the provide file and assign to the picture object (probably TImage.TPicture)
+	// Note: The caller must ensure the file actually exists with "FileExists(...)"
+	try
+		// To apply custom processing, such as for JPG images, you could use:
+		{var
+			jpgImage: TJPEGImage;
+		// ...
+		if (	(IsFileExtType(cstrFile, '.jpg')) or
+				(IsFileExtType(cstrFile, '.jpeg'))) then
+			begin
+			// Custome processing for JPG
+			jpgImage := TJPEGImage.Create();
+			jpgImage.LoadFromFile(cstrFile);
+			pic.Assign(jpgImage);
+			jpgImage.Free();
+			end
+		else
+			begin
+			// TPicture can natively loaded .bmp, .emf, .ico, .jpg and .wmf
+			pic.LoadFromFile(cstrFile);
+			end;}
+
+		// TPicture can natively loaded .bmp, .emf, .ico, .jpg and .wmf
+		pic.LoadFromFile(cstrFile);
+	finally
+	end;
+end;
+
+function SavePictureAsBMP(pic: TPicture; const cstrFile: String) : Boolean;
+var
+	bmpConverted: TBitmap;
+begin
+	// Convert the TPicture to a local bitmap and save to the specified output file
+	Result := False;
+	if (TPicture.InstanceSize = 0) or (FileExists(cstrFile))  then
+		Exit;
+
+	// Create a local bitmap object
+	bmpConverted := TBitmap.Create();
+	try
+		// Set the bitmap size
+		bmpConverted.Width := pic.Width;
+		bmpConverted.Height := pic.Height;
+
+		// Draw to the bitmap canvas and save
+		bmpConverted.Canvas.Draw(0, 0, pic.Graphic);
+		bmpConverted.SaveToFile('C:\Tmp\test.bmp');
+	finally
+		// Clean up memory
+		bmpConverted.Free;
+	end;
+end;
+
+procedure GetTrueIconSize(const cstrIcon: String; var nTrueWidth: Integer; var nTrueHeight: Integer);
+var
+	hIcon: THandle;
+	iconInfo: TIconInfo;
+	bmpMask: TBitmap;
+begin
+	// Delphi 7 has a bug where icon files always report their size (width / height) as 32. To
+	// calculate the "true" size, load the icon into a bitmap.
+	// Note: The caller must ensure the file actually exists with "FileExists(...)"
+	hIcon := LoadImage(0, PChar(cstrIcon), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	if (hIcon <> 0) then
+		begin
+		bmpMask := TBitmap.Create();
+			try
+				iconInfo.fIcon := true;
+				try
+					GetIconInfo(hIcon, iconInfo);
+					bmpMask.Handle := iconInfo.hbmMask;
+					bmpMask.Dormant();	// Resource can be released without losing the BMP
+				finally
+					DeleteObject(iconInfo.hbmMask);
+					DeleteObject(iconInfo.hbmColor)
+				end;
+
+			nTrueWidth := bmpMask.Width;
+			nTrueHeight := bmpMask.Height;
+			finally
+				bmpMask.Free();
+			end;
+		end;
 end;
 // End: Public methods
 
