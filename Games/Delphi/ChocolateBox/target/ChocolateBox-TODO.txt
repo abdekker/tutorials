@@ -1,0 +1,4 @@
+* Use Description.ini as a description of the icon list
+* Iterate through list of icons to fill the list
+* Change list of icons to a name, not an index
+* Show settings in Advanced Settings form
