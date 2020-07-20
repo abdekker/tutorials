@@ -715,6 +715,7 @@ var
 	bmpConverted: TBitmap;
 begin
 	// Convert the TPicture to a local bitmap and save to the specified output file
+	// NB! This code does not (yet) support 32-bit bitmaps with alpha channel transparency
 	Result := False;
 	if (TPicture.InstanceSize = 0) or (FileExists(cstrFile))  then
 		Exit;
@@ -728,7 +729,7 @@ begin
 
 		// Draw to the bitmap canvas and save
 		bmpConverted.Canvas.Draw(0, 0, pic.Graphic);
-		bmpConverted.SaveToFile('C:\Tmp\test.bmp');
+		bmpConverted.SaveToFile(cstrFile);
 	finally
 		// Clean up memory
 		bmpConverted.Free;
@@ -737,34 +738,60 @@ end;
 
 procedure GetTrueIconSize(const cstrIcon: String; var nTrueWidth: Integer; var nTrueHeight: Integer);
 var
-	hIcon: THandle;
-	iconInfo: TIconInfo;
-	bmpMask: TBitmap;
+	fs: TFileStream;
+	firstBytes: AnsiString;
 begin
-	// Delphi 7 has a bug where icon files always report their size (width / height) as 32. To
-	// calculate the "true" size, load the icon into a bitmap.
-	// Note: The caller must ensure the file actually exists with "FileExists(...)"
-	hIcon := LoadImage(0, PChar(cstrIcon), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
-	if (hIcon <> 0) then
-		begin
-		bmpMask := TBitmap.Create();
-			try
-				iconInfo.fIcon := true;
-				try
-					GetIconInfo(hIcon, iconInfo);
-					bmpMask.Handle := iconInfo.hbmMask;
-					bmpMask.Dormant();	// Resource can be released without losing the BMP
-				finally
-					DeleteObject(iconInfo.hbmMask);
-					DeleteObject(iconInfo.hbmColor)
-				end;
+	// The size of image/vnd.microsoft.icon MIME files (Windows icon) can be found in the header at
+	// bytes 7 & 8. A value of "0" means "256" (the largest icon size supported).
+	// Note: Adapted from https://en.wikipedia.org/wiki/ICO_(file_format)
+	fs := TFileStream.Create(cstrIcon, fmOpenRead);
+	try
+		SetLength(firstBytes, 8);
+		fs.Read(firstBytes[1], 8);
+		nTrueWidth := Integer(firstBytes[7]);
+		if (nTrueWidth = 0) then
+			nTrueWidth := 256;
 
-			nTrueWidth := bmpMask.Width;
-			nTrueHeight := bmpMask.Height;
-			finally
-				bmpMask.Free();
-			end;
-		end;
+		nTrueHeight := Integer(firstBytes[8]);
+		if (nTrueHeight = 0) then
+			nTrueHeight := 256;
+	finally
+		fs.Free();
+	end;
+
+	// Note: An alternative approach is to load the icon, assign to a bitmap and then read the
+	// bitmap properties. Although this works, it is much slower. Code given below:
+	{var
+		hIcon: THandle;
+		iconInfo: TIconInfo;
+		bmpMask: TBitmap;
+	begin
+		// Note: The caller must ensure the file actually exists with "FileExists(...)"
+		try
+			hIcon := LoadImage(0, PChar(cstrIcon), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+			if (hIcon <> 0) then
+				begin
+				bmpMask := TBitmap.Create();
+					try
+						iconInfo.fIcon := true;
+						try
+							GetIconInfo(hIcon, iconInfo);
+							bmpMask.Handle := iconInfo.hbmMask;
+							bmpMask.Dormant();	// Resource can be released without losing the BMP
+						finally
+							DeleteObject(iconInfo.hbmMask);
+							DeleteObject(iconInfo.hbmColor)
+						end;
+
+					nTrueWidth := bmpMask.Width;
+					nTrueHeight := bmpMask.Height;
+					finally
+						bmpMask.Free();
+					end;
+				end;
+		finally
+			DestroyIcon(hIcon);
+		end;}
 end;
 // End: Public methods
 
