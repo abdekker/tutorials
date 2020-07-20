@@ -17,7 +17,7 @@ const
   FORM_HEIGHT_MAX: Integer			= 1200;
 
   IMAGE_LEFT_MIN: Integer			= 5;
-  IMAGE_TOP_MIN: Integer			= 80;
+  IMAGE_TOP_MIN: Integer			= 88;
   IMAGE_WIDTH_DEFAULT: Integer		= 130;
   IMAGE_HEIGHT_DEFAULT: Integer		= 60;
 
