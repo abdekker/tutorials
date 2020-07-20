@@ -48,6 +48,34 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
       ParentFont = False
       Visible = False
     end
+    object lblOutputFileSaved: TLabel
+      Left = 90
+      Top = 73
+      Width = 166
+      Height = 13
+      Caption = 'XYZ saved to the application folder'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clPurple
+      Font.Height = -9
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      Visible = False
+    end
+    object lblGifFrame: TLabel
+      Left = 15
+      Top = 73
+      Width = 41
+      Height = 13
+      Caption = 'Frame: 1'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      Visible = False
+    end
     object ebImageFile: TEdit
       Left = 90
       Top = 21
@@ -73,7 +101,7 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
     end
     object tbShowBorder: TCheckBox
       Left = 15
-      Top = 55
+      Top = 54
       Width = 65
       Height = 17
       Caption = 'Border'
@@ -82,7 +110,7 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
     end
     object tbFullScreen: TCheckBox
       Left = 90
-      Top = 55
+      Top = 54
       Width = 90
       Height = 17
       Caption = 'Full screen'
@@ -98,5 +126,11 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
       TabOrder = 4
       OnClick = btnSaveImageClick
     end
+  end
+  object UpdateTimer: TTimer
+    Interval = 200
+    OnTimer = OnUpdateTimer
+    Left = 455
+    Top = 235
   end
 end

@@ -7,6 +7,9 @@ uses
   FormUtils in '..\Utils\FormUtils.pas',
   SystemUtils in '..\Utils\SystemUtils.pas',
 
+  // 3rd party utils
+  GIFImage in '..\Utils3rdParty\GIFImage.pas',
+
   WindowsMetaFileForm in 'WindowsMetaFileForm.pas' {frmWindowsMetaFile};
 
 {$R *.res}

@@ -51,9 +51,11 @@ type
 	btnBrowse: TButton;
 	tbShowBorder: TCheckBox;
 	tbFullScreen: TCheckBox;
-
+	btnSaveImage: TButton;
+	lblGifFrame: TLabel;
+	lblOutputFileSaved: TLabel;
 	lblDiagResizeEvents: TLabel;
-    btnSaveImage: TButton;
+	UpdateTimer: TTimer;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -66,6 +68,7 @@ type
 	procedure tbShowBorderClick(Sender: TObject);
 	procedure tbFullScreenClick(Sender: TObject);
 	procedure btnSaveImageClick(Sender: TObject);
+	procedure OnUpdateTimer(Sender: TObject);
 
   private
 	{ Private declarations }
@@ -74,6 +77,7 @@ type
 
 	m_bCreatedImage: Boolean;
 	m_imgLoaded: TRectangleImage;
+	m_dwHideOutputFileSavedLabel: DWORD;
 
 	{$IFDEF DBG}
 	// Diagnostics
@@ -82,6 +86,7 @@ type
 
 	procedure CreateImage(const cbNoImage: Boolean);
 	procedure ResizeImage();
+	procedure OnGifPaint(Sender: TObject);
 
   public
 	{ Public declarations }
@@ -94,7 +99,10 @@ implementation
 
 uses
   ExtDlgs, jpeg,
-  CoreTypes, FormUtils, SystemUtils;
+  CoreTypes, FormUtils, GifImage, SystemUtils;
+
+const
+  OUTPUT_FILE_SAVED_TICKS = 5000;
 
 {$R *.dfm}
 
@@ -117,6 +125,7 @@ begin
 	m_settings.nTruePictureHeight := 0;
 
 	m_bCreatedImage := False;
+	m_dwHideOutputFileSavedLabel := 0;
 end;
 
 procedure TfrmWindowsMetaFile.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -160,6 +169,9 @@ begin
 	ebImageFile.Width := (ebImageFile.Width + nWidthChange);
 
 	gbImageFile.Height := (gbImageFile.Height + nHeightChange);
+
+	// Start an update timer
+	UpdateTimer.Enabled := True;
 end;
 
 procedure TfrmWindowsMetaFile.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer;
@@ -195,15 +207,18 @@ end;
 procedure TfrmWindowsMetaFile.btnBrowseClick(Sender: TObject);
 var
 	openPictureDlg: TOpenPictureDialog;
-	strTest: String;
+	bImageWasVisible: Boolean;
+	strImageType: String;
 begin
 	if (m_bExiting) then
 		Exit;
 
-	// Browse for the image file
+	// We may hide the image...
+	bImageWasVisible := False;
 	if (m_bCreatedImage) then
-		m_imgLoaded.Visible := False;
+		bImageWasVisible := m_imgLoaded.Visible;
 
+	// Browse for the image file
 	openPictureDlg := TOpenPictureDialog.Create(Self);
 	if (openPictureDlg.Execute) then
 		begin
@@ -211,21 +226,36 @@ begin
 		if (FileExists(openPictureDlg.FileName)) then
 			begin
 			// File exists, load the data into the image component
-			if (not m_bCreatedImage) then
+			if (m_bCreatedImage) then
+				m_imgLoaded.Visible := False
+			else
+				begin
 				CreateImage(False);
+				bImageWasVisible := True;
+				end;
 
-			strTest := DetectImageType(openPictureDlg.FileName);
+			// Test method to detect the type of an image by reading the header information
+			strImageType := DetectImageType(openPictureDlg.FileName);
 
 			// User has loaded an image...
 			m_settings.szImage := openPictureDlg.FileName;
 
 			// Load the selected file
 			AssignPictureFromFile(m_imgLoaded.Picture, openPictureDlg.FileName);
+			if (m_imgLoaded.Picture.Graphic is TGifImage) then
+				begin
+				// Show the frame number for animated GIFs
+				lblGifFrame.Visible := True;
+				TGifImage(m_imgLoaded.Picture.Graphic).AnimationSpeed := 200;
+				TGifImage(m_imgLoaded.Picture.Graphic).OnPaint := OnGifPaint;
+				end
+			else
+				lblGifFrame.Visible := False;
 
 			// Resize the TImage container
 			if (IsFileExtType(openPictureDlg.FileName, '.ico')) then
 				begin
-				// Extract the size of icons separately due to a bug in Delphi 7
+				// Extract the size of icons separately (due to a bug in Delphi 7)
 				GetTrueIconSize(openPictureDlg.FileName,
 					m_settings.nTruePictureWidth,
 					m_settings.nTruePictureHeight);
@@ -252,7 +282,7 @@ begin
 
 	// Clean up and show the image
 	openPictureDlg.Free();
-	if (m_bCreatedImage) then
+	if (m_bCreatedImage) and (bImageWasVisible) then
 		m_imgLoaded.Visible := True;
 end;
 
@@ -286,27 +316,26 @@ end;
 procedure TfrmWindowsMetaFile.btnSaveImageClick(Sender: TObject);
 var
 	strFilename, strFullPath: String;
-	astrTest: array[1..10] of String;
 begin
 	if (m_bExiting) then
 		Exit;
 
 	if (m_bCreatedImage) and (Length(m_settings.szImage) > 0) then
 		begin
-		// Generate the output filename
-		strFilename := Format('%s_%s', [
+		// Generate the output filename (a date/time-stamped bitmap)
+		strFilename := ChangeFileExt(Format('%s_%s', [
 			GetIsoDateTimeString(Now(), True),
-			ExtractFileName(m_settings.szImage)]);
+			ExtractFileName(m_settings.szImage)]), '.bmp');
 		strFullPath := Format('%s%s', [m_settings.szAppFolder, strFilename]);
 
-		astrTest[1] := ChangeFileExt(m_settings.szImage,'.abc');
-
-		// Save the picture to a date/time-stamped bitmap
-		m_imgLoaded.Picture.SaveToFile(strFullPath);
-		strFullPath := Format('%sb%s', [m_settings.szAppFolder, strFilename]);
-		//SavePictureAsBMP(m_imgLoaded.Picture, strFullPath);
+		// Save the picture to disk
+		// Note: Calling "TImage.Picture.SaveToFile(file);"( without conversion) gives the same
+		// image / mime type (ie. a loaded .ico file is saved as an icon).
 		SavePictureAsBMP(m_imgLoaded.Picture, strFullPath);
-		MessageDlg(Format('%s saved to application folder', [strFilename]), mtWarning, [mbOK], 0);
+		lblOutputFileSaved.Caption := Format('%s saved to application folder', [strFilename]);
+		lblOutputFileSaved.Visible := True;
+		m_dwHideOutputFileSavedLabel := (GetTickCount() + OUTPUT_FILE_SAVED_TICKS);
+		//MessageDlg(Format('%s saved to application folder', [strFilename]), mtWarning, [mbOK], 0);
 		end
 	else
 		MessageDlg('Please load an image first...', mtWarning, [mbOK], 0);
@@ -392,6 +421,36 @@ begin
 		end;
 
 	m_imgLoaded.Visible := bImageVisible;
+end;
+
+procedure TfrmWindowsMetaFile.OnGifPaint(Sender: TObject);
+begin
+	// When painting animated GIF images, show the frame number as a diagnostics label
+	// Note: To show the same frame all the time:
+	//		(Sender as TGIFPainter).ActiveImage := 11;
+	lblGifFrame.Caption := Format('Frame: %d', [(Sender as TGIFPainter).ActiveImage]);
+	lblGifFrame.Refresh();
+end;
+
+procedure TfrmWindowsMetaFile.OnUpdateTimer(Sender: TObject);
+begin
+	// Disable timer
+	UpdateTimer.Enabled := False;
+	if (m_bExiting) then
+		Exit;
+
+	// Time to hide the "file saved" label?
+	if (m_dwHideOutputFileSavedLabel > 0) then
+		begin
+		if (GetTickCount() > m_dwHideOutputFileSavedLabel) then
+			begin
+			m_dwHideOutputFileSavedLabel := 0;
+			lblOutputFileSaved.Visible := False;
+			end;
+		end;
+
+	// Restart timer
+	UpdateTimer.Enabled := True;
 end;
 
 end.
