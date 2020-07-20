@@ -682,6 +682,9 @@ begin
 	// Load the provide file and assign to the picture object (probably TImage.TPicture)
 	// Note: The caller must ensure the file actually exists with "FileExists(...)"
 	try
+		// Clear up the old image
+		pic.Assign(nil);
+
 		// To apply custom processing, such as for JPG images, you could use:
 		{var
 			jpgImage: TJPEGImage;
