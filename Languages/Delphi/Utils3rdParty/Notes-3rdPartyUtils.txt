@@ -1,0 +1,10 @@
+These Delphi units were written by others and can be used in Delphi applications
+
+### GifImage.pas ###
+* Originally written by Anders Melander and then adapted by Finn Tolderlund
+	- See Anders Melander's website: http://melander.dk/delphi/gifimage/
+	- See Finn Tolderlund's website: http://www.tolderlund.eu/delphi/
+* To use, add GifImage.pas to your project's uses clause
+	# Example (in .dpr): GIFImage in '..\Utils3rdParty\GIFImage.pas'
+	- The application should automatically be able to load .gif images now
+#
