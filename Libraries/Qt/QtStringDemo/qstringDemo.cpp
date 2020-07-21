@@ -4,6 +4,7 @@
 #include <QString>
 #include <QUuid>                // For QUuid::createUuid()
 #include <QRegularExpression>   // For regular expressions
+#include <QVector>              // For lists of results
 #include <QDebug>
 
 // Used when generating a randomised string
@@ -426,9 +427,103 @@ bool operator>=(const QByteArray &other) const*/
 
 void StringsSearch()
 {
+    // Basic search operations
+    cout << "\n### Searching strings ###\n\n";
+
+    {
+        cout << "(Using QString::indexOf(QLatin1String str, ...)\n";
+        QString sentence = "The quick brown fox jumps over the lazy dog and they laughed together";
+        QString searchTerm = "the";
+        cout << "  Sentence = " << sentence.toLatin1().data() << endl;
+        cout << "  Search term = " << searchTerm.toLatin1().data() << "\n";
+
+        cout << "\n[ Case-insensitive ]\n";  
+        int searchPos = 0;
+
+        // Still to be resolved: QVector only links in RELEASE mode
+#ifdef NDEBUG
+        QVector<int> foundPositions;
+        while ((searchPos = sentence.indexOf(searchTerm, searchPos, Qt::CaseInsensitive)) != -1) {
+            foundPositions.push_back(searchPos);
+            ++searchPos;    // Continue search
+        }
+
+        if (foundPositions.size()) {
+            cout << "    (found search term " << foundPositions.size() << " times at positions ";
+            for (int pos=0; pos < foundPositions.size(); pos++) {
+                if (pos < (foundPositions.size() - 1))
+                    cout << foundPositions[pos] << ", ";
+                else
+                    cout << "and " << foundPositions[pos];
+            }
+        }
+        else
+            cout << "    (search term not found)";
+#else
+        int countTerm = 0;
+        while ((searchPos = sentence.indexOf(searchTerm, searchPos, Qt::CaseInsensitive)) != -1) {
+            countTerm++;
+            cout << "    (found at position " << searchPos << ")\n";
+            ++searchPos;    // Continue search
+        }
+        cout << "    (found search term " << countTerm << " times)\n";
+#endif
+
+        cout << "\n[ Case-sensitive ]\n";  
+        searchPos = 0;
+
+#ifdef NDEBUG
+        foundPositions.clear();
+        while ((searchPos = sentence.indexOf(searchTerm, searchPos, Qt::CaseSensitive)) != -1) {
+            foundPositions.push_back(searchPos);
+            ++searchPos;    // Continue search
+        }
+
+        if (foundPositions.size()) {
+            cout << "    (found search term " << foundPositions.size() << " times at positions ";
+            for (int pos=0; pos < foundPositions.size(); pos++) {
+                if (pos < (foundPositions.size() - 1))
+                    cout << foundPositions[pos] << ", ";
+                else
+                    cout << "and " << foundPositions[pos];
+            }
+        }
+        else
+            cout << "    (search term not found)";
+
+        cout << "\n";
+#else
+        countTerm = 0;
+        while ((searchPos = sentence.indexOf(searchTerm, searchPos, Qt::CaseSensitive)) != -1) {
+            countTerm++;
+            cout << "    (found at position " << searchPos << ")\n";
+            ++searchPos;    // Continue search
+        }
+        cout << "    (found search term " << countTerm << " times)\n";
+#endif
+    }
+
+    {
+        cout << "\n(Using QString::indexOf(QChar str, ...)\n";
+        QString sentence = "The quick brown fox jumps over the lazy dog";
+        QChar searchChar = 'r';
+        cout << "  Sentence = " << sentence.toLatin1().data() << endl;
+        cout << "  Search term = " << searchChar.toLatin1() << "\n\n";
+
+        int countTerm = 0;
+        int searchPos = 0;
+        while ((searchPos = sentence.indexOf(searchChar, searchPos, Qt::CaseInsensitive)) != -1) {
+            countTerm++;
+            cout << "    (found at position " << searchPos << ")\n";
+            ++searchPos;    // Continue search
+        }
+        cout << "    (found search term " << countTerm << " times)\n";
+    }
+
+    cout << "#\n";
 /*
-int indexOf(QLatin1String str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
-int indexOf(QChar ch, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+    int indexOf(QLatin1String str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
+    int indexOf(QChar ch, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
 int indexOf(const QString &str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
 int indexOf(const QStringRef &str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
 int indexOf(QStringView str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
