@@ -156,7 +156,7 @@ void TestQFile(QCoreApplication &a)
     }
 
     cout << "\n(open each file and display a few bytes)\n";
-    FILE* f
+    /*FILE* f
     QFile myFile;
     QByteArray ba;
     for (int fileNum=0; fileNum < examplesFullPath.size(); fileNum++) {
@@ -168,7 +168,7 @@ void TestQFile(QCoreApplication &a)
         }
 
         myFile.close();
-    }
+    }*/
     //QFile myFile;
     //QByteArray(
     //char* c;
