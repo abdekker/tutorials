@@ -108,6 +108,39 @@ void FileReadText_ifstream()
     cout << "#\n";
 }
 
+void FileReadText_FILE()
+{
+    cout << "\n### Reading from a text file using stdio::FILE ###\n";
+
+    // Attempt to open a file that does not exist
+    FILE *pFile = fopen(LOCAL_FILE_NO_EXIST , "r");
+    if (pFile)
+        fclose(pFile);
+    else
+        cout << "Unable to open file: " << LOCAL_FILE_NO_EXIST << '\n';
+
+    // Open file which does exist (because of earlier calls to "TestWrite_XXX")
+    cout << "\n(Read contents, character by character)\n";
+    pFile = fopen(LOCAL_FILE, "r");
+    char buffer[100];
+    if (pFile)
+    {
+        while (!feof(pFile))
+        {
+            if (fgets(buffer, 100, pFile) == NULL)
+                break;
+
+            fputs(buffer, stdout);
+        }
+        cout << '\n';
+        fclose(pFile);
+    }
+    else
+        cout << "Unable to open file: " << LOCAL_FILE << '\n';
+
+    cout << "#\n";
+}
+
 void FileSizeText()
 {
     cout << "\n### Determine size of text file ###\n";
@@ -208,6 +241,7 @@ int main()
     FileWriteText_ofstream();
     FileWriteText_fstream();
     FileReadText_ifstream();
+    FileReadText_FILE();
     FileSizeText();
     FileDelete();
 
