@@ -11,7 +11,9 @@ type
   // Settings
   SETTINGS_OFFSETS = record
 	// Size offsets (to assist with form resize events)
-	nFilePathWidth, nBrowseLeft, nDiagnosticsLeft: Integer;
+	nGroupWidth, nGroupHeight: Integer;
+	nFilePathWidth, nBrowseLeft, nDiagnosticsLeft, nBevelWidth: Integer;
+	nOutputMsgWidth, nOutputMsgTop, nExitButtonLeft, nExitButtonTop: Integer;
   end;
 
   SETTINGS_IMAGE_READER = record
@@ -39,8 +41,14 @@ type
 	tbFullScreen: TCheckBox;
 	btnSaveImage: TButton;
 	lblGifFrame: TLabel;
-	lblOutputFileSaved: TLabel;
-	lblDiagResizeEvents: TLabel;
+	imgGifPause: TImage;
+	imgGifPlay: TImage;
+	lblDiagnostics: TLabel;
+	bevelSeparator: TBevel;
+
+	lblOutputMessage: TStaticText;
+	btnExit: TButton;
+
 	UpdateTimer: TTimer;
 
 	procedure FormCreate(Sender: TObject);
@@ -50,28 +58,37 @@ type
 	procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
 	procedure FormResize(Sender: TObject);
 
+	procedure btnExitClick(Sender: TObject);
+	procedure gbImageFileClick(Sender: TObject);
 	procedure btnBrowseClick(Sender: TObject);
 	procedure tbShowBorderClick(Sender: TObject);
 	procedure tbFullScreenClick(Sender: TObject);
 	procedure btnSaveImageClick(Sender: TObject);
+	procedure imgGifTogglePlayClick(Sender: TObject);
+
 	procedure OnUpdateTimer(Sender: TObject);
 
   private
 	{ Private declarations }
-	m_bExiting: Boolean;
+	m_bExiting, m_bSettingUp: Boolean;
 	m_settings: SETTINGS_IMAGE_READER;
 
 	m_bCreatedImage: Boolean;
 	m_imgLoaded: TRectangleImage;
-	m_dwHideOutputFileSavedLabel: DWORD;
+	m_dwHideOutputMessageLabel: DWORD;
+
+	// GIF images
+	m_nLastGifFrame, m_nPausedGifFrame: Integer;
 
 	{$IFDEF DBG}
 	// Diagnostics
 	m_dwResizeEvents: DWORD;
 	{$ENDIF}
 
+	procedure DoFormResize();
 	procedure CreateImage(const cbNoImage: Boolean);
-	procedure ResizeImage();
+	procedure DoResizeImage();
+	procedure SetGifImageControls(const cbShowGifControls: Boolean);
 	procedure OnGifPaint(Sender: TObject);
 
   public
@@ -110,21 +127,37 @@ begin
 	// Initialise form
 	m_bExiting := False;
 
+	// Settings
 	ZeroMemory(@m_settings, SizeOf(SETTINGS_IMAGE_READER));
+
+	// Application details
 	m_settings.szAppName := Application.ExeName;
 	m_settings.szAppFolder := ExtractFilePath(Application.ExeName);
 
-	m_settings.offsets.nFilePathWidth := (gbImageFile.Width - ebImageFile.Width);
-	m_settings.offsets.nBrowseLeft := (gbImageFile.Width - btnBrowse.Left);
-	m_settings.offsets.nDiagnosticsLeft := (gbImageFile.Width - lblDiagResizeEvents.Left);
+	// Control offsets. These are set at design-time, and saving these allows  Reference everything to allow them to be resized)
+	m_settings.offsets.nGroupWidth := (Self.ClientWidth - gbImageFile.Width);
+	m_settings.offsets.nGroupHeight := (Self.ClientHeight - gbImageFile.Height);
+
+	m_settings.offsets.nFilePathWidth := (Self.ClientWidth - ebImageFile.Width);
+	m_settings.offsets.nBrowseLeft := (Self.ClientWidth - btnBrowse.Left);
+	m_settings.offsets.nDiagnosticsLeft := (Self.ClientWidth - lblDiagnostics.Left);
+	m_settings.offsets.nBevelWidth := (Self.ClientWidth - bevelSeparator.Width);
+
+	m_settings.offsets.nOutputMsgWidth := (Self.ClientWidth - lblOutputMessage.Width);
+	m_settings.offsets.nOutputMsgTop := (Self.ClientHeight - lblOutputMessage.Top);
+	m_settings.offsets.nExitButtonLeft := (Self.ClientWidth - btnExit.Left);
+	m_settings.offsets.nExitButtonTop := (Self.ClientHeight - btnExit.Top);
 
 	m_settings.szImage := '';
 
 	m_settings.nTruePictureWidth := 0;
 	m_settings.nTruePictureHeight := 0;
 
+	// Main class members
 	m_bCreatedImage := False;
-	m_dwHideOutputFileSavedLabel := 0;
+	m_dwHideOutputMessageLabel := 0;
+	m_nLastGifFrame := 0;
+	m_nPausedGifFrame := -1;
 end;
 
 procedure TfrmWindowsMetaFile.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -146,28 +179,27 @@ begin
 end;
 
 procedure TfrmWindowsMetaFile.FormShow(Sender: TObject);
-var
-	nWidthChange, nHeightChange: Integer;
 begin
 	// Show form
 	{$IFDEF DBG}
 	m_dwResizeEvents := 0;
-	lblDiagResizeEvents.Visible := True;
+	lblDiagnostics.Visible := True;
 	{$ENDIF}
 
-	// Resize the form to its proper initial size. We assume a minimum screen size of 1280x1024
-	// though strictly we could check the actual installed screen size.
-	nWidthChange := (FORM_WIDTH_INITIAL - Self.ClientWidth);
-	nHeightChange := (FORM_HEIGHT_INITIAL - Self.ClientHeight);
-
+	// Resize the form to an initial size. We assume a minimum screen size of 1280x1024 though
+	// strictly we could check the actual installed screen size.
+	m_bSettingUp := True;
 	Self.ClientWidth := FORM_WIDTH_INITIAL;
 	Self.ClientHeight := FORM_HEIGHT_INITIAL;
+	DoFormResize();
+	m_bSettingUp := False;
 
-	gbImageFile.Width := (gbImageFile.Width + nWidthChange);
-	btnBrowse.Left := (btnBrowse.Left + nWidthChange);
-	ebImageFile.Width := (ebImageFile.Width + nWidthChange);
+	// Set up GIF image controls
+	imgGifPlay.Left := imgGifPause.Left;
 
-	gbImageFile.Height := (gbImageFile.Height + nHeightChange);
+	// Prevent the TImage control from generating OnDblClick events
+	imgGifPause.ControlStyle := (ControlStyle - [csDoubleClicks]);
+	imgGifPlay.ControlStyle := (ControlStyle - [csDoubleClicks]);
 
 	// Start an update timer
 	UpdateTimer.Enabled := True;
@@ -176,31 +208,64 @@ end;
 procedure TfrmWindowsMetaFile.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer;
 	var Resize: Boolean);
 begin
-	// Don't allow the form to become too big or too small
+	// Don't allow the form to become too big or too small. If the user tries to
 	if (	(NewWidth < FORM_WIDTH_MIN) or
 			(NewWidth > FORM_WIDTH_MAX) or
 			(NewHeight < FORM_HEIGHT_MIN) or
 			(NewHeight > FORM_HEIGHT_MAX)) then
-		Resize := False;
+		begin
+		// There are two approaches here (the latter is kinder to the user):
+		// * If size is out-of-founds, then refuse to resize with "Resize := False;"
+		// * Is size is out-of-bounds, set the set to the appropriate limit
+		if (NewWidth < FORM_WIDTH_MIN) then
+			NewWidth := FORM_WIDTH_MIN;
+		if (NewWidth > FORM_WIDTH_MAX) then
+			NewWidth := FORM_WIDTH_MAX;
+
+		if (NewHeight < FORM_HEIGHT_MIN) then
+			NewHeight := FORM_HEIGHT_MIN;
+		if (NewHeight > FORM_HEIGHT_MAX) then
+			NewHeight := FORM_HEIGHT_MAX;
+		end;
 end;
 
 procedure TfrmWindowsMetaFile.FormResize(Sender: TObject);
 begin
+	if (m_bSettingUp) then
+		Exit;
+
 	// When the form is resized, move controls to keep the form neat
-	gbImageFile.Visible := False;
-	gbImageFile.Width := (frmWindowsMetaFile.ClientWidth - (gbImageFile.Left * 2));
-	gbImageFile.Height := (frmWindowsMetaFile.ClientHeight - (gbImageFile.Top * 2));
+	DoFormResize();
+end;
 
-	ebImageFile.Width := (gbImageFile.Width - m_settings.offsets.nFilePathWidth);
-	btnBrowse.Left := (gbImageFile.Width - m_settings.offsets.nBrowseLeft);
+procedure TfrmWindowsMetaFile.btnExitClick(Sender: TObject);
+begin
+	if (m_bExiting) then
+		Exit;
 
-	{$IFDEF DBG}
-	Inc(m_dwResizeEvents);
-	lblDiagResizeEvents.Caption := Format('Resize events: %d', [m_dwResizeEvents]);
-	lblDiagResizeEvents.Left := (gbImageFile.Width - m_settings.offsets.nDiagnosticsLeft);
-	{$ENDIF}
+	m_bExiting := True;
+	Close();
+end;
 
-	gbImageFile.Visible := True;
+procedure TfrmWindowsMetaFile.gbImageFileClick(Sender: TObject);
+var
+	nControlCloseClick: Integer;
+	control: TControl;
+begin
+	// Find a nearby control...and click it!
+	nControlCloseClick := GetCloseControlClick(gbImageFile,
+		(CONTROL_TCHECKBOX + CONTROL_TBUTTON + CONTROL_TIMAGE));
+	if (nControlCloseClick > -1) then
+		begin
+		// Close to a control
+		control := gbImageFile.Controls[nControlCloseClick];
+		if (IsControlType(control, CONTROL_TCHECKBOX)) then
+			TCheckBox(control).OnClick(control)
+		else if (IsControlType(control, CONTROL_TBUTTON)) then
+			TButton(control).OnClick(control)
+		else if (IsControlType(control, CONTROL_TIMAGE)) then
+			TImage(control).OnClick(control);
+		end;
 end;
 
 procedure TfrmWindowsMetaFile.btnBrowseClick(Sender: TObject);
@@ -233,23 +298,33 @@ begin
 				bImageWasVisible := True;
 				end;
 
-			// Test method to detect the type of an image by reading the header information
+			// Test method to detect the type of an image by reading its' header information
 			strImageType := DetectImageType(openPictureDlg.FileName);
 
 			// User has loaded an image...
 			m_settings.szImage := openPictureDlg.FileName;
 
+			// Reset variables related to GIF images
+			m_nPausedGifFrame := -1;
+
 			// Load the selected file
 			AssignPictureFromFile(m_imgLoaded.Picture, openPictureDlg.FileName);
 			if (m_imgLoaded.Picture.Graphic is TGifImage) then
 				begin
-				// Show the frame number for animated GIFs
+				// Show the frame number for animated GIFs. The number of frames is:
+				//		TGifImage(m_imgLoaded.Picture.Graphic).Images.Count
 				lblGifFrame.Visible := True;
+				SetGifImageControls(True);
+
 				TGifImage(m_imgLoaded.Picture.Graphic).AnimationSpeed := 200;
 				TGifImage(m_imgLoaded.Picture.Graphic).OnPaint := OnGifPaint;
 				end
 			else
+				begin
+				// Not a GIF image...
 				lblGifFrame.Visible := False;
+				SetGifImageControls(False);
+				end;
 
 			// Resize the TImage container
 			if (IsFileExtType(openPictureDlg.FileName, '.ico')) then
@@ -267,7 +342,7 @@ begin
 				end;
 
 			// Resize the TImage container
-			ResizeImage();
+			DoResizeImage();
 
 			// Show the full path to the image loaded
 			ebImageFile.Text := openPictureDlg.FileName;
@@ -308,7 +383,7 @@ begin
 	else
 		begin
 		// Resize the image: either the actual image size, or use the full available space
-		ResizeImage();
+		DoResizeImage();
 		end;
 end;
 
@@ -331,13 +406,72 @@ begin
 		// Note: Calling "TImage.Picture.SaveToFile(file);"( without conversion) gives the same
 		// image / mime type (ie. a loaded .ico file is saved as an icon).
 		SavePictureAsBMP(m_imgLoaded.Picture, strFullPath);
-		lblOutputFileSaved.Caption := Format('%s saved to application folder', [strFilename]);
-		lblOutputFileSaved.Visible := True;
-		m_dwHideOutputFileSavedLabel := (GetTickCount() + OUTPUT_FILE_SAVED_TICKS);
-		//MessageDlg(Format('%s saved to application folder', [strFilename]), mtWarning, [mbOK], 0);
+		lblOutputMessage.Caption := Format('%s saved to application folder', [strFilename]);
+		lblOutputMessage.Visible := True;
+		m_dwHideOutputMessageLabel := (GetTickCount() + OUTPUT_MSG_VISIBLE_TICKS);
 		end
 	else
 		MessageDlg('Please load an image first...', mtWarning, [mbOK], 0);
+end;
+
+procedure TfrmWindowsMetaFile.imgGifTogglePlayClick(Sender: TObject);
+begin
+	// Pause or unpaused the GIF frame
+	if (m_nPausedGifFrame <> - 1) then
+		m_nPausedGifFrame := -1					// Playing image again
+	else
+		m_nPausedGifFrame := m_nLastGifFrame;	// Pause at the current frame
+
+	SetGifImageControls(True);
+end;
+
+procedure TfrmWindowsMetaFile.OnUpdateTimer(Sender: TObject);
+begin
+	// Disable timer
+	UpdateTimer.Enabled := False;
+	if (m_bExiting) then
+		Exit;
+
+	// Time to hide the "file saved" label?
+	if (m_dwHideOutputMessageLabel > 0) then
+		begin
+		if (GetTickCount() > m_dwHideOutputMessageLabel) then
+			begin
+			m_dwHideOutputMessageLabel := 0;
+			lblOutputMessage.Visible := False;
+			end;
+		end;
+
+	// Restart timer
+	UpdateTimer.Enabled := True;
+end;
+
+// Private methods
+procedure TfrmWindowsMetaFile.DoFormResize();
+begin
+	// Method used to resize the form and neaten the layout
+	gbImageFile.Visible := False;
+
+	gbImageFile.Width := (Self.ClientWidth - m_settings.offsets.nGroupWidth);
+	gbImageFile.Height := (Self.ClientHeight - m_settings.offsets.nGroupHeight);
+
+	ebImageFile.Width := (Self.ClientWidth - m_settings.offsets.nFilePathWidth);
+	btnBrowse.Left := (Self.ClientWidth - m_settings.offsets.nBrowseLeft);
+
+	{$IFDEF DBG}
+	Inc(m_dwResizeEvents);
+	lblDiagnostics.Caption := Format('Resize events: %d', [m_dwResizeEvents]);
+	lblDiagnostics.Left := (gbImageFile.Width - m_settings.offsets.nDiagnosticsLeft);
+	{$ENDIF}
+
+	bevelSeparator.Width := (Self.ClientWidth - m_settings.offsets.nBevelWidth);
+
+	lblOutputMessage.Width := (Self.ClientWidth - m_settings.offsets.nOutputMsgWidth);
+	lblOutputMessage.Top := (Self.ClientHeight - m_settings.offsets.nOutputMsgTop);
+	btnExit.Left := (Self.ClientWidth - m_settings.offsets.nExitButtonLeft);
+	btnExit.Top := (Self.ClientHeight - m_settings.offsets.nExitButtonTop);
+
+	gbImageFile.Visible := True;
 end;
 
 procedure TfrmWindowsMetaFile.CreateImage(const cbNoImage: Boolean);
@@ -382,7 +516,7 @@ begin
 	m_bCreatedImage := True;
 end;
 
-procedure TfrmWindowsMetaFile.ResizeImage();
+procedure TfrmWindowsMetaFile.DoResizeImage();
 var
 	bImageVisible: Boolean;
 	nHorizontalSpace, nVerticalSpace: Integer;
@@ -409,8 +543,6 @@ begin
 			begin
 			// Image is taller than the available space
 			end;
-		//nHorizontalSpace := (gbImageFile.Width - (IMAGE_LEFT_MIN * 2));
-		//nVerticalSpace := (gbImageFile.Height - IMAGE_TOP_MIN - 5);
 		end
 	else
 		begin
@@ -422,34 +554,36 @@ begin
 	m_imgLoaded.Visible := bImageVisible;
 end;
 
+procedure TfrmWindowsMetaFile.SetGifImageControls(const cbShowGifControls: Boolean);
+begin
+	// Configure GIF image controls
+	if (cbShowGifControls) then
+		begin
+		imgGifPlay.Visible := (m_nPausedGifFrame <> -1);
+		imgGifPause.Visible := (not imgGifPlay.Visible);
+		//ADAD trackerGifFrame
+		end
+	else
+		begin
+		imgGifPause.Visible := False;
+		imgGifPlay.Visible := False;
+		end;
+end;
+
 procedure TfrmWindowsMetaFile.OnGifPaint(Sender: TObject);
 begin
 	// When painting animated GIF images, show the frame number as a diagnostics label
 	// Note: To show the same frame all the time:
 	//		(Sender as TGIFPainter).ActiveImage := 11;
-	lblGifFrame.Caption := Format('Frame: %d', [(Sender as TGIFPainter).ActiveImage]);
+
+	// Paused?
+	if (m_nPausedGifFrame <> -1) then
+		(Sender as TGIFPainter).ActiveImage := m_nPausedGifFrame;
+
+	// Show the current frame number
+	m_nLastGifFrame := (Sender as TGIFPainter).ActiveImage;
+	lblGifFrame.Caption := Format('Frame: %d', [m_nLastGifFrame]);
 	lblGifFrame.Refresh();
-end;
-
-procedure TfrmWindowsMetaFile.OnUpdateTimer(Sender: TObject);
-begin
-	// Disable timer
-	UpdateTimer.Enabled := False;
-	if (m_bExiting) then
-		Exit;
-
-	// Time to hide the "file saved" label?
-	if (m_dwHideOutputFileSavedLabel > 0) then
-		begin
-		if (GetTickCount() > m_dwHideOutputFileSavedLabel) then
-			begin
-			m_dwHideOutputFileSavedLabel := 0;
-			lblOutputFileSaved.Visible := False;
-			end;
-		end;
-
-	// Restart timer
-	UpdateTimer.Enabled := True;
 end;
 
 end.
