@@ -15,7 +15,7 @@ type
 
 	// Settings
 	nLastGridRows, nLastGridColumns: Integer;
-	eLastBackground: TGameBackground;
+	szLastBackground: String;
 	tLastBackgroundColour: Integer;
 	eLastIconSet: TGameIconSet;
 
@@ -45,11 +45,11 @@ type
 	procedure imgSettingsClick(Sender: TObject);
 	procedure imgMediaClick(Sender: TObject);
 	procedure imgExitClick(Sender: TObject);
+	procedure imgEngineerClick(Sender: TObject);
+	procedure imgAboutClick(Sender: TObject);
 	procedure imgChocolateBoxClick(Sender: TObject);
 
 	procedure OnUpdateTimer(Sender: TObject);
-    procedure imgEngineerClick(Sender: TObject);
-    procedure imgAboutClick(Sender: TObject);
 
   private
 	{ Private declarations }
@@ -355,7 +355,7 @@ begin
 
 	m_cache.nLastGridRows := -1;
 	m_cache.nLastGridColumns := -1;
-	m_cache.eLastBackground := eBackgroundNone;
+	//m_cache.eLastBackground := eBackgroundNone;
 	m_cache.tLastBackgroundColour := -1;
 
 	m_cache.nLastSelectedTag := -1;
@@ -374,12 +374,12 @@ var
 	bmp : TBitmap;
 begin
 	// Change in the background?
-	if (	(m_cache.eLastBackground = settings.eBackground) and
-			(m_cache.tLastBackgroundColour = settings.tBackgroundColour)) then
-		Exit;
+	//if (	(m_cache.eLastBackground = settings.eBackground) and
+	//		(m_cache.tLastBackgroundColour = settings.tBackgroundColour)) then
+	//	Exit;
 
 	// Image or solid colour?
-	if (settings.eBackground = eBackgroundImg1) then
+	{if (settings.eBackground = eBackgroundImg1) then
 		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-1.jpg')
 	else if (settings.eBackground = eBackgroundImg2) then
 		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-2.jpg')
@@ -397,11 +397,12 @@ begin
 		finally
 			bmp.Free();
 		end;
-		end;
+		end;}
+	imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-3.bmp');
 
 	// Background has been changed
-	m_cache.eLastBackground := settings.eBackground;
-	m_cache.tLastBackgroundColour := settings.tBackgroundColour;
+	//m_cache.eLastBackground := settings.eBackground;
+	//m_cache.tLastBackgroundColour := settings.tBackgroundColour;
 end;
 
 procedure TfrmChocolateBox.UpdateGameBoard(settings: GAME_SETTINGS);
@@ -500,12 +501,15 @@ begin
 				Width := nIconSetSize;
 				Height := nIconSetSize;
 
-				// Load image and set click event
+				// Load image
 				if (astrImages.Count > 0) then
 					Picture.LoadFromFile(astrImages[Random(astrImages.Count)])
 				else
 					Picture := imgSettings.Picture;
 
+				// Set a click event handler
+				// Note: Prevent the TImage control from generating OnDblClick events
+				ControlStyle := (ControlStyle - [csDoubleClicks]);
 				OnClick := imgChocolateBoxClick;
 
 				// Image position

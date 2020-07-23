@@ -15,14 +15,14 @@ const
 
 type
   // Enumerations
-  TGameBackground = (
+  {TGameBackground = (
 	// Background image or solid colour
 	eBackgroundNone = 0,
 	eBackgroundFirst,
 	eBackgroundImg1 = eBackgroundFirst,
 	eBackgroundImg2,
 	eBackgroundSolidColour,
-	eBackgroundLast = eBackgroundSolidColour);
+	eBackgroundLast = eBackgroundSolidColour);}
 
   TGameIconSet = (
 	// Icons to use for the main grid

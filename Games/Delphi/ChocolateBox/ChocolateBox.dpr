@@ -4,13 +4,13 @@ uses
   Windows,
   Dialogs,
   Forms,
-  
+
   // Core Delphi tools
   CoreFormClasses in '..\..\..\Languages\Delphi\Utils\CoreFormClasses.pas',
   CoreTypes in '..\..\..\Languages\Delphi\Utils\CoreTypes.pas',
   FormUtils in '..\..\..\Languages\Delphi\Utils\FormUtils.pas',
   SystemUtils in '..\..\..\Languages\Delphi\Utils\SystemUtils.pas',
-  
+
   // This project...
   ChocolateBoxMain in 'source\ChocolateBoxMain.pas' {frmChocolateBox},
   GameAbout  in 'source\GameAbout.pas' {frmGameAbout},

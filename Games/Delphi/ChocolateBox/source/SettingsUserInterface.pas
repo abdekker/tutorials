@@ -148,14 +148,27 @@ begin
 end;
 
 procedure TfrmSettingsUserInterface.InitialiseControls();
+var
+	m_astrImages: TStringList;
+	nTest: Integer;
+	strImage: String;
 begin
 	// Set up controls for user settings
 
-	// Game rows / columns
+	// Game background
+	m_astrImages := TStringList.Create();
+	GetFolderMultipleListing(ChocolateBox.GameCache.szAppPath, '*.jpg;*.bmp', m_astrImages, False);
+	for nTest:=0 to (m_astrImages.Count - 1) do
+		begin
+		strImage := m_astrImages[nTest];
+		end;
 	cbBackground.Items.Clear();
-	cbBackground.Items.AddObject('Background 1', TObject(eBackgroundImg1));
-	cbBackground.Items.AddObject('Background 2', TObject(eBackgroundImg2));
-	cbBackground.Items.AddObject('Solid colour', TObject(eBackgroundSolidColour));
+	//cbBackground.Items.AddObject('Background 1', TObject(eBackgroundImg1));
+	//cbBackground.Items.AddObject('Background 2', TObject(eBackgroundImg2));
+	//cbBackground.Items.AddObject('Solid colour', TObject(eBackgroundSolidColour));
+	m_astrImages.Free();
+
+	//GetFolderMultipleListing(m_strImagesFolder, '*.bmp;*.jpg', m_astrImages, m_bSearching)
 
 	// Graphics
 	cbIconSet.Items.Clear();
@@ -169,10 +182,10 @@ end;
 procedure TfrmSettingsUserInterface.SetBackgroundColourPanel();
 begin
 	// If the background is set to a solid colour, the user can update this
-	if (settings.eBackground = eBackgroundSolidColour) then
+	{if (settings.eBackground = eBackgroundSolidColour) then
 		pnlBackgroundColour.Color := TColor(settings.tBackgroundColour)
 	else
-		pnlBackgroundColour.Color := clBtnFace;
+		pnlBackgroundColour.Color := clBtnFace;}
 end;
 
 procedure TfrmSettingsUserInterface.SetIconSetSize();
@@ -210,7 +223,7 @@ begin
 	ebColumns.Text := IntToStr(settings.nColumns);
 
 	// Graphics
-	cbBackground.ItemIndex := cbBackground.Items.IndexOfObject(TObject(settings.eBackground));
+	//cbBackground.ItemIndex := cbBackground.Items.IndexOfObject(TObject(settings.eBackground));
 	pnlBackgroundColour.Color := TColor(settings.tBackgroundColour);
 	cbIconSet.ItemIndex := cbIconSet.Items.IndexOfObject(TObject(settings.eIconSet));
 	SetIconSetSize();
@@ -329,9 +342,9 @@ begin
 		end;
 
 	// Graphics
-	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
+	{settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
 	if (settings.eBackground = eBackgroundSolidColour) then
-		settings.tBackgroundColour := Integer(pnlBackgroundColour.Color);
+		settings.tBackgroundColour := Integer(pnlBackgroundColour.Color);}
 
 	settings.eIconSet := TGameIconSet(cbIconSet.Items.Objects[cbIconSet.ItemIndex]);
 
@@ -376,10 +389,10 @@ end;
 procedure TfrmSettingsUserInterface.cbBackgroundChange(Sender: TObject);
 begin
 	// When the background changes, we may allow the user to set a solid background colour
-	settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
+	{settings.eBackground := TGameBackground(cbBackground.Items.Objects[cbBackground.ItemIndex]);
 	SetBackgroundColourPanel();
 	if (not m_bSettingUp) then
-		m_callbackSettings(@settings);
+		m_callbackSettings(@settings);  }
 end;
 
 procedure TfrmSettingsUserInterface.cbIconSetChange(Sender: TObject);
@@ -393,7 +406,7 @@ end;
 
 procedure TfrmSettingsUserInterface.pnlBackgroundColourClick(Sender: TObject);
 begin
-	if (settings.eBackground = eBackgroundSolidColour) then
+	{if (settings.eBackground = eBackgroundSolidColour) then
 		begin
 		colours.Color := pnlBackgroundColour.Color;
 		if (colours.Execute()) then
@@ -402,7 +415,7 @@ begin
 			settings.tBackgroundColour := Integer(pnlBackgroundColour.Color);
 			m_callbackSettings(@settings);
 			end;
-		end;
+		end;   }
 end;
 
 procedure TfrmSettingsUserInterface.btnSetDefaultsClick(Sender: TObject);

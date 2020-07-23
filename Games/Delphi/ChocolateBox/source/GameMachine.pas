@@ -15,7 +15,7 @@ type
 	nRows, nColumns: Integer;
 
 	// Graphics
-	eBackground: TGameBackground;
+	szBackground: String;
 	tBackgroundColour: Integer;		// TColor = -$7FFFFFFF-1..$7FFFFFFF; (ie. an int)
 	eIconSet: TGameIconSet;
 
@@ -83,8 +83,7 @@ begin
 	GameSettings.nColumns := pIniFile.ReadInteger('Game', 'Columns', GRID_SIZE_DEFAULT);
 
 	// Graphics
-	GameSettings.eBackground := TGameBackground(
-		pIniFile.ReadInteger('Game', 'Background', BYTE(eBackgroundImg1)));
+	GameSettings.szBackground := pIniFile.ReadString('Game', 'Background', 'SolidColour');
 	GameSettings.tBackgroundColour :=
 		pIniFile.ReadInteger('Game', 'BackgroundColour', Integer(clPurple));
 	GameSettings.eIconSet := TGameIconSet(
@@ -97,10 +96,6 @@ begin
 	Validate_Integer(@GameSettings.nRows, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
 	Validate_Integer(@GameSettings.nColumns, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
 
-	Validate_BYTE(@GameSettings.eBackground,
-		BYTE(eBackgroundFirst),
-		BYTE(eBackgroundLast),
-		BYTE(eBackgroundImg1));
 	Validate_Integer(@Integer(GameSettings.tBackgroundColour),
 		Integer(clBlack),
 		Integer(clWhite),
@@ -130,7 +125,7 @@ begin
 				pIniFile.WriteInteger('Game', 'Columns', GameSettings.nColumns);
 
 				// Graphics
-				pIniFile.WriteInteger('Game', 'Background', BYTE(GameSettings.eBackground));
+				pIniFile.WriteString('Game', 'Background', GameSettings.szBackground);
 				pIniFile.WriteInteger('Game', 'BackgroundColour',
 					Integer(GameSettings.tBackgroundColour));
 				pIniFile.WriteInteger('Game', 'IconSet', BYTE(GameSettings.eIconSet));
@@ -207,7 +202,7 @@ begin
 	settings.nColumns := GRID_SIZE_DEFAULT;
 
 	// Graphics
-	settings.eBackground := eBackgroundSolidColour;
+	settings.szBackground := 'SolidColour';
 	settings.tBackgroundColour := clPurple;
 	settings.eIconSet := eIconSetStd_64x64;
 end;
