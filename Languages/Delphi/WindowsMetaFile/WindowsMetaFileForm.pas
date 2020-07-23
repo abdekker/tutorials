@@ -5,21 +5,7 @@ interface
 
 uses
   Windows, Messages, Classes, Dialogs, ExtCtrls, Forms, Graphics, Controls, StdCtrls, SysUtils,
-  CoreFormClasses;
-
-const
-  FORM_WIDTH_INITIAL: Integer		= 1200;		// Intended for a minimum dscreen size of 1280x1024
-  FORM_HEIGHT_INITIAL: Integer		= 880;
-
-  FORM_WIDTH_MIN: Integer			= 260;
-  FORM_WIDTH_MAX: Integer			= 1600;
-  FORM_HEIGHT_MIN: Integer			= 120;
-  FORM_HEIGHT_MAX: Integer			= 1200;
-
-  IMAGE_LEFT_MIN: Integer			= 5;
-  IMAGE_TOP_MIN: Integer			= 88;
-  IMAGE_WIDTH_DEFAULT: Integer		= 130;
-  IMAGE_HEIGHT_DEFAULT: Integer		= 60;
+  CoreFormClasses, ComCtrls;
 
 type
   // Settings
@@ -102,7 +88,20 @@ uses
   CoreTypes, FormUtils, GifImage, SystemUtils;
 
 const
-  OUTPUT_FILE_SAVED_TICKS = 5000;
+  FORM_WIDTH_INITIAL: Integer		= 1200;		// Intended for a minimum dscreen size of 1280x1024
+  FORM_HEIGHT_INITIAL: Integer		= 880;
+
+  FORM_WIDTH_MIN: Integer			= 480;
+  FORM_WIDTH_MAX: Integer			= 1600;
+  FORM_HEIGHT_MIN: Integer			= 240;
+  FORM_HEIGHT_MAX: Integer			= 1200;
+
+  IMAGE_LEFT_MIN: Integer			= 5;
+  IMAGE_TOP_MIN: Integer			= 102;
+  IMAGE_WIDTH_DEFAULT: Integer		= 130;
+  IMAGE_HEIGHT_DEFAULT: Integer		= 60;
+
+  OUTPUT_MSG_VISIBLE_TICKS: DWORD	= 7500;
 
 {$R *.dfm}
 
