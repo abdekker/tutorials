@@ -134,7 +134,8 @@ begin
 	m_settings.szAppName := Application.ExeName;
 	m_settings.szAppFolder := ExtractFilePath(Application.ExeName);
 
-	// Control offsets. These are set at design-time, and saving these allows  Reference everything to allow them to be resized)
+	// Control offsets. The basic layout is set at design-time, and saving these allows the form to
+	// be easily resized at run-time. All offsets are referenced to the form width/height.
 	m_settings.offsets.nGroupWidth := (Self.ClientWidth - gbImageFile.Width);
 	m_settings.offsets.nGroupHeight := (Self.ClientHeight - gbImageFile.Height);
 
@@ -175,6 +176,7 @@ begin
 		begin
 		m_imgLoaded.Picture := nil;
 		m_imgLoaded.Free();
+		m_bCreatedImage := False;
 		end;
 end;
 
@@ -341,11 +343,17 @@ begin
 				m_settings.nTruePictureHeight := m_imgLoaded.Picture.Height;
 				end;
 
-			// Resize the TImage container
-			DoResizeImage();
-
 			// Show the full path to the image loaded
 			ebImageFile.Text := openPictureDlg.FileName;
+
+			// Show the image type and size as a caption in the group box
+			gbImageFile.Caption := Format('Type: %s | Size: %dx%d', [
+				strImageType,
+				m_settings.nTruePictureWidth,
+				m_settings.nTruePictureHeight]);
+
+			// Resize the TImage container
+			DoResizeImage();
 			end
 		else
 			begin
@@ -471,6 +479,9 @@ begin
 	btnExit.Left := (Self.ClientWidth - m_settings.offsets.nExitButtonLeft);
 	btnExit.Top := (Self.ClientHeight - m_settings.offsets.nExitButtonTop);
 
+	if (tbFullScreen.Checked) then
+		DoResizeImage();
+
 	gbImageFile.Visible := True;
 end;
 
@@ -519,34 +530,21 @@ end;
 procedure TfrmWindowsMetaFile.DoResizeImage();
 var
 	bImageVisible: Boolean;
-	nHorizontalSpace, nVerticalSpace: Integer;
-	fImageRatio, fSpaceRatio: Single;
 begin
 	// Resize the image (either to the actual size of the picture or the full available space)
 	bImageVisible := m_imgLoaded.Visible;
 	m_imgLoaded.Visible := False;
-	nHorizontalSpace := (gbImageFile.Width - (IMAGE_LEFT_MIN * 2));
-	nVerticalSpace := (gbImageFile.Height - IMAGE_TOP_MIN - 5);
-
-	fImageRatio := (m_imgLoaded.Picture.Width / m_imgLoaded.Picture.Height);
-	fSpaceRatio :=  (nHorizontalSpace / nVerticalSpace);
 	if (tbFullScreen.Checked) then
 		begin
 		// Use the entire available space
-		if (fImageRatio < fSpaceRatio) then
-			begin
-			// Image is wider than the available space
-			m_imgLoaded.Width := nHorizontalSpace;
-			m_imgLoaded.Height := (100);
-			end
-		else
-			begin
-			// Image is taller than the available space
-			end;
+		m_imgLoaded.Width := (gbImageFile.Width - (IMAGE_LEFT_MIN * 2));
+		m_imgLoaded.Height := (gbImageFile.Height - IMAGE_TOP_MIN - 5);
+		m_imgLoaded.Stretch := True;
 		end
 	else
 		begin
 		// Show the picture in the original size (if possible)
+		m_imgLoaded.Stretch := False;
 		m_imgLoaded.Width := m_settings.nTruePictureWidth;
 		m_imgLoaded.Height := m_settings.nTruePictureHeight;
 		end;
