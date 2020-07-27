@@ -10,15 +10,14 @@ constexpr int factorial(int n)
 }
  
 // Literal class
-class conststr
+class constString
 {
     const char* p;
     std::size_t sz;
 
 public:
     template<std::size_t N>
-    constexpr conststr(const char(&a)[N]): p(a), sz(N - 1) {}
- 
+    constexpr constString(const char(&a)[N]): p(a), sz(N - 1) {}
     // constexpr functions signal errors by throwing exceptions
     // in C++11, they must do so from the conditional operator ?:
     constexpr char operator[](std::size_t n) const
@@ -30,8 +29,7 @@ public:
  
 // C++11 constexpr functions had to put everything in a single return statement
 // (C++14 doesn't have that requirement)
-constexpr std::size_t countLower(conststr s, std::size_t n = 0,
-                                             std::size_t c = 0)
+constexpr std::size_t countLower(constString s, std::size_t n = 0, std::size_t c = 0)
 {
     return (n == s.size())
         ? c
