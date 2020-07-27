@@ -89,7 +89,8 @@ function DeleteFolder(strFolder: String) : Boolean;
 procedure EmptyFolder(strFolder: String);
 function IsPathAvailable(const cstrPath: String) : Boolean;
 function IsPathWriteable(const cstrPath: String) : Boolean;
-function RemovePathExtInfo(strFullPath: String) : String;
+function RemovePathExtInfo(const cstrPath: String) : String;
+function ExtractPathExtOnly(const cstrPath: String) : String;
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
 function DetectImageType(const cstrInput: String) : String;
 function GetSizeOfFile(strFilename: String) : DWORD;
@@ -1771,15 +1772,15 @@ begin
 	// a file and catching errors works reliably.
 end;
 
-function RemovePathExtInfo(strFullPath: String) : String;
+function RemovePathExtInfo(const cstrPath: String) : String;
 var
 	nPosPath, nPosExt: Integer;
 begin
 	// Take a fully qualified path, and remove path and extension information, leaving just the
 	// filename. Example: "C:\Temp\MyFile.txt" is converted to "MyFile".
-	nPosPath := LastDelimiter(PathDelim + DriveDelim, strFullPath);
-	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, strFullPath);
-	Result := Copy(strFullPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
+	nPosPath := LastDelimiter(PathDelim + DriveDelim, cstrPath);
+	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, cstrPath);
+	Result := Copy(cstrPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
 
 	// Note: SysUtils provides additional methods, each example uses "C:\Temp\MyFile.txt":
 	// * ExtractFileDrive		C:
@@ -1787,6 +1788,19 @@ begin
 	// * ExtractFilePath		C:\Temp\
 	// * ExtractFileName		MyFile.txt
 	// * ExtractFileExt			.txt (see also "ChangeFileExt")
+end;
+
+function ExtractPathExtOnly(const cstrPath: String) : String;
+var
+	nPosExt: Integer;
+begin
+	// Teturns the extension only (sans "."). Example: "C:\Temp\MyFile.txt" is converted to "txt".
+	// Note: This is an adaptation of SysUtils.ExtractFileExt which returns ".txt"
+	nPosExt := LastDelimiter('.', cstrPath);
+	if (nPosExt > 0) then
+		Result := Copy(cstrPath, nPosExt + 1, MaxInt)
+	else
+		Result := '';
 end;
 
 function IsFileExtType(strFullFilename, strTestExt: String): Boolean;
