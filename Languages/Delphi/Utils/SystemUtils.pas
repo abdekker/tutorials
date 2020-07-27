@@ -1820,26 +1820,38 @@ function DetectImageType(const cstrInput: String) : String;
 var
 	fs: TFileStream;
 	firstBytes: AnsiString;
+	strType: String;
 begin
-	// Attempts to read the file type. Useful where the extension has been renamed or is missing.
-	Result := '';
+	// Attempt to detect the image type. Useful where the extension has been renamed or is missing.
+	strType := '';
 	fs := TFileStream.Create(cstrInput, fmOpenRead);
 	try
 		SetLength(firstBytes, 8);
 		fs.Read(firstBytes[1], 8);
 		if (Copy(firstBytes, 1, 2) = 'BM') then
-			Result := 'bmp'
+			strType := 'bmp'
 		else if (firstBytes = #137'PNG'#13#10#26#10) then
-			Result := 'png'
+			strType := 'png'
 		else if (Copy(firstBytes, 1, 3) = 'GIF') then
-			Result := 'gif'
+			strType := 'gif'
 		else if (Copy(firstBytes, 1, 2) = #$FF#$D8) then
-			Result := 'jpg'
-		else if (Copy(firstBytes, 1, 4) = #00#$10) then
-			Result := 'ico';
+			strType := 'jpg'
+		else if (Copy(firstBytes, 1, 4) = #0#0#1#0) then
+			strType := 'ico'
+		else if (Copy(firstBytes, 1, 4) = #$10#00) then
+			strType := 'emf';
+
+		// Additional notes:
+		// * Icon files store the number of images in bytes 5 and 6
+
+		// If the image type is unknown (or not implemented), use the file extension as a guess
+		if (Length(strType) = 0) then
+			strType := AnsiLowerCase(ExtractPathExtOnly(cstrInput));
 	finally
 		fs.Free();
 	end;
+
+	Result := strType;
 end;
 
 function GetSizeOfFile(strFilename: String) : DWORD;
