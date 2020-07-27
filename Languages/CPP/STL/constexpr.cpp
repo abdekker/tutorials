@@ -18,8 +18,9 @@ class constString
 public:
     template<std::size_t N>
     constexpr constString(const char(&a)[N]): p(a), sz(N - 1) {}
-    // constexpr functions signal errors by throwing exceptions
-    // in C++11, they must do so from the conditional operator ?:
+
+    // constexpr functions signal errors by throwing exceptions, in C++11 they must do so from
+    // the conditional operator ?:
     constexpr char operator[](std::size_t n) const
     {
         return n < sz ? p[n] : throw std::out_of_range("");
@@ -31,6 +32,7 @@ public:
 // (C++14 doesn't have that requirement)
 constexpr std::size_t countLower(constString s, std::size_t n = 0, std::size_t c = 0)
 {
+    // "n" is the position in the string, "c" is the count of lowercase letters
     return (n == s.size())
         ? c
         : ('a' <= s[n] && s[n] <= 'z')
@@ -38,7 +40,7 @@ constexpr std::size_t countLower(constString s, std::size_t n = 0, std::size_t c
             : countLower(s, n + 1, c);
 }
  
-// output function that requires a compile-time constant, for testing
+// Output function that requires a compile-time constant, for testing
 template<int n>
 struct constN
 {
@@ -52,14 +54,14 @@ int main()
 
     // Compute at compile time
     std::cout << "4! = " ;
-    constN<factorial(4)> out1;                          // Computed and compile time
+    constN<factorial(4)> out1;  // Computed at compile time
 
-    // Disallow optimization using volatile (to force computation at runtime)
+    // Disallow optimization using volatile (forces computation at runtime)
     volatile int k = 8;
-    std::cout << k << "! = " << factorial(k) << '\n';   // Computed at run time
+    std::cout << k << "! = " << factorial(k) << '\n';   // Computed at runtime
 
     // Count lowercase characters
     std::cout << "Number of lowercase letters in \"Hello, world!\" is ";
-    constN<countLower("Hello, world!")> out2;           // Implicitly converted to conststr
+    constN<countLower("Hello, world!")> out2;   // Implicitly converted to conststr
     return 0;
 }
