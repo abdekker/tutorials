@@ -379,26 +379,26 @@ begin
 	//	Exit;
 
 	// Image or solid colour?
-	{if (settings.eBackground = eBackgroundImg1) then
-		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-1.jpg')
-	else if (settings.eBackground = eBackgroundImg2) then
-		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-2.jpg')
-	else if (settings.eBackground = eBackgroundSolidColour) then
+	if (settings.szBackground = 'SolidColour') then
 		begin
 		imgBackground.Picture := nil;
 		bmp := TBitmap.Create;
-		try
-			bmp.PixelFormat := pf24bit;
-			bmp.Width := imgBackground.Width;
-			bmp.Height := imgBackground.Height;
-			bmp.Canvas.Brush.Color := TColor(settings.tBackgroundColour);
-			bmp.Canvas.FillRect(Rect(0, 0, Width, Height));
-			imgBackground.Picture.Bitmap := bmp;
-		finally
-			bmp.Free();
+			try
+				bmp.PixelFormat := pf24bit;
+				bmp.Width := imgBackground.Width;
+				bmp.Height := imgBackground.Height;
+				bmp.Canvas.Brush.Color := TColor(settings.tBackgroundColour);
+				bmp.Canvas.FillRect(Rect(0, 0, Width, Height));
+				imgBackground.Picture.Bitmap := bmp;
+			finally
+				bmp.Free();
+			end;
+		end
+	else
+		begin
+		imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + settings.szBackground);
 		end;
-		end;}
-	imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-3.bmp');
+	//imgBackground.Picture.LoadFromFile(ChocolateBox.GameCache.szAppPath + 'ChocolateBox-3.bmp');
 
 	// Background has been changed
 	//m_cache.eLastBackground := settings.eBackground;
