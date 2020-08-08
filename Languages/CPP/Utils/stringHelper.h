@@ -11,7 +11,7 @@ public:
     stringHelper() {}
     ~stringHelper() {}
 
-    // Template functions (using C++11 or later)
+    // Variadic template functions (using C++11 or later)
     template <typename... Args>
     string formatString(const char *format, Args... args)
     {
