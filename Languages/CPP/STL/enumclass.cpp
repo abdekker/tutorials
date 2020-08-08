@@ -22,7 +22,7 @@ int main()
         Cat,
         Dog };
 
-    // ADAD, testing...
+    // Testing magic_enum...
     auto gender_name = magic_enum::enum_name(Male);
     cout << "  Gender::0 = " << gender_name << "\n";
 
@@ -48,7 +48,7 @@ int main()
         Green,
         Blue };
     enum class Color2 {
-        // With standard enum, this would generates a "redeclaration" compiler error for "Red"
+        // With standard enums, this generates a "redeclaration" compiler error for "Red"
         Red,
         Black,
         White };
