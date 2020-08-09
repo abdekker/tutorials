@@ -3,7 +3,8 @@
 #include <cstring>
 
 // Header-only helper class for using strings
-using namespace std;
+// Note: It is bad practice to include something like "using namepsace X" in header files, or
+// before "#include" statements. If used, put them in your private implementation (.cpp) files.
 class stringHelper
 {
 public:
@@ -13,7 +14,7 @@ public:
 
     // Variadic template functions (using C++11 or later)
     template <typename... Args>
-    string formatString(const char *format, Args... args)
+    std::string formatString(const char *format, Args... args)
     {
         // Helper function to format a string
 
@@ -28,18 +29,18 @@ public:
         {
             char *buffer = new char[length + 1];
             snprintf(buffer, length + 1, format, args...);
-            string formatted(buffer);
+            std::string formatted(buffer);
             delete[] buffer;
             return formatted;
         }
         else
-            return string(); // Empty std::string
+            return std::string(); // Empty std::string
     }
 
     // Non-template functions
-    bool containsSubString(const string &mainString, const string &subString)
+    bool containsSubString(const std::string &mainString, const std::string &subString)
     {
         // Example: containsSubString(string("fred"), string("red"));   // true
-        return (mainString.find(subString) != string::npos);
+        return (mainString.find(subString) != std::string::npos);
     }
 };
