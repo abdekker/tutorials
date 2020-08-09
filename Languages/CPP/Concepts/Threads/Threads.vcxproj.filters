@@ -18,12 +18,18 @@
     <ClCompile Include="Threads.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CThreads.cpp">
+    <ClCompile Include="CThreadsSimple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CThreadsSTL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CThreads.h">
+    <ClInclude Include="CThreadsSimple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CThreadsSTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

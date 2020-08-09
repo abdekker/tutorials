@@ -148,11 +148,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CThreads.cpp" />
+    <ClCompile Include="CThreadsSimple.cpp" />
+    <ClCompile Include="CThreadsSTL.cpp" />
     <ClCompile Include="Threads.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CThreads.h" />
+    <ClInclude Include="CThreadsSimple.h" />
+    <ClInclude Include="CThreadsSTL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
