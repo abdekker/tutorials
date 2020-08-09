@@ -1,8 +1,10 @@
 #include <iostream>
 #include <sstream>		// For std::stringstream
 #include <codecvt>      // For char16_t and char32_t conversions
-using namespace std;
 
+#include "..\..\Utils\stringHelper.h"
+
+using namespace std;
 void ConstructStdString()
 {
     // Various ways to construct a std::string
@@ -75,6 +77,22 @@ void ConstructStdString()
         string s = myStream.str();
         cout << "  Using std::stringstream\t\t" << s << "\n";
     }
+
+	{
+		// Example:
+        //      string myString = "Hello";
+        //      int myInt = 123;
+        //      double myDouble = 456.789;
+        //      cout << formatString("%s %05d %10.5f", myString.c_str(), myInt, myDouble);
+		cout << "  Using std::snprintf (and variadic templates)\n";
+		string myString = "Hello";
+		int myInt = 123;
+		double myDouble = 456.789;
+		stringHelper sHelper;
+		string s = sHelper.formatString("    myString=%s, myInt=%05d, myDouble=%10.5f",
+			myString.c_str(), myInt, myDouble);
+		cout << s << "\n";
+	}
     cout << endl;
 }
 
