@@ -79,11 +79,6 @@ void ConstructStdString()
     }
 
 	{
-		// Example:
-        //      string myString = "Hello";
-        //      int myInt = 123;
-        //      double myDouble = 456.789;
-        //      cout << formatString("%s %05d %10.5f", myString.c_str(), myInt, myDouble);
 		cout << "  Using std::snprintf (and variadic templates)\n";
 		string myString = "Hello";
 		int myInt = 123;
