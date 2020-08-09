@@ -98,9 +98,14 @@ void RunThreadsSTL()
 	// Example 4
 	bRunExample = true;
 	if (bRunExample) {
-		// Example 4: std::thread with wrapper
-		std::cout << "\n### Example 4 (std::thread with wrapper) ###\n";
-		threadsSTL.StartThread(ThreadsSTL::Example4);
+		// Example 4a: std::thread with wrapper
+		std::cout << "\n### Example 4a (std::thread with wrapper) ###\n";
+		threadsSTL.StartThread(ThreadsSTL::Example4a);
+		std::cout << "###\n\n";
+
+		// Example 4b: std::thread with wrapper, this time passing a parameter
+		std::cout << "\n### Example 4b (std::thread with wrapper and parameter) ###\n";
+		threadsSTL.StartThread(ThreadsSTL::Example4b);
 		std::cout << "###\n\n";
 	}
 

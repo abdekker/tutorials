@@ -8,7 +8,8 @@ enum class ThreadsSTL
     Example1 = 0,	// std::thread (simple example with std::thread::join)
 	Example2,		// std::thread (simple example with std::thread::detach)
 	Example3,		// using std::mutex to protect a resource
-	Example4,		// using class to wrap the thread function
+	Example4a,		// using class to wrap the thread function
+	Example4b,		// passing a parameter to the wrapper
 	ExamplesEnd
 };
 
@@ -36,7 +37,8 @@ private:
 	void Ex1_Run();
 	void Ex2_Run();
 	void Ex3_Run();
-	void Ex4_Run();
+	void Ex4a_Run();
+	void Ex4b_Run();
 
 	// Static methods (used for thread functions)
 	static void Ex1_Ex2_ThreadFunc();
