@@ -74,6 +74,7 @@ uses
 procedure TGameMachine.Load();
 var
 	pIniFile: TIniFile;
+	strPath: String;
 begin
 	// Read settings from the INI file
 	pIniFile := TIniFile.Create(GameCache.szAppINI);
@@ -95,6 +96,13 @@ begin
 	// Validate settings
 	Validate_Integer(@GameSettings.nRows, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
 	Validate_Integer(@GameSettings.nColumns, 1, GRID_SIZE_MAX, GRID_SIZE_DEFAULT);
+
+	if (GameSettings.szBackground <> 'SolidColour') then
+		begin
+		strPath := (GameCache.szAppPath + GameSettings.szBackground);
+		if (not FileExists(strPath)) then
+			GameSettings.szBackground := 'SolidColour';
+		end;
 
 	Validate_Integer(@Integer(GameSettings.tBackgroundColour),
 		Integer(clBlack),
