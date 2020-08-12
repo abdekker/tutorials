@@ -173,12 +173,24 @@ void CThreadsSTL::StopThread(const ThreadsSTL ex)
 void CThreadsSTL::Ex1_Run()
 {
 	// Example 1: thread with join
-	cout << "  Creating thread with thread, then use thread::join\n";
-	thread tEx1(Ex1_Ex2_ThreadFunc);
+	cout << "  Creating thread with std::thread from function pointer, then use std::thread::join\n";
+
+	// Create a thread with a function pointer
+	thread tEx1a(Ex1_Ex2_ThreadFunc);
+
+	// Create a thread with a function object
+	thread tEx1b( (CEx1DisplayThread() ));
+
+	// Create a thread with lambda function
+	thread tEx1c( [] {
+		cout << "    (Inside lambda function)\n";
+	});
 
 	// Note: Threads should be joined only once (main thread waits for the child thread to complete).
 	// If the thread is not joined (or detached) before completing its work, the application exits.
-	tEx1.join();
+	tEx1a.join();
+	tEx1b.join();
+	tEx1c.join();
 	cout << "...finished with thread (ex1)\n";
 }
 
@@ -317,13 +329,13 @@ void CThreadsSTL::Ex6_Run()
 void CThreadsSTL::Ex1_Ex2_ThreadFunc()
 {
 	// Example 1/2 thread function
-	cout << "  Simple example 1/2 thread function!\n";
+	cout << "    (Simple example thread function)\n";
 }
 
 void CThreadsSTL::Ex3_ThreadFunc(const string &url)
 {
 	// Simulate a long page fetch
-	cout << "  (sleep thread for a few seconds to simulate a long fetch)\n";
+	cout << "    (sleep thread for a few seconds to simulate a long fetch)\n";
 	this_thread::sleep_for(chrono::seconds(2));
 
 	// Create the text for page
