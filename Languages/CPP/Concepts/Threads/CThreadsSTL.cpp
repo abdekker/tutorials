@@ -43,6 +43,39 @@ public:
 	};
 };
 
+// Example 5
+mutex g_ex5Mutex;
+struct CEx5 {
+	void foo(int i, const string& str) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (" << str << ' ' << i << ")\n";
+	}
+
+	void bar(const string& str) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (" << str << ")\n";
+	}
+
+	int operator()(int i) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (in: " << i << ")\n";
+		return (i + 10);
+	}
+};
+template <typename RandomIt>
+int Ex5_ParallelSum(RandomIt beg, RandomIt end)
+{
+	auto len = (end - beg);
+	if (len < 1000)
+		return accumulate(beg, end, 0);		// For small arrays, use std::accumulate
+ 
+	// Chop the array in two, and recursively create a new thread for the 2nd half
+	RandomIt mid = (beg + len / 2);
+	auto handle = async(launch::async, Ex5_ParallelSum<RandomIt>, mid, end);
+	int sum = Ex5_ParallelSum(beg, mid);
+	return (sum + handle.get());
+}
+
 // Constructor / Destructor
 CThreadsSTL::CThreadsSTL()
 {
@@ -56,6 +89,8 @@ CThreadsSTL::CThreadsSTL()
 		m_threads.push_back(ex);
 		m_threadRunning.push_back(0);
 	}
+
+	// Thread member data
 }
 
 CThreadsSTL::~CThreadsSTL()
@@ -95,6 +130,9 @@ void CThreadsSTL::StartThread(const ThreadsSTL ex)
 		break;
 	case ThreadsSTL::Example4b:
 		Ex4b_Run();
+		break;
+	case ThreadsSTL::Example5:
+		Ex5_Run();
 		break;
 	}
 }
@@ -210,6 +248,31 @@ void CThreadsSTL::Ex4b_Run()
 	cout << "...finished with threads (ex4b)\n";*/
 }
 
+void CThreadsSTL::Ex5_Run()
+{
+	// Example 5: Using std::async
+	cout << "  Using std::async\n";
+	vector<int> v(57450, 1);
+	cout << "    (vector has " << v.size() << " elements and the sum is " << Ex5_ParallelSum(v.begin(), v.end()) << ")\n";
+ 
+	// Use a separate structure and call methods in the structure asynchronously
+	CEx5 ex5;
+
+	// Calls (&ex5)->foo(int, string) with default policy:
+	//		=> may print "string int" concurrently or defer execution
+	auto ex5a = async(&CEx5::foo, &ex5, 42, "default launch");
+
+	// Calls ex5.bar(string) with deferred policy:
+	//		=> prints "string" when a2.get() or a2.wait() is called
+	auto ex5b = async(launch::deferred, &CEx5::bar, ex5, "deferred launch");
+
+	// Calls CEx5()(int) with async policy:
+	//		=> prints "int + 10" concurrently
+	auto ex5c = async(launch::async, CEx5(), 43);
+	ex5b.wait();									// prints "deferred launch"
+	cout << "    (out: " << ex5c.get() << ")\n";	// prints "53"
+	cout << "...finished with thread (ex5)\n";
+}	// if a1 is not done at this point, destructor of a1 prints "default launch 42" here
 // Thread functions
 void CThreadsSTL::Ex1_Ex2_ThreadFunc()
 {
