@@ -18,7 +18,7 @@ class CEx1DisplayThread
 {
 public:
 	void operator()() {
-		cout << "    (Inside display thread)\n";
+		cout << "      (Inside display thread)\n";
 	}
 };
 
@@ -173,17 +173,20 @@ void CThreadsSTL::StopThread(const ThreadsSTL ex)
 void CThreadsSTL::Ex1_Run()
 {
 	// Example 1: thread with join
-	cout << "  Creating thread with std::thread from function pointer, then use std::thread::join\n";
+	cout << "  Creating thread with std::thread, then use std::thread::join\n";
 
 	// Create a thread with a function pointer
+	cout << "    (create thread from function pointer)\n";
 	thread tEx1a(Ex1_Ex2_ThreadFunc);
 
 	// Create a thread with a function object
+	cout << "    (create thread from function object)\n";
 	thread tEx1b( (CEx1DisplayThread() ));
 
 	// Create a thread with lambda function
+	cout << "    (create thread from lambda function)\n";
 	thread tEx1c( [] {
-		cout << "    (Inside lambda function)\n";
+		cout << "      (Inside lambda function)\n";
 	});
 
 	// Note: Threads should be joined only once (main thread waits for the child thread to complete).
@@ -198,15 +201,15 @@ void CThreadsSTL::Ex2_Run()
 {
 	// Example 2: thread with detach
 	using namespace chrono_literals;
-	cout << "  Creating thread with thread, then use thread::detach\n";
+	cout << "  Creating thread with std::thread, then use std::thread::detach\n";
 	thread tEx2(Ex1_Ex2_ThreadFunc);
 
 	// Note: Threads should be detached only once (child thread runs independently)
 	tEx2.detach();
-	cout << "...thread detached (it will now run completely independently of the main thread)\n";
+	cout << "    (thread detached, it will now run completely independently of the main thread)\n";
 	this_thread::sleep_for(2s);
 
-	// If you Check it is joinable (which
+	// The thread should not be joinable...
 	if (tEx2.joinable())
 		tEx2.join();
 	else
@@ -218,7 +221,7 @@ void CThreadsSTL::Ex2_Run()
 void CThreadsSTL::Ex3_Run()
 {
 	// Example 31: thread with mutex
-	cout << "  Creating threads with thread, then use thread::mutex to protect resources\n";
+	cout << "  Creating threads with std::thread, then use std::thread::mutex to protect resources\n";
 	m_ex3Pages.clear();
 	thread tEx3a(Ex3_ThreadFunc, "http://foo");
 	thread tEx3b(Ex3_ThreadFunc, "http://bar");
@@ -295,7 +298,7 @@ void CThreadsSTL::Ex5_Run()
 	ex5b.wait();									// prints "deferred launch"
 	cout << "    (out: " << ex5c.get() << ")\n";	// prints "53"
 	cout << "...finished with thread (ex5)\n";
-}	// if a1 is not done at this point, destructor of a1 prints "default launch 42" here
+}	// if ex5c is not done at this point, destructor prints "default launch 42" here
 
 void CThreadsSTL::Ex6_Run()
 {
@@ -329,7 +332,7 @@ void CThreadsSTL::Ex6_Run()
 void CThreadsSTL::Ex1_Ex2_ThreadFunc()
 {
 	// Example 1/2 thread function
-	cout << "    (Simple example thread function)\n";
+	cout << "      (Simple example thread function)\n";
 }
 
 void CThreadsSTL::Ex3_ThreadFunc(const string &url)
@@ -386,4 +389,3 @@ void CThreadsSTL::Ex6_LockHelper(unique_lock<mutex> &lk, const string prefix)
 	string owns = (lk.owns_lock()) ? "TRUE" : "FALSE";
 	cout << prefix << " Worker thread, lock is owned? " << owns << ")\n";
 }
-

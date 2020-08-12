@@ -229,11 +229,11 @@ void CThreadsSimple::Ex3_Run()
 	int threadNum = 0;
 	while (g_bEx3Repeat && threadNum < MAX_BOUNCE_THREADS)
 	{
-        // Launch another character thread
-        _beginthread(Ex3_ThreadFunc_Bounce, 0, (void *) &m_threadRunning[(int)ThreadsSimple::Example3]);
+		// Launch another character thread
+		_beginthread(Ex3_ThreadFunc_Bounce, 0, (void *) &m_threadRunning[(int)ThreadsSimple::Example3]);
 
-        // Increment the thread parameter
-        threadNum++;
+		// Increment the thread parameter
+		threadNum++;
 		std::cout << "...bounce thread " << m_threadRunning[(int)ThreadsSimple::Example3] << " started\n";
 		if (threadNum < MAX_BOUNCE_THREADS)
 			Sleep(1000L);
@@ -256,14 +256,14 @@ void CThreadsSimple::Ex4_Run()
 	m_threadCounter = 0;
 	m_hThreadEx4 = (HANDLE)_beginthreadex(NULL, 0, &Ex4_ThreadFunc, &m_threadCounter, 0, &uThreadID);
 
-    // Wait until second thread terminates. If you comment out the line below, the counter will
+	// Wait until second thread terminates. If you comment out the line below, the counter will
 	// not be correct because the thread has not terminated, and counter most likely has not been
 	// incremented to rach the target yet.
     WaitForSingleObject(m_hThreadEx4, INFINITE);
 	std::cout << "  Counter should be " << COUNTER_TARGET << "; it is-> " << m_threadCounter << "\n";
 
-    // Destroy the thread object
-    CloseHandle(m_hThreadEx4);
+	// Destroy the thread object
+	CloseHandle(m_hThreadEx4);
 }
 
 // Thread functions
