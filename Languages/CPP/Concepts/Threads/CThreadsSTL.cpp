@@ -1,14 +1,26 @@
 #include "CThreadsSTL.h"
 #include "..\..\Utils\stringHelper.h"
 
-#include <chrono>		// chrono_literals, this_thread::sleep_for
+#include <algorithm>	// std::accumulate
+#include <chrono>		// std::chrono_literals, std::this_thread::sleep_for
 #include <conio.h>		// _getch
+#include <future>		// std::async
 #include <iostream>
-#include <thread>		// thread
+#include <numeric>
+#include <thread>		// std::thread
 
 using namespace std;
 
 // Global flags
+
+// Example 1
+class CEx1DisplayThread
+{
+public:
+	void operator()() {
+		cout << "    (Inside display thread)\n";
+	}
+};
 
 // Example 3
 map<string, string> CThreadsSTL::m_ex3Pages;
