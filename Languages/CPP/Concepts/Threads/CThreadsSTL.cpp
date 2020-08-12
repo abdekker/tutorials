@@ -62,6 +62,14 @@ struct CEx5 {
 		return (i + 10);
 	}
 };
+
+// Example 6
+mutex g_e6Mutex;
+condition_variable g_ex6CV;
+string g_ex6Data = "";
+bool g_ex6Ready = false;
+bool g_ex6Processed = false;
+
 template <typename RandomIt>
 int Ex5_ParallelSum(RandomIt beg, RandomIt end)
 {
@@ -133,6 +141,9 @@ void CThreadsSTL::StartThread(const ThreadsSTL ex)
 		break;
 	case ThreadsSTL::Example5:
 		Ex5_Run();
+		break;
+	case ThreadsSTL::Example6:
+		Ex6_Run();
 		break;
 	}
 }
@@ -273,6 +284,35 @@ void CThreadsSTL::Ex5_Run()
 	cout << "    (out: " << ex5c.get() << ")\n";	// prints "53"
 	cout << "...finished with thread (ex5)\n";
 }	// if a1 is not done at this point, destructor of a1 prints "default launch 42" here
+
+void CThreadsSTL::Ex6_Run()
+{
+	// Example 6: Using std::condition_variable
+	// Adapted from: https://en.cppreference.com/w/cpp/thread/condition_variable
+
+	cout << "  Using std::condition_variable\n";
+	thread tWorker(Ex6_ThreadFunc);
+	g_ex6Data = "Example data";
+	cout << "    (In caller, data = " << g_ex6Data << ")\n";
+
+	// Send data to the worker thread
+	{
+		lock_guard<mutex> lk(g_e6Mutex);
+		g_ex6Ready = true;
+		cout << "    (Caller signals thread that data is ready for processing)\n";
+	}
+	g_ex6CV.notify_one();
+ 
+	// Wait for the worker
+	{
+		unique_lock<mutex> lk(g_e6Mutex);
+		g_ex6CV.wait(lk, []{ return g_ex6Processed; });
+	}
+	cout << "    (Back in caller, data = " << g_ex6Data << ")\n";
+	tWorker.join();
+	cout << "...finished with thread (ex6)\n";
+}
+
 // Thread functions
 void CThreadsSTL::Ex1_Ex2_ThreadFunc()
 {
