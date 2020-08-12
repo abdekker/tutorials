@@ -227,7 +227,6 @@ void CThreadsSimple::Ex3_Run()
 
 	// Loop until user terminates (by pressing a key) or the maximum number of threads are created
 	int threadNum = 0;
-	//int *pThreadNum = &threadNum;
 	while (g_bEx3Repeat && threadNum < MAX_BOUNCE_THREADS)
 	{
         // Launch another character thread
