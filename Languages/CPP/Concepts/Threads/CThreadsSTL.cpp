@@ -352,3 +352,38 @@ void CThreadsSTL::Ex3_ThreadFunc(const string &url)
 	//lock_guard<mutex> guard(m_ex3Mutex);
     //m_ex3Pages[url] = result;
 }
+
+void CThreadsSTL::Ex6_ThreadFunc()
+{
+	// Wait until the calling method sends data
+	unique_lock<mutex> lk(g_e6Mutex);
+	Ex6_LockHelper(lk, "      (1 ");
+
+	g_ex6CV.wait(lk, []{ return g_ex6Ready; });
+	Ex6_LockHelper(lk, "      (2 ");
+ 
+	// After the wait, we own the lock
+	cout << "    (Worker thread is processing data)\n";
+	g_ex6Data += " added by worker thread";
+ 
+	// Send data back to calling method
+	g_ex6Processed = true;
+	cout << "    (Worker thread signals data processing completed)\n";
+ 
+	// Manual unlocking is done before notifying, to avoid waking up the waiting thread only to
+	// block again
+	Ex6_LockHelper(lk, "      (3 ");
+	lk.unlock();
+	Ex6_LockHelper(lk, "      (4 ");
+
+	g_ex6CV.notify_one();
+	Ex6_LockHelper(lk, "      (5 ");
+}
+
+void CThreadsSTL::Ex6_LockHelper(unique_lock<mutex> &lk, const string prefix)
+{
+	// Helper function to show the state of the mutex lock
+	string owns = (lk.owns_lock()) ? "TRUE" : "FALSE";
+	cout << prefix << " Worker thread, lock is owned? " << owns << ")\n";
+}
+
