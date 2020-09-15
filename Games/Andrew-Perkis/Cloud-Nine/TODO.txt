@@ -1,0 +1,2 @@
+* Given the complete database of possible games, allow user to automatically generate puzzle
+* Following on from above, print puzzle in realistic format
