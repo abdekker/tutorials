@@ -1,9 +1,10 @@
 object frmCloudNineMain: TfrmCloudNineMain
   Left = 450
   Top = 131
-  Width = 605
-  Height = 390
+  BorderStyle = bsDialog
   Caption = 'Cloud Nine ('#169' Andrew Perkis, software '#169' Alain Dekker)'
+  ClientHeight = 370
+  ClientWidth = 600
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -29,7 +30,13 @@ object frmCloudNineMain: TfrmCloudNineMain
     Top = 10
     Width = 580
     Height = 305
-    ActivePage = GameSheet
+    ActivePage = AnalysisSheet
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabHeight = 35
     TabOrder = 0
     TabWidth = 180
@@ -324,12 +331,12 @@ object frmCloudNineMain: TfrmCloudNineMain
   object AnalysisTimer: TTimer
     Interval = 10
     OnTimer = OnAnalysisTimerTick
-    Left = 555
-    Top = 10
+    Left = 440
+    Top = 320
   end
   object UpdateTimer: TTimer
     OnTimer = OnUpdateTimerTick
-    Left = 590
-    Top = 10
+    Left = 475
+    Top = 320
   end
 end

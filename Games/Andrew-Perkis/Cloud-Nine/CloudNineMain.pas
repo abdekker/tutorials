@@ -138,10 +138,9 @@ const
   // Maximum possible length of a successful tour of the Cloud Nine puzzle
   MAX_TOUR_LENGTH = 28;
 
-  // Number of loops of analysis to perform (per tick of the Analysis timer); this is
-  // done to ensure the CPU maintains a high load, but not so high as to starve other
-  // threads
-  ANALYSIS_LOOPS = 400;
+  // Number of loops of analysis to perform (per tick of the Analysis timer). This is done to
+  // ensure the CPU maintains a high load, but not so high as to starve other threads.
+  ANALYSIS_LOOPS = 600;
 
 type
   TfrmCloudNineMain = class(TForm)
