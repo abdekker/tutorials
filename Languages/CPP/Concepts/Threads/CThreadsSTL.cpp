@@ -1,14 +1,26 @@
 #include "CThreadsSTL.h"
 #include "..\..\Utils\stringHelper.h"
 
-#include <chrono>		// chrono_literals, this_thread::sleep_for
+#include <algorithm>	// std::accumulate
+#include <chrono>		// std::chrono_literals, std::this_thread::sleep_for
 #include <conio.h>		// _getch
+#include <future>		// std::async
 #include <iostream>
-#include <thread>		// thread
+#include <numeric>
+#include <thread>		// std::thread
 
 using namespace std;
 
 // Global flags
+
+// Example 1
+class CEx1DisplayThread
+{
+public:
+	void operator()() {
+		cout << "      (Inside display thread)\n";
+	}
+};
 
 // Example 3
 map<string, string> CThreadsSTL::m_ex3Pages;
@@ -31,6 +43,47 @@ public:
 	};
 };
 
+// Example 5
+mutex g_ex5Mutex;
+struct CEx5 {
+	void foo(int i, const string& str) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (" << str << ' ' << i << ")\n";
+	}
+
+	void bar(const string& str) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (" << str << ")\n";
+	}
+
+	int operator()(int i) {
+		lock_guard<mutex> lk(g_ex5Mutex);
+		cout << "    (in: " << i << ")\n";
+		return (i + 10);
+	}
+};
+
+// Example 6
+mutex g_e6Mutex;
+condition_variable g_ex6CV;
+string g_ex6Data = "";
+bool g_ex6Ready = false;
+bool g_ex6Processed = false;
+
+template <typename RandomIt>
+int Ex5_ParallelSum(RandomIt beg, RandomIt end)
+{
+	auto len = (end - beg);
+	if (len < 1000)
+		return accumulate(beg, end, 0);		// For small arrays, use std::accumulate
+ 
+	// Chop the array in two, and recursively create a new thread for the 2nd half
+	RandomIt mid = (beg + len / 2);
+	auto handle = async(launch::async, Ex5_ParallelSum<RandomIt>, mid, end);
+	int sum = Ex5_ParallelSum(beg, mid);
+	return (sum + handle.get());
+}
+
 // Constructor / Destructor
 CThreadsSTL::CThreadsSTL()
 {
@@ -44,6 +97,8 @@ CThreadsSTL::CThreadsSTL()
 		m_threads.push_back(ex);
 		m_threadRunning.push_back(0);
 	}
+
+	// Thread member data
 }
 
 CThreadsSTL::~CThreadsSTL()
@@ -84,6 +139,12 @@ void CThreadsSTL::StartThread(const ThreadsSTL ex)
 	case ThreadsSTL::Example4b:
 		Ex4b_Run();
 		break;
+	case ThreadsSTL::Example5:
+		Ex5_Run();
+		break;
+	case ThreadsSTL::Example6:
+		Ex6_Run();
+		break;
 	}
 }
 
@@ -112,12 +173,27 @@ void CThreadsSTL::StopThread(const ThreadsSTL ex)
 void CThreadsSTL::Ex1_Run()
 {
 	// Example 1: thread with join
-	cout << "  Creating thread with thread, then use thread::join\n";
-	thread tEx1(Ex1_Ex2_ThreadFunc);
+	cout << "  Creating thread with std::thread, then use std::thread::join\n";
+
+	// Create a thread with a function pointer
+	cout << "    (create thread from function pointer)\n";
+	thread tEx1a(Ex1_Ex2_ThreadFunc);
+
+	// Create a thread with a function object
+	cout << "    (create thread from function object)\n";
+	thread tEx1b( (CEx1DisplayThread() ));
+
+	// Create a thread with lambda function
+	cout << "    (create thread from lambda function)\n";
+	thread tEx1c( [] {
+		cout << "      (Inside lambda function)\n";
+	});
 
 	// Note: Threads should be joined only once (main thread waits for the child thread to complete).
 	// If the thread is not joined (or detached) before completing its work, the application exits.
-	tEx1.join();
+	tEx1a.join();
+	tEx1b.join();
+	tEx1c.join();
 	cout << "...finished with thread (ex1)\n";
 }
 
@@ -125,15 +201,15 @@ void CThreadsSTL::Ex2_Run()
 {
 	// Example 2: thread with detach
 	using namespace chrono_literals;
-	cout << "  Creating thread with thread, then use thread::detach\n";
+	cout << "  Creating thread with std::thread, then use std::thread::detach\n";
 	thread tEx2(Ex1_Ex2_ThreadFunc);
 
 	// Note: Threads should be detached only once (child thread runs independently)
 	tEx2.detach();
-	cout << "...thread detached (it will now run completely independently of the main thread)\n";
+	cout << "    (thread detached, it will now run completely independently of the main thread)\n";
 	this_thread::sleep_for(2s);
 
-	// If you Check it is joinable (which
+	// The thread should not be joinable...
 	if (tEx2.joinable())
 		tEx2.join();
 	else
@@ -145,7 +221,7 @@ void CThreadsSTL::Ex2_Run()
 void CThreadsSTL::Ex3_Run()
 {
 	// Example 31: thread with mutex
-	cout << "  Creating threads with thread, then use thread::mutex to protect resources\n";
+	cout << "  Creating threads with std::thread, then use std::thread::mutex to protect resources\n";
 	m_ex3Pages.clear();
 	thread tEx3a(Ex3_ThreadFunc, "http://foo");
 	thread tEx3b(Ex3_ThreadFunc, "http://bar");
@@ -198,17 +274,71 @@ void CThreadsSTL::Ex4b_Run()
 	cout << "...finished with threads (ex4b)\n";*/
 }
 
+void CThreadsSTL::Ex5_Run()
+{
+	// Example 5: Using std::async
+	cout << "  Using std::async\n";
+	vector<int> v(57450, 1);
+	cout << "    (vector has " << v.size() << " elements and the sum is " << Ex5_ParallelSum(v.begin(), v.end()) << ")\n";
+ 
+	// Use a separate structure and call methods in the structure asynchronously
+	CEx5 ex5;
+
+	// Calls (&ex5)->foo(int, string) with default policy:
+	//		=> may print "string int" concurrently or defer execution
+	auto ex5a = async(&CEx5::foo, &ex5, 42, "default launch");
+
+	// Calls ex5.bar(string) with deferred policy:
+	//		=> prints "string" when a2.get() or a2.wait() is called
+	auto ex5b = async(launch::deferred, &CEx5::bar, ex5, "deferred launch");
+
+	// Calls CEx5()(int) with async policy:
+	//		=> prints "int + 10" concurrently
+	auto ex5c = async(launch::async, CEx5(), 43);
+	ex5b.wait();									// prints "deferred launch"
+	cout << "    (out: " << ex5c.get() << ")\n";	// prints "53"
+	cout << "...finished with thread (ex5)\n";
+}	// if ex5c is not done at this point, destructor prints "default launch 42" here
+
+void CThreadsSTL::Ex6_Run()
+{
+	// Example 6: Using std::condition_variable
+	// Adapted from: https://en.cppreference.com/w/cpp/thread/condition_variable
+
+	cout << "  Using std::condition_variable\n";
+	thread tWorker(Ex6_ThreadFunc);
+	g_ex6Data = "Example data";
+	cout << "    (In caller, data = " << g_ex6Data << ")\n";
+
+	// Send data to the worker thread
+	{
+		lock_guard<mutex> lk(g_e6Mutex);
+		g_ex6Ready = true;
+		cout << "    (Caller signals thread that data is ready for processing)\n";
+	}
+	g_ex6CV.notify_one();
+ 
+	// Wait for the worker
+	{
+		unique_lock<mutex> lk(g_e6Mutex);
+		g_ex6CV.wait(lk, []{ return g_ex6Processed; });
+	}
+	cout << "    (Back in caller, data = " << g_ex6Data << ")\n";
+	tWorker.join();
+	cout << "...finished with thread (ex6)\n";
+}
+
 // Thread functions
 void CThreadsSTL::Ex1_Ex2_ThreadFunc()
 {
 	// Example 1/2 thread function
-	cout << "  Simple example 1/2 thread function!\n";
+	cout << "      (Simple example thread function)\n";
 }
 
 void CThreadsSTL::Ex3_ThreadFunc(const string &url)
 {
 	// Simulate a long page fetch
-	cout << "  (sleep thread for a few seconds to simulate a long fetch)\n";
+	cout << "    (sleep thread for a few seconds to simulate a long fetch)\n";
 	this_thread::sleep_for(chrono::seconds(2));
 
 	// Create the text for page
@@ -224,4 +354,38 @@ void CThreadsSTL::Ex3_ThreadFunc(const string &url)
 	// Alternative syntax for mutex lock is:
 	//lock_guard<mutex> guard(m_ex3Mutex);
     //m_ex3Pages[url] = result;
+}
+
+void CThreadsSTL::Ex6_ThreadFunc()
+{
+	// Wait until the calling method sends data
+	unique_lock<mutex> lk(g_e6Mutex);
+	Ex6_LockHelper(lk, "      (1 ");
+
+	g_ex6CV.wait(lk, []{ return g_ex6Ready; });
+	Ex6_LockHelper(lk, "      (2 ");
+ 
+	// After the wait, we own the lock
+	cout << "    (Worker thread is processing data)\n";
+	g_ex6Data += " added by worker thread";
+ 
+	// Send data back to calling method
+	g_ex6Processed = true;
+	cout << "    (Worker thread signals data processing completed)\n";
+ 
+	// Manual unlocking is done before notifying, to avoid waking up the waiting thread only to
+	// block again
+	Ex6_LockHelper(lk, "      (3 ");
+	lk.unlock();
+	Ex6_LockHelper(lk, "      (4 ");
+
+	g_ex6CV.notify_one();
+	Ex6_LockHelper(lk, "      (5 ");
+}
+
+void CThreadsSTL::Ex6_LockHelper(unique_lock<mutex> &lk, const string prefix)
+{
+	// Helper function to show the state of the mutex lock
+	string owns = (lk.owns_lock()) ? "TRUE" : "FALSE";
+	cout << prefix << " Worker thread, lock is owned? " << owns << ")\n";
 }
