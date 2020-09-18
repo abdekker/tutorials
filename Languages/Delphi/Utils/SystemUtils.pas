@@ -40,6 +40,9 @@ function CheckDriveIsValid(cDriveLetter: Char) : Boolean;
 procedure SaveToClipboard(const cstrText: String);
 {$IFDEF DBG} function BreakIfScrollLock() : Boolean; {$ENDIF}
 
+// Hardware utilities
+procedure EnumComPorts(aszPorts: TStringList);
+
 // Registry
 function GetRootKey(const cstrKey: String) : HKEY;
 function RegGetValue(hRootKey: HKEY; const cstrName: String; dwValType: Cardinal;
@@ -812,6 +815,38 @@ begin
 		end;
 end;
 {$ENDIF}
+
+procedure EnumComPorts(aszPorts: TStringList);
+var
+	nPort: Integer;
+begin
+	// Enumerate the serial ports mapped in HKLM\HARDWARE\DEVICEMAP\SERIALCOMM. This includes both
+	// native (in-built) and USB-to-serial adapters.
+	with TRegistry.Create(KEY_READ) do
+		try
+		RootKey := HKEY_LOCAL_MACHINE;
+		if (OpenKey('hardware\devicemap\serialcomm', False)) then
+			try
+			aszPorts.BeginUpdate();
+				try
+					// The mapped names are in the form "COMx"
+					GetValueNames(aszPorts);
+					for nPort := (aszPorts.Count - 1) downto 0 do
+						aszPorts.Strings[nPort] := ReadString(aszPorts.Strings[nPort]);
+
+				aszPorts.Sort();
+				finally
+					aszPorts.EndUpdate();
+				end
+			finally
+				CloseKey();
+			end
+		else
+			aszPorts.Clear();
+		finally
+			Free();
+		end;
+end;
 
 // Registry
 function GetRootKey(const cstrKey: String) : HKEY;
