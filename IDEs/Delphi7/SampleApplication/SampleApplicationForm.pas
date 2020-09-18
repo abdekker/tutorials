@@ -12,6 +12,7 @@ type
   TCategory = (
 	eCategoryNone,
 	eCategoryWindows,
+	eCategoryHardware,
 	eCategoryRegistry,
 	eCategoryStrings,
 	eCategoryControls
@@ -97,17 +98,20 @@ type
 
 	procedure PopulateActions();
 	procedure PopulateActions_Windows();
+	procedure PopulateActions_Hardware();
 	procedure PopulateActions_Registry();
 	procedure PopulateActions_Strings();
 	procedure PopulateActions_Controls();
 
 	procedure UpdateControls(updates: CONTROL_UPDATES);
 	procedure UpdateControls_Windows();
+	procedure UpdateControls_Hardware();
 	procedure UpdateControls_Registry();
 	procedure UpdateControls_Strings();
 	procedure UpdateControls_Controls();
 
 	procedure PerformAction_Windows();
+	procedure PerformAction_Hardware();
 	procedure PerformAction_Registry();
 	procedure PerformAction_Strings();
 	procedure PerformAction_Controls();
@@ -146,6 +150,10 @@ type
 	eWindowsAction_CheckDriveIsValid,
 	eWindowsAction_SaveToClipboard,
 	eWindowsAction_BreakIfScrollLock
+  );
+
+  TCategoryHardware = (
+	eHardwareAction_EnumSerialPorts
   );
 
   TCategoryRegistry = (
@@ -259,6 +267,9 @@ begin
 		eCategoryWindows:
 			PerformAction_Windows();
 
+		eCategoryHardware:
+			PerformAction_Hardware();
+
 		eCategoryRegistry:
 			PerformAction_Registry();
 
@@ -293,6 +304,9 @@ begin
 		case m_eCategoryCurrent of
 			eCategoryWindows:
 				UpdateControls_Windows();
+
+			eCategoryHardware:
+				UpdateControls_Hardware();
 
 			eCategoryRegistry:
 				UpdateControls_Registry();
@@ -350,6 +364,7 @@ begin
 	// Add categories
 	ddlCategory.Items.Clear();
 	ddlCategory.Items.AddObject('Windows', TObject(eCategoryWindows));
+	ddlCategory.Items.AddObject('Hardware', TObject(eCategoryHardware));
 	ddlCategory.Items.AddObject('Registry', TObject(eCategoryRegistry));
 	ddlCategory.Items.AddObject('Strings', TObject(eCategoryStrings));
 	ddlCategory.Items.AddObject('Controls', TObject(eCategoryControls));
@@ -369,6 +384,9 @@ begin
 		eCategoryWindows:
 			PopulateActions_Windows();
 
+		eCategoryHardware:
+			PopulateActions_Hardware();
+
 		eCategoryRegistry:
 			PopulateActions_Registry();
 
@@ -381,6 +399,7 @@ begin
 
 	// Set the width of the output window and controls
 	if (	(m_eCategoryCurrent = eCategoryWindows) or
+			(m_eCategoryCurrent = eCategoryHardware) or
 			(m_eCategoryCurrent = eCategoryRegistry) or
 			(m_eCategoryCurrent = eCategoryStrings)) then
 		begin
@@ -427,6 +446,12 @@ begin
 {$IFDEF DBG}
 	ddlAction.Items.AddObject('Break if Scroll Lock is pressed', TObject(eWindowsAction_BreakIfScrollLock));
 {$ENDIF}
+end;
+
+procedure TfrmSampleApplication.PopulateActions_Hardware();
+begin
+	// Hardware: Populate actions for this category
+	ddlAction.Items.AddObject('Enumerate serial (COM) ports', TObject(eHardwareAction_EnumSerialPorts));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Registry();
@@ -587,6 +612,20 @@ begin
 			updates.astrSampleText[1] := 'Press Scroll Lock while debugging';
 			end;
 {$ENDIF}
+		end;
+
+	UpdateControls(updates);
+end;
+
+procedure TfrmSampleApplication.UpdateControls_Hardware();
+var
+	updates: CONTROL_UPDATES;
+begin
+	// Hardware: Update controls based on the selected action
+	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
+	case TCategoryHardware(ddlAction.ItemIndex) of
+		eHardwareAction_EnumSerialPorts:
+			;
 		end;
 
 	UpdateControls(updates);
@@ -938,6 +977,39 @@ begin
 				AddOutputText('Scroll Lock not detected or not debugging');
 			end;
 {$ENDIF}
+		end;
+end;
+
+procedure TfrmSampleApplication.PerformAction_Hardware();
+var
+	strTmp: String;
+	nTmp: Integer;
+	aszPorts: TStringList;
+begin
+	// Hardware: Perform the action
+	case TCategoryRegistry(m_nActionCurrent) of
+		eRegistryAction_GetString:
+			begin
+			aszPorts := TStringList.Create();
+			EnumComPorts(aszPorts);
+			if (aszPorts.Count > 0) then
+				begin
+				strTmp := 'Serial ports: ';
+				for nTmp:= 0 to (aszPorts.Count - 1) do
+					begin
+					if (nTmp <> (aszPorts.Count - 1)) then
+						strTmp := (strTmp + aszPorts[nTmp] + ', ')
+					else
+						strTmp := (strTmp + aszPorts[nTmp]);
+
+					end;
+				end
+			else
+				strTmp := 'Serial ports: (none)';
+
+			AddOutputText(strTmp);
+			aszPorts.Free();
+			end;
 		end;
 end;
 

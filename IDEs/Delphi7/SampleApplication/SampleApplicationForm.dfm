@@ -248,7 +248,7 @@ object frmSampleApplication: TfrmSampleApplication
         ItemIndex = 0
         ParentFont = False
         TabOrder = 1
-        Text = 'combo box (TComboBox)'
+        Text = 'combo box'
         OnClick = ddlActionClick
         Items.Strings = (
           'combo box')
