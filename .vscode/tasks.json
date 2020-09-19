@@ -28,26 +28,6 @@
             ]
         },
         {
-            // Use g++ on Windows
-            "type": "shell",
-            "label": "g++: Build active file",
-            "command": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin\\g++.exe",
-            "args": [
-                "-std=c++17",
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
-            ],
-            "options": {
-                "cwd": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": "build"
-        },
-        {
             // Use MSVC cl.exe (eg. Visual Studio 2019) on Windows
             "type": "shell",
             "label": "cl.exe: Build active file (DEBUG)",
@@ -118,5 +98,25 @@
                 "$msCompile"
             ]
         },
+        {
+            // Use g++ on Windows
+            "type": "shell",
+            "label": "g++: Build active file",
+            "command": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-std=c++17",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "C:\\Apps\\Utilities\\Mingw\\mingw64\\bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        }
     ]
 }
