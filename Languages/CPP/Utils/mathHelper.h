@@ -29,7 +29,7 @@ public:
             if ((input & 1) == 1)     // check lower bit
                 bits++;
 
-            input >>= 1;               // shift bits, removing lower bit
+            input >>= 1;              // shift bits, removing lower bit
         }
         return bits;
     }
