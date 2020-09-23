@@ -53,8 +53,7 @@ int main()
 	std::cout << "  2) Written using the \"Dynamic-Link Library with exports (DLL)\" wizard\n";
 	std::cout << "\tContains data, functions and a C++ class\n\n";
 
-	std::cout << "Note that DLLs consumed should be 2) Written using the \"Dynamic-Link Library with exports (DLL)\" wizard\n";
-	std::cout << "\tContains data, functions and a C++ class\n\n";
+	std::cout << "Note: DLLs consumed should be in the path or folder of the consuming application\n\n";
 
 	// ### SimpleDLL ###
 	{

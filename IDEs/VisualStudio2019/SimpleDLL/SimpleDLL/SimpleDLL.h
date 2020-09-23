@@ -1,7 +1,7 @@
 // SimpleDLL.h - Contains declarations of some math functions
 #pragma once
 
-// Calling conventions (examples assume the function "int MyFunc(const int a)")
+// Calling conventions (assuming the function "int MyFunc(const int a)")
 // * __cdecl
 //      - Parameters are pushed right-to-left on the stack
 //      - Caller cleans the stack after the function returns
