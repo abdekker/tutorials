@@ -8,6 +8,7 @@ Additional details on puzzles (where the one-line description i
 0006: Modify each element of an array by multiplying it by a constant factor
 0007: Generate a square spiral matrix from 1 to n^2
 0008: In the MIU system invented by Douglas R. Hofstadter, can the word "MU" be generated from "MI"?
+0009: Generate a number of rounds for 18 people in groups of size 3 (ie. 6 groups per round). Everyone should be in a group with everyone else at least once.
 
 ### 0001 - nothing more required ###
 ### 0002 - nothing more required ###
@@ -71,4 +72,22 @@ Examples:
 4) Given MIUUIU, you may add MIIU to your collection
 
 You are given only the starting word "MI". Can the word "MU" be formed? Assume a maximum length of string of 20 characters.
+#
+
+### 0009 ###
+There are 18 people (or items, etc) and a group size of 3. Each round, partition the people into groups. For example:
+	Round 1 = (1,2,3) (4,5,6) (7,8,9) (10,11,12) (13,14,15) (16,17,18)
+
+On each subsequent round, generate a new partition (ie. mix the people into different groups). The aim is to generate the minimum number of rounds such that everyone is with everyone else at least once. Duplicates (two people being in the same group) will be inevitable, but should be kept to a minimum. The order in each group is not relevant.
+
+Ideally, the total number of people and the group size would be flexible.
+
+An example application:
+* 18 young violin players are meeting at a summer camp
+* The organiser has acquired a number of violin trios
+* Each round, the organiser wishes to group the players together into six groups (18/3=6)
+* During a round, all groups play through the same trio
+* After some time, say 30 minutes and a short break, a new round starts with a fresh grouping and a new trio
+* The aim is for everyone to play with everyone else during the day
+* What is the minimum number of rounds required to product this result?
 #
