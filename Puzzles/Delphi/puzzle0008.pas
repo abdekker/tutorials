@@ -1,5 +1,5 @@
 unit puzzle0008;
-{$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
+{$I ..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 { In his book, "Godel, Escher, Bach: An eternal golden braid", Douglas R. Hofstadter presented the
 "MIU" formal system. This has one axiom and four rules of production.
