@@ -81,7 +81,7 @@ end;
 
 procedure TfrmPuzzle0001.btnStartClick(Sender: TObject);
 var
-	target, width: Integer;
+	target: Integer;
 	pos, tmp, count: Integer;
 	strResult: String;
 begin
@@ -89,8 +89,6 @@ begin
 	// TODO: Do with string comparisons, etc
 	if (not TryStrToInt(ebTarget.Text, target)) then
 		target := TARGET_DEFAULT;
-
-	width := Round(Log10(target));
 
 	strResult := '';
 	count := 0;
