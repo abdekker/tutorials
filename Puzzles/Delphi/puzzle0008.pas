@@ -389,6 +389,7 @@ begin
 	ebTargetString.Text := TARGET_STRING_GUI;
 	ebMaxStringLength.Text := IntToStr(MAX_LENGTH);
 
+	// Start an update timer
 	UpdateTimer.Enabled := True;
 end;
 
@@ -501,7 +502,7 @@ begin
 			else
 				MessageBox(0,
 					PAnsiChar(Format('"%s" NOT found with length %d', [TARGET_STRING_GUI, g_nMaxLength])),
-					'MIU System', MB_ICONEXCLAMATION)
+					'MIU System', MB_ICONEXCLAMATION);
 			end;
 		end;
 end;
