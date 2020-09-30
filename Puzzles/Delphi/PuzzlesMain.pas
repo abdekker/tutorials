@@ -12,7 +12,7 @@ uses
 const
 	// Puzzle ranges; update when new puzzles are added
 	PUZZLE_MIN: Integer = 1;
-	PUZZLE_MAX: Integer = 8;
+	PUZZLE_MAX: Integer = 9;
 
 type
   TfrmPuzzlesMain = class(TForm)
@@ -43,8 +43,8 @@ implementation
 
 uses
   Dialogs, SysUtils,
-  puzzle0001, puzzle0008, CoreFormClasses, SystemUtils;
-
+  CoreFormClasses, SystemUtils,
+  puzzle0001, puzzle0008, puzzle0009;
 {$R *.dfm}
 
 procedure TfrmPuzzlesMain.FormCreate(Sender: TObject);
@@ -100,11 +100,15 @@ begin
 			puzzleClassName := TfrmPuzzle0001;
 			end;
 
-	2..7:	;	//Not solved yet in Delphi...
+	2..7:	;	// Not solved yet in Delphi...
 
 	8:		begin
 			bPuzzleReady := True;
 			puzzleClassName := TfrmPuzzle0008;
+			end;
+	9:		begin
+			bPuzzleReady := True;
+			puzzleClassName := TfrmPuzzle0009;
 			end;
 	end;
 
@@ -114,7 +118,9 @@ begin
 		frmPuzzle := puzzleClassName.Create(Self);
 		frmPuzzle.ShowModal();
 		frmPuzzle.Free();
-		end;
+		end
+	else
+		ShowMessage(Format('Puzzle %.4d is not yet solved in Delphi...', [m_nPuzzle]));
 end;
 
 end.

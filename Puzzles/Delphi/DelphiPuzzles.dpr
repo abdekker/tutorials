@@ -10,7 +10,8 @@ uses
 
   PuzzlesMain in 'PuzzlesMain.pas' {frmPuzzlesMain},
   puzzle0001 in 'puzzle0001.pas' {frmPuzzle0001},
-  puzzle0008 in 'puzzle0008.pas' {frmPuzzle0008};
+  puzzle0008 in 'puzzle0008.pas' {frmPuzzle0008},
+  puzzle0009 in 'puzzle0009.pas' {frmPuzzle0009};
 
 {$R *.res}
 
