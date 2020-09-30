@@ -85,9 +85,9 @@ Ideally, the total number of people and the group size would be flexible.
 An example application:
 * 18 young violin players are meeting at a summer camp
 * The organiser has acquired a number of violin trios
-* Each round, the organiser wishes to group the players together into six groups (18/3=6)
+* Each round, the organiser wishes to partition the players together into six groups (18/3=6)
 * During a round, all groups play through the same trio
-* After some time, say 30 minutes and a short break, a new round starts with a fresh grouping and a new trio
-* The aim is for everyone to play with everyone else during the day
+* After, say, 30 minutes and a short break, a new round starts with a fresh grouping and new trio
+* Everyone should play with everyone else at least once during the day (order does not matter)
 * What is the minimum number of rounds required to product this result?
 #
