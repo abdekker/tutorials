@@ -27,11 +27,6 @@ uses
   CoreFormClasses, ComCtrls;
 
 type
-  // Statistics about the puzzle
-  PUZZLE_0009_STATS = record
-	nThreadLoops: Integer;
-  end;
-
   // ################## Start: TConnectionPair / TConnectionPairList ##################
   TConnectionPair = class(TObject)
   public
@@ -115,8 +110,6 @@ type
 	// Puzzle flags
 	m_dwStartTime, m_dwEndTime: DWORD;
 	m_bRunningPuzzle: Boolean;
-	m_stats: PUZZLE_0009_STATS;
-	m_fProgress: Single;
 
 	// Puzzle settings
 	m_nTotalItems, m_nGroupSize, m_nGroupsPerRound: Integer;
@@ -341,7 +334,6 @@ begin
 	m_dwStartTime := 0;
 	m_dwEndTime := 0;
 	m_bRunningPuzzle := False;
-	ZeroMemory(@m_stats, SizeOf(PUZZLE_0009_STATS));
 
 	m_roundsAll := TItemsGroupList.Create();
 	m_pairsToDo := TConnectionPairList.Create();
@@ -389,10 +381,6 @@ begin
 		begin
 		// About to run the puzzle...
 		m_dwStartTime := GetTickCount();
-		m_fProgress := 0.0;
-
-		// Clean up data from a previous run
-		ZeroMemory(@m_stats, SizeOf(PUZZLE_0009_STATS));
 
 		// Run the puzzle!
 		RunPuzzle();
