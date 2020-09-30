@@ -1,11 +1,11 @@
 object frmPuzzle0009: TfrmPuzzle0009
-  Left = 254
-  Top = 46
+  Left = 270
+  Top = 129
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'frmPuzzle0009'
   ClientHeight = 715
-  ClientWidth = 680
+  ClientWidth = 880
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,8 +21,8 @@ object frmPuzzle0009: TfrmPuzzle0009
   object gbSettings: TGroupBox
     Left = 10
     Top = 5
-    Width = 660
-    Height = 140
+    Width = 860
+    Height = 100
     Caption = 'Settings'
     TabOrder = 0
     object lblTotalItems: TLabel
@@ -34,7 +34,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     end
     object lblGroupSize: TLabel
       Left = 15
-      Top = 65
+      Top = 60
       Width = 64
       Height = 16
       Caption = 'Group size'
@@ -58,7 +58,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     end
     object ebGroupSize: TEdit
       Left = 100
-      Top = 60
+      Top = 55
       Width = 40
       Height = 28
       TabStop = False
@@ -74,9 +74,9 @@ object frmPuzzle0009: TfrmPuzzle0009
       Text = '3'
     end
     object btnStart: TButton
-      Left = 100
-      Top = 95
-      Width = 80
+      Left = 420
+      Top = 50
+      Width = 100
       Height = 35
       Caption = 'Start !'
       TabOrder = 4
@@ -85,7 +85,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     object trackerTotalItems: TTrackBar
       Left = 145
       Top = 20
-      Width = 510
+      Width = 710
       Height = 28
       Max = 120
       Min = 3
@@ -97,8 +97,8 @@ object frmPuzzle0009: TfrmPuzzle0009
     end
     object trackerGroupSize: TTrackBar
       Left = 145
-      Top = 60
-      Width = 510
+      Top = 55
+      Width = 120
       Height = 28
       Max = 6
       Min = 2
@@ -108,9 +108,17 @@ object frmPuzzle0009: TfrmPuzzle0009
       TickStyle = tsNone
       OnChange = OnGroupSizeChange
     end
+    object tbSortResults: TCheckBox
+      Left = 275
+      Top = 60
+      Width = 105
+      Height = 17
+      Caption = 'Sort results ?'
+      TabOrder = 5
+    end
   end
   object btnExit: TButton
-    Left = 535
+    Left = 730
     Top = 675
     Width = 140
     Height = 35
@@ -120,14 +128,14 @@ object frmPuzzle0009: TfrmPuzzle0009
   end
   object gbResults: TGroupBox
     Left = 10
-    Top = 150
-    Width = 660
-    Height = 525
+    Top = 110
+    Width = 860
+    Height = 560
     Caption = 'Results'
     TabOrder = 2
     object lblTimeTitle: TLabel
       Left = 15
-      Top = 25
+      Top = 22
       Width = 31
       Height = 16
       Caption = 'Time'
@@ -140,7 +148,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     end
     object lblTime: TLabel
       Left = 100
-      Top = 25
+      Top = 22
       Width = 41
       Height = 16
       Caption = '0.000 s'
@@ -154,8 +162,8 @@ object frmPuzzle0009: TfrmPuzzle0009
     object memoResults: TMemo
       Left = 5
       Top = 45
-      Width = 650
-      Height = 475
+      Width = 850
+      Height = 510
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -166,12 +174,20 @@ object frmPuzzle0009: TfrmPuzzle0009
       ScrollBars = ssVertical
       TabOrder = 0
     end
+    object pbProgress: TProgressBar
+      Left = 155
+      Top = 23
+      Width = 695
+      Height = 12
+      TabOrder = 1
+      Visible = False
+    end
   end
   object UpdateTimer: TTimer
     Enabled = False
     Interval = 150
     OnTimer = OnUpdateTimer
-    Left = 500
+    Left = 695
     Top = 680
   end
 end
