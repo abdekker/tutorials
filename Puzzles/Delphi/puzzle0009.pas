@@ -84,11 +84,13 @@ type
 	lblGroupSize: TLabel;
 	ebGroupSize: TEdit;
 	trackerGroupSize: TTrackBar;
+	tbSortResults: TCheckBox;
 	btnStart: TButton;
 
 	gbResults: TGroupBox;
 	lblTimeTitle: TLabel;
 	lblTime: TLabel;
+	pbProgress: TProgressBar;
 	memoResults: TMemo;
 
 	btnExit: TButton;
@@ -115,14 +117,15 @@ type
 	m_nTotalItems, m_nGroupSize, m_nGroupsPerRound: Integer;
 
 	// Rounds
-	m_nNumRounds: Integer;
-	m_roundsAll: TItemsGroupList;
+	m_nNumRounds, m_nNumRoundsBest: Integer;
+	m_roundsAll, m_roundsAllBest: TItemsGroupList;
 	m_pairsToDo: TConnectionPairList;
+	m_nInitialPairsToDo: Integer;
 
 	// Current round
 	m_roundCurrent: TItemsGroupList;
 	m_pairsCurrent: TConnectionPairList;
-	m_connectionsCurrent: TList;
+	m_connectionsAllGroups, m_connectionsWithinGroup: TList;
 
 	procedure UpdateControls();
 	procedure UpdateStatistics();
@@ -130,6 +133,8 @@ type
 	procedure RunPuzzle();
 	procedure GenerateGroup(group: TItemsGroup);
 	procedure AnalyseConnections(connections: TList; group: TItemsGroup; var nMaxConnections: Integer);
+
+	function DbgCheckRoundForAllItems(round: TItemsGroupList; var missingItem: Integer) : Boolean;
 
 	function DbgGetConnectionPairs(pairs: TConnectionPairList) : String;
 	function DbgGetGroupItems(group: TItemsGroup) : String;
@@ -335,12 +340,15 @@ begin
 	m_dwEndTime := 0;
 	m_bRunningPuzzle := False;
 
+	m_nNumRoundsBest := High(Integer);
 	m_roundsAll := TItemsGroupList.Create();
+	m_roundsAllBest := TItemsGroupList.Create();
 	m_pairsToDo := TConnectionPairList.Create();
 
 	m_roundCurrent := TItemsGroupList.Create();
 	m_pairsCurrent := TConnectionPairList.Create();
-	m_connectionsCurrent := TList.Create();
+	m_connectionsAllGroups := TList.Create();
+	m_connectionsWithinGroup := TList.Create();
 
 	// Call base constructor
 	inherited;
@@ -350,11 +358,13 @@ procedure TfrmPuzzle0009.FormDestroy(Sender: TObject);
 begin
 	// Clean up memory
 	m_roundsAll.Free();
+	m_roundsAllBest.Free();
 	m_pairsToDo.Free();
 
 	m_roundCurrent.Free();
 	m_pairsCurrent.Free();
-	m_connectionsCurrent.Free();
+	m_connectionsAllGroups.Free();
+	m_connectionsWithinGroup.Free();
 end;
 
 procedure TfrmPuzzle0009.FormShow(Sender: TObject);
@@ -381,6 +391,7 @@ begin
 		begin
 		// About to run the puzzle...
 		m_dwStartTime := GetTickCount();
+		lblTime.Caption := '0.000s';
 
 		// Run the puzzle!
 		RunPuzzle();
@@ -451,8 +462,9 @@ end;
 
 procedure TfrmPuzzle0009.RunPuzzle();
 var
-	nFirst, nSecond, nRound, nGroup: Integer;
+	nFirst, nSecond, nRound, nGroup, nMissingItem: Integer;
 	pair: TConnectionPair;
+	pairMissing: TConnectionPair;
 	group: TItemsGroup;
 	strRound: String;
 	{$IFDEF DBG} strDbg: String; {$ENDIF}
@@ -494,12 +506,20 @@ begin
 		end;
 
 	{$IFDEF DBG} strDbg := DbgGetConnectionPairs(m_pairsToDo); {$ENDIF}
-
 	// Pairs can be extracted from the list using any of:
 	//		pair := m_pairsToDo.GetPair(x);
 	//		pair := m_pairsToDo[x];
 	//		pair := m_pairsToDo.Items[x];
 	//		pair := TConnectionPair(m_pairsToDo.Items[x]);
+
+	// If there are thousands of pairs to do, show a progress bar
+	m_nInitialPairsToDo := m_pairsToDo.Count;
+	if (m_nInitialPairsToDo >= 1000) then
+		begin
+		pbProgress.Max := m_nInitialPairsToDo;
+		pbProgress.Position := 0;
+		pbProgress.Visible := True;
+		end;
 
 	// Run the puzzle!
 	m_nNumRounds := 0;
@@ -523,7 +543,14 @@ begin
 			m_roundCurrent.Add(group);
 			end;
 
-		// This round is complete...add all groups from this round to the list of all rounds
+		// Round is complete! Perform a quick check to ensure that every item is in this round.
+		if (not DbgCheckRoundForAllItems(m_roundCurrent, nMissingItem)) then
+			Application.MessageBox(
+				PAnsiChar(Format('Round %d does not contain the value %d', [
+					m_nNumRounds, nMissingItem])),
+				'Puzzle 0009', MB_ICONEXCLAMATION);
+
+		// Copy all groups from this round to the list of all rounds
 		{$IFDEF DBG} strDbg := DbgGetRoundGroups(m_roundCurrent); {$ENDIF}
 		for nGroup:=0 to (m_roundCurrent.Count - 1) do
 			begin
@@ -533,44 +560,103 @@ begin
 			end;
 
 		{$IFDEF DBG} strDbg := DbgGetRoundGroups(m_roundsAll); {$ENDIF}
+		if (pbProgress.Visible) then
+			pbProgress.Position := (m_nInitialPairsToDo - m_pairsToDo.Count);
 
 		// Check whether the user has stopped or exited the puzzle
 		Application.ProcessMessages();
 		end;
 
-	// Puzzle is complete!
-	memoResults.Lines.Clear();
-	memoResults.Lines.Add(Format('Total rounds: %d (Items: %d, Group size: %d)', [
-		m_nNumRounds, m_nTotalItems, m_nGroupSize]));
-	for nRound:=1 to m_nNumRounds do
+	// Puzzle is complete! Perform a quick check to ensure that every connection is satisfied.
+		for nFirst:=1 to m_nTotalItems do
+			begin
+			if (not m_roundCurrent.Contains(nFirst)) then
+				Application.MessageBox(
+					PAnsiChar(Format('Round %d does not contain the value %d', [
+						m_nNumRounds, nFirst])),
+					'Puzzle 0009', MB_ICONEXCLAMATION);
+				begin
+				end;
+			end;
+
+	// Is this the best round so far?
+	if (	(m_pairsToDo.Count = 0) and
+			(m_nNumRounds < m_nNumRoundsBest)) then
 		begin
-		strRound := Format('Rd %.3d: %s', [
-			nRound,
-			DbgGetRoundGroupsAll(m_roundsAll, nRound)]);
-		memoResults.Lines.Add(strRound);
+		// Yes! Record this...
+		m_nNumRoundsBest := m_nNumRounds;
+		for nGroup:=0 to (m_roundsAll.Count - 1) do
+			begin
+			group := TItemsGroup.Create();
+			group.items.Assign(TItemsGroup(m_roundsAll[nGroup]).items);
+			m_roundsAllBest.Add(group);
+			end;
+		end;
+
+	memoResults.Lines.Clear();
+	if (m_bRunningPuzzle) then
+		begin
+		// Number of rounds
+		memoResults.Lines.Add(Format('Total rounds: %d (Items: %d, Group size: %d)', [
+			m_nNumRounds, m_nTotalItems, m_nGroupSize]));
+		for nRound:=1 to m_nNumRounds do
+			begin
+			strRound := Format('Rd %.3d: %s', [
+				nRound,
+				DbgGetRoundGroupsAll(m_roundsAll, nRound)]);
+			memoResults.Lines.Add(strRound);
+			end;
+		end
+	else
+		memoResults.Lines.Add('Calculation interrupted...');
+
+	// Show the best solution so far...
+	if (m_nNumRoundsBest < High(Integer)) then
+		begin
+		memoResults.Lines.Add('');
+		memoResults.Lines.Add(Format('Best so far! Total rounds: %d', [m_nNumRoundsBest]));
+		for nRound:=1 to m_nNumRoundsBest do
+			begin
+			strRound := Format('Rd %.3d: %s', [
+				nRound,
+				DbgGetRoundGroupsAll(m_roundsAllBest, nRound)]);
+			memoResults.Lines.Add(strRound);
+			end;
 		end;
 
 	// Stop the puzzle
 	m_bRunningPuzzle := False;
 	UpdateControls();
 	UpdateStatistics();
+	pbProgress.Visible := False;
 end;
 
 procedure TfrmPuzzle0009.GenerateGroup(group: TItemsGroup);
 var
-	maxConnectionsToDoAll, maxConnectionsToDoGroup, pairItem, pos: Integer;
+	maxConnectionsToDoAll, maxConnectionsToDoGroup, pairItem, pos, connections: Integer;
 	listMaxConnectionsToDoAll, listMaxConnectionsToDoGroup: TList;
 	pair: TConnectionPair;
+
+	// Nested function to sort items in a group
+	function SortItems(pItem1, pItem2: Pointer): Integer;
+	begin
+		// This function is used to help sort the list of user accounts (by user ID)
+		Result := 0;
+		if (Integer(pItem1) > Integer(pItem2)) then
+			Result := 1
+		else if (Integer(pItem1) < Integer(pItem2)) then
+			Result := -1;
+	end;
 begin
 	// Analyse all connections still to do. Select the item which has the highest number of
 	// unsatisified connections as the first member of the new group.
-	AnalyseConnections(m_connectionsCurrent, group, maxConnectionsToDoAll);
+	AnalyseConnections(m_connectionsAllGroups, group, maxConnectionsToDoAll);
 
 	// Transfer all items which have the maximum connections still to do into a new list
 	listMaxConnectionsToDoAll := TList.Create();
-	for pos:=0 to (m_connectionsCurrent.Count - 1) do
+	for pos:=0 to (m_connectionsAllGroups.Count - 1) do
 		begin
-		if (Integer(m_connectionsCurrent[pos]) = maxConnectionsToDoAll) then
+		if (Integer(m_connectionsAllGroups[pos]) = maxConnectionsToDoAll) then
 			listMaxConnectionsToDoAll.Add(Pointer(pos + 1));
 		end;
 
@@ -586,16 +672,16 @@ begin
 	while (group.items.Count < m_nGroupSize) do
 		begin
 		// Count connections still to do, but only inside this group
-		AnalyseConnections(m_connectionsCurrent, group, maxConnectionsToDoGroup);
+		AnalyseConnections(m_connectionsWithinGroup, group, maxConnectionsToDoGroup);
 
-		// Transfer all items which have the maximum connections still to do into a new list. This
-		// time, only transfer items which also have a high number of unsatisfied connections
-		// outside of the group.
-		//TODO!
+		// Transfer all items which have the maximum connections still to do into a new list
+		// Note: One idea here would be to use a secondary heuristic in the case of a tie, such as
+		// the number of unsatisfied connections outside of the group. This was attempted but did
+		// not give any improvement in the number required rounds.
 		listMaxConnectionsToDoGroup.Clear();
-		for pos:=0 to (m_connectionsCurrent.Count - 1) do
+		for pos:=0 to (m_connectionsWithinGroup.Count - 1) do
 			begin
-			if (Integer(m_connectionsCurrent[pos]) = maxConnectionsToDoGroup) then
+			if (Integer(m_connectionsWithinGroup[pos]) = maxConnectionsToDoGroup) then
 				listMaxConnectionsToDoGroup.Add(Pointer(pos + 1));
 			end;
 
@@ -611,9 +697,13 @@ begin
 			pair.b := Integer(group.items[pairItem]);
 			pos := m_pairsToDo.GetPos(pair);
 			if (pos >= 0) then
-				m_pairsToDo.Delete(m_pairsToDo.GetPos(pair));
+				m_pairsToDo.Delete(pos);
 			end;
 		end;
+
+	// Group is complete!
+	if (tbSortResults.Checked) then
+		group.items.Sort(@SortItems);
 
 	// Clean up
 	listMaxConnectionsToDoAll.Free();
@@ -685,6 +775,24 @@ begin
 	// never happen, so this note is purely a reminder of this (theoretic) possibility.
 	if (nNonNegativeOccurrences = 0) then
 		;	// Do something?
+end;
+
+function TfrmPuzzle0009.DbgCheckRoundForAllItems(round: TItemsGroupList; var missingItem: Integer) : Boolean;
+var
+	item: Integer;
+begin
+	// Helper function to check that the current round contains all the items (1,2,3,...,N)
+	Result := True;
+	missingItem := 0;
+	for item:=1 to m_nTotalItems do
+		begin
+		if (not round.Contains(item)) then
+			begin
+			Result := False;
+			missingItem := item;
+			break;
+			end;
+		end;
 end;
 
 function TfrmPuzzle0009.DbgGetConnectionPairs(pairs: TConnectionPairList) : String;
