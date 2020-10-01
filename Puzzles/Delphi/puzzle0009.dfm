@@ -1,11 +1,11 @@
 object frmPuzzle0009: TfrmPuzzle0009
-  Left = 270
-  Top = 129
+  Left = 156
+  Top = 73
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'frmPuzzle0009'
-  ClientHeight = 715
-  ClientWidth = 880
+  ClientHeight = 795
+  ClientWidth = 980
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,7 +21,7 @@ object frmPuzzle0009: TfrmPuzzle0009
   object gbSettings: TGroupBox
     Left = 10
     Top = 5
-    Width = 860
+    Width = 760
     Height = 100
     Caption = 'Settings'
     TabOrder = 0
@@ -79,13 +79,14 @@ object frmPuzzle0009: TfrmPuzzle0009
       Width = 100
       Height = 35
       Caption = 'Start !'
+      Default = True
       TabOrder = 4
       OnClick = btnStartClick
     end
     object trackerTotalItems: TTrackBar
       Left = 145
       Top = 20
-      Width = 710
+      Width = 610
       Height = 28
       Max = 120
       Min = 3
@@ -114,12 +115,14 @@ object frmPuzzle0009: TfrmPuzzle0009
       Width = 105
       Height = 17
       Caption = 'Sort results ?'
+      Checked = True
+      State = cbChecked
       TabOrder = 5
     end
   end
   object btnExit: TButton
-    Left = 730
-    Top = 675
+    Left = 835
+    Top = 755
     Width = 140
     Height = 35
     Caption = 'Exit puzzle 0009'
@@ -129,8 +132,8 @@ object frmPuzzle0009: TfrmPuzzle0009
   object gbResults: TGroupBox
     Left = 10
     Top = 110
-    Width = 860
-    Height = 560
+    Width = 960
+    Height = 640
     Caption = 'Results'
     TabOrder = 2
     object lblTimeTitle: TLabel
@@ -162,8 +165,8 @@ object frmPuzzle0009: TfrmPuzzle0009
     object memoResults: TMemo
       Left = 5
       Top = 45
-      Width = 850
-      Height = 510
+      Width = 950
+      Height = 590
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -177,7 +180,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     object pbProgress: TProgressBar
       Left = 155
       Top = 23
-      Width = 695
+      Width = 795
       Height = 12
       TabOrder = 1
       Visible = False
@@ -187,7 +190,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     Enabled = False
     Interval = 150
     OnTimer = OnUpdateTimer
-    Left = 695
-    Top = 680
+    Left = 800
+    Top = 760
   end
 end
