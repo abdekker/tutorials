@@ -23,8 +23,8 @@ An example application:
 interface
 
 uses
-  Windows, Classes, Contnrs, Controls, ExtCtrls, Messages, StdCtrls,
-  CoreFormClasses, ComCtrls;
+  Windows, Classes, ComCtrls, Contnrs, Controls, ExtCtrls, Messages, StdCtrls,
+  CoreFormClasses;
 
 type
   // ################## Start: TConnectionPair / TConnectionPairList ##################
@@ -86,7 +86,8 @@ type
 	lblGroupSize: TLabel;
 	ebGroupSize: TEdit;
 	trackerGroupSize: TTrackBar;
-	tbSortResults: TCheckBox;
+	tbSortGroupsInternal: TCheckBox;
+	tbSortGroupsExternal: TCheckBox;
 	btnStart: TButton;
 
 	gbResults: TGroupBox;
@@ -575,7 +576,7 @@ begin
 		DbgCheckRoundForAllItems(m_roundCurrent);
 
 		// Sort the group?
-		if (tbSortResults.Checked) then
+		if (tbSortGroupsInternal.Checked) or (tbSortGroupsExternal.Checked) then
 			SortRound(m_roundCurrent);
 
 		// Copy all groups from this round to the list of all rounds
@@ -810,39 +811,45 @@ begin
 	// Note that the final sorted list always has the first item on the far left.
 
 	// Sort the items internally within each group
-	for nGroup:=0 to (round.Count - 1) do
-		TItemsGroup(round[nGroup]).items.Sort(@SortItems);
+	if (tbSortGroupsInternal.Checked) then
+		begin
+		for nGroup:=0 to (round.Count - 1) do
+			TItemsGroup(round[nGroup]).items.Sort(@SortItems);
+		end;
 
 	// Sort externally between the groups
-	nItem := 1;
-	nGroup := 0;
-	while (nItem <= m_nTotalItems) do
+	if (tbSortGroupsExternal.Checked) then
 		begin
-		if (round.Contains(nItem, 0, (nGroup - 1))) then
+		nItem := 1;
+		nGroup := 0;
+		while (nItem <= m_nTotalItems) do
 			begin
-			// One of the preceding groups contains the item!
-			end
-		else if (TItemsGroup(round[nGroup]).Contains(nItem)) then
-			begin
-			// The current group contains the items!
-			Inc(nGroup);
-			end
-		else
-			begin
-			// Neither the current group, nor any earlier group, contain the item. Find the group
-			// later in the round which contains the item and swap these groups.
-			for nGroupAfter:=(nGroup + 1) to (round.Count - 1) do
+			if (round.Contains(nItem, 0, (nGroup - 1))) then
 				begin
-				if (TItemsGroup(round[nGroupAfter]).Contains(nItem)) then
-					break;
+				// One of the preceding groups contains the item!
+				end
+			else if (TItemsGroup(round[nGroup]).Contains(nItem)) then
+				begin
+				// The current group contains the items!
+				Inc(nGroup);
+				end
+			else
+				begin
+				// Neither the current group, nor any earlier group, contain the item. Find the group
+				// later in the round which contains the item and swap these groups.
+				for nGroupAfter:=(nGroup + 1) to (round.Count - 1) do
+					begin
+					if (TItemsGroup(round[nGroupAfter]).Contains(nItem)) then
+						break;
+					end;
+
+				round.Exchange(nGroup, nGroupAfter);
+				Inc(nGroup);
 				end;
 
-			round.Exchange(nGroup, nGroupAfter);
-			Inc(nGroup);
+			// Onto the next item!
+			Inc(nItem);
 			end;
-
-		// Onto the next item!
-		Inc(nItem);
 		end;
 end;
 

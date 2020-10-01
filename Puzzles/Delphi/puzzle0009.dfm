@@ -74,13 +74,13 @@ object frmPuzzle0009: TfrmPuzzle0009
       Text = '3'
     end
     object btnStart: TButton
-      Left = 420
+      Left = 460
       Top = 50
       Width = 100
       Height = 35
       Caption = 'Start !'
       Default = True
-      TabOrder = 4
+      TabOrder = 6
       OnClick = btnStartClick
     end
     object trackerTotalItems: TTrackBar
@@ -109,12 +109,22 @@ object frmPuzzle0009: TfrmPuzzle0009
       TickStyle = tsNone
       OnChange = OnGroupSizeChange
     end
-    object tbSortResults: TCheckBox
+    object tbSortGroupsInternal: TCheckBox
       Left = 275
-      Top = 60
-      Width = 105
+      Top = 50
+      Width = 160
       Height = 17
-      Caption = 'Sort results ?'
+      Caption = 'Sort groups (internal) ?'
+      Checked = True
+      State = cbChecked
+      TabOrder = 4
+    end
+    object tbSortGroupsExternal: TCheckBox
+      Left = 275
+      Top = 70
+      Width = 160
+      Height = 17
+      Caption = 'Sort between groups ?'
       Checked = True
       State = cbChecked
       TabOrder = 5
@@ -126,7 +136,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     Width = 140
     Height = 35
     Caption = 'Exit puzzle 0009'
-    TabOrder = 1
+    TabOrder = 2
     OnClick = btnExitClick
   end
   object gbResults: TGroupBox
@@ -135,7 +145,7 @@ object frmPuzzle0009: TfrmPuzzle0009
     Width = 960
     Height = 640
     Caption = 'Results'
-    TabOrder = 2
+    TabOrder = 1
     object lblTimeTitle: TLabel
       Left = 15
       Top = 22
@@ -175,14 +185,14 @@ object frmPuzzle0009: TfrmPuzzle0009
       Font.Style = []
       ParentFont = False
       ScrollBars = ssVertical
-      TabOrder = 0
+      TabOrder = 1
     end
     object pbProgress: TProgressBar
       Left = 155
       Top = 23
       Width = 795
       Height = 12
-      TabOrder = 1
+      TabOrder = 0
       Visible = False
     end
   end
