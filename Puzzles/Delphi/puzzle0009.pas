@@ -113,7 +113,7 @@ type
 	m_bExiting: Boolean;
 
 	// Puzzle flags
-	m_dwStartTime, m_dwEndTime: DWORD;
+	m_dwStartTime, m_dwEndTime, m_dwStarts: DWORD;
 	m_bRunningPuzzle: Boolean;
 
 	// Puzzle settings
@@ -360,6 +360,7 @@ begin
 
 	m_dwStartTime := 0;
 	m_dwEndTime := 0;
+	m_dwStarts := 0;
 	m_bRunningPuzzle := False;
 
 	m_nNumRoundsBest := High(Integer);
@@ -408,6 +409,7 @@ end;
 procedure TfrmPuzzle0009.btnStartClick(Sender: TObject);
 begin
 	// Start or stop the puzzle
+	Inc(m_dwStarts);
 	m_bRunningPuzzle := (not m_bRunningPuzzle);
 	UpdateControls();
 	if (m_bRunningPuzzle) then
