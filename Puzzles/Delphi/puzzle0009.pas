@@ -161,11 +161,6 @@ uses
   Forms, StrUtils, SysUtils,
   SystemUtils;
 
-const
-  // Impulse filter (used for generating a smoothed averag)
-  IMPULSE_NEW_VALUE_FAST: Single	= 0.05;
-  IMPULSE_OLD_AVG_FAST: Single		= 0.95;
-
 {$R *.dfm}
 
 // ####################### TConnectionPairList Start #######################
