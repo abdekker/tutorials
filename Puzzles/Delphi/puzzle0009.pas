@@ -72,7 +72,9 @@ type
 	// Methods
 	function TotalItemsCount() : Integer;
 	function GetPos(const cGroup: TItemsGroup) : Integer;
-	function Contains(const cValue: Integer) : Boolean;
+	function Contains(const cValue: Integer) : Boolean; overload;
+	function Contains(const cValue: Integer;
+		const cnStartGroup, cnEndGroup: Integer) : Boolean; overload;
   end;
   // ################## End: TItemsGroup / TItemsGroupList ##################
 
@@ -133,8 +135,10 @@ type
 	procedure RunPuzzle();
 	procedure GenerateGroup(group: TItemsGroup);
 	procedure AnalyseConnections(connections: TList; group: TItemsGroup; var nMaxConnections: Integer);
+	procedure SortRound(round: TItemsGroupList);
 
-	function DbgCheckRoundForAllItems(round: TItemsGroupList; var missingItem: Integer) : Boolean;
+	procedure DbgCheckRoundForAllItems(round: TItemsGroupList);
+	procedure DbgCheckRoundsForAllConnections(rounds: TItemsGroupList);
 
 	function DbgGetConnectionPairs(pairs: TConnectionPairList) : String;
 	function DbgGetGroupItems(group: TItemsGroup) : String;
@@ -326,6 +330,28 @@ begin
 			end;
 		end;
 end;
+
+function TItemsGroupList.Contains(const cValue: Integer; const cnStartGroup, cnEndGroup: Integer) : Boolean;
+var
+	pos: Integer;
+begin
+	// Do any of the groups, within the given 0-based range, contain the specified value?
+	Result := False;
+	if (	(cnStartGroup < 0) or
+			(cnStartGroup > cnEndGroup) or
+			(cnEndGroup > (Self.Count - 1))) then
+		Exit;
+
+	for pos:=cnStartGroup to cnEndGroup do
+		begin
+		if (TItemsGroup(Items[pos]).Contains(cValue)) then
+			begin
+			Result := True;
+			break;
+			end;
+		end;
+
+end;
 // ####################### TConnectionPairList End #######################
 
 // Constructor
@@ -377,6 +403,7 @@ begin
 		{$IFDEF DBG} + '[DBG]' {$ENDIF}
 		{$IFDEF NDBG} + '[NDBG]' {$ENDIF});
 	Caption := strTitle;
+	btnStart.SetFocus();
 
 	// Start an update timer
 	UpdateTimer.Enabled := True;
@@ -424,11 +451,13 @@ end;
 procedure TfrmPuzzle0009.OnTotalItemsChange(Sender: TObject);
 begin
 	ebTotalItems.Text := IntToStr(trackerTotalItems.Position);
+	m_nNumRoundsBest := High(Integer);
 end;
 
 procedure TfrmPuzzle0009.OnGroupSizeChange(Sender: TObject);
 begin
 	ebGroupSize.Text := IntToStr(trackerGroupSize.Position);
+	m_nNumRoundsBest := High(Integer);
 end;
 
 // Private functions: Start
@@ -462,9 +491,8 @@ end;
 
 procedure TfrmPuzzle0009.RunPuzzle();
 var
-	nFirst, nSecond, nRound, nGroup, nMissingItem: Integer;
+	nFirst, nSecond, nRound, nGroup: Integer;
 	pair: TConnectionPair;
-	pairMissing: TConnectionPair;
 	group: TItemsGroup;
 	strRound: String;
 	{$IFDEF DBG} strDbg: String; {$ENDIF}
@@ -473,7 +501,7 @@ begin
 	m_roundsAll.Clear();
 
 	// Settings. The group size should divide exactly into the total number of items. If not, add
-	// dummy items to the total number (these would be dummy items, people, byes, etc).
+	// additional items to the total number (these would be wildcard items, people, byes, etc).
 	m_nTotalItems := trackerTotalItems.Position;
 	m_nGroupSize := trackerGroupSize.Position;
 	if (m_nTotalItems < m_nGroupSize) then
@@ -544,11 +572,11 @@ begin
 			end;
 
 		// Round is complete! Perform a quick check to ensure that every item is in this round.
-		if (not DbgCheckRoundForAllItems(m_roundCurrent, nMissingItem)) then
-			Application.MessageBox(
-				PAnsiChar(Format('Round %d does not contain the value %d', [
-					m_nNumRounds, nMissingItem])),
-				'Puzzle 0009', MB_ICONEXCLAMATION);
+		DbgCheckRoundForAllItems(m_roundCurrent);
+
+		// Sort the group?
+		if (tbSortResults.Checked) then
+			SortRound(m_roundCurrent);
 
 		// Copy all groups from this round to the list of all rounds
 		{$IFDEF DBG} strDbg := DbgGetRoundGroups(m_roundCurrent); {$ENDIF}
@@ -568,22 +596,14 @@ begin
 		end;
 
 	// Puzzle is complete! Perform a quick check to ensure that every connection is satisfied.
-		for nFirst:=1 to m_nTotalItems do
-			begin
-			if (not m_roundCurrent.Contains(nFirst)) then
-				Application.MessageBox(
-					PAnsiChar(Format('Round %d does not contain the value %d', [
-						m_nNumRounds, nFirst])),
-					'Puzzle 0009', MB_ICONEXCLAMATION);
-				begin
-				end;
-			end;
+	DbgCheckRoundsForAllConnections(m_roundsAll);
 
 	// Is this the best round so far?
 	if (	(m_pairsToDo.Count = 0) and
 			(m_nNumRounds < m_nNumRoundsBest)) then
 		begin
 		// Yes! Record this...
+		m_roundsAllBest.Clear();
 		m_nNumRoundsBest := m_nNumRounds;
 		for nGroup:=0 to (m_roundsAll.Count - 1) do
 			begin
@@ -633,20 +653,9 @@ end;
 
 procedure TfrmPuzzle0009.GenerateGroup(group: TItemsGroup);
 var
-	maxConnectionsToDoAll, maxConnectionsToDoGroup, pairItem, pos, connections: Integer;
+	maxConnectionsToDoAll, maxConnectionsToDoGroup, pairItem, pos: Integer;
 	listMaxConnectionsToDoAll, listMaxConnectionsToDoGroup: TList;
 	pair: TConnectionPair;
-
-	// Nested function to sort items in a group
-	function SortItems(pItem1, pItem2: Pointer): Integer;
-	begin
-		// This function is used to help sort the list of user accounts (by user ID)
-		Result := 0;
-		if (Integer(pItem1) > Integer(pItem2)) then
-			Result := 1
-		else if (Integer(pItem1) < Integer(pItem2)) then
-			Result := -1;
-	end;
 begin
 	// Analyse all connections still to do. Select the item which has the highest number of
 	// unsatisified connections as the first member of the new group.
@@ -702,8 +711,6 @@ begin
 		end;
 
 	// Group is complete!
-	if (tbSortResults.Checked) then
-		group.items.Sort(@SortItems);
 
 	// Clean up
 	listMaxConnectionsToDoAll.Free();
@@ -777,22 +784,145 @@ begin
 		;	// Do something?
 end;
 
-function TfrmPuzzle0009.DbgCheckRoundForAllItems(round: TItemsGroupList; var missingItem: Integer) : Boolean;
+procedure TfrmPuzzle0009.SortRound(round: TItemsGroupList);
 var
-	item: Integer;
+	nGroup, nGroupAfter, nItem: Integer;
+	group: TItemsGroup;
+
+	// Nested function to sort items in a group
+	function SortItems(pItem1, pItem2: Pointer): Integer;
+	begin
+		// This function is used to help sort the list of user accounts (by user ID)
+		Result := 0;
+		if (Integer(pItem1) > Integer(pItem2)) then
+			Result := 1
+		else if (Integer(pItem1) < Integer(pItem2)) then
+			Result := -1;
+	end;
+begin
+	// Sort the groups within a single round. Example:
+	//		(13,4,17) (3,15,1) (5,7,18) (11,6,16) (14,10,9) (2,12,8)
+	// Sorted internally within each group to:
+	//		(4,13,17) (1,3,15) (5,7,18) (6,11,16) (9,10,14) (2,8,12)
+	// Then sorted between groups to:
+	//		(1,3,15) (2,8,12) (4,13,17) (5,7,18) (6,11,16) (9,10,14)
+
+	// Note that the final sorted list always has the first item on the far left.
+
+	// Sort the items internally within each group
+	for nGroup:=0 to (round.Count - 1) do
+		TItemsGroup(round[nGroup]).items.Sort(@SortItems);
+
+	// Sort externally between the groups
+	nItem := 1;
+	nGroup := 0;
+	while (nItem <= m_nTotalItems) do
+		begin
+		if (round.Contains(nItem, 0, (nGroup - 1))) then
+			begin
+			// One of the preceding groups contains the item!
+			end
+		else if (TItemsGroup(round[nGroup]).Contains(nItem)) then
+			begin
+			// The current group contains the items!
+			Inc(nGroup);
+			end
+		else
+			begin
+			// Neither the current group, nor any earlier group, contain the item. Find the group
+			// later in the round which contains the item and swap these groups.
+			for nGroupAfter:=(nGroup + 1) to (round.Count - 1) do
+				begin
+				if (TItemsGroup(round[nGroupAfter]).Contains(nItem)) then
+					break;
+				end;
+
+			round.Exchange(nGroup, nGroupAfter);
+			Inc(nGroup);
+			end;
+
+		// Onto the next item!
+		Inc(nItem);
+		end;
+end;
+
+procedure TfrmPuzzle0009.DbgCheckRoundForAllItems(round: TItemsGroupList);
+var
+	item, itemMissing: Integer;
 begin
 	// Helper function to check that the current round contains all the items (1,2,3,...,N)
-	Result := True;
-	missingItem := 0;
+	itemMissing := 0;
 	for item:=1 to m_nTotalItems do
 		begin
 		if (not round.Contains(item)) then
 			begin
-			Result := False;
-			missingItem := item;
+			itemMissing := item;
 			break;
 			end;
 		end;
+
+	if (itemMissing > 0) then
+		Application.MessageBox(
+			PAnsiChar(Format('Round %d does not contain the value %d', [m_nNumRounds, itemMissing])),
+		'Puzzle 0009', MB_ICONEXCLAMATION);
+end;
+
+procedure TfrmPuzzle0009.DbgCheckRoundsForAllConnections(rounds: TItemsGroupList);
+var
+	nFirst, nSecond, nGroup, nPair: Integer;
+	bFoundConnection: Boolean;
+	group: TItemsGroup;
+	pairMissing: TConnectionPair;
+	pairsMissing: TConnectionPairList;
+	strMissingPairsMsg: String;
+begin
+	// Helper function to check that the solved puzzle correcting connects all items
+	pairsMissing := TConnectionPairList.Create();
+	for nFirst:=1 to m_nTotalItems do
+		begin
+		for nSecond:=(nFirst + 1) to m_nTotalItems do
+			begin
+			bFoundConnection := False;
+			for nGroup:=0 to (rounds.Count - 1) do
+				begin
+				group := TItemsGroup(rounds[nGroup]);
+				if (	(group.Contains(nFirst)) and
+						(group.Contains(nSecond))) then
+					begin
+					bFoundConnection := True;
+					break;
+					end;
+				end;
+
+			if (not bFoundConnection) then
+				begin
+				pairMissing := TConnectionPair.Create();
+				pairMissing.a := nFirst;
+				pairMissing.b := nSecond;
+				pairsMissing.Add(pairMissing);
+				end;
+			end;
+		end;
+
+	// Any missing pairs?
+	if (pairsMissing.Count > 0) then
+		begin
+		strMissingPairsMsg := (
+			Format('Puzzle solution has %d missing connection(s):', [pairsMissing.Count]) + #13#10);
+		for nPair:=0 to (pairsMissing.Count - 1) do
+			begin
+			pairMissing := pairsMissing[nPair];
+			strMissingPairsMsg := (strMissingPairsMsg + Format('  [%d,%d]', [
+				pairMissing.a,
+				pairMissing.b]));
+			if (nPair <> (pairsMissing.Count - 1)) then
+				strMissingPairsMsg := (strMissingPairsMsg + #13#10);
+			end;
+
+		Application.MessageBox(PAnsiChar(strMissingPairsMsg), 'Puzzle 0009', MB_ICONEXCLAMATION);
+		end;
+
+	pairsMissing.Free();
 end;
 
 function TfrmPuzzle0009.DbgGetConnectionPairs(pairs: TConnectionPairList) : String;
