@@ -2,6 +2,11 @@ program GroupPartitions;
 {$I ..\..\..\Languages\Delphi\Utils\CoreOptions.inc}
 
 uses
+{$IFDEF DBG}
+  // Use "FastMM4" for debugging and memory-leak testing. Except for testing, leave this commented
+  // out and only use for DEBUG builds.
+  FastMM4,
+{$ENDIF}
   Forms,
   CoreFormClasses in '..\..\..\Languages\Delphi\Utils\CoreFormClasses.pas',
   CoreTypes in '..\..\..\Languages\Delphi\Utils\CoreTypes.pas',
