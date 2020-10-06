@@ -2,7 +2,7 @@ object frmGroupPartitions: TfrmGroupPartitions
   Left = 270
   Top = 94
   Width = 996
-  Height = 834
+  Height = 714
   Caption = 'Musical Groups for Roberta Wolff'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object frmGroupPartitions: TfrmGroupPartitions
   TextHeight = 16
   object imgInfo: TImage
     Left = 15
-    Top = 755
+    Top = 635
     Width = 32
     Height = 32
     Picture.Data = {
@@ -159,6 +159,20 @@ object frmGroupPartitions: TfrmGroupPartitions
       FFFFFFFF}
     OnClick = imgInfoClick
   end
+  object lblOutputFile2: TLabel
+    Left = 60
+    Top = 645
+    Width = 184
+    Height = 13
+    Alignment = taCenter
+    Caption = 'Output file is C:\Tmp\MusicalGroups.txt'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -10
+    Font.Name = 'Arial'
+    Font.Style = []
+    ParentFont = False
+  end
   object gbSettings: TGroupBox
     Left = 10
     Top = 5
@@ -166,68 +180,63 @@ object frmGroupPartitions: TfrmGroupPartitions
     Height = 110
     Caption = 'Settings'
     TabOrder = 0
-    object lblTotalItems: TLabel
+    object lblTotalItemsTitle: TLabel
       Left = 100
       Top = 28
       Width = 77
       Height = 16
       Caption = 'Total people'
     end
-    object lblGroupSize: TLabel
+    object lblGroupSizeTitle: TLabel
       Left = 100
       Top = 70
       Width = 64
       Height = 16
       Caption = 'Group size'
     end
-    object lblOutputFile: TLabel
-      Left = 695
-      Top = 80
-      Width = 150
+    object lblOutputFile1: TLabel
+      Left = 705
+      Top = 87
+      Width = 124
       Height = 13
       Alignment = taCenter
+      Caption = '(See bottom for full name)'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblTotalItems: TLabel
+      Left = 190
+      Top = 26
+      Width = 40
+      Height = 20
+      Alignment = taCenter
       AutoSize = False
-      Caption = 'C:\Tmp\MusicalGroups.txt'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-    end
-    object ebTotalItems: TEdit
-      Left = 195
-      Top = 23
-      Width = 40
-      Height = 28
-      TabStop = False
-      Color = clInfoBk
+      Caption = '18'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [fsBold]
       ParentFont = False
-      ReadOnly = True
-      TabOrder = 0
-      Text = '18'
     end
-    object ebGroupSize: TEdit
-      Left = 195
-      Top = 65
+    object lblGroupSize: TLabel
+      Left = 190
+      Top = 68
       Width = 40
-      Height = 28
-      TabStop = False
-      Color = clInfoBk
+      Height = 20
+      Alignment = taCenter
+      AutoSize = False
+      Caption = '3'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [fsBold]
       ParentFont = False
-      ReadOnly = True
-      TabOrder = 2
-      Text = '3'
     end
     object btnStart: TButton
       Left = 850
@@ -236,7 +245,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Height = 80
       Caption = 'Start'
       Default = True
-      TabOrder = 9
+      TabOrder = 7
       OnClick = btnStartClick
     end
     object trackerTotalItems: TTrackBar
@@ -247,7 +256,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Max = 120
       Min = 3
       Position = 18
-      TabOrder = 1
+      TabOrder = 0
       ThumbLength = 25
       TickStyle = tsNone
       OnChange = trackerTotalItemsChange
@@ -260,44 +269,44 @@ object frmGroupPartitions: TfrmGroupPartitions
       Max = 6
       Min = 2
       Position = 3
-      TabOrder = 3
+      TabOrder = 1
       ThumbLength = 25
       TickStyle = tsNone
       OnChange = trackerGroupSizeChange
     end
     object tbSortGroupsInternal: TCheckBox
-      Left = 370
+      Left = 365
       Top = 60
       Width = 160
       Height = 17
       Caption = 'Sort groups (internal) ?'
       Checked = True
       State = cbChecked
-      TabOrder = 4
+      TabOrder = 2
     end
     object tbSortGroupsExternal: TCheckBox
-      Left = 370
+      Left = 365
       Top = 80
       Width = 160
       Height = 17
       Caption = 'Sort between groups ?'
       Checked = True
       State = cbChecked
-      TabOrder = 5
+      TabOrder = 3
     end
     object tbRepeat: TCheckBox
-      Left = 540
+      Left = 535
       Top = 70
       Width = 85
       Height = 17
       Caption = 'Repeat ?'
-      TabOrder = 6
+      TabOrder = 4
       OnClick = tbRepeatClick
     end
     object ebRepeat: TEdit
-      Left = 630
+      Left = 625
       Top = 65
-      Width = 60
+      Width = 70
       Height = 28
       TabStop = False
       Color = clInfoBk
@@ -307,7 +316,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 5
       Text = '1000'
       OnChange = ebRepeatChange
     end
@@ -317,7 +326,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Width = 36
       Height = 36
       Color = clMoneyGreen
-      TabOrder = 10
+      TabOrder = 8
       object imgMusic1: TImage
         Left = 2
         Top = 2
@@ -467,7 +476,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Width = 36
       Height = 36
       Color = clSkyBlue
-      TabOrder = 11
+      TabOrder = 9
       object imgMusic2: TImage
         Left = 2
         Top = 2
@@ -616,8 +625,8 @@ object frmGroupPartitions: TfrmGroupPartitions
       Top = 64
       Width = 36
       Height = 36
-      Color = clBackground
-      TabOrder = 12
+      Color = clCream
+      TabOrder = 10
       object imgMusic3: TImage
         Left = 2
         Top = 2
@@ -766,8 +775,8 @@ object frmGroupPartitions: TfrmGroupPartitions
       Top = 64
       Width = 36
       Height = 36
-      Color = clCream
-      TabOrder = 13
+      Color = clOlive
+      TabOrder = 11
       object imgMusic4: TImage
         Left = 2
         Top = 2
@@ -913,17 +922,17 @@ object frmGroupPartitions: TfrmGroupPartitions
     end
     object tbSaveOutput: TCheckBox
       Left = 720
-      Top = 60
+      Top = 70
       Width = 110
       Height = 17
       Caption = 'Save to file ?'
-      TabOrder = 8
+      TabOrder = 6
       OnClick = tbSaveOutputClick
     end
   end
   object btnExit: TButton
     Left = 860
-    Top = 755
+    Top = 635
     Width = 110
     Height = 35
     Caption = 'Exit'
@@ -934,7 +943,7 @@ object frmGroupPartitions: TfrmGroupPartitions
     Left = 10
     Top = 120
     Width = 960
-    Height = 630
+    Height = 510
     Caption = 'Results'
     TabOrder = 1
     object lblTimeTitle: TLabel
@@ -964,7 +973,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblCompletedTitle: TLabel
-      Left = 830
+      Left = 810
       Top = 22
       Width = 66
       Height = 16
@@ -977,7 +986,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblCompleted: TLabel
-      Left = 920
+      Left = 900
       Top = 22
       Width = 7
       Height = 16
@@ -990,7 +999,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblBestTitle: TLabel
-      Left = 600
+      Left = 580
       Top = 22
       Width = 27
       Height = 16
@@ -1003,7 +1012,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblBest: TLabel
-      Left = 655
+      Left = 635
       Top = 22
       Width = 7
       Height = 16
@@ -1016,7 +1025,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblAverageTitle: TLabel
-      Left = 700
+      Left = 680
       Top = 22
       Width = 52
       Height = 16
@@ -1029,7 +1038,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       ParentFont = False
     end
     object lblAverage: TLabel
-      Left = 780
+      Left = 760
       Top = 22
       Width = 7
       Height = 16
@@ -1071,7 +1080,7 @@ object frmGroupPartitions: TfrmGroupPartitions
       Left = 5
       Top = 45
       Width = 950
-      Height = 580
+      Height = 460
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -1096,6 +1105,6 @@ object frmGroupPartitions: TfrmGroupPartitions
     Interval = 150
     OnTimer = OnUpdateTimer
     Left = 820
-    Top = 760
+    Top = 640
   end
 end

@@ -97,13 +97,11 @@ type
 	imgMusic3: TImage;
 	pnlMusic4: TPanel;
 	imgMusic4: TImage;
-
+	lblTotalItemsTitle: TLabel;
 	lblTotalItems: TLabel;
-	ebTotalItems: TEdit;
 	trackerTotalItems: TTrackBar;
-
+	lblGroupSizeTitle: TLabel;
 	lblGroupSize: TLabel;
-	ebGroupSize: TEdit;
 	trackerGroupSize: TTrackBar;
 
 	tbSortGroupsExternal: TCheckBox;
@@ -111,7 +109,8 @@ type
 	tbRepeat: TCheckBox;
 	ebRepeat: TEdit;
 	tbSaveOutput: TCheckBox;
-	lblOutputFile: TLabel;
+	lblOutputFile1: TLabel;
+	lblOutputFile2: TLabel;
 	btnStart: TButton;
 
 	gbResults: TGroupBox;
@@ -155,7 +154,7 @@ type
 	m_bStarted, m_bRunningPuzzle: Boolean;
 
 	// Puzzle settings
-	m_nTotalItems, m_nGroupSize, m_nGroupsPerRound, m_nRepeats: Integer;
+	m_nTotalItems, m_nGroupSize, m_nGroupsPerRound, m_nRepeats, m_nRepeatsMinSaveOutput: Integer;
 
 	// Rounds
 	m_nNumRounds: Integer;
@@ -165,7 +164,6 @@ type
 
 	// Current round
 	m_roundCurrent: TItemsGroupList;
-	m_pairsCurrent: TConnectionPairList;
 	m_connectionsAllGroups, m_connectionsWithinGroup: TList;
 
 	// Statistics
@@ -211,7 +209,8 @@ uses
   FormUtils, SystemUtils;
 
 const
-  OUTPUT_FILE = 'C:\Tmp\MusicalGroups';
+  OUTPUT_DIR = 'C:\Tmp';
+  OUTPUT_FILE = 'MusicalGroups';
 
 {$R *.dfm}
 
@@ -404,6 +403,7 @@ end;
 
 procedure TfrmGroupPartitions.FormCreate(Sender: TObject);
 var
+	strOutputFolder: String;
 	dtNow: TDateTime;
 	wYear, wMonth, wDay: WORD;
 begin
@@ -422,21 +422,26 @@ begin
 	m_pairsToDo := TConnectionPairList.Create();
 
 	m_roundCurrent := TItemsGroupList.Create();
-	m_pairsCurrent := TConnectionPairList.Create();
 	m_connectionsAllGroups := TList.Create();
 	m_connectionsWithinGroup := TList.Create();
 
 	ResetStatistics();
 
 	// Open an output file (we may or may not write to it...)
+	strOutputFolder := ExpandEnvironment('%TEMP%');
+	ForceDirectories(strOutputFolder);
+
 	dtNow := Now();
 	DecodeDate(dtNow, wYear, wMonth, wDay);
-	m_strOutputFilename := Format('%s_%.4d-%.2d-%.2d.txt', [OUTPUT_FILE, wYear, wMonth, wDay]);
+	m_strOutputFilename := Format('%s\%s_%.4d-%.2d-%.2d.txt', [
+		strOutputFolder, OUTPUT_FILE, wYear, wMonth, wDay]);
 	AssignFile(m_fpOutput, m_strOutputFilename);
 	if (FileExists(m_strOutputFilename)) then
 		Append(m_fpOutput)
 	else
 		Rewrite(m_fpOutput);
+
+	lblOutputFile2.Caption := Format('Output file is %s', [m_strOutputFilename]);
 
 	// Cache settings
 	ZeroMemory(@m_cache, SizeOf(CACHE_UI));
@@ -451,7 +456,6 @@ begin
 	m_pairsToDo.Free();
 
 	m_roundCurrent.Free();
-	m_pairsCurrent.Free();
 	m_connectionsAllGroups.Free();
 	m_connectionsWithinGroup.Free();
 
@@ -474,13 +478,13 @@ end;
 
 procedure TfrmGroupPartitions.trackerTotalItemsChange(Sender: TObject);
 begin
-	ebTotalItems.Text := IntToStr(trackerTotalItems.Position);
+	lblTotalItems.Caption := IntToStr(trackerTotalItems.Position);
 	ResetStatistics();
 end;
 
 procedure TfrmGroupPartitions.trackerGroupSizeChange(Sender: TObject);
 begin
-	ebGroupSize.Text := IntToStr(trackerGroupSize.Position);
+	lblGroupSize.Caption := IntToStr(trackerGroupSize.Position);
 	ResetStatistics();
 end;
 
@@ -530,14 +534,29 @@ begin
 		// Repeat the puzzle?
 		if (tbRepeat.Checked) then
 			begin
+			// Get the repeat count
 			if (not TryStrToInt(ebRepeat.Text, m_nRepeats)) then
 				begin
 				ebRepeat.Text := '1000';
 				m_nRepeats := 1000;
 				end;
+
+			// Due to an (apparent) bug in D7, only allow up to 5000 repetitions...
+			if (m_nRepeats > 5000) then
+				begin
+				Application.MessageBox(
+					PAnsiChar('Maximum repeat count is 5000'), 'Musical Groups', MB_ICONEXCLAMATION);
+				ebRepeat.Text := '5000';
+				m_nRepeats := 5000;
+				end;
+
+			// When we are repeating many rounds, only save "best so far" rounds to file once we
+			// have completed at least 5% of the total number of repeats...
+			m_nRepeatsMinSaveOutput := (m_nRepeats div 20);
 			end;
 
 		// Run the puzzle!
+		ResetStatistics();
 		m_bStarted := True;
 		RunPuzzle();
 		end
@@ -620,7 +639,8 @@ begin
 	trackerTotalItems.Enabled := (not m_bRunningPuzzle);
 	trackerGroupSize.Enabled := (not m_bRunningPuzzle);
 	ebRepeat.Enabled := (tbRepeat.Checked) and (not m_bRunningPuzzle);
-	lblOutputFile.Enabled := (tbSaveOutput.Checked);
+	lblOutputFile1.Enabled := (tbSaveOutput.Checked);
+	lblOutputFile2.Enabled := (tbSaveOutput.Checked);
 	SetSubBackColour(gbSettings);
 
 	lblCompletedTitle.Visible := (tbRepeat.Checked);
@@ -676,7 +696,7 @@ var
 	nFirst, nSecond, nRound, nGroup, nExtraLine: Integer;
 	pair: TConnectionPair;
 	group: TItemsGroup;
-	bClearLines, bNewRecord, bSaveToFile: Boolean;
+	bUpdateResult, bUpdateRecordResult, bSaveToFile: Boolean;
 	strRound: String;
 begin
 	// About to run the puzzle...
@@ -760,8 +780,8 @@ begin
 
 	// We'll update the solution if we are doing a once-off (ie. not repeated) analysis or we have
 	// improved the best solution.
-	bClearLines := (not tbRepeat.Checked);
-	bNewRecord := False;
+	bUpdateResult := (not tbRepeat.Checked);
+	bUpdateRecordResult := False;
 	bSaveToFile := False;
 
 	// Is the puzzle complete?
@@ -772,6 +792,12 @@ begin
 		Inc(m_nTotalCompletedRounds, m_nNumRounds);
 		Inc(m_dwTotalTime, (GetTickCount() - m_dwStartTime));
 
+		{$IFDEF DBG}
+		// Crash if the repeat count gets higher than 7780 in DBG mode (~8700 in NDBG)
+		if (m_nCompletedPuzzles > 7780) then
+			bUpdateRecordResult := False;
+		{$ENDIF}
+
 		// Worst round?
 		if (m_nNumRounds > m_nNumRoundsWorst) then
 			m_nNumRoundsWorst := m_nNumRounds;
@@ -779,8 +805,7 @@ begin
 		// Best round?
 		if (m_nNumRounds < m_nNumRoundsBest) then
 			begin
-			bClearLines := True;
-			bNewRecord := True;
+			bUpdateResult := True;
 			bSaveToFile := (tbSaveOutput.Checked);
 			m_nNumRoundsBest := m_nNumRounds;
 			m_nCountBestRounds := 1;
@@ -800,10 +825,15 @@ begin
 			bSaveToFile := (tbSaveOutput.Checked);
 			Inc(m_nCountBestRounds);
 			end;
+
+		bUpdateRecordResult := bUpdateResult;
 		end;
 
-	if (bClearLines) then
+	if (bUpdateResult) then
+		begin
+		memoResults.Lines.BeginUpdate();
 		memoResults.Lines.Clear();
+		end;
 
 	// Show the latest solved round (if we are running this puzzle once only)
 	if (not tbRepeat.Checked) then
@@ -831,7 +861,8 @@ begin
 	// Save the latest solution to file? This will be the current round and will have the "best so
 	// far" number of rounds, but not necessarily the first solution with this many rounds.
 	if (	(bSaveToFile) and
-			(m_nNumRoundsBest < High(Integer))) then
+			(m_nNumRoundsBest < High(Integer)) and
+			(m_nCompletedPuzzles >= m_nRepeatsMinSaveOutput)) then
 		begin
 		strRound := Format('Best so far! Total rounds: %d (Items: %d, Group size: %d)', [
 			m_nNumRounds, m_nTotalItems, m_nGroupSize]);
@@ -847,8 +878,8 @@ begin
 		WriteLn(m_fpOutput, '');
 		end;
 
-	// Display the best solution so far in the Results section
-	if (	(bNewRecord) and
+	// Display the best solution so far in the Results section?
+	if (	(bUpdateRecordResult) and
 			(m_nNumRoundsBest < High(Integer))) then
 		begin
 		strRound := Format('Best so far! Total rounds: %d', [m_nNumRoundsBest]);
@@ -861,6 +892,9 @@ begin
 			memoResults.Lines.Add(strRound);
 			end;
 		end;
+
+	if (bUpdateResult) then
+		memoResults.Lines.EndUpdate();
 
 	// Stop the puzzle (unless we are repeating)
 	if (tbRepeat.Checked) then
