@@ -8,6 +8,7 @@
 
 void ShowArguments(int argc, char *argv[])
 {
+    // Test change for git connection
     // Output the number of the arguments
     std::cout << "Number of arguments: " << argc << "\n";
     if (argc > 0)
