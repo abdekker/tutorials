@@ -3,6 +3,8 @@
 rem This script demonstrates arithmetic operations in DOS scripting
 setlocal
 
+rem Test git connection from VS Code
+
 echo ### Introductory notes ###
 rem The symbols < and > are not allowed since these are file redirection operators in DOS
 echo   1) Do not use std "less than" or "greater than" symbols. They are file redirection operators.
