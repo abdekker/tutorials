@@ -12,7 +12,7 @@ void ShowArguments(int argc, char *argv[])
     std::cout << "Number of arguments: " << argc << "\n";
     if (argc > 0)
     {
-       // One or more arguments to this console application. On Windows, the 1st argument should
+        // One or more arguments to this console application. On Windows, the 1st argument should
         // be the application name (including full path).
         size_t	nLength = 0;
         char	aszArguments[MAX_ARG][MAX_PATH];
