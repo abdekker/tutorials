@@ -14,8 +14,8 @@ void ShowArguments(int argc, char *argv[])
     {
         // One or more arguments to this console application. On Windows, the 1st argument should
         // be the application name (including full path).
-        size_t	nLength = 0;
-        char	aszArguments[MAX_ARG][MAX_PATH];
+        size_t  nLength = 0;
+        char    aszArguments[MAX_ARG][MAX_PATH];
         for (BYTE byArg = 0; byArg < argc; byArg++)
         {
             nLength = strlen(argv[byArg]);
