@@ -9,6 +9,7 @@
 void ShowArguments(int argc, char *argv[])
 {
     // Output the number of the arguments
+    // Another test of git
     std::cout << "Number of arguments: " << argc << "\n";
     if (argc > 0)
     {
