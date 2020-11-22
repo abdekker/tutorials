@@ -20,46 +20,52 @@ Windows comes with a special "hosts" file which helps resolving DNS records. In 
 # Stop Skype updating itself
 127.0.0.1       download.skype.com
 
+# Block entertainment channels
+#0.0.0.0			netflix.com
+#0.0.0.0			www.netflix.com
+
+# Block social media
+0.0.0.0			twitter.com
+0.0.0.0			www.twitter.com
+
+0.0.0.0 		api.ak.facebook.com
+0.0.0.0 		api.connect.facebook.com
+0.0.0.0 		api.facebook.com
+0.0.0.0 		app.facebook.com
+0.0.0.0 		apps.facebook.com
+0.0.0.0 		ar-ar.facebook.com
+0.0.0.0 		badge.facebook.com
+0.0.0.0 		blog.facebook.com
+0.0.0.0 		connect.facebook.com
+0.0.0.0 		connect.facebook.net
+0.0.0.0 		de-de.facebook.com
+0.0.0.0 		developers.facebook.com
+0.0.0.0 		es-la.facebook.com
+0.0.0.0 		external.ak.fbcdn.net
+0.0.0.0 		facebook.com
+0.0.0.0 		facebook.de
+0.0.0.0 		facebook.fr
+0.0.0.0 		fb.me
+0.0.0.0 		fbcdn.net
+0.0.0.0 		fr-fr.facebook.com
+0.0.0.0 		hi-in.facebook.com
+0.0.0.0 		login.facebook.com
+0.0.0.0			profile.ak.fbcdn.net
+0.0.0.0			ssl.connect.facebook.com
+0.0.0.0 		static.ak.connect.facebook.com
+0.0.0.0 		static.ak.fbcdn.net
+0.0.0.0 		www.facebook.com
+0.0.0.0 		www.facebook.de
+0.0.0.0			www.facebook.fr
+
 # Online games
-127.0.0.1	play.chessbase.com
-0.0.0.0		chess.com
-0.0.0.0		lichess.org
-0.0.0.0		playok.com
-0.0.0.0		www.playok.com
-0.0.0.0		heroes.backgammonstudio.com
-0.0.0.0		backgammonstudio.com
+127.0.0.1		play.chessbase.com
+0.0.0.0			chess.com
+0.0.0.0			lichess.org
+0.0.0.0			playok.com
+0.0.0.0			www.playok.com
+0.0.0.0			heroes.backgammonstudio.com
+0.0.0.0			backgammonstudio.com
 
 # friv.com
-0.0.0.0		friv.com
-
-# Facebook
-0.0.0.0 	api.ak.facebook.com
-0.0.0.0 	api.connect.facebook.com
-0.0.0.0 	api.facebook.com
-0.0.0.0 	app.facebook.com
-0.0.0.0 	apps.facebook.com
-0.0.0.0 	ar-ar.facebook.com
-0.0.0.0 	badge.facebook.com
-0.0.0.0 	blog.facebook.com
-0.0.0.0 	connect.facebook.com
-0.0.0.0 	connect.facebook.net
-0.0.0.0 	de-de.facebook.com
-0.0.0.0 	developers.facebook.com
-0.0.0.0 	es-la.facebook.com
-0.0.0.0 	external.ak.fbcdn.net
-0.0.0.0 	facebook.com
-0.0.0.0 	facebook.de
-0.0.0.0 	facebook.fr
-0.0.0.0 	fb.me
-0.0.0.0 	fbcdn.net
-0.0.0.0 	fr-fr.facebook.com
-0.0.0.0 	hi-in.facebook.com
-0.0.0.0 	login.facebook.com
-0.0.0.0		profile.ak.fbcdn.net
-0.0.0.0		ssl.connect.facebook.com
-0.0.0.0 	static.ak.connect.facebook.com
-0.0.0.0 	static.ak.fbcdn.net
-0.0.0.0 	www.facebook.com
-0.0.0.0 	www.facebook.de
-0.0.0.0		www.facebook.fr
-	
+0.0.0.0			friv.com
