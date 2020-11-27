@@ -1,0 +1,30 @@
+Private Function HasContent(strValue As String) As Boolean
+    ' Test a string for content (spaces are not content in this version, so " " == "")
+    HasContent = (Trim(strValue & vbNullString) = vbNullString) And (Len(Trim(strValue) > 0))
+End Function
+
+Public Sub GetSelectionFont()
+    ' Determine the font of the selected text
+    Dim strSelection As String
+    strSelection = Selection.Text
+    If (Not HasContent(strSelection)) Then
+        MsgBox "No text has been selected..."
+        Exit Sub
+    End If
+
+    ' Set the length of the selection for the message box
+    Const conMinSelectedLength As Integer = 20
+    If (Len(strSelection) > conMinSelectedLength) Then
+        strSelection = Left(strSelection, conMinSelectedLength) & "..."
+    End If
+
+    ' Get the font name
+    Dim strFont As String
+    strFont = Selection.Font.Name
+    If (IsEmpty(strFont)) Then
+        strFont = "Mixed or Unknown"
+    End If
+
+    MsgBox "Selection: " & strSelection & vbCrLf & _
+        "Font: " & strFont
+End Sub

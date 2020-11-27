@@ -1,0 +1,86 @@
+Private Function IsEmpty(strValue As String) As Boolean
+    ' Test whether a string is empty (spaces are counted as content, so " " returns FALSE)
+    'IsEmpty = (Len(strValue) = 0)
+    IsEmpty = (strValue = vbNullString)
+End Function
+
+Private Function HasContent(strValue As String) As Boolean
+    ' Test a string for content (spaces are not content in this version, so " " == "")
+    'HasContent = (Len(Trim(strValue)) = 0)
+    HasContent = (Trim(strValue & vbNullString) = vbNullString)
+End Function
+
+Public Sub GetAccessFormat()
+    ' Attempt to determine the format of an Access database
+    ' Note: Access 16.0 (Office 365) cannot read databases from Office 2013 and earlier)
+    Dim strFile As String
+    strFile = Selection.Value
+    If (HasContent(strFile)) Then
+        ' When no database file is provided, hard-code a path here
+        strFile = "P:\HqVar\_clin\Data\clindb1.mdb"
+        'strFile = "C:\Apps\Utilities\Database\Sample Databases\Northwind (Access 2007-2016)\Northwind.accdb"
+    End If
+    
+    If IsEmpty(Dir(strFile)) Then
+        ' File does not exist
+        MsgBox "Could not find: " & strFile
+        Exit Sub
+    End If
+    
+    ' Open the database
+    ' Note: There are two methods to create an object of type "Access.Application"
+    ' Method 1 (early binding)
+    '       Dim objAccess As Access.Application
+    '       Set objAccess = New Access.Application
+    ' Method 2 (late binding)
+    '       Dim objAccess As Object
+    '       Set objAccess = CreateObject("Access.Application")
+    ' Early binding has the advantage of allowing Intellisense to work
+    On Error GoTo Error_NotAccessDatabase
+    Dim objAccess As Access.Application
+    Set objAccess = New Access.Application
+    objAccess.OpenCurrentDatabase strFile
+    objAccess.Visible = False
+    
+    ' Get the file format
+    Dim nFileFormat As Integer
+    nFileFormat = objAccess.CurrentProject.FileFormat
+    Dim strAccessFormat As String
+    strAccessFormat = "Your database is: "
+    
+    Select Case nFileFormat
+        Case 2
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2")
+        Case 7
+            strAccessFormat = (strAccessFormat & "Microsoft Access 95")
+        Case 8
+            strAccessFormat = (strAccessFormat & "Microsoft Access 97")
+        Case 9
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2000")
+        Case 10
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2002")
+        Case 11
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2003")
+        Case 12
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2007")
+        Case 14
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2010")
+        Case 15
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2013")
+        Case 16
+            strAccessFormat = (strAccessFormat & "Microsoft Access 2016/9")
+        Case Else
+            strAccessFormat = "Unknown Access file format"
+    End Select
+    
+    ' Close database and display the formatting information
+    objAccess.CloseCurrentDatabase
+    strAccessFormat = (strAccessFormat + " (" & nFileFormat & ".0)")
+    MsgBox strAccessFormat
+    Exit Sub
+
+Error_NotAccessDatabase:
+    ' Unable to open the database (not Access or not supported by this version of Office)
+    MsgBox "Unable to open as an Access database: " & strFile
+    Exit Sub
+End Sub
