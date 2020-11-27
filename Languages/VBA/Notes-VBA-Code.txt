@@ -1,0 +1,15 @@
+### VBA (Visual Basic for Applications) ###
+* Programming language for Microsoft Office (in particular Excel)
+	- This file describes coding in VBA (and the code in this repository)
+	- This file does not discuss enabling VBA or using the Visual Basic Editor in Office applications
+		- See <PEN-DRIVE>\Work\Utilities\Microsoft\Office\VBA\Notes-VBA.txt for general notes on VBA in Office
+
+* To use the VBA code in an Office application
+	- Excel and Word 16.0 (Office 365)
+		- Open Workbook or Document (either existing or blank)
+		- View the Visual Basic Editor
+			- Alt+F11, Quick Access > Visual Basic Editor, View > Macros > Edit
+		- In Project Explorer, right-click the project and select Insert > Module
+		- Paste in the code (and edit as required)
+		- Run directly from the Visual Basic Editor or return to the workbook and run the macro from there
+#
