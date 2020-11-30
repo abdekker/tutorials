@@ -195,6 +195,31 @@ namespace SampleConsole
             Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
             Console.WriteLine("");
 
+            // Show the arguments passed to this console application
+            Console.WriteLine("Check for arguments");
+            if (args.Length == 0)
+                Console.WriteLine("  No arguments supplied...");
+            else
+            {
+                // At least one argument supplied...
+                Console.WriteLine("  Number of arguments passed: {0}", args.Length);
+
+                // Attempt to convert the first parameter to an integer
+                int firstArgAsInt;
+                if (int.TryParse(args[0], out firstArgAsInt))
+                    Console.WriteLine("  First argument is the integer \"{0}\"", firstArgAsInt);
+                else
+                    Console.WriteLine("  First argument is NOT an integer");
+
+                // Now try to convert the first parameter as a floating point number
+                float firstArgAsFloat;
+                if (float.TryParse(args[0], out firstArgAsFloat))
+                    Console.WriteLine("  First argument is the float \"{0:0.000}\"", firstArgAsFloat);
+                else
+                    Console.WriteLine("  First argument is NOT a float");
+            }
+            Console.WriteLine("");
+
             // Write a message over multiple lines
             string msgMultiLine = ("This message will..." + Environment.NewLine + "...span multiple lines" + Environment.NewLine);
             Console.WriteLine(msgMultiLine);
