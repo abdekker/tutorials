@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data.OleDb;
 
+using systemHelperLibrary;
+
 namespace SimpleDbReader
 {
     // Enumerations
@@ -16,7 +18,12 @@ namespace SimpleDbReader
     class DbTester
     {
         // Member variables
+        private bool m_b64bit = false;
         private string m_strDevDataPath = string.Empty;
+
+        private string[] types = { "Baseball", "Basketball", "Football",
+                              "Hockey", "Soccer", "Tennis",
+                              "Volleyball" };
 
         // Constructor
         public DbTester()
@@ -25,27 +32,38 @@ namespace SimpleDbReader
             // (eg. C:\Apps\Data). If not defined, add this User environment variable to Windows
             // and restart Visual Studio (or alternatively hard-code the path).
             DevDataPath = Environment.GetEnvironmentVariable("DevDataDirectory");
-            //Console.WriteLine(DevDataPath);
         }
         public DbTester(string strDevDataPath) { DevDataPath = strDevDataPath; }
 
         // Properties
         private string DevDataPath
         {
-            get { return m_strDevDataPath; }
-            set { m_strDevDataPath = value; }
+            //get { return m_strDevDataPath; }
+            //set { m_strDevDataPath = value; }
 
             // Since C# 7.0 (VS 2017, .NET 4.7) you can write single expression property get/set
             // accessors like below. In my opinion this is ugly!
-            /*get => m_strDevDataPath;
-            set => m_strDevDataPath = value;*/
-    }
+            get => m_strDevDataPath;
+            set => m_strDevDataPath = value;
+        }
+
+        public string this[int i]
+        {
+            get => types[i];
+            set => types[i] = value;
+        }
 
         // Start: Methods (public)
         public override string ToString()
         {
             // Method that overrides the base class (System.Object) implementation
             return "DbTester Sample Application";
+        }
+
+        public void Initialise()
+        {
+            // Check whether this is a 32 or 64-bit application
+            m_b64bit = SystemLibrary.Is64Bit();
         }
 
         public void TestDbTechnology(DatabaseTechnology eTechnology)
@@ -73,35 +91,43 @@ namespace SimpleDbReader
             // The connection string assumes that the Access Northwind database (.mdb) is located in
             // %DevDataDirectory% folder (eg. C:\Apps\Data). If not defined, add this User environment
             // variable and restart Visual Code (or just modify the code).
-            string strDataProvider = string.Empty;
-            string strSource = string.Empty;
-            SetAccessVariables(AccessDbType.eAccess2000, ref strDataProvider, ref strSource);
-            string connectionString = (strDataProvider + strSource + ";User Id=admin;Password=;");
+            //SetAccessVariables(AccessDbType.eAccess2000, ref strDataProvider, ref strSource);
+            string strConnection = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing {0}", TestDB_OleDbConnection_GetAccessName(type));
+                TestDB_OleDbConnection_SetAccessConnectionString(type, ref strConnection);
+                TestDB_OleDbConnection_ConnectAccess(strConnection);
+            }
+
+            Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###");
+        }
+
+        private void TestDB_OleDbConnection_ConnectAccess(string strConnection)
+        {
+            // Test a specific database 
 
             // Provide the query string with a parameter placeholder.
             string queryString =
-                "SELECT ProductID, UnitPrice, ProductName from products "
-                    + "WHERE UnitPrice > ? "
-                    + "ORDER BY UnitPrice DESC;";
+            "SELECT ProductID, UnitPrice, ProductName from products "
+                + "WHERE UnitPrice > ? "
+                + "ORDER BY UnitPrice DESC;";
 
             // Specify the parameter value.
             int paramValue = 5;
 
-            // Create and open the connection in a using block. This
-            // ensures that all resources will be closed and disposed
-            // when the code exits.
-            using (OleDbConnection connection =
-                new OleDbConnection(connectionString))
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
-                // Create the Command and Parameter objects.
+                // Create the Command and Parameter objects
                 OleDbCommand command = new OleDbCommand(queryString, connection);
                 command.Parameters.AddWithValue("@pricePoint", paramValue);
 
-                // Open the connection in a try/catch block.
-                // Create and execute the DataReader, writing the result
-                // set to the console window.
+                // Open the connection in a try/catch block
                 try
                 {
+                    // Create and execute the DataReader, writing the result to the console window
                     connection.Open();
                     OleDbDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -117,31 +143,59 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###");
+            Console.WriteLine("");
         }
 
         // Helper methods
-        private void SetAccessVariables(AccessDbType type,
-            ref string strDataProvider, ref string strDataSource)
+        private string TestDB_OleDbConnection_GetAccessName(AccessDbType type)
         {
-            // Set up the connection string based on the version of the Access database
-            string strDevDataPath = Environment.GetEnvironmentVariable("DevDataDirectory");
-            strDataProvider = "Provider=";
-            strDataSource = ("Data Source=" + strDevDataPath);
+            // Provide a human-readable name for the access database
+            string strName = string.Empty;
             switch (type)
             {
                 case AccessDbType.eAccess97:
+                    strName = "Access 97 (32-bit using Microsoft.Jet.OLEDB.4.0)";
+                    break;
+
+                case AccessDbType.eAccess2000:
+                    strName = "Access 2000 (32-bitusing Microsoft.Jet.OLEDB.4.0)";
+                    break;
+
+                case AccessDbType.eAccess2007_2016:
+                    strName = "Access 2007-2016 (64-bit using Microsoft.ACE.OLEDB.16.0)";
+                    break;
+
+                default:
+                    strName = "Unknown Access database";
+                    break;
+            }
+
+            return strName;
+        }
+
+        private void TestDB_OleDbConnection_SetAccessConnectionString(AccessDbType type, ref string strConnection)
+            //ref string strDataProvider, ref string strDataSource)
+        {
+            // Set up the connection string based on the version of the Access database
+            string strDataProvider = "Provider=";
+            string strDataSource = ("Data Source=" + DevDataPath);
+            switch (type)
+            {
+                case AccessDbType.eAccess97:
+                    // 32-bit only
                     strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
                     strDataSource += "\\Northwind 97.mdb;";
                     break;
 
                 case AccessDbType.eAccess2000:
+                    // 32-bit only
                     strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
                     strDataSource += "\\Northwind 2000.mdb;";
                     break;
 
                 case AccessDbType.eAccess2007_2016:
-                    strDataProvider += "Microsoft.ACE.OLEDB.12.0;";     // "16" is also "not registered"
+                    // 64-bit only
+                    strDataProvider += "Microsoft.ACE.OLEDB.16.0;";
                     strDataSource += "\\Northwind 2007-2016.accdb;";
                     break;
 
@@ -150,6 +204,8 @@ namespace SimpleDbReader
                     strDataSource += "C:\\Data\\Northwind.mdb;";
                     break;
             }
+
+            strConnection = (strDataProvider + strDataSource + ";User Id=admin;Password=;");
         }
         // End: Methods (private)
     }
