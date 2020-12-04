@@ -1,5 +1,7 @@
 ﻿using System;
 
+using systemHelperLibrary;
+
 namespace SimpleDbReader
 {
     class Program
@@ -14,9 +16,10 @@ namespace SimpleDbReader
             m_db = new DbTester();
             m_db.Initialise();
             Console.WriteLine("This is the {0}", m_db.ToString());
-            Console.WriteLine($"  (application is 64-bit? {Environment.Is64BitProcess})\n");
+            Console.WriteLine($"  64-bit? {SystemLibrary.Is64Bit()}\n");
 
             // Not related to working with databases, just using an accessor list (which I'd not seen before)
+            Console.WriteLine("Demonstrasting using indexed accessors");
             for (int sport = 0; sport <= 5; sport++)
                 Console.WriteLine("  sport {0} is {1}", sport, m_db[sport]);
 
