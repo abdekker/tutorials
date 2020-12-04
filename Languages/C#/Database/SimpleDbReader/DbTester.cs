@@ -97,7 +97,7 @@ namespace SimpleDbReader
             string strConnection = string.Empty;
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
-                Console.WriteLine("  Testing: {0}", TestDB_OleDbConnection_GetAccessName(type, true));
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_OleDbConnection_SetAccessConnectionString(type, ref strConnection))
                     TestDB_OleDbConnection_ConnectAccess(strConnection);
             }
@@ -123,7 +123,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 64-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                        Console.WriteLine("  ({0} does not supported 64-bit)", HelperGetAccessName(type, false));
                     }
                     break;
 
@@ -137,7 +137,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 64-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                        Console.WriteLine("  ({0} does not supported 64-bit)", HelperGetAccessName(type, false));
                     }
                     break;
 
@@ -146,7 +146,7 @@ namespace SimpleDbReader
                     if (!m_b64bit)
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 32-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                        Console.WriteLine("  ({0} does not supported 32-bit)", HelperGetAccessName(type, false));
                     }
                     else
                     {
@@ -211,7 +211,7 @@ namespace SimpleDbReader
         }
 
         // Helper methods
-        private string TestDB_OleDbConnection_GetAccessName(AccessDbType type, bool bFullDescription)
+        private string HelperGetAccessName(AccessDbType type, bool bFullDescription)
         {
             // Provide a human-readable name for the access database
             string strName = string.Empty;
