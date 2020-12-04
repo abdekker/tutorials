@@ -97,12 +97,74 @@ namespace SimpleDbReader
             string strConnection = string.Empty;
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
-                Console.WriteLine("  Testing {0}", TestDB_OleDbConnection_GetAccessName(type));
-                TestDB_OleDbConnection_SetAccessConnectionString(type, ref strConnection);
-                TestDB_OleDbConnection_ConnectAccess(strConnection);
+                Console.WriteLine("  Testing: {0}", TestDB_OleDbConnection_GetAccessName(type, true));
+                if (TestDB_OleDbConnection_SetAccessConnectionString(type, ref strConnection))
+                    TestDB_OleDbConnection_ConnectAccess(strConnection);
             }
 
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###");
+        }
+
+        private bool TestDB_OleDbConnection_SetAccessConnectionString(AccessDbType type, ref string strConnection)
+        {
+            // Set up the connection string based on the version of the Access database
+            bool bHaveConnectionString = true;
+            string strDataProvider = "Provider=";
+            string strDataSource = ("Data Source=" + DevDataPath);
+            switch (type)
+            {
+                case AccessDbType.eAccess97:
+                    // 32-bit only
+                    if (!m_b64bit)
+                    {
+                        strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
+                        strDataSource += "\\Northwind 97.mdb;";
+                    }
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("  ({0} does not supported 64-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                    }
+                    break;
+
+                case AccessDbType.eAccess2000:
+                    // 32-bit only
+                    if (!m_b64bit)
+                    {
+                        strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
+                        strDataSource += "\\Northwind 2000.mdb;";
+                    }
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("  ({0} does not supported 64-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                    }
+                    break;
+
+                case AccessDbType.eAccess2007_2016:
+                    // 64-bit only
+                    if (!m_b64bit)
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("  ({0} does not supported 32-bit)", TestDB_OleDbConnection_GetAccessName(type, false));
+                    }
+                    else
+                    {
+                        strDataProvider += "Microsoft.ACE.OLEDB.16.0;";
+                        strDataSource += "\\Northwind 2007-2016.accdb;";
+                    }
+
+                    break;
+
+                default:
+                    bHaveConnectionString = false;
+                    break;
+            }
+
+            if (bHaveConnectionString)
+                strConnection = (strDataProvider + strDataSource + ";User Id=admin;Password=;");
+
+            return bHaveConnectionString;
         }
 
         private void TestDB_OleDbConnection_ConnectAccess(string strConnection)
@@ -149,22 +211,28 @@ namespace SimpleDbReader
         }
 
         // Helper methods
-        private string TestDB_OleDbConnection_GetAccessName(AccessDbType type)
+        private string TestDB_OleDbConnection_GetAccessName(AccessDbType type, bool bFullDescription)
         {
             // Provide a human-readable name for the access database
             string strName = string.Empty;
             switch (type)
             {
                 case AccessDbType.eAccess97:
-                    strName = "Access 97 (32-bit using Microsoft.Jet.OLEDB.4.0)";
+                    strName = "Access 97";
+                    if (bFullDescription)
+                        strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                     break;
 
                 case AccessDbType.eAccess2000:
-                    strName = "Access 2000 (32-bitusing Microsoft.Jet.OLEDB.4.0)";
+                    strName = "Access 2000";
+                    if (bFullDescription)
+                        strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                     break;
 
                 case AccessDbType.eAccess2007_2016:
-                    strName = "Access 2007-2016 (64-bit using Microsoft.ACE.OLEDB.16.0)";
+                    strName = "Access 2007-2016";
+                    if (bFullDescription)
+                        strName += " (64-bit using Microsoft.ACE.OLEDB.16.0)";
                     break;
 
                 default:
@@ -173,41 +241,6 @@ namespace SimpleDbReader
             }
 
             return strName;
-        }
-
-        private void TestDB_OleDbConnection_SetAccessConnectionString(AccessDbType type, ref string strConnection)
-            //ref string strDataProvider, ref string strDataSource)
-        {
-            // Set up the connection string based on the version of the Access database
-            string strDataProvider = "Provider=";
-            string strDataSource = ("Data Source=" + DevDataPath);
-            switch (type)
-            {
-                case AccessDbType.eAccess97:
-                    // 32-bit only
-                    strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
-                    strDataSource += "\\Northwind 97.mdb;";
-                    break;
-
-                case AccessDbType.eAccess2000:
-                    // 32-bit only
-                    strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
-                    strDataSource += "\\Northwind 2000.mdb;";
-                    break;
-
-                case AccessDbType.eAccess2007_2016:
-                    // 64-bit only
-                    strDataProvider += "Microsoft.ACE.OLEDB.16.0;";
-                    strDataSource += "\\Northwind 2007-2016.accdb;";
-                    break;
-
-                default:
-                    strDataProvider += "Microsoft.Jet.OLEDB.4.0;";
-                    strDataSource += "C:\\Data\\Northwind.mdb;";
-                    break;
-            }
-
-            strConnection = (strDataProvider + strDataSource + ";User Id=admin;Password=;");
         }
         // End: Methods (private)
     }
