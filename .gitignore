@@ -48,6 +48,7 @@ settings.json
 *.tlog
 *.VC.db
 .vs
+UpgradeLog.htm
 
 ### Delphi 7 ###
 *.~*
