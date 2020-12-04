@@ -19,14 +19,15 @@ namespace SimpleDbReader
             Console.WriteLine($"  64-bit? {SystemLibrary.Is64Bit()}\n");
 
             // Not related to working with databases, just using an accessor list (which I'd not seen before)
-            Console.WriteLine("Demonstrasting using indexed accessors");
+            Console.WriteLine("Demonstraste using indexed accessors");
             for (int sport = 0; sport <= 5; sport++)
                 Console.WriteLine("  sport {0} is {1}", sport, m_db[sport]);
 
             Console.WriteLine("");
 
             // Test one of the database technologies supported in VS 2019 and C#
-            m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDbConnection);
+            m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
+            m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
 
             // Complete!
             Console.Write("Press any key to exit...");
