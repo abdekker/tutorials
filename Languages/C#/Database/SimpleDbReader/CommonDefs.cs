@@ -7,6 +7,7 @@
     {
         // DB technology being tested
         eDB_Unknown,
-        eDB_OleDbConnection        // System.Data.OleDb.OleDbConnection
+        eDB_OleDB,          // System.Data.OleDb.OleDbConnection
+        eDB_ODBC            // System.Data.Odbc.OdbcConnection
     }
 }
