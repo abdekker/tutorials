@@ -21,7 +21,8 @@ namespace SimpleDbReader
         private bool m_b64bit = false;
         private string m_strDevDataPath = string.Empty;
 
-        private string[] types = { "Baseball", "Basketball", "Football",
+        // Example of using 
+        private string[] sportTypes = { "Baseball", "Basketball", "Football",
                               "Hockey", "Soccer", "Tennis",
                               "Volleyball" };
 
@@ -47,10 +48,11 @@ namespace SimpleDbReader
             set => m_strDevDataPath = value;
         }
 
-        public string this[int i]
+        public string this[int sport]
         {
-            get => types[i];
-            set => types[i] = value;
+            // Example usage of indexed "single expression" property accessors
+            get => sportTypes[sport];
+            set => sportTypes[sport] = value;
         }
 
         // Start: Methods (public)
