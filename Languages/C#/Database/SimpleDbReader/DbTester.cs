@@ -39,13 +39,13 @@ namespace SimpleDbReader
         // Properties
         private string DevDataPath
         {
-            //get { return m_strDevDataPath; }
-            //set { m_strDevDataPath = value; }
+            get { return m_strDevDataPath; }
+            set { m_strDevDataPath = value; }
 
             // Since C# 7.0 (VS 2017, .NET 4.7) you can write single expression property get/set
-            // accessors like below. In my opinion this is ugly!
-            get => m_strDevDataPath;
-            set => m_strDevDataPath = value;
+            // accessors like below. In my opinion this is ugly and more difficult to read!
+            /*get => m_strDevDataPath;
+            set => m_strDevDataPath = value;*/
         }
 
         public string this[int sport]
