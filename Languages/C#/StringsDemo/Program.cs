@@ -55,6 +55,19 @@ namespace StringsDemo
             Console.WriteLine("  Add together = {0}\t\t[using the \"+\" operator]", (s1 + s2));
             Console.WriteLine("  Add together = {0}\t\t[using string::Concat]", string.Concat(s1, s2));
             Console.WriteLine();
+
+            // Note: In the loop below we should check for outbreaks (where "16-name.Length" is negative)
+            Console.WriteLine("(output strings in a loop with padding)");
+            Console.WriteLine("  (using String.PadLeft)");
+            string [] names = { "A", "Bob", "Charles" };
+            foreach (string name in names)
+                Console.WriteLine("    {0}{1}", name, name.PadLeft(16-name.Length, ' '));
+
+            Console.WriteLine("  (using string interpolation using the \"$\" character)");
+            foreach (string name in names)
+                 Console.WriteLine($"    {{0}}{{0,{16-name.Length}}}", name);
+
+            Console.WriteLine();
         }
 
         private static void OutputInfo_Integer()
