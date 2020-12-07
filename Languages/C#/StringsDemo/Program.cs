@@ -41,7 +41,7 @@ namespace StringsDemo
             Console.WriteLine();
 
             WriteConsole("  * Floats...TODO");
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
         }
 
         private static void OutputInfo_String()
@@ -54,7 +54,7 @@ namespace StringsDemo
             Console.WriteLine("(A = {0}, B = {1})", s1, s2);
             Console.WriteLine("  Add together = {0}\t\t[using the \"+\" operator]", (s1 + s2));
             Console.WriteLine("  Add together = {0}\t\t[using string::Concat]", string.Concat(s1, s2));
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
         }
 
         private static void OutputInfo_Integer()
@@ -72,14 +72,14 @@ namespace StringsDemo
             Console.WriteLine("  A = {0,8:0000}, B = {1,8:0000}, C = {2,8:0000}\t[leading zeroes and spaces using \"0,*:0...\"]", n1, n2, n3);
             Console.WriteLine("  A = {0:N0}, B = {1:N0}, C = {2:N0}\t\t\t[thousand separator using \"0:N0\"]", n1, n2, n3);
             Console.WriteLine("  A = {0:#,0}, B = {1:#,0}, C = {2:#,0}\t\t\t[thousand separator using \"0:#,0\"]", n1, n2, n3);
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
 
             Console.WriteLine("(displaying numbers in hex using 0:X*)");
             byte u1 = 10;
             uint u2 = uint.MaxValue;
             Console.WriteLine("  {0:D2} = 0x{1:X2}", u1, u1);
             Console.WriteLine("  {0:D8} = 0x{1:X8}", u2, u2);
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
         }
 
         private static void OutputInfo_Float()
@@ -93,12 +93,12 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:0.###}, B = {1:0.###}, C = {2:0.###}\t\t[max decimal places using \"0:0.#...\"]", f1, f2, f3);
             Console.WriteLine("  A = {0:0.000}, B = {1:0.000}, C = {2:0.000}\t\t[fixed decimal places using \"0:0.0...\"]", f1, f2, f3);
             Console.WriteLine("  A = {0:N3}, B = {1:N3}, C = {2:N3}\t[thousand separator and fixed dps using \"0:N*\"]", f1, f2, f3);
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
 
             Console.WriteLine("(using a method to display a variable number of decimal places)");
             for (int places = 0; places <= 5; places++)
                 Console.WriteLine("  decimals = {0}, output = {1}", places, FormatFloat(f2, places));
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
 
             Console.WriteLine("(using different formatting for positive and negative numbers, and zero)");
             string formatter = "{0:0.000;(0.000);zero}";    // The string "zero" can be anything
@@ -106,7 +106,7 @@ namespace StringsDemo
                 string.Format(formatter, f1),
                 string.Format(formatter, f2),
                 string.Format(formatter, f3));
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
 
             Console.WriteLine("(pre-defined formats for floating point numbers)");
             Console.WriteLine("(generally two decimal places; add a number after the format symbol for different dps)");
@@ -118,7 +118,7 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:G}\t\t\t[using 0:G]", f1);
             Console.WriteLine("  A = {0:N}\t\t\t[using 0:N]", f1);
             Console.WriteLine("  A = {0:P}\t\t\t[using 0:P]", f1);
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
         }
 
         private static void OutputInfo_Double()
@@ -128,20 +128,20 @@ namespace StringsDemo
             Console.WriteLine("# Doubles # (similar to floats)");
             double d = 123.0987654321;
             Console.WriteLine("  A = {0} [raw]", d);
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
 
             Console.WriteLine("(using a method to display a variable number of decimal places)");
             for (int places = 0; places <= 10; places++)
                 Console.WriteLine("  decimals = {0,2}, output = {1}", places, FormatFloat(d, places));
 
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();
         }
 
         static void Main(string[] args)
         {
             // Demonstrating some aspects of string formatting in C#
             Console.WriteLine("=== Strings and string formatting in C# ===");
-            Console.Write(Environment.NewLine);
+            Console.WriteLine();    // Or "Console.Write(Environment.NewLine)"
             OutputInfo_Basic();
             OutputInfo_String();
             OutputInfo_Integer();
