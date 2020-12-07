@@ -27,6 +27,10 @@ namespace StringsDemo
             // Basic information on formatting (see each section for more detailed examples)
             Console.WriteLine("# Basics #");
             WriteConsole("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on");
+            WriteConsole("    Note: Use \"$\" for string literals. The following are equivalent.");
+            WriteConsole("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
+            WriteConsole("          Console.WriteLine($\"My integer is {myInt} and I like it\");");
+            Console.WriteLine();
 
             Console.WriteLine("  * Integers");
             WriteConsole("    - {0:000} adds leading zeroes to pad the number to a fixed length (eg. 3)");
