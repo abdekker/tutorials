@@ -362,9 +362,11 @@ namespace SampleConsole
             // compiler at compile-time. These are not available in C# (because there is no preprocessor).
 
             // Show some information about this assembly
+            Console.WriteLine();
+            Console.WriteLine("Assembly information");
             Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
             Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
-            Console.WriteLine("");
+            Console.WriteLine();
 
             // Show the arguments passed to this console application
             Console.WriteLine("Check for arguments");
