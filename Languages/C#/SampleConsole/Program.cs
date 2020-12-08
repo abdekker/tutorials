@@ -171,6 +171,175 @@ namespace SampleConsole
             return "No 4.5 or later version detected";
         }
 
+        private static string GetDotNetByConditionalCompilation()
+        {
+            // This method was adapted from:
+            // https://stackoverflow.com/questions/42754123
+            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-if
+            // Note: According to the latter reference:
+            //      "For traditional, non-SDK-style projects, you have to manually configure the
+            //      conditional compilation symbols for the different target frameworks in Visual
+            //      Studio via the project's properties pages."
+            // In other words, these symbols may not be defined!
+            string strDotNetFramework = "(unknown)";
+            string strDotNetVersion = string.Empty;
+
+            #region List of .NET conditional compilation flags
+            /* 
+            .NET Framework
+                FRAMEWORK/VERSION               SYMBOL
+                --------------------------------------
+                .NET Framework (any version)    NETFRAMEWORK
+                .NET Framework 2.0              NET20
+                .NET Framework 3.5              NET35
+                .NET Framework 4.0              NET40
+                .NET Framework 4.5              NET45
+                .NET Framework 4.5.1            NET451
+                .NET Framework 4.5.2            NET452
+                .NET Framework 4.6              NET46
+                .NET Framework 4.6.1            NET461
+                .NET Framework 4.6.2            NET462
+                .NET Framework 4.7              NET47
+                .NET Framework 4.7.             NET471
+                .NET Framework 4.7.2            NET472
+                .NET Framework 4.8              NET48
+
+            .NET Standard
+                FRAMEWORK/VERSION               SYMBOL
+                --------------------------------------
+                .NET Standard (any version)     NETSTANDARD
+                .NET Standard 1.0               NETSTANDARD1_0
+                .NET Standard 1.1               NETSTANDARD1_1
+                .NET Standard 1.2               NETSTANDARD1_2
+                .NET Standard 1.3               NETSTANDARD1_3
+                .NET Standard 1.4               NETSTANDARD1_4
+                .NET Standard 1.5               NETSTANDARD1_5
+                .NET Standard 1.6               NETSTANDARD1_6
+                .NET Standard 2.0               NETSTANDARD2_0
+                .NET Standard 2.1               NETSTANDARD2_1
+
+            .NET Core
+                FRAMEWORK/VERSION               SYMBOL
+                --------------------------------------
+                .NET [Core] (any version)       NETCOREAPP
+                .NET Core 1.0                   NETCOREAPP1_0
+                .NET Core 1.1                   NETCOREAPP1_1
+                .NET Core 2.0                   NETCOREAPP2_0
+                .NET Core 2.1                   NETCOREAPP2_1
+                .NET Core 2.2                   NETCOREAPP2_2
+                .NET Core 3.0                   NETCOREAPP3_0
+                .NET Core 3.1                   NETCOREAPP3_1
+
+            .NET 5+
+                FRAMEWORK/VERSION               SYMBOL
+                --------------------------------------
+                .NET 5.0                        NET5_0
+            */
+             #endregion // List of .NET conditional compilation flags
+
+            // .NET Framework
+            #if NETFRAMEWORK
+                strDotNetFramework = ".NET Framework"); 
+            #endif
+            #if NET20
+                strDotNetVersion = "2.0"); 
+            #endif
+            #if NET35
+                strDotNetVersion = "3.5"); 
+            #endif
+            #if NET40
+                strDotNetVersion = "4.0"); 
+            #endif
+            #if NET45
+                strDotNetVersion = "4.5"); 
+            #endif
+            #if NET451
+                strDotNetVersion = "4.5.1"); 
+            #endif
+            #if NET452
+                strDotNetVersion = "4.5.2"); 
+            #endif
+            #if NET46
+                strDotNetVersion = "4.6"); 
+            #endif
+            #if NET461
+                strDotNetVersion = "4.6.1"); 
+            #endif
+            #if NET462
+                strDotNetVersion = "4.6.2"); 
+            #endif
+            #if NET47
+                strDotNetVersion = "4.7"); 
+            #endif
+            #if NET471
+                strDotNetVersion = "4.7.1"); 
+            #endif
+            #if NET472
+                strDotNetVersion = "4.7.2"); 
+            #endif
+            #if NET48
+                strDotNetVersion = "4.8"); 
+            #endif
+
+            #if NETSTANDARD
+                strDotNetFramework = ".NET Standard"); 
+            #endif
+            #if NETSTANDARD1_0
+                strDotNetVersion = "1.0"); 
+            #endif
+            #if NETSTANDARD1_1
+                strDotNetVersion = "1.1"); 
+            #endif
+            #if NETSTANDARD1_2
+                strDotNetVersion = "1.2"); 
+            #endif
+            #if NETSTANDARD1_3
+                strDotNetVersion = "1.3"); 
+            #endif
+            #if NETSTANDARD1_4
+                strDotNetVersion = "1.4"); 
+            #endif
+            #if NETSTANDARD1_5
+                strDotNetVersion = "1.5"); 
+            #endif
+            #if NETSTANDARD1_6
+                strDotNetVersion = "1.6"); 
+            #endif
+            #if NETSTANDARD2_0
+                strDotNetVersion = "2.0"); 
+            #endif
+            #if NETSTANDARD2_1
+                strDotNetVersion = "2.1"); 
+            #endif
+
+            #if NETCOREAPP
+                strDotNetFramework = ".NET Core"); 
+            #endif
+            #if NETCOREAPP1_0
+                strDotNetVersion = "1.0"); 
+            #endif
+            #if NETCOREAPP1_1
+                strDotNetVersion = "1.1"); 
+            #endif
+            #if NETCOREAPP2_0
+                strDotNetVersion = "2.0"); 
+            #endif
+            #if NETCOREAPP2_1
+                strDotNetVersion = "2.1"); 
+            #endif
+            #if NETCOREAPP2_2
+                strDotNetVersion = "2.2"); 
+            #endif
+            #if NETCOREAPP3_0
+                strDotNetVersion = "3.0"); 
+            #endif
+            #if NETCOREAPP3_1
+                strDotNetVersion = "3.1"); 
+            #endif
+
+            return (".NET Framework and version = " + strDotNetFramework + " " + strDotNetVersion);
+        }
+
         // Main entry point for the console application
         static void Main(string[] args)
         {
@@ -186,6 +355,8 @@ namespace SampleConsole
             Console.WriteLine("  " + GetDotNetInstalledOlder());
             Console.WriteLine("More recent .NET frameworks installed (v4.5 and later):");
             Console.WriteLine("  " + GetDotNetInstalledNewer());
+            Console.WriteLine("Conditional compilation to detect the .NET version being targetted:");
+            Console.WriteLine("  " + GetDotNetByConditionalCompilation());
 
             // In C/C++, there are pre-defined preprocessor macros such as "_MSC_VER" which give you the version of the
             // compiler at compile-time. These are not available in C# (because there is no preprocessor).
