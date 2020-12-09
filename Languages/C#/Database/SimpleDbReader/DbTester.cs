@@ -406,13 +406,13 @@ namespace SimpleDbReader
         {
             // Use a standard query string while accessing the demo Northwind databases
             return (
-                "SELECT ProductID, UnitPrice, ProductName from products " +
+                "SELECT ProductID, UnitPrice, ProductName FROM Products " +
                 "WHERE UnitPrice > ? " +
                 "ORDER BY UnitPrice DESC;");
 
             // Add comments into SQL statements with "--" (single line only) or "/*...*/" (can span multi-lines):
             //string sSQLwithComments =
-            //    "SELECT ProductID, UnitPrice from products  -- Select two columns from the products table" +
+            //    "SELECT ProductID, UnitPrice FROM Products  -- Select two columns from the products table" +
             //    "WHERE UnitPrice > ?                        -- Only choose rows where the unit price is NOT null" +
             //    "ORDER BY UnitPrice DESC;                   -- Order rows by the UnitPrice";
         }
