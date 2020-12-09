@@ -326,7 +326,7 @@ namespace SimpleDbReader
 
             // Create and open the connection in a using block. This ensures that all resources
             // will be closed and disposed when the code exits.
-            using (OdbcConnection  connection = new OdbcConnection (strConnection))
+            using (OdbcConnection  connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
                 OdbcCommand  command = new OdbcCommand(queryString, connection);
