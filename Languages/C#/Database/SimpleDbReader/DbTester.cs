@@ -411,7 +411,7 @@ namespace SimpleDbReader
                 "ORDER BY UnitPrice DESC;");
 
             // Add comments into SQL statements with "--" (single line only) or "/*...*/" (can span multi-lines):
-            //string sSQLwithComments =
+            //string sqlWithComments =
             //    "SELECT ProductID, UnitPrice FROM Products  -- Select two columns from the products table" +
             //    "WHERE UnitPrice > ?                        -- Only choose rows where the unit price is NOT null" +
             //    "ORDER BY UnitPrice DESC;                   -- Order rows by the UnitPrice";
