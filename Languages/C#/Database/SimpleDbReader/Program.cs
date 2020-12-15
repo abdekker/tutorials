@@ -23,11 +23,12 @@ namespace SimpleDbReader
             for (int sport = 0; sport <= 8; sport++)
                 Console.WriteLine("  sport {0} is {1}", sport, m_db[sport]);
 
-            Console.WriteLine("");
+            Console.WriteLine();
 
             // Test one of the database technologies supported in VS 2019 and C#
             m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
             m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
+            Console.WriteLine();
 
             // Complete!
             Console.Write("Press any key to exit...");

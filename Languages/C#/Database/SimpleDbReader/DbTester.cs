@@ -7,7 +7,7 @@ using systemHelperLibrary;
 
 namespace SimpleDbReader
 {
-    // Enumerations
+    #region Enumerations
     enum AccessDbType
     {
         // Access database formats
@@ -16,6 +16,7 @@ namespace SimpleDbReader
         eAccess2000,
         eAccess2007_2016
     }
+    #endregion  // Enumerations 
 
     class DbTester
     {
@@ -34,9 +35,11 @@ namespace SimpleDbReader
         // Constructor
         public DbTester()
         {
-            // The application assumes sample databases are located in %DevDataDirectory% folder
-            // (eg. C:\Apps\Data). If not defined, add this User environment variable to Windows
-            // and restart Visual Studio (or alternatively hard-code the path).
+            // Tutorial based on: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/ado-net-code-examples
+
+            // This application assumes sample databases are located in the %DevDataDirectory% folder
+            // (eg. C:\Apps\Data). If not defined, add this User environment variable to Windows and
+            // restart Visual Studio (or alternatively hard-code the path).
             DevDataPath = Environment.GetEnvironmentVariable("DevDataDirectory");
         }
         public DbTester(string strDevDataPath) { DevDataPath = strDevDataPath; }
@@ -48,14 +51,14 @@ namespace SimpleDbReader
             set { m_strDevDataPath = value; }
 
             // Since C# 7.0 (VS 2017, .NET 4.7) you can write single expression property get/set
-            // accessors like below. In my opinion this is ugly and more difficult to read!
+            // accessors like below. In my opinion this is more difficult to read!
             /*get => m_strDevDataPath;
             set => m_strDevDataPath = value;*/
         }
 
         public string this[int sport]
         {
-            // Example usage of indexed "single expression" property accessors
+            // Example usage of "single expression" indexed property accessors
             get => sportTypes[sport];
             set => sportTypes[sport] = value;
         }
@@ -75,6 +78,7 @@ namespace SimpleDbReader
 
         public void TestDbTechnology(DatabaseTechnology eTechnology)
         {
+            // Test one of the database technologies available in .NET
             m_tech = eTechnology;
             switch (eTechnology)
             {
@@ -100,10 +104,7 @@ namespace SimpleDbReader
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand
             Console.WriteLine("### START: System.Data.OleDb.OleDbCommand ###");
 
-            // The connection string assumes that the Access Northwind database (.mdb) is located in
-            // %DevDataDirectory% folder (eg. C:\Apps\Data). If not defined, add this User environment
-            // variable and restart Visual Code (or just modify the code).
-            //SetAccessVariables(AccessDbType.eAccess2000, ref strDataProvider, ref strSource);
+            // See the class constructor for details on databases
             string strConnection = string.Empty;
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
@@ -133,7 +134,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
                         // Error is "The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine."
                     }
                     break;
@@ -148,7 +149,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
                         // Error same as for Access 97
                     }
                     break;
@@ -158,7 +159,7 @@ namespace SimpleDbReader
                     if (!m_b64bit)
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not support 32-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(type, false));
                         // Error is "The 'Microsoft.ACE.OLEDB.16.0' provider is not registered on the local machine."
                     }
                     else
@@ -166,7 +167,6 @@ namespace SimpleDbReader
                         strDataDriver += "Microsoft.ACE.OLEDB.16.0;";
                         strDataSource += "\\Northwind 2007-2016.accdb;";
                     }
-
                     break;
 
                 default:
@@ -227,7 +227,7 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("");
+            Console.WriteLine();
         }
 
         private void TestDB_ODBC()
@@ -236,7 +236,7 @@ namespace SimpleDbReader
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
             Console.WriteLine("### START: System.Data.Odbc.OdbcConnection ###");
 
-            // See "TestDB_OleDbConnection" for details on databases
+            // See the class constructor for details on databases
             string strConnection = string.Empty;
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
@@ -266,7 +266,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 64-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
                         // Error is "ERROR [IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified"
                     }
                     break;
@@ -281,7 +281,7 @@ namespace SimpleDbReader
                     else
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 64-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
                         // Error same as for Access 97
                     }
                     break;
@@ -291,7 +291,7 @@ namespace SimpleDbReader
                     if (!m_b64bit)
                     {
                         bHaveConnectionString = false;
-                        Console.WriteLine("  ({0} does not supported 32-bit)", HelperGetAccessName(type, false));
+                        Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(type, false));
                         // Error same as for Access 97
                     }
                     else
@@ -351,7 +351,7 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("");
+            Console.WriteLine();
         }
 
         // Helper methods
