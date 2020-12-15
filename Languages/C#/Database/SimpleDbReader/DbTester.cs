@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Data.Common;
+using System.Data;
 using System.Data.OleDb;
 using System.Data.Odbc;
 
 using systemHelperLibrary;
+using System.Linq.Expressions;
+using System.IO;
 
 namespace SimpleDbReader
 {
@@ -20,11 +22,19 @@ namespace SimpleDbReader
 
     class DbTester
     {
+        #region Constants
+        const int cPerformanceLoops = 100;
+        #endregion  // Constants
+
         #region Member variables
         // Member variables
         private bool m_b64bit = false;
         private string m_strDevDataPath = string.Empty;
         private DatabaseTechnology m_tech = DatabaseTechnology.eDB_Unknown;
+        private string m_strQuery;
+
+        // Perfomance tests
+        private int m_nLoops = cPerformanceLoops;
 
         // Example ofr using indexed property accesors
         private string[] sportTypes = {
@@ -74,6 +84,15 @@ namespace SimpleDbReader
         {
             // Check whether this is a 32 or 64-bit application
             m_b64bit = SystemLibrary.Is64Bit();
+
+            // Set a generic query string
+            m_strQuery = HelperGetQueryString(QueryType.eQueryStd);
+        }
+
+        public void UpdateQuery(QueryType eQuery)
+        {
+            // Update the generic query string
+            m_strQuery = HelperGetQueryString(eQuery);
         }
 
         public void TestDbTechnology(DatabaseTechnology eTechnology)
@@ -88,6 +107,27 @@ namespace SimpleDbReader
 
                 case DatabaseTechnology.eDB_ODBC:
                     TestDB_ODBC();
+                    break;
+
+                default:
+                    Console.WriteLine("Unknown DB technology: {0} ({1})\n", eTechnology, (int)eTechnology);
+                    break;
+            }
+        }
+
+        public void TestDbTechnologyPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)
+        {
+            // This version runs some performance tests
+            m_tech = eTechnology;
+            m_nLoops = nLoops;
+            switch (eTechnology)
+            {
+                case DatabaseTechnology.eDB_OleDB:
+                    TestDB_OleDB_Performance();
+                    break;
+
+                case DatabaseTechnology.eDB_ODBC:
+                    TestDB_ODBC_Performance();
                     break;
 
                 default:
@@ -110,10 +150,41 @@ namespace SimpleDbReader
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_OleDB_SetConnectionString(type, ref strConnection))
-                    TestDB_OleDB_Connect(strConnection);
+                {
+                    // Choose how to read the data using OleDB
+                    TestDB_OleDB_Connect_DataReader(strConnection);
+                    //TestDB_OleDB_Connect_DataSet(strConnection);
+                }
             }
 
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###\n");
+        }
+
+        private void TestDB_OleDB_Performance()
+        {
+            //  System.Data.OleDb.OleDbCommand
+            Console.WriteLine("### START: OleDb - Performance tests ###");
+            string strConnection = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_OleDB_SetConnectionString(type, ref strConnection))
+                {
+                    int totalRecordsRead = 0;
+                    int startTicks = Environment.TickCount;
+                    for (int loop = 0; loop < m_nLoops; loop++)
+                        totalRecordsRead += TestDB_OleDB_Connect_Performance(strConnection);
+
+                    int elapsedTicks = (Environment.TickCount - startTicks);
+                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                        m_nLoops,
+                        elapsedTicks,
+                        (float)elapsedTicks/(float)m_nLoops,
+                        (float)totalRecordsRead/(float)m_nLoops);
+                }
+            }
+
+            Console.WriteLine("### END: OleDb - Performance tests ###\n");
         }
 
         private bool TestDB_OleDB_SetConnectionString(AccessDbType type, ref string strConnection)
@@ -183,12 +254,15 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_OleDB_Connect(string strConnection)
+        private void TestDB_OleDB_Connect_DataReader(string strConnection)
         {
-            // Provide the query string with a parameter placeholder
-            string queryString = HelperGetQueryString();
+            // This version uses System.Data.OleDb.OleDbDataReader
 
-            // Specify the parameter value
+            // Specify the parameter value. For the std query, records returned based on the parameter are:
+            //  Param    Records returned
+            //    5         75
+            //    25        28
+            //    40        12
             int paramValue = 5;
 
             // Create and open the connection in a using block. This ensures that all resources
@@ -204,22 +278,28 @@ namespace SimpleDbReader
 
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
-                // Create the Command and Parameter objects
-                OleDbCommand command = new OleDbCommand(queryString, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
-
                 // Open the connection in a try/catch block
                 try
                 {
+                    // Create the Command and Parameter objects
+                    OleDbCommand command = new OleDbCommand(m_strQuery, connection);
+                    command.Parameters.AddWithValue("@pricePoint", paramValue);
+                    // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
+
                     // Create and execute the DataReader, writing the result to the console window
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+                    int recordsRead = 0;
                     connection.Open();
                     OleDbDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        Console.WriteLine("\t{0}\t{1}\t{2}",
+                        recordsRead++;
+                        Console.WriteLine("\t{0}\t\t{1}\t\t{2}",
                             reader[0], reader[1], reader[2]);
                     }
                     reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
                 }
                 catch (Exception ex)
                 {
@@ -228,6 +308,93 @@ namespace SimpleDbReader
             }
 
             Console.WriteLine();
+        }
+
+        private void TestDB_OleDB_Connect_DataSet(string strConnection)
+        {
+            // This version uses:
+            // * System.Data.DataSet
+            // * System.Data.OleDb.OleDbDataAdapter
+            // * System.Data.DataRow
+
+            // Specify the parameter value
+            int paramValue = 5;
+
+            // Create and open the connection in a using bloc
+            using (OleDbConnection connection = new OleDbConnection(strConnection))
+            {
+                try
+                {
+                    // Create and fill the DataSet, writing the result to the console window
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+                    int recordsRead = 0;
+                    connection.Open();
+                    DataSet ds = new DataSet();
+                    OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
+                    adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = paramValue;
+                    adapter.Fill(ds);
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        recordsRead++;
+                        Console.WriteLine("\t{0}\t\t{1}\t\t{2}",
+                            row["ProductID"],
+                            row["UnitPrice"],
+                            row["ProductName"]);
+                    }
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        private int TestDB_OleDB_Connect_Performance(string strConnection)
+        {
+            // Version for performance testing
+            int recordsRead = 0;
+            int paramValue = 5;
+            using (OleDbConnection connection = new OleDbConnection(strConnection))
+            {
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create the Command and Parameter objects
+                    OleDbCommand command = new OleDbCommand(m_strQuery, connection);
+                    command.Parameters.AddWithValue("@pricePoint", paramValue);
+
+                    // Create and execute the DataReader; for this performance version just count
+                    // the number of records read
+                    connection.Open();
+                    OleDbDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                    }
+                    reader.Close();
+
+                    // To test using OleDbDataAdapter, uncomment this:
+                    /*connection.Open();
+                    DataSet ds = new DataSet();
+                    OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
+                    adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = paramValue;
+                    adapter.Fill(ds);
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        recordsRead++;
+                    }*/
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return recordsRead;
         }
 
         private void TestDB_ODBC()
@@ -242,10 +409,39 @@ namespace SimpleDbReader
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                    TestDB_ODBC_Connect(strConnection, DatabaseTechnology.eDB_ODBC);
+                    TestDB_ODBC_Connect(strConnection);
             }
 
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###");
+        }
+
+        private void TestDB_ODBC_Performance()
+        {
+            // System.Data.Odbc.OdbcConnection
+            Console.WriteLine("### START: ODBC - Performance tests ###");
+
+            // See "TestDB_OleDbConnection" for details on databases
+            string strConnection = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
+                   {
+                    int totalRecordsRead = 0;
+                    int startTicks = Environment.TickCount;
+                    for (int loop = 0; loop < m_nLoops; loop++)
+                        totalRecordsRead += TestDB_ODBC_Connect_Performance(strConnection);
+
+                    int elapsedTicks = (Environment.TickCount - startTicks);
+                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                        m_nLoops,
+                        elapsedTicks,
+                        (float)elapsedTicks/(float)m_nLoops,
+                        (float)totalRecordsRead/(float)m_nLoops);
+                }
+            }
+
+            Console.WriteLine("### END: ODBC - Performance tests ###");
         }
 
         private bool TestDB_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
@@ -316,32 +512,70 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_ODBC_Connect(string strConnection, DatabaseTechnology eDatabaseType)
+        private void TestDB_ODBC_Connect(string strConnection)
         {
-            // Provide the query string with a parameter placeholder
-            string queryString = HelperGetQueryString();
-
             // Specify the parameter value
             int paramValue = 5;
 
             // Create and open the connection in a using block. This ensures that all resources
             // will be closed and disposed when the code exits.
-            using (OdbcConnection  connection = new OdbcConnection(strConnection))
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
-                OdbcCommand  command = new OdbcCommand(queryString, connection);
+                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
                 command.Parameters.AddWithValue("@pricePoint", paramValue);
 
                 // Open the connection in a try/catch block
                 try
                 {
                     // Create and execute the DataReader, writing the result to the console window
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+                    int recordsRead = 0;
                     connection.Open();
-                    OdbcDataReader  reader = command.ExecuteReader();
+                    OdbcDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        Console.WriteLine("\t{0}\t{1:0.0}\t{2}",
+                        recordsRead++;
+                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
                             reader[0], reader[1], reader[2]);
+                    }
+                    reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        private int TestDB_ODBC_Connect_Performance(string strConnection)
+        {
+            // Version for performance testing
+            int recordsRead = 0;
+            int paramValue = 5;
+
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader; for this performance version just count
+                    // the number of records read
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
                     }
                     reader.Close();
                 }
@@ -351,7 +585,7 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine();
+            return recordsRead;
         }
 
         // Helper methods
@@ -402,16 +636,38 @@ namespace SimpleDbReader
             return strName;
         }
 
-        private string HelperGetQueryString()
+        private string HelperGetQueryString(QueryType eQuery)
         {
             // Use a standard query string while accessing the demo Northwind databases
-            return (
-                "SELECT ProductID, UnitPrice, ProductName FROM Products " +
-                "WHERE UnitPrice > ? " +
-                "ORDER BY UnitPrice DESC;");
+            // Note: The "@pricePoint" 
+            string sqlQuery = string.Empty;
+            switch (eQuery)
+            {
+                case QueryType.eQueryStd:
+                default:
+                    // This query is taken directly from the online tutorial
+                    sqlQuery = (
+                        "SELECT ProductID, UnitPrice, ProductName FROM Products " +
+                        "WHERE UnitPrice > ? " +
+                        "ORDER BY UnitPrice DESC;");
+                    break;
 
-            // Add comments into SQL statements with "--" (single line only) or "/*...*/" (can span multi-lines):
-            //string sqlWithComments =
+                case QueryType.eQueryLike:
+                    // Testing the "LIKE" operator of the WHERE clause. This query might return:
+                    // * Vegie-spread
+                    // * Grandma's Boysenberry Spread
+                    // * Scottish Longbreads
+                    sqlQuery = (
+                        "SELECT ProductID, UnitPrice, ProductName FROM Products " +
+                        "WHERE ProductName LIKE '%read%' " +
+                        "ORDER BY UnitPrice DESC;");
+                    break;
+            }
+
+            return sqlQuery;
+
+            // Comments in SQL statements: Use "--" (single line only) or "/*...*/" (can span multi-lines):
+            //  string sqlWithComments =
             //    "SELECT ProductID, UnitPrice FROM Products  -- Select two columns from the products table" +
             //    "WHERE UnitPrice > ?                        -- Only choose rows where the unit price is NOT null" +
             //    "ORDER BY UnitPrice DESC;                   -- Order rows by the UnitPrice";

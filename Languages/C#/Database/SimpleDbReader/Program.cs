@@ -30,6 +30,16 @@ namespace SimpleDbReader
             m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
             Console.WriteLine();
 
+            // Run some performance tests
+            m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_OleDB);
+            m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_ODBC);
+            Console.WriteLine();
+
+            // Demonstrate different query strings
+            Console.WriteLine("Query using the WHERE clause 'LIKE' operator:");
+            m_db.UpdateQuery(QueryType.eQueryLike);
+            m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
+
             // Complete!
             Console.Write("Press any key to exit...");
             Console.ReadLine();
