@@ -25,10 +25,10 @@ namespace SimpleDbReader
         private string m_strDevDataPath = string.Empty;
         private DatabaseTechnology m_tech = DatabaseTechnology.eDB_Unknown;
 
-        // Example of using 
-        private string[] sportTypes = { "Baseball", "Basketball", "Football",
-                              "Hockey", "Soccer", "Tennis",
-                              "Volleyball" };
+        // Example ofr using indexed property accesors
+        private string[] sportTypes = {
+            "Baseball", "Basketball", "Chess", "Football", "Hockey",
+            "Rugby", "Soccer", "Tennis", "Volleyball" };
         #endregion  // Member variables
 
         // Constructor
