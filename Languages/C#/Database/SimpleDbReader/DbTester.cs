@@ -101,12 +101,16 @@ namespace SimpleDbReader
             m_tech = eTechnology;
             switch (eTechnology)
             {
-                case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB();
+                case DatabaseTechnology.eDB_DAO:
+                    TestDB_DAO();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
                     TestDB_ODBC();
+                    break;
+
+                case DatabaseTechnology.eDB_OleDB:
+                    TestDB_OleDB();
                     break;
 
                 default:
@@ -138,6 +142,319 @@ namespace SimpleDbReader
         // End: Methods (public)
 
         // Start: Methods (private)
+        private void TestDB_DAO()
+        {
+            // DAO
+            Console.WriteLine("### START: DAO ###");
+
+            // See the class constructor for details on databases
+            string strDatabase = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                    TestDB_DAO_Connect(strDatabase);
+            }
+
+            Console.WriteLine("### END: DAO ###");
+        }
+
+        private bool TestDB_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
+        {
+            // DAO: Set up the name of the Access database
+            bool bHaveConnectionString = true;
+            switch (type)
+            {
+                case AccessDbType.eAccess97:
+                    // 32-bit only
+                    if (!m_b64bit)
+                        strDatabase = (DevDataPath + "\\Northwind 97.mdb");
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                    }
+                    break;
+
+                case AccessDbType.eAccess2000:
+                    // 32-bit only
+                    if (!m_b64bit)
+                        strDatabase = (DevDataPath + "\\Northwind 2000.mdb");
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                        // Error same as for Access 97
+                    }
+                    break;
+
+                case AccessDbType.eAccess2007_2016:
+                    // 64-bit only
+                    if (!m_b64bit)
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(type, false));
+                        // Error same as for Access 97
+                    }
+                    else
+                        strDatabase = (DevDataPath + "\\2007-2016");
+
+                    break;
+
+                default:
+                    bHaveConnectionString = false;
+                    break;
+            }
+
+            // Example, Access 97: C:\Apps\Data\Northwind 97.mdb
+            return bHaveConnectionString;
+        }
+
+        private void TestDB_DAO_Connect(string strDatabase)
+        {
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
+
+            DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
+            DAO.Recordset rs = null;
+
+            m_strQuery = "SELECT * FROM Products";
+            rs = db.OpenRecordset(m_strQuery, DAO.RecordsetTypeEnum.dbOpenDynaset, DAO.RecordsetOptionEnum.dbReadOnly);
+            //rs = db.OpenRecordset(m_strQuery);
+
+            int Fred = 0;
+
+            /*DAO.DBEngine =  .OpenDatabase(SystemCore.SysInfo.DatabaseFile, false, false);
+
+            // Specify the parameter value
+            int paramValue = 5;
+
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader, writing the result to the console window
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+                    int recordsRead = 0;
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
+                            reader[0], reader[1], reader[2]);
+                    }
+                    reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();*/
+        }
+
+        private void TestDB_ODBC()
+        {
+            // System.Data.Odbc.OdbcConnection
+            // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection ###");
+
+            // See the class constructor for details on databases
+            string strConnection = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
+                    TestDB_ODBC_Connect(strConnection);
+            }
+
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###");
+        }
+
+        private void TestDB_ODBC_Performance()
+        {
+            // System.Data.Odbc.OdbcConnection
+            Console.WriteLine("### START: ODBC - Performance tests ###");
+
+            // See "TestDB_OleDbConnection" for details on databases
+            string strConnection = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
+                   {
+                    int totalRecordsRead = 0;
+                    int startTicks = Environment.TickCount;
+                    for (int loop = 0; loop < m_nLoops; loop++)
+                        totalRecordsRead += TestDB_ODBC_Connect_Performance(strConnection);
+
+                    int elapsedTicks = (Environment.TickCount - startTicks);
+                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                        m_nLoops,
+                        elapsedTicks,
+                        (float)elapsedTicks/(float)m_nLoops,
+                        (float)totalRecordsRead/(float)m_nLoops);
+                }
+            }
+
+            Console.WriteLine("### END: ODBC - Performance tests ###");
+        }
+
+        private bool TestDB_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
+        {
+            // ODBC: Set up the connection string based on the version of the Access database
+            bool bHaveConnectionString = true;
+            string strDataDriver = "Driver=";
+            string strDataSource = ("Dbq=" + DevDataPath);
+            switch (type)
+            {
+                case AccessDbType.eAccess97:
+                    // 32-bit only
+                    if (!m_b64bit)
+                    {
+                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
+                        strDataSource += "\\Northwind 97.mdb;";
+                    }
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                        // Error is "ERROR [IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified"
+                    }
+                    break;
+
+                case AccessDbType.eAccess2000:
+                    // 32-bit only
+                    if (!m_b64bit)
+                    {
+                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
+                        strDataSource += "\\Northwind 2000.mdb;";
+                    }
+                    else
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
+                        // Error same as for Access 97
+                    }
+                    break;
+
+                case AccessDbType.eAccess2007_2016:
+                    // 64-bit only
+                    if (!m_b64bit)
+                    {
+                        bHaveConnectionString = false;
+                        Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(type, false));
+                        // Error same as for Access 97
+                    }
+                    else
+                    {
+                        strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
+                        strDataSource += "\\Northwind 2007-2016.accdb;";
+                    }
+
+                    break;
+
+                default:
+                    bHaveConnectionString = false;
+                    break;
+            }
+
+            if (bHaveConnectionString)
+                strConnection = (strDataDriver + strDataSource + "Uid=Admin;Pwd=;");
+
+            // Example, Access 97:
+            //      Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\Northwind 97.mdb;Uid=Admin;Pwd=;
+
+            return bHaveConnectionString;
+        }
+
+        private void TestDB_ODBC_Connect(string strConnection)
+        {
+            // Specify the parameter value
+            int paramValue = 5;
+
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader, writing the result to the console window
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+                    int recordsRead = 0;
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
+                            reader[0], reader[1], reader[2]);
+                    }
+                    reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        private int TestDB_ODBC_Connect_Performance(string strConnection)
+        {
+            // Version for performance testing
+            int recordsRead = 0;
+            int paramValue = 5;
+
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader; for this performance version just count
+                    // the number of records read
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return recordsRead;
+        }
+
         private void TestDB_OleDB()
         {
             //  System.Data.OleDb.OleDbCommand
@@ -189,7 +506,7 @@ namespace SimpleDbReader
 
         private bool TestDB_OleDB_SetConnectionString(AccessDbType type, ref string strConnection)
         {
-            // Set up the connection string based on the version of the Access database
+            // OleDB: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
             string strDataDriver = "Provider=";
             string strDataSource = ("Data Source=" + DevDataPath);
@@ -387,197 +704,6 @@ namespace SimpleDbReader
                     {
                         recordsRead++;
                     }*/
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return recordsRead;
-        }
-
-        private void TestDB_ODBC()
-        {
-            // System.Data.Odbc.OdbcConnection
-            // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
-            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection ###");
-
-            // See the class constructor for details on databases
-            string strConnection = string.Empty;
-            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
-            {
-                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                    TestDB_ODBC_Connect(strConnection);
-            }
-
-            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###");
-        }
-
-        private void TestDB_ODBC_Performance()
-        {
-            // System.Data.Odbc.OdbcConnection
-            Console.WriteLine("### START: ODBC - Performance tests ###");
-
-            // See "TestDB_OleDbConnection" for details on databases
-            string strConnection = string.Empty;
-            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
-            {
-                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                   {
-                    int totalRecordsRead = 0;
-                    int startTicks = Environment.TickCount;
-                    for (int loop = 0; loop < m_nLoops; loop++)
-                        totalRecordsRead += TestDB_ODBC_Connect_Performance(strConnection);
-
-                    int elapsedTicks = (Environment.TickCount - startTicks);
-                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
-                        m_nLoops,
-                        elapsedTicks,
-                        (float)elapsedTicks/(float)m_nLoops,
-                        (float)totalRecordsRead/(float)m_nLoops);
-                }
-            }
-
-            Console.WriteLine("### END: ODBC - Performance tests ###");
-        }
-
-        private bool TestDB_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
-        {
-            // Set up the connection string based on the version of the Access database
-            bool bHaveConnectionString = true;
-            string strDataDriver = "Driver=";
-            string strDataSource = ("Dbq=" + DevDataPath);
-            switch (type)
-            {
-                case AccessDbType.eAccess97:
-                    // 32-bit only
-                    if (!m_b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
-                        strDataSource += "\\Northwind 97.mdb;";
-                    }
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
-                        // Error is "ERROR [IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified"
-                    }
-                    break;
-
-                case AccessDbType.eAccess2000:
-                    // 32-bit only
-                    if (!m_b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
-                        strDataSource += "\\Northwind 2000.mdb;";
-                    }
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(type, false));
-                        // Error same as for Access 97
-                    }
-                    break;
-
-                case AccessDbType.eAccess2007_2016:
-                    // 64-bit only
-                    if (!m_b64bit)
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(type, false));
-                        // Error same as for Access 97
-                    }
-                    else
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
-                        strDataSource += "\\Northwind 2007-2016.accdb;";
-                    }
-
-                    break;
-
-                default:
-                    bHaveConnectionString = false;
-                    break;
-            }
-
-            if (bHaveConnectionString)
-                strConnection = (strDataDriver + strDataSource + "Uid=Admin;Pwd=;");
-
-            // Example, Access 97:
-            //      Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\Northwind 97.mdb;Uid=Admin;Pwd=;
-
-            return bHaveConnectionString;
-        }
-
-        private void TestDB_ODBC_Connect(string strConnection)
-        {
-            // Specify the parameter value
-            int paramValue = 5;
-
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
-            {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
-
-                // Open the connection in a try/catch block
-                try
-                {
-                    // Create and execute the DataReader, writing the result to the console window
-                    Console.WriteLine("\t{0}\t{1}\t{2}",
-                        "ProductID", "UnitPrice", "ProductName");
-                    int recordsRead = 0;
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        recordsRead++;
-                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                            reader[0], reader[1], reader[2]);
-                    }
-                    reader.Close();
-                    Console.WriteLine("    ({0} records)", recordsRead);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            Console.WriteLine();
-        }
-
-        private int TestDB_ODBC_Connect_Performance(string strConnection)
-        {
-            // Version for performance testing
-            int recordsRead = 0;
-            int paramValue = 5;
-
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
-            {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
-
-                // Open the connection in a try/catch block
-                try
-                {
-                    // Create and execute the DataReader; for this performance version just count
-                    // the number of records read
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        recordsRead++;
-                    }
-                    reader.Close();
                 }
                 catch (Exception ex)
                 {

@@ -5,10 +5,11 @@
     // Enumerations
     public enum DatabaseTechnology
     {
-        // DB technology being tested
+        // DB technology being tested (approximate chronological order when they were introduced)
         eDB_Unknown,
-        eDB_OleDB,          // System.Data.OleDb.OleDbConnection
-        eDB_ODBC            // System.Data.Odbc.OdbcConnection
+        eDB_DAO,        // DAO (add reference to Microsoft DAO 3.6 Object Library)
+        eDB_ODBC,       // System.Data.Odbc.OdbcConnection
+        eDB_OleDB       // System.Data.OleDb.OleDbConnection
     };
 
     public enum QueryType
