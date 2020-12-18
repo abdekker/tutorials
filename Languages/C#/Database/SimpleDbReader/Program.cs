@@ -33,12 +33,14 @@ namespace SimpleDbReader
             m_db.OpenCloseDatabaseWithDAO();
             Console.WriteLine();
 
+            // Test some of the database technologies supported in VS 2019 and C#
             m_db.TestDbTechnology(DatabaseTechnology.eDB_DAO);
             m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
             m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
             Console.WriteLine();
 
             // Run some performance tests
+            m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_DAO);
             m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_ODBC);
             m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_OleDB);
             Console.WriteLine();
