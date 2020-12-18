@@ -5,7 +5,6 @@ using System.Data.Odbc;
 
 using systemHelperLibrary;
 using System.Linq.Expressions;
-using System.IO;
 
 namespace SimpleDbReader
 {
@@ -23,7 +22,7 @@ namespace SimpleDbReader
     class DbTester
     {
         #region Constants
-        const int cPerformanceLoops = 100;
+        const int cPerformanceLoops = 200;
         #endregion  // Constants
 
         #region Member variables
@@ -32,6 +31,13 @@ namespace SimpleDbReader
         private string m_strDevDataPath = string.Empty;
         private DatabaseTechnology m_tech = DatabaseTechnology.eDB_Unknown;
         private string m_strQuery;
+
+        // For the std query on the Northwind DB, records returned based on the parameter are:
+        //  Param    Records returned
+        //    5         75
+        //    25        28
+        //    40        12
+        private int m_paramValue = 5;
 
         // Perfomance tests
         private int m_nLoops = cPerformanceLoops;
