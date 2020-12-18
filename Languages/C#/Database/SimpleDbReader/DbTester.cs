@@ -156,12 +156,16 @@ namespace SimpleDbReader
 
             switch (eTechnology)
             {
-                case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB_Performance();
+                case DatabaseTechnology.eDB_DAO:
+                    TestDB_DAO_Performance();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
                     TestDB_ODBC_Performance();
+                    break;
+
+                case DatabaseTechnology.eDB_OleDB:
+                    TestDB_OleDB_Performance();
                     break;
 
                 default:
@@ -174,7 +178,7 @@ namespace SimpleDbReader
         // Start: Methods (private)
         private void TestDB_DAO()
         {
-            // DAO
+            // DAO (Data Access Objects)
             Console.WriteLine("### START: DAO ###");
 
             // See the class constructor for details on databases
@@ -186,7 +190,34 @@ namespace SimpleDbReader
                     TestDB_DAO_Connect(strDatabase);
             }
 
-            Console.WriteLine("### END: DAO ###");
+            Console.WriteLine("### END: DAO ###\n");
+        }
+
+        private void TestDB_DAO_Performance()
+        {
+            // DAO
+            Console.WriteLine("### START: DAO - Performance tests ###");
+            string strDatabase = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                   {
+                    int totalRecordsRead = 0;
+                    int startTicks = Environment.TickCount;
+                    for (int loop = 0; loop < m_nLoops; loop++)
+                        totalRecordsRead += TestDB_DAO_Connect_Performance(strDatabase);
+
+                    int elapsedTicks = (Environment.TickCount - startTicks);
+                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                        m_nLoops,
+                        elapsedTicks,
+                        (float)elapsedTicks/(float)m_nLoops,
+                        (float)totalRecordsRead/(float)m_nLoops);
+                }
+            }
+
+            Console.WriteLine("### END: DAO - Performance tests ###\n");
         }
 
         private bool TestDB_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
@@ -242,56 +273,77 @@ namespace SimpleDbReader
 
         private void TestDB_DAO_Connect(string strDatabase)
         {
+            // Use the DAO::DBEngine to open an Access database and read recordsets
+
+            // Note: On one machine running Windows 10 and Office 365, the DBEngine had these details:
+            // * TypeLib = {4AC9E1DA-5BAD-4AC7-86E3-24F4CDCECA28}
+            // * Name = Microsoft Office 16.0 Access Database Engine Object Library
+            // * Assembly = Microsoft.Office.Interop.Access.Dao, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71E9BCE111E9429C
+            // * Path = C:\Program Files\Microsoft Office\root\VFS\ProgramFilesCommonX64\Microsoft Shared\Office16\ACEDAO.DLL
             DAO.DBEngine dbEngine = new DAO.DBEngine();
             dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
 
             DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
-            DAO.Recordset rs = null;
-
-            m_strQuery = "SELECT * FROM Products";
-            rs = db.OpenRecordset(m_strQuery, DAO.RecordsetTypeEnum.dbOpenDynaset, DAO.RecordsetOptionEnum.dbReadOnly);
-            //rs = db.OpenRecordset(m_strQuery);
-
-            int Fred = 0;
-
-            /*DAO.DBEngine =  .OpenDatabase(SystemCore.SysInfo.DatabaseFile, false, false);
-
-            // Specify the parameter value
-            int paramValue = 5;
-
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            DAO.Recordset rs = db.OpenRecordset(
+                m_strQuery.Replace("?", m_paramValue.ToString()),
+                DAO.RecordsetTypeEnum.dbOpenDynaset,
+                DAO.RecordsetOptionEnum.dbReadOnly);
+            if (!(rs.BOF && rs.EOF))
             {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
+                // Go through each record in the RecordSet, writing the result to the console window
+                int recordsRead = 0;
+                Console.WriteLine("\t{0}\t{1}\t{2}",
+                    "ProductID", "UnitPrice", "ProductName");
 
-                // Open the connection in a try/catch block
-                try
+                rs.MoveFirst();
+                dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
+                while (!rs.EOF)
                 {
-                    // Create and execute the DataReader, writing the result to the console window
-                    Console.WriteLine("\t{0}\t{1}\t{2}",
-                        "ProductID", "UnitPrice", "ProductName");
-                    int recordsRead = 0;
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        recordsRead++;
-                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                            reader[0], reader[1], reader[2]);
-                    }
-                    reader.Close();
-                    Console.WriteLine("    ({0} records)", recordsRead);
+                    recordsRead++;
+                    Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
+                        (int)HelperSafeField(rs, "ProductID"),
+                        (Decimal)HelperSafeField(rs, "UnitPrice"),
+                        HelperSafeField(rs, "ProductName"));
+                    rs.MoveNext();
+                    dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                rs.Close();
+                Console.WriteLine("    ({0} records)", recordsRead);
             }
 
-            Console.WriteLine();*/
+            db.Close();
+            Console.WriteLine();
+        }
+
+        private int TestDB_DAO_Connect_Performance(string strDatabase)
+        {
+            // Version for performance testing
+            int recordsRead = 0;
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
+
+            DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
+            DAO.Recordset rs = db.OpenRecordset(
+                m_strQuery.Replace("?", m_paramValue.ToString()),
+                DAO.RecordsetTypeEnum.dbOpenDynaset,
+                DAO.RecordsetOptionEnum.dbReadOnly);
+            if (!(rs.BOF && rs.EOF))
+            {
+                // Go through each record in the RecordSet; for this performance version just count
+                // the number of records read
+                rs.MoveFirst();
+                dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
+                while (!rs.EOF)
+                {
+                    recordsRead++;
+                    rs.MoveNext();
+                    dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
+                }
+                rs.Close();
+            }
+
+            db.Close();
+            return recordsRead;
         }
 
         private void TestDB_ODBC()
@@ -309,21 +361,19 @@ namespace SimpleDbReader
                     TestDB_ODBC_Connect(strConnection);
             }
 
-            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###");
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###\n");
         }
 
         private void TestDB_ODBC_Performance()
         {
             // System.Data.Odbc.OdbcConnection
             Console.WriteLine("### START: ODBC - Performance tests ###");
-
-            // See "TestDB_OleDbConnection" for details on databases
             string strConnection = string.Empty;
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                   {
+                {
                     int totalRecordsRead = 0;
                     int startTicks = Environment.TickCount;
                     for (int loop = 0; loop < m_nLoops; loop++)
@@ -338,7 +388,7 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("### END: ODBC - Performance tests ###");
+            Console.WriteLine("### END: ODBC - Performance tests ###\n");
         }
 
         private bool TestDB_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
@@ -411,24 +461,22 @@ namespace SimpleDbReader
 
         private void TestDB_ODBC_Connect(string strConnection)
         {
-            // Specify the parameter value
-            int paramValue = 5;
-
             // Create and open the connection in a using block. This ensures that all resources
             // will be closed and disposed when the code exits.
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
                 OdbcCommand command = new OdbcCommand(m_strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
+                command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                 // Open the connection in a try/catch block
                 try
                 {
                     // Create and execute the DataReader, writing the result to the console window
+                    int recordsRead = 0;
                     Console.WriteLine("\t{0}\t{1}\t{2}",
                         "ProductID", "UnitPrice", "ProductName");
-                    int recordsRead = 0;
+
                     connection.Open();
                     OdbcDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -453,15 +501,11 @@ namespace SimpleDbReader
         {
             // Version for performance testing
             int recordsRead = 0;
-            int paramValue = 5;
-
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
                 OdbcCommand command = new OdbcCommand(m_strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", paramValue);
+                command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                 // Open the connection in a try/catch block
                 try
@@ -605,11 +649,7 @@ namespace SimpleDbReader
         {
             // This version uses System.Data.OleDb.OleDbDataReader
 
-            // Specify the parameter value. For the std query, records returned based on the parameter are:
-            //  Param    Records returned
-            //    5         75
-            //    25        28
-            //    40        12
+            // Specify the parameter value
             int paramValue = 5;
 
             // Create and open the connection in a using block. This ensures that all resources
@@ -634,9 +674,10 @@ namespace SimpleDbReader
                     // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
 
                     // Create and execute the DataReader, writing the result to the console window
+                    int recordsRead = 0;
                     Console.WriteLine("\t{0}\t{1}\t{2}",
                         "ProductID", "UnitPrice", "ProductName");
-                    int recordsRead = 0;
+
                     connection.Open();
                     OleDbDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -664,22 +705,20 @@ namespace SimpleDbReader
             // * System.Data.OleDb.OleDbDataAdapter
             // * System.Data.DataRow
 
-            // Specify the parameter value
-            int paramValue = 5;
-
             // Create and open the connection in a using bloc
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 try
                 {
                     // Create and fill the DataSet, writing the result to the console window
+                    int recordsRead = 0;
                     Console.WriteLine("\t{0}\t{1}\t{2}",
                         "ProductID", "UnitPrice", "ProductName");
-                    int recordsRead = 0;
+
                     connection.Open();
                     DataSet ds = new DataSet();
                     OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
-                    adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = paramValue;
+                    adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_paramValue;
                     adapter.Fill(ds);
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
@@ -704,7 +743,6 @@ namespace SimpleDbReader
         {
             // Version for performance testing
             int recordsRead = 0;
-            int paramValue = 5;
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 // Open the connection in a try/catch block
@@ -712,7 +750,7 @@ namespace SimpleDbReader
                 {
                     // Create the Command and Parameter objects
                     OleDbCommand command = new OleDbCommand(m_strQuery, connection);
-                    command.Parameters.AddWithValue("@pricePoint", paramValue);
+                    command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                     // Create and execute the DataReader; for this performance version just count
                     // the number of records read
@@ -725,15 +763,16 @@ namespace SimpleDbReader
                     reader.Close();
 
                     // To test using OleDbDataAdapter, uncomment this:
-                    /*connection.Open();
-                    DataSet ds = new DataSet();
-                    OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
-                    adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = paramValue;
-                    adapter.Fill(ds);
-                    foreach (DataRow row in ds.Tables[0].Rows)
-                    {
-                        recordsRead++;
-                    }*/
+                    /*  connection.Open();
+                        DataSet ds = new DataSet();
+                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
+                        adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_paramValue;
+                        adapter.Fill(ds);
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            recordsRead++;
+                        }
+                    */
                 }
                 catch (Exception ex)
                 {
@@ -755,7 +794,8 @@ namespace SimpleDbReader
                     strName = "Access 97";
                     if (bFullDescription)
                     {
-                        if (m_tech == DatabaseTechnology.eDB_OleDB)
+                        if ((m_tech == DatabaseTechnology.eDB_DAO) ||
+                            (m_tech == DatabaseTechnology.eDB_OleDB))
                             strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                         else if (m_tech == DatabaseTechnology.eDB_ODBC)
                             strName += " (32-bit using Microsoft Access Driver)";
@@ -766,7 +806,8 @@ namespace SimpleDbReader
                     strName = "Access 2000";
                     if (bFullDescription)
                     {
-                        if (m_tech == DatabaseTechnology.eDB_OleDB)
+                        if ((m_tech == DatabaseTechnology.eDB_DAO) ||
+                            (m_tech == DatabaseTechnology.eDB_OleDB))
                             strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                         else if (m_tech == DatabaseTechnology.eDB_ODBC)
                             strName += " (32-bit using Microsoft Access Driver)";
@@ -777,7 +818,8 @@ namespace SimpleDbReader
                     strName = "Access 2007-2016";
                     if (bFullDescription)
                     {
-                        if (m_tech == DatabaseTechnology.eDB_OleDB)
+                        if ((m_tech == DatabaseTechnology.eDB_DAO) ||
+                            (m_tech == DatabaseTechnology.eDB_OleDB))
                             strName += " (64-bit using Microsoft.ACE.OLEDB.16.0)";
                         else if (m_tech == DatabaseTechnology.eDB_ODBC)
                             strName += " (64-bit using Microsoft Access Driver)";
@@ -827,6 +869,19 @@ namespace SimpleDbReader
             //    "SELECT ProductID, UnitPrice FROM Products  -- Select two columns from the products table" +
             //    "WHERE UnitPrice > ?                        -- Only choose rows where the unit price is NOT null" +
             //    "ORDER BY UnitPrice DESC;                   -- Order rows by the UnitPrice";
+        }
+
+        private object HelperSafeField(DAO.Recordset rs, string strField)
+        {
+            // Helper function for DAO recordsets which may contain a null value
+            object objResult = null;
+            try
+            {
+                if (rs.Fields[strField].Value != null)
+                    objResult = rs.Fields[strField].Value;
+            }
+            catch { }
+            return objResult;
         }
         // End: Methods (private)
     }
