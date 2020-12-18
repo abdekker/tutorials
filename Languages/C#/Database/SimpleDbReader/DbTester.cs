@@ -101,6 +101,27 @@ namespace SimpleDbReader
             m_strQuery = HelperGetQueryString(eQuery);
         }
 
+        public void OpenCloseDatabaseWithDAO()
+        {
+            Console.WriteLine("    (Dummy open and close databases using DAO)");
+            int startTicks = Environment.TickCount;
+            string strDatabase = string.Empty;
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            DAO.Database db = null;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                {
+                    db = dbEngine.OpenDatabase(strDatabase, false, false);
+                    db.Close();
+                }
+            }
+
+            int elapsedTicks = (Environment.TickCount - startTicks);
+            Console.WriteLine("    (Completed dummy open/close. Took {0}ms.)", elapsedTicks);
+        }
+
         public void TestDbTechnology(DatabaseTechnology eTechnology)
         {
             // Test one of the database technologies available in .NET
