@@ -151,6 +151,9 @@ namespace SimpleDbReader
             // This version runs some performance tests
             m_tech = eTechnology;
             m_nLoops = nLoops;
+            if (m_nLoops <= 0)
+                m_nLoops = 1;
+
             switch (eTechnology)
             {
                 case DatabaseTechnology.eDB_OleDB:
