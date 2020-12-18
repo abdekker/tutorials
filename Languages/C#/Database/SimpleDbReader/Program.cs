@@ -25,7 +25,14 @@ namespace SimpleDbReader
 
             Console.WriteLine();
 
-            // Test one of the database technologies supported in VS 2019 and C#
+            // Perform a dummy open and close of each database in DAO. For an unknown reason (to be
+            // investigated) this makes subsequent access using ODBC and OleDB faster. This might be
+            // related to Windows caching the database file in memory or DAO performing some obscure
+            // database caching operation.
+            Console.WriteLine("Open and close each database once with DAO...");
+            m_db.OpenCloseDatabaseWithDAO();
+            Console.WriteLine();
+
             m_db.TestDbTechnology(DatabaseTechnology.eDB_DAO);
             m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
             m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
