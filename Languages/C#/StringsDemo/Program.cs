@@ -70,6 +70,21 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
+        private static void OutputInfo_Boolean()
+        {
+            // Formatting boolean values
+            Console.WriteLine("# Booleans #");
+            bool bFalse = false;
+            bool bTrue = true;
+            int nonZero = 1;
+            Console.WriteLine("(A = {0}, B = {1}, C = {2})", bFalse, bTrue, nonZero);
+            Console.WriteLine("  (false):\t{0}", bFalse);
+            Console.WriteLine("  (true):\t{0}", bTrue);
+            Console.WriteLine("  (int == 0):\t{0}", (nonZero == 0));
+            Console.WriteLine("  (int != 0):\t{0}", (nonZero != 0));
+            Console.WriteLine();
+        }
+
         private static void OutputInfo_Integer()
         {
             // Formatting integers
@@ -157,9 +172,11 @@ namespace StringsDemo
             Console.WriteLine();    // Or "Console.Write(Environment.NewLine)"
             OutputInfo_Basic();
             OutputInfo_String();
+            OutputInfo_Boolean();
             OutputInfo_Integer();
             OutputInfo_Float();
             OutputInfo_Double();
+            Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
         }
     }
