@@ -64,18 +64,18 @@ namespace SimpleDbReader
             // Use some database technologies to write some records
             if ((m_tests & cBasicWrite) != 0)
             {
-                m_db.TestDbRead(DatabaseTechnology.eDB_DAO);
-                m_db.TestDbRead(DatabaseTechnology.eDB_ODBC);
-                m_db.TestDbRead(DatabaseTechnology.eDB_OleDB);
+                m_db.TestDbWrite(DatabaseTechnology.eDB_DAO);
+                m_db.TestDbWrite(DatabaseTechnology.eDB_ODBC);
+                m_db.TestDbWrite(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
             // Run some performance tests
             if ((m_tests & cPerformanceTests) != 0)
             {
-                m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_DAO);
-                m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_ODBC);
-                m_db.TestDbTechnologyPerformance(DatabaseTechnology.eDB_OleDB);
+                m_db.TestDbPerformance(DatabaseTechnology.eDB_DAO);
+                m_db.TestDbPerformance(DatabaseTechnology.eDB_ODBC);
+                m_db.TestDbPerformance(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 

@@ -124,7 +124,7 @@ namespace SimpleDbReader
 
         public void TestDbRead(DatabaseTechnology eTechnology)
         {
-            // Test one of the database technologies available in .NET
+            // Test one of the database technologies available in .NET (reading)
             m_tech = eTechnology;
             switch (eTechnology)
             {
@@ -146,7 +146,31 @@ namespace SimpleDbReader
             }
         }
 
-        public void TestDbTechnologyPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)
+        public void TestDbWrite(DatabaseTechnology eTechnology)
+        {
+            // Test one of the database technologies available in .NET (writing)
+            m_tech = eTechnology;
+            switch (eTechnology)
+            {
+                case DatabaseTechnology.eDB_DAO:
+                    TestDB_DAO_Write();
+                    break;
+
+                case DatabaseTechnology.eDB_ODBC:
+                    TestDB_ODBC_Write();
+                    break;
+
+                case DatabaseTechnology.eDB_OleDB:
+                    TestDB_OleDB_Write();
+                    break;
+
+                default:
+                    Console.WriteLine("Unknown DB technology: {0} ({1})\n", eTechnology, (int)eTechnology);
+                    break;
+            }
+        }
+
+        public void TestDbPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)
         {
             // This version runs some performance tests
             m_tech = eTechnology;
@@ -191,6 +215,10 @@ namespace SimpleDbReader
             }
 
             Console.WriteLine("### END: DAO ###\n");
+        }
+
+        private void TestDB_DAO_Write()
+        {
         }
 
         private void TestDB_DAO_Performance()
@@ -362,6 +390,10 @@ namespace SimpleDbReader
             }
 
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###\n");
+        }
+
+        private void TestDB_ODBC_Write()
+        {
         }
 
         private void TestDB_ODBC_Performance()
@@ -549,6 +581,10 @@ namespace SimpleDbReader
             }
 
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###\n");
+        }
+
+        private void TestDB_OleDB_Write()
+        {
         }
 
         private void TestDB_OleDB_Performance()
