@@ -30,7 +30,8 @@ namespace SimpleDbReader
         private bool m_b64bit = false;
         private string m_strDevDataPath = string.Empty;
         private DatabaseTechnology m_tech = DatabaseTechnology.eDB_Unknown;
-        private string m_strQuery;
+        private string m_strQuerySimple;
+        private string m_strQueryNorthwind;
 
         // For the std query on the Northwind DB, records returned based on the parameter are:
         //  Param    Records returned
@@ -92,16 +93,112 @@ namespace SimpleDbReader
             m_b64bit = SystemLibrary.Is64Bit();
 
             // Set a generic query string
-            m_strQuery = HelperGetQueryString(QueryType.eQueryStd);
+            m_strQueryNorthwind = HelperGetQueryString(QueryType.eQueryStd);
         }
 
         public void UpdateQuery(QueryType eQuery)
         {
             // Update the generic query string
-            m_strQuery = HelperGetQueryString(eQuery);
+            m_strQueryNorthwind = HelperGetQueryString(eQuery);
         }
 
-        public void OpenCloseDatabaseWithDAO()
+        public void SimpleRead()
+        {
+            // DAO (Data Access Objects)
+            Console.WriteLine("### START: DAO (read) ###");
+
+            // See the class constructor for details on databases
+            string strDatabase = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (Simple_DAO_SetDatabaseString(type, ref strDatabase))
+                    Simple_DAO_Connect_Read(strDatabase);
+            }
+
+            Console.WriteLine("### END: DAO (read) ###\n");
+        }
+
+        public void SimpleWrite()
+        {
+        }
+
+        private bool Simple_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
+        {
+            // DAO: Set up the name (or connection string) for the simple Access database
+            bool bHaveConnectionString = true;
+            switch (type)
+            {
+                case AccessDbType.eAccess97:
+                    // 32-bit only
+                    if (!m_b64bit)
+                        strDatabase = (DevDataPath + "\\SimpleTest.mdb");
+                    else
+                        bHaveConnectionString = false;
+                    break;
+
+                case AccessDbType.eAccess2000:
+                    // 32-bit only
+                    if (!m_b64bit)
+                        strDatabase = (DevDataPath + "\\SimpleTest.mdb");
+                    else
+                        bHaveConnectionString = false;
+                    break;
+
+                case AccessDbType.eAccess2007_2016:
+                    // 64-bit only
+                    if (!m_b64bit)
+                        bHaveConnectionString = false;
+                    else
+                        strDatabase = (DevDataPath + "\\SimpleTest.mdb");
+
+                    break;
+
+                default:
+                    bHaveConnectionString = false;
+                    break;
+            }
+
+            return bHaveConnectionString;
+        }
+
+        private void Simple_DAO_Connect_Read(string strDatabase)
+        {
+            // Use the DAO::DBEngine to open a sample Access database
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
+            DAO.Recordset rs = db.OpenRecordset(
+                m_strQueryNorthwind.Replace("?", m_paramValue.ToString()),
+                DAO.RecordsetTypeEnum.dbOpenDynaset,
+                DAO.RecordsetOptionEnum.dbReadOnly);
+            if (!(rs.BOF && rs.EOF))
+            {
+                // Go through each record in the RecordSet, writing the result to the console window
+                int recordsRead = 0;
+                Console.WriteLine("\t{0}\t{1}\t{2}",
+                    "ProductID", "UnitPrice", "ProductName");
+
+                rs.MoveFirst();
+                dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
+                while (!rs.EOF)
+                {
+                    recordsRead++;
+                    Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
+                        (int)HelperSafeGetFieldValue(rs, "ProductID"),
+                        (Decimal)HelperSafeGetFieldValue(rs, "UnitPrice"),
+                        HelperSafeGetFieldValue(rs, "ProductName"));
+                    rs.MoveNext();
+                    dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
+                }
+                rs.Close();
+                Console.WriteLine("    ({0} records)", recordsRead);
+            }
+
+            db.Close();
+            Console.WriteLine();
+        }
+
+        public void NorthwindOpenCloseWithDAO()
         {
             Console.WriteLine("    (Dummy open and close databases using DAO)");
             int startTicks = Environment.TickCount;
@@ -111,7 +208,7 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                if (Northwind_DAO_SetDatabaseString(type, ref strDatabase))
                 {
                     db = dbEngine.OpenDatabase(strDatabase, false, false);
                     db.Close();
@@ -122,22 +219,22 @@ namespace SimpleDbReader
             Console.WriteLine("    (Completed dummy open/close. Took {0}ms.)", elapsedTicks);
         }
 
-        public void TestDbRead(DatabaseTechnology eTechnology)
+        public void NorthwindRead(DatabaseTechnology eTechnology)
         {
             // Test one of the database technologies available in .NET (reading)
             m_tech = eTechnology;
             switch (eTechnology)
             {
                 case DatabaseTechnology.eDB_DAO:
-                    TestDB_DAO_Read();
+                    Northwind_DAO_Read();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
-                    TestDB_ODBC_Read();
+                    Northwind_ODBC_Read();
                     break;
 
                 case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB_Read();
+                    Northwind_OleDB_Read();
                     break;
 
                 default:
@@ -146,22 +243,22 @@ namespace SimpleDbReader
             }
         }
 
-        public void TestDbWrite(DatabaseTechnology eTechnology)
+        public void NorthwindWrite(DatabaseTechnology eTechnology)
         {
             // Test one of the database technologies available in .NET (writing)
             m_tech = eTechnology;
             switch (eTechnology)
             {
                 case DatabaseTechnology.eDB_DAO:
-                    TestDB_DAO_Write();
+                    Northwind_DAO_Write();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
-                    TestDB_ODBC_Write();
+                    Northwind_ODBC_Write();
                     break;
 
                 case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB_Write();
+                    Northwind_OleDB_Write();
                     break;
 
                 default:
@@ -170,7 +267,7 @@ namespace SimpleDbReader
             }
         }
 
-        public void TestDbPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)
+        public void NorthwindPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)
         {
             // This version runs some performance tests
             m_tech = eTechnology;
@@ -181,15 +278,15 @@ namespace SimpleDbReader
             switch (eTechnology)
             {
                 case DatabaseTechnology.eDB_DAO:
-                    TestDB_DAO_Performance();
+                    Northwind_DAO_Performance();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
-                    TestDB_ODBC_Performance();
+                    Northwind_ODBC_Performance();
                     break;
 
                 case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB_Performance();
+                    Northwind_OleDB_Performance();
                     break;
 
                 default:
@@ -200,7 +297,7 @@ namespace SimpleDbReader
         // End: Methods (public)
 
         // Start: Methods (private)
-        private void TestDB_DAO_Read()
+        private void Northwind_DAO_Read()
         {
             // DAO (Data Access Objects)
             Console.WriteLine("### START: DAO (read) ###");
@@ -210,14 +307,14 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
-                    TestDB_DAO_Connect_Read(strDatabase);
+                if (Northwind_DAO_SetDatabaseString(type, ref strDatabase))
+                    Northwind_DAO_Connect_Read(strDatabase);
             }
 
             Console.WriteLine("### END: DAO (read) ###\n");
         }
 
-        private void TestDB_DAO_Write()
+        private void Northwind_DAO_Write()
         {
             // DAO (Data Access Objects)
             Console.WriteLine("### START: DAO (write) ###");
@@ -227,14 +324,14 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
-                    TestDB_DAO_Connect_Write(strDatabase);
+                if (Northwind_DAO_SetDatabaseString(type, ref strDatabase))
+                    Northwind_DAO_Connect_Write(strDatabase);
             }
 
             Console.WriteLine("### END: DAO (write) ###\n");
         }
 
-        private void TestDB_DAO_Performance()
+        private void Northwind_DAO_Performance()
         {
             // DAO
             Console.WriteLine("### START: DAO - Performance tests ###");
@@ -242,12 +339,12 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                if (Northwind_DAO_SetDatabaseString(type, ref strDatabase))
                    {
                     int totalRecordsRead = 0;
                     int startTicks = Environment.TickCount;
                     for (int loop = 0; loop < m_nLoops; loop++)
-                        totalRecordsRead += TestDB_DAO_Connect_Performance(strDatabase);
+                        totalRecordsRead += Northwind_DAO_Connect_Performance(strDatabase);
 
                     int elapsedTicks = (Environment.TickCount - startTicks);
                     Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
@@ -261,7 +358,7 @@ namespace SimpleDbReader
             Console.WriteLine("### END: DAO - Performance tests ###\n");
         }
 
-        private bool TestDB_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
+        private bool Northwind_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
         {
             // DAO: Set up the name (or connection string) for the Access database
             bool bHaveConnectionString = true;
@@ -312,7 +409,7 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_DAO_Connect_Read(string strDatabase)
+        private void Northwind_DAO_Connect_Read(string strDatabase)
         {
             // Use the DAO::DBEngine to open an Access database and read recordsets
 
@@ -326,7 +423,7 @@ namespace SimpleDbReader
 
             DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
             DAO.Recordset rs = db.OpenRecordset(
-                m_strQuery.Replace("?", m_paramValue.ToString()),
+                m_strQueryNorthwind.Replace("?", m_paramValue.ToString()),
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
@@ -342,9 +439,9 @@ namespace SimpleDbReader
                 {
                     recordsRead++;
                     Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                        (int)HelperSafeField(rs, "ProductID"),
-                        (Decimal)HelperSafeField(rs, "UnitPrice"),
-                        HelperSafeField(rs, "ProductName"));
+                        (int)HelperSafeGetFieldValue(rs, "ProductID"),
+                        (Decimal)HelperSafeGetFieldValue(rs, "UnitPrice"),
+                        HelperSafeGetFieldValue(rs, "ProductName"));
                     rs.MoveNext();
                     dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 }
@@ -356,17 +453,18 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        private void TestDB_DAO_Connect_Write(string strDatabase)
+        private void Northwind_DAO_Connect_Write(string strDatabase)
         {
             // Use the DAO::DBEngine to open an Access database and write recordsets
             DAO.DBEngine dbEngine = new DAO.DBEngine();
             dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
 
             DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
+            string strQuery = m_strQueryNorthwind.Replace("?", m_paramValue.ToString());
 
             Console.Write("Open database read-only: ");
             DAO.Recordset rs = db.OpenRecordset(
-                m_strQuery.Replace("?", m_paramValue.ToString()),
+                strQuery,
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
@@ -377,11 +475,40 @@ namespace SimpleDbReader
 
             Console.Write("Open database writeable: ");
             rs = db.OpenRecordset(
-                m_strQuery.Replace("?", m_paramValue.ToString()),
+                strQuery,
                 DAO.RecordsetTypeEnum.dbOpenDynaset);
             if (!(rs.BOF && rs.EOF))
             {
                 Console.WriteLine(HelperIsRecordsetUpdateable(rs));
+                Console.WriteLine();
+
+                // Now go through all records and check various properties
+                int recordsRead = 0;
+                Console.WriteLine("  (Using the \"ProductName\" field as an example)");
+                Console.WriteLine(
+                    "#\tRequired\tValidateOnSet\tValidationRule\tValidationText\tSize\tValue");
+                DAO.Field fd = null;
+                rs.MoveFirst();
+                while (!rs.EOF)
+                {
+                    recordsRead++;
+                    fd = HelperSafeGetField(rs, "ProductName");
+                    if (fd != null)
+                    {
+                        Console.WriteLine("{0}\t{1}\t\t{2}\t\t{3}\t\t{4}\t\t{5}\t{6}",
+                            recordsRead,
+                            fd.Required,
+                            HelperBoolFieldToString(fd.ValidateOnSet),
+                            HelperStringFieldToString(fd.ValidationRule),
+                            HelperStringFieldToString(fd.ValidationText),
+                            fd.Size,
+                            fd.Value);
+                    }
+                    else
+                        Console.WriteLine("{0}(record is null)", recordsRead);
+
+                    rs.MoveNext();
+                }
                 rs.Close();
             }
 
@@ -389,7 +516,7 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        private int TestDB_DAO_Connect_Performance(string strDatabase)
+        private int Northwind_DAO_Connect_Performance(string strDatabase)
         {
             // Version for performance testing
             int recordsRead = 0;
@@ -398,7 +525,7 @@ namespace SimpleDbReader
 
             DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
             DAO.Recordset rs = db.OpenRecordset(
-                m_strQuery.Replace("?", m_paramValue.ToString()),
+                m_strQueryNorthwind.Replace("?", m_paramValue.ToString()),
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
@@ -420,7 +547,7 @@ namespace SimpleDbReader
             return recordsRead;
         }
 
-        private void TestDB_ODBC_Read()
+        private void Northwind_ODBC_Read()
         {
             // System.Data.Odbc.OdbcConnection
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
@@ -431,14 +558,14 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                    TestDB_ODBC_Connect_Read(strConnection);
+                if (Northwind_ODBC_SetConnectionString(type, ref strConnection))
+                    Northwind_ODBC_Connect_Read(strConnection);
             }
 
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (read) ###\n");
         }
 
-        private void TestDB_ODBC_Write()
+        private void Northwind_ODBC_Write()
         {
             // System.Data.Odbc.OdbcConnection
             Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (write) ###");
@@ -446,7 +573,7 @@ namespace SimpleDbReader
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (write) ###\n");
         }
 
-        private void TestDB_ODBC_Performance()
+        private void Northwind_ODBC_Performance()
         {
             // System.Data.Odbc.OdbcConnection
             Console.WriteLine("### START: ODBC - Performance tests ###");
@@ -454,12 +581,12 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
+                if (Northwind_ODBC_SetConnectionString(type, ref strConnection))
                 {
                     int totalRecordsRead = 0;
                     int startTicks = Environment.TickCount;
                     for (int loop = 0; loop < m_nLoops; loop++)
-                        totalRecordsRead += TestDB_ODBC_Connect_Performance(strConnection);
+                        totalRecordsRead += Northwind_ODBC_Connect_Performance(strConnection);
 
                     int elapsedTicks = (Environment.TickCount - startTicks);
                     Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
@@ -473,7 +600,7 @@ namespace SimpleDbReader
             Console.WriteLine("### END: ODBC - Performance tests ###\n");
         }
 
-        private bool TestDB_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
+        private bool Northwind_ODBC_SetConnectionString(AccessDbType type, ref string strConnection)
         {
             // ODBC: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
@@ -541,14 +668,14 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_ODBC_Connect_Read(string strConnection)
+        private void Northwind_ODBC_Connect_Read(string strConnection)
         {
             // Create and open the connection in a using block. This ensures that all resources
             // will be closed and disposed when the code exits.
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                OdbcCommand command = new OdbcCommand(m_strQueryNorthwind, connection);
                 command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                 // Open the connection in a try/catch block
@@ -579,14 +706,14 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        private int TestDB_ODBC_Connect_Performance(string strConnection)
+        private int Northwind_ODBC_Connect_Performance(string strConnection)
         {
             // Version for performance testing
             int recordsRead = 0;
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_strQuery, connection);
+                OdbcCommand command = new OdbcCommand(m_strQueryNorthwind, connection);
                 command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                 // Open the connection in a try/catch block
@@ -611,7 +738,7 @@ namespace SimpleDbReader
             return recordsRead;
         }
 
-        private void TestDB_OleDB_Read()
+        private void Northwind_OleDB_Read()
         {
             //  System.Data.OleDb.OleDbCommand
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand
@@ -622,18 +749,18 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_OleDB_SetConnectionString(type, ref strConnection))
+                if (Northwind_OleDB_SetConnectionString(type, ref strConnection))
                 {
                     // Choose how to read the data using OleDB
-                    TestDB_OleDB_Connect_DataReader(strConnection);
-                    //TestDB_OleDB_Connect_DataSet(strConnection);
+                    Northwind_OleDB_Connect_DataReader(strConnection);
+                    //Northwind_OleDB_Connect_DataSet(strConnection);
                 }
             }
 
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (read) ###\n");
         }
 
-        private void TestDB_OleDB_Write()
+        private void Northwind_OleDB_Write()
         {
             //  System.Data.OleDb.OleDbCommand
             Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (write) ###");
@@ -641,7 +768,7 @@ namespace SimpleDbReader
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (write) ###\n");
         }
 
-        private void TestDB_OleDB_Performance()
+        private void Northwind_OleDB_Performance()
         {
             //  System.Data.OleDb.OleDbCommand
             Console.WriteLine("### START: OleDb - Performance tests ###");
@@ -649,12 +776,12 @@ namespace SimpleDbReader
             foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
-                if (TestDB_OleDB_SetConnectionString(type, ref strConnection))
+                if (Northwind_OleDB_SetConnectionString(type, ref strConnection))
                 {
                     int totalRecordsRead = 0;
                     int startTicks = Environment.TickCount;
                     for (int loop = 0; loop < m_nLoops; loop++)
-                        totalRecordsRead += TestDB_OleDB_Connect_Performance(strConnection);
+                        totalRecordsRead += Northwind_OleDB_Connect_Performance(strConnection);
 
                     int elapsedTicks = (Environment.TickCount - startTicks);
                     Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
@@ -668,7 +795,7 @@ namespace SimpleDbReader
             Console.WriteLine("### END: OleDb - Performance tests ###\n");
         }
 
-        private bool TestDB_OleDB_SetConnectionString(AccessDbType type, ref string strConnection)
+        private bool Northwind_OleDB_SetConnectionString(AccessDbType type, ref string strConnection)
         {
             // OleDB: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
@@ -735,7 +862,7 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_OleDB_Connect_DataReader(string strConnection)
+        private void Northwind_OleDB_Connect_DataReader(string strConnection)
         {
             // This version uses System.Data.OleDb.OleDbDataReader
 
@@ -759,7 +886,7 @@ namespace SimpleDbReader
                 try
                 {
                     // Create the Command and Parameter objects
-                    OleDbCommand command = new OleDbCommand(m_strQuery, connection);
+                    OleDbCommand command = new OleDbCommand(m_strQueryNorthwind, connection);
                     command.Parameters.AddWithValue("@pricePoint", paramValue);
                     // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
 
@@ -788,7 +915,7 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        private void TestDB_OleDB_Connect_DataSet(string strConnection)
+        private void Northwind_OleDB_Connect_DataSet(string strConnection)
         {
             // This version uses:
             // * System.Data.DataSet
@@ -807,7 +934,7 @@ namespace SimpleDbReader
 
                     connection.Open();
                     DataSet ds = new DataSet();
-                    OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
+                    OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQueryNorthwind, connection);
                     adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_paramValue;
                     adapter.Fill(ds);
                     foreach (DataRow row in ds.Tables[0].Rows)
@@ -829,7 +956,7 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        private int TestDB_OleDB_Connect_Performance(string strConnection)
+        private int Northwind_OleDB_Connect_Performance(string strConnection)
         {
             // Version for performance testing
             int recordsRead = 0;
@@ -839,7 +966,7 @@ namespace SimpleDbReader
                 try
                 {
                     // Create the Command and Parameter objects
-                    OleDbCommand command = new OleDbCommand(m_strQuery, connection);
+                    OleDbCommand command = new OleDbCommand(m_strQueryNorthwind, connection);
                     command.Parameters.AddWithValue("@pricePoint", m_paramValue);
 
                     // Create and execute the DataReader; for this performance version just count
@@ -855,7 +982,7 @@ namespace SimpleDbReader
                     // To test using OleDbDataAdapter, uncomment this:
                     /*  connection.Open();
                         DataSet ds = new DataSet();
-                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQuery, connection);
+                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_strQueryNorthwind, connection);
                         adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_paramValue;
                         adapter.Fill(ds);
                         foreach (DataRow row in ds.Tables[0].Rows)
@@ -961,9 +1088,9 @@ namespace SimpleDbReader
             //    "ORDER BY UnitPrice DESC;                   -- Order rows by the UnitPrice";
         }
 
-        private object HelperSafeField(DAO.Recordset rs, string strField)
+        private object HelperSafeGetFieldValue(DAO.Recordset rs, string strField)
         {
-            // Helper function for DAO recordsets which may contain a null value
+            // DAO: Helper function for recordsets which may contain a null value
             object objResult = null;
             try
             {
@@ -974,12 +1101,43 @@ namespace SimpleDbReader
             return objResult;
         }
 
+        private DAO.Field HelperSafeGetField(DAO.Recordset rs, string strField)
+        {
+            // DAO: Helper function for recordset fields
+            object objField = null;
+            try
+            {
+                objField = rs.Fields[strField];
+            }
+            catch { }
+            return (DAO.Field)objField;
+        }
+
         private string HelperIsRecordsetUpdateable(DAO.Recordset rs)
         {
+            // DAO: Can the recordset be updated?
             if (rs.Updatable)
                 return "recordset is writeable";
             else
                 return "recordset is read-only";
+        }
+
+        private string HelperBoolFieldToString(bool? prop)
+        {
+            // DAO: Does the field have a value?
+            if (prop.HasValue)
+                return ((bool)prop) ? "True" : "False";
+            else
+                return "(null)";
+        }
+
+        private string HelperStringFieldToString(string prop)
+        {
+            // DAO: Does the field have a value?
+            if (string.IsNullOrEmpty(prop))
+                return "(empty)";
+            else
+                return prop;
         }
         // End: Methods (private)
     }
