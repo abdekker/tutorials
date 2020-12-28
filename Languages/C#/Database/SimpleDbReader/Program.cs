@@ -13,9 +13,10 @@ namespace SimpleDbReader
         private static UInt32 m_tests = 0x00000000;
         private static readonly UInt32 cDummyOpenClose          = 0x00000001;
         private static readonly UInt32 cBasicRead               = 0x00000002;
-        private static readonly UInt32 cBasicWrite               = 0x00000004;
+        private static readonly UInt32 cBasicWrite              = 0x00000004;
         private static readonly UInt32 cPerformanceTests        = 0x00000100;
         private static readonly UInt32 cDifferentQueryStrings   = 0x00001000;
+        private static readonly UInt32 cOtherTests              = 0x80000000;
 
         // Access method for this application
         static void Main()
@@ -26,20 +27,26 @@ namespace SimpleDbReader
             Console.WriteLine("This is the {0}", m_db.ToString());
             Console.WriteLine($"  64-bit? {SystemLibrary.Is64Bit()}\n");
 
-            // Not related to working with databases, just using an accessor list (which I'd not seen before)
-            Console.WriteLine("Demonstrate using indexed property accessors");
-            for (int sport = 0; sport <= 8; sport++)
-                Console.WriteLine("  sport {0} is {1}", sport, m_db[sport]);
-
-            Console.WriteLine();
-
             // Define the tests to be performed
             m_tests = (
-                cDummyOpenClose +
-                cBasicRead +
-                cPerformanceTests +
-                cDifferentQueryStrings
+                //cOtherTests +
+                //cDummyOpenClose +
+                //cBasicRead +
+                cBasicWrite
+                //cPerformanceTests +
+                //cDifferentQueryStrings
                 );
+
+            // Other tests (unrelated to accessing databases
+            if ((m_tests & cOtherTests) != 0)
+            {
+                // Using an accessor list (something which I'd not seen before)
+                Console.WriteLine("Demonstrate using indexed property accessors");
+                for (int sport = 0; sport <= 8; sport++)
+                    Console.WriteLine("  sport {0} is {1}", sport, m_db[sport]);
+
+                Console.WriteLine();
+            }
 
             // Perform a dummy open and close of each database in DAO. For an unknown reason (to be
             // investigated) this makes subsequent access using ODBC and OleDB faster. This might be

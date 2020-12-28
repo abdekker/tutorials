@@ -203,7 +203,7 @@ namespace SimpleDbReader
         private void TestDB_DAO_Read()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: DAO ###");
+            Console.WriteLine("### START: DAO (read) ###");
 
             // See the class constructor for details on databases
             string strDatabase = string.Empty;
@@ -211,14 +211,27 @@ namespace SimpleDbReader
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
-                    TestDB_DAO_Connect(strDatabase);
+                    TestDB_DAO_Connect_Read(strDatabase);
             }
 
-            Console.WriteLine("### END: DAO ###\n");
+            Console.WriteLine("### END: DAO (read) ###\n");
         }
 
         private void TestDB_DAO_Write()
         {
+            // DAO (Data Access Objects)
+            Console.WriteLine("### START: DAO (write) ###");
+
+            // See the class constructor for details on databases
+            string strDatabase = string.Empty;
+            foreach (AccessDbType type in Enum.GetValues(typeof(AccessDbType)))
+            {
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
+                if (TestDB_DAO_SetDatabaseString(type, ref strDatabase))
+                    TestDB_DAO_Connect_Write(strDatabase);
+            }
+
+            Console.WriteLine("### END: DAO (write) ###\n");
         }
 
         private void TestDB_DAO_Performance()
@@ -250,7 +263,7 @@ namespace SimpleDbReader
 
         private bool TestDB_DAO_SetDatabaseString(AccessDbType type, ref string strDatabase)
         {
-            // DAO: Set up the name of the Access database
+            // DAO: Set up the name (or connection string) for the Access database
             bool bHaveConnectionString = true;
             switch (type)
             {
@@ -299,7 +312,7 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_DAO_Connect(string strDatabase)
+        private void TestDB_DAO_Connect_Read(string strDatabase)
         {
             // Use the DAO::DBEngine to open an Access database and read recordsets
 
@@ -343,6 +356,39 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
+        private void TestDB_DAO_Connect_Write(string strDatabase)
+        {
+            // Use the DAO::DBEngine to open an Access database and write recordsets
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
+
+            DAO.Database db = dbEngine.OpenDatabase(strDatabase, false, false);
+
+            Console.Write("Open database read-only: ");
+            DAO.Recordset rs = db.OpenRecordset(
+                m_strQuery.Replace("?", m_paramValue.ToString()),
+                DAO.RecordsetTypeEnum.dbOpenDynaset,
+                DAO.RecordsetOptionEnum.dbReadOnly);
+            if (!(rs.BOF && rs.EOF))
+            {
+                Console.WriteLine(HelperIsRecordsetUpdateable(rs));
+                rs.Close();
+            }
+
+            Console.Write("Open database writeable: ");
+            rs = db.OpenRecordset(
+                m_strQuery.Replace("?", m_paramValue.ToString()),
+                DAO.RecordsetTypeEnum.dbOpenDynaset);
+            if (!(rs.BOF && rs.EOF))
+            {
+                Console.WriteLine(HelperIsRecordsetUpdateable(rs));
+                rs.Close();
+            }
+
+            db.Close();
+            Console.WriteLine();
+        }
+
         private int TestDB_DAO_Connect_Performance(string strDatabase)
         {
             // Version for performance testing
@@ -378,7 +424,7 @@ namespace SimpleDbReader
         {
             // System.Data.Odbc.OdbcConnection
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
-            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection ###");
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (read) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -386,14 +432,18 @@ namespace SimpleDbReader
             {
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(type, true));
                 if (TestDB_ODBC_SetConnectionString(type, ref strConnection))
-                    TestDB_ODBC_Connect(strConnection);
+                    TestDB_ODBC_Connect_Read(strConnection);
             }
 
-            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection ###\n");
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (read) ###\n");
         }
 
         private void TestDB_ODBC_Write()
         {
+            // System.Data.Odbc.OdbcConnection
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (write) ###");
+
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (write) ###\n");
         }
 
         private void TestDB_ODBC_Performance()
@@ -491,7 +541,7 @@ namespace SimpleDbReader
             return bHaveConnectionString;
         }
 
-        private void TestDB_ODBC_Connect(string strConnection)
+        private void TestDB_ODBC_Connect_Read(string strConnection)
         {
             // Create and open the connection in a using block. This ensures that all resources
             // will be closed and disposed when the code exits.
@@ -565,7 +615,7 @@ namespace SimpleDbReader
         {
             //  System.Data.OleDb.OleDbCommand
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand
-            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand ###");
+            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -580,11 +630,15 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("### END: System.Data.OleDb.OleDbCommand ###\n");
+            Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (read) ###\n");
         }
 
         private void TestDB_OleDB_Write()
         {
+            //  System.Data.OleDb.OleDbCommand
+            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (write) ###");
+
+            Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (write) ###\n");
         }
 
         private void TestDB_OleDB_Performance()
@@ -918,6 +972,14 @@ namespace SimpleDbReader
             }
             catch { }
             return objResult;
+        }
+
+        private string HelperIsRecordsetUpdateable(DAO.Recordset rs)
+        {
+            if (rs.Updatable)
+                return "recordset is writeable";
+            else
+                return "recordset is read-only";
         }
         // End: Methods (private)
     }
