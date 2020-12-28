@@ -122,22 +122,22 @@ namespace SimpleDbReader
             Console.WriteLine("    (Completed dummy open/close. Took {0}ms.)", elapsedTicks);
         }
 
-        public void TestDbTechnology(DatabaseTechnology eTechnology)
+        public void TestDbRead(DatabaseTechnology eTechnology)
         {
             // Test one of the database technologies available in .NET
             m_tech = eTechnology;
             switch (eTechnology)
             {
                 case DatabaseTechnology.eDB_DAO:
-                    TestDB_DAO();
+                    TestDB_DAO_Read();
                     break;
 
                 case DatabaseTechnology.eDB_ODBC:
-                    TestDB_ODBC();
+                    TestDB_ODBC_Read();
                     break;
 
                 case DatabaseTechnology.eDB_OleDB:
-                    TestDB_OleDB();
+                    TestDB_OleDB_Read();
                     break;
 
                 default:
@@ -176,7 +176,7 @@ namespace SimpleDbReader
         // End: Methods (public)
 
         // Start: Methods (private)
-        private void TestDB_DAO()
+        private void TestDB_DAO_Read()
         {
             // DAO (Data Access Objects)
             Console.WriteLine("### START: DAO ###");
@@ -346,7 +346,7 @@ namespace SimpleDbReader
             return recordsRead;
         }
 
-        private void TestDB_ODBC()
+        private void TestDB_ODBC_Read()
         {
             // System.Data.Odbc.OdbcConnection
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
@@ -529,7 +529,7 @@ namespace SimpleDbReader
             return recordsRead;
         }
 
-        private void TestDB_OleDB()
+        private void TestDB_OleDB_Read()
         {
             //  System.Data.OleDb.OleDbCommand
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand

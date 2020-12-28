@@ -13,8 +13,9 @@ namespace SimpleDbReader
         private static UInt32 m_tests = 0x00000000;
         private static readonly UInt32 cDummyOpenClose          = 0x00000001;
         private static readonly UInt32 cBasicRead               = 0x00000002;
-        private static readonly UInt32 cPerformanceTests        = 0x00000004;
-        private static readonly UInt32 cDifferentQueryStrings   = 0x00000008;
+        private static readonly UInt32 cBasicWrite               = 0x00000004;
+        private static readonly UInt32 cPerformanceTests        = 0x00000100;
+        private static readonly UInt32 cDifferentQueryStrings   = 0x00001000;
 
         // Access method for this application
         static void Main()
@@ -51,12 +52,21 @@ namespace SimpleDbReader
                 Console.WriteLine();
             }
 
-            // Test some of the database technologies supported in VS 2019 and C#
+            // Use some database technologies supported in VS 2019 and C# to read some records
             if ((m_tests & cBasicRead) != 0)
             {
-                m_db.TestDbTechnology(DatabaseTechnology.eDB_DAO);
-                m_db.TestDbTechnology(DatabaseTechnology.eDB_ODBC);
-                m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
+                m_db.TestDbRead(DatabaseTechnology.eDB_DAO);
+                m_db.TestDbRead(DatabaseTechnology.eDB_ODBC);
+                m_db.TestDbRead(DatabaseTechnology.eDB_OleDB);
+                Console.WriteLine();
+            }
+
+            // Use some database technologies to write some records
+            if ((m_tests & cBasicWrite) != 0)
+            {
+                m_db.TestDbRead(DatabaseTechnology.eDB_DAO);
+                m_db.TestDbRead(DatabaseTechnology.eDB_ODBC);
+                m_db.TestDbRead(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -74,7 +84,7 @@ namespace SimpleDbReader
             {
                 Console.WriteLine("Query using the WHERE clause 'LIKE' operator:");
                 m_db.UpdateQuery(QueryType.eQueryLike);
-                m_db.TestDbTechnology(DatabaseTechnology.eDB_OleDB);
+                m_db.TestDbRead(DatabaseTechnology.eDB_OleDB);
             }
 
             // Complete!
