@@ -1,0 +1,27 @@
+﻿<#  // This template runs at design-time (when updated or saved) or run-time (when invoked).
+    // Design-time:
+    //  - Edit the template and switch focus to a different VS window
+    //  - Save the template
+    //  - Select Build > Transform All Templates
+    //  - Right-click template in Solution Explorer and select Run Custom Tool
+    // Debugging templates:
+    //  1) Insert debug="true" into the template directive
+    //  2) Set breakpoints in the T4 template
+    //  3) Right-click template in Solution Explorer and select Debug T4 Template
+#>
+<# // Set the output language #>
+<#@ template hostspecific="false" language="C#" #>
+<# // Set the output extension #>
+<#@ output extension=".txt" #>
+
+<# // Some text that will appear in the output #>
+Hello, world!
+
+<# // Generate some custom text in a loop #>
+Following was generated in a loop:
+<#int top = 5;
+
+for (int i = 0; i<=top; i++)
+{ #>
+  The square of <#= i #> is <#= i*i #>
+<# } #>

@@ -1,0 +1,14 @@
+﻿<#@ template language="C#" #>
+<html><body>
+<h1>Sales for January</h1>
+<!-- table to be inserted here -->
+<table>
+    <# for (int i = 1; i <= 10; i++)
+       { #>
+         <tr><td>Test name <#= i #> </td>
+             <td>Test value <#= i * i #> </td> </tr>
+    <# } #>
+</table>
+
+<h4>This report is Company Confidential.</h4>
+</body></html>
