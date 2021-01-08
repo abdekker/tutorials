@@ -4,6 +4,7 @@
     {
         public static bool StartsWithUpper(this string str)
         {
+            // "Help" returns true, and "help" returns false.
             if (string.IsNullOrWhiteSpace(str))
                 return false;
 

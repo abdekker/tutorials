@@ -5,7 +5,7 @@ namespace systemHelperLibrary
 {
     // This library project was original adapted from:
     // https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio
-    // Note: To run "unsafe" code, enable "Build > Allow unsafe code" on the project
+    // Note: To run "unsafe" code, enable "Build > Allow unsafe code" on the project properties
 
     /* To create a C# Class Library (DLL)
         - Create new project
