@@ -1,11 +1,16 @@
 ﻿using System;
-//using System.Collections.Generic;
 using System.Globalization;
 
 namespace StringsDemo
 {
     class Program
     {
+        #region Constants
+        // Date/Time separation for strings in ISO 8601 format (yyyy-MM-ddTHH:mm:ss)
+        public static char[] cDateTimeSeparator = { 'T' };
+        public const string szDateTimeFormat_ISO8601 = "yyyy-MM-ddTHH:mm:ss";
+        #endregion // Constants
+
         private static void WriteConsole(string value)
         {
             Console.WriteLine(value);
@@ -165,6 +170,48 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
+        private static void OutputInfo_DateTime()
+        {
+            // Formatting System.Date variables
+            // Note: Date/Time variables are specific to culture/locale. Change locale like this:
+            //      Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+            Console.WriteLine("# Date/Time #");
+            DateTime dtA = DateTime.Now;
+            DateTime dtB = new DateTime(2008, 1, 20, 12, 34, 56);   // Constructed dates
+            DateTime dtC;
+            DateTime.TryParse("2008-01-20T12:34:56", out dtC);
+            Console.WriteLine("  A (now) = {0}", dtA);
+            Console.WriteLine("  B (from numbers) = {0}, C (from string) = {0}", dtB, dtC);
+            Console.WriteLine("  Is B == C? {0}", ( dtB.CompareTo(dtC) == 0));
+            Console.WriteLine("  ISO8601 (B) = {0}", dtB.ToString(szDateTimeFormat_ISO8601));
+            Console.WriteLine();
+
+            Console.WriteLine("(locale information)");
+            Console.WriteLine("  current locale:\t\t{0}", CultureInfo.CurrentCulture.Name);
+            Console.WriteLine("  short date pattern:\t\t{0} ({1})",
+                CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+                dtA.ToShortDateString());
+            Console.WriteLine("  short time pattern:\t\t{0} ({1})",
+                CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern,
+                dtA.ToShortTimeString());
+            Console.WriteLine("  long date pattern:\t\t{0} ({1})",
+                CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern,
+                dtA.ToLongDateString());
+            Console.WriteLine("  long time pattern:\t\t{0} ({1})",
+                CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
+                dtA.ToLongTimeString());
+            Console.WriteLine("  full date pattern:\t\t{0} ({1})",
+               CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern,
+               dtA.ToString());
+            Console.WriteLine("  time separator:\t\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator);
+            Console.WriteLine("  date separator:\t\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator);
+            Console.WriteLine("  1st day of working week:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
+            Console.WriteLine("  name of 1st day of week:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.DayNames[0]);
+            Console.WriteLine("  name of 1st month of year:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.MonthNames[0]);
+            Console.WriteLine("  rule for 1st week of year:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule.ToString());
+            Console.WriteLine();
+        }
+
         static void Main(string[] args)
         {
             // Demonstrating some aspects of string formatting in C#
@@ -176,6 +223,7 @@ namespace StringsDemo
             OutputInfo_Integer();
             OutputInfo_Float();
             OutputInfo_Double();
+            OutputInfo_DateTime();
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
         }
