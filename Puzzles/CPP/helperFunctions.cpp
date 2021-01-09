@@ -10,7 +10,7 @@ void PrintArray(ARRAY input, const char cSeparator /*= ' '*/)
 	{
 		for (auto a : input)
 			std::cout << a << cSeparator;
-        
+
 		std::cout << std::endl;
 	}
 	else
@@ -36,7 +36,7 @@ void PrintArray(ARRAY input, const int cWidth, const char cFill /*= ' '*/, const
 
 void PrintMatrix(MATRIX input, const char cSeparator /*= ' '*/)
 {
-	// Output the matrix to the console eg. [{1,11,21}, {100,10,0,-10,=100}, {3,4,5}] =>
+	// Output the matrix to the console eg. [{1,11,21}, {100,10,0,-10,-100}, {3,4,5}] =>
 	// 1 2 19
 	// 100 10 0 -10 -100
 	// 3 4 5
