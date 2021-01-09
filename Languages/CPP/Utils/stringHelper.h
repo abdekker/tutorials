@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstring>
+#include <iterator>
 #include <vector>
 
 // Header-only helper class for using strings
-// Note: It is bad practice to include something like "using namepsace X" in header files, or
+// Note: It is bad practice to include something like "using namespace X" in header files, or
 // before "#include" statements. If used, put them in your private implementation (.cpp) files.
 class stringHelper
 {
@@ -45,8 +46,20 @@ public:
         // Example: stringHelper::PrintVector<int>(vecOfInts);
         if (input.size() > 0)
         {
+			// This does not compile in VS 2019...to be investigated
+            /*for (std::vector<T>::iterator it = input.begin(); it != input.end();)
+            {
+                std::cout << *it;
+                if (++it != input.end())
+                    std::cout << cSeparator;
+            }*/
+
+            // Alternatively, use a range-based loop using auto. This has the disadvantage of not
+            // being easy to identify specific elements (such as the last):
             for (auto a : input)
+            {
                 std::cout << a << cSeparator;
+            }
 
             if (bNewLine)
                 std::cout << std::endl;

@@ -1,8 +1,12 @@
 #include <iostream>
 #include <conio.h>
-#include <vector>
-#include <string>
+
+#include <algorithm>
 #include <iterator>
+#include <numeric>
+#include <string>
+#include <valarray>
+#include <vector>
 
 #include "..\Utils\stringHelper.h"
 
@@ -10,7 +14,7 @@ using namespace std;
 void basicVector()
 {
     // Inserting data in std::vector
-    cout << "### Basic tutorial of 'std::vector<int>' ###\n";
+    cout << "\n### Basic tutorial for 'std::vector<int>' ###";
 
     // Construct a simple vector of integers
     vector<int> vecOfInts = {3, 1, 4, 1, 5, 9};
@@ -54,7 +58,7 @@ void basicVector()
 void copyVector()
 {
     // Copying std::vector
-    cout << "### Copying variables of type 'std::vector<T>' ###\n";
+    cout << "\n### Copy variables of type 'std::vector<T>' ###\n";
 
     // Declare a helper to investigate types
     stringHelper helper;
@@ -66,7 +70,7 @@ void copyVector()
 
     // Copy the vector
     {
-        // Method 1 (Looping)
+        // Method 1 (using loop)
         cout << "\nCopy 1  : ";
         vector<int> copy1;
         for (int i=0; i<vec1.size(); i++)
@@ -77,7 +81,7 @@ void copyVector()
     }
 
     {
-        // Method 2 (Iterative)
+        // Method 2 (using iterator)
         cout << "\nCopy 2  : ";
         vector<int> copy2;
         vector<int>::iterator it = vec1.begin();
@@ -92,7 +96,7 @@ void copyVector()
     }
 
     {
-        // Method 3 (Assignment)
+        // Method 3 (by direct assignment)
         cout << "\nCopy 3  : ";
         vector<int> copy3 = vec1;
         helper.PrintVector<int>(copy3);
@@ -100,7 +104,7 @@ void copyVector()
     }
 
     {
-        // Method 4 (Passing to constructor)
+        // Method 4 (passing to constructor)
         cout << "\nCopy 4  : ";
         vector<int> copy4(vec1);
         helper.PrintVector<int>(copy4);
@@ -108,7 +112,7 @@ void copyVector()
     }
 
     {
-        // Method 5a (In-built methods - copy)
+        // Method 5a (std::copy)
         cout << "\nCopy 5a : ";
         vector<int> copy5a;
         copy(vec1.begin(), vec1.end(), back_inserter(copy5a)); 
@@ -117,12 +121,103 @@ void copyVector()
     }
 
     {
-        // Method 5b (In-built methods - assign)
+        // Method 5b (std::assign)
         cout << "\nCopy 5b : ";
         vector<int> copy5b;
         copy5b.assign(vec1.begin(), vec1.end()); 
         helper.PrintVector<int>(copy5b);
         cout << "(using std::assign)";
+    }
+
+    cout << "\n#\n";
+}
+
+void sumVector()
+{
+    // Summing the elements in a std::vector
+    cout << "\n### Sum elements of 'std::vector<int>' ###\n";
+
+    // Declare a helper to investigate types
+    stringHelper helper;
+
+    // Construct a simple vector
+    vector<int> vec = {3, 1, 4, 1, 5, 9};
+    cout << "(";
+    helper.PrintVector<int>(vec);
+    cout << ")";
+
+    // Sum the elements
+    int sum = 0;
+    {
+        // Method 1 (using loop)
+        sum = 0;
+        for (int i=0; i<vec.size(); i++)
+            sum += vec[i];
+
+        cout << "\nSum 1  = " << sum << " (simple loop)";
+    }
+
+    {
+        // Method 2 (using iterator)
+        sum = 0;
+        for (vector<int>::iterator it = vec.begin(); it != vec.end(); ++it)
+            sum += *it;
+
+        cout << "\nSum 2  = " << sum << " (loop with iterator)";
+    }
+
+    {
+        // Method 3a (std::accumulate)
+        // Note: The last parameter is the type of accumulation. Change to "0.0f", for example, for floats.
+        sum = accumulate(vec.begin(), vec.end(), 0);
+        cout << "\nSum 3a = " << sum << " (std::accumulate, C++03)";
+    }
+
+    {
+        // Method 3b (std::accumulate which tracks changes to underlying tpe of the vector)
+        sum = accumulate(vec.begin(), vec.end(), decltype(vec)::value_type(0));
+        cout << "\nSum 3b = " << sum << " (std::accumulate with type tracking, C++11)";
+    }
+
+     {
+        // Method 4 (using std:valarray). Not recommended - use std::accumulate instead.
+        valarray<int> vec_add{vec.data(), vec.size()};
+        sum = vec_add.sum();
+        cout << "\nSum 4  = " << sum << " (std:valarray, c++03)";
+    }
+
+    {
+        // Method 5a (std::for_each with functor). Not recommended - use std::accumulate instead.
+        struct DoSum
+        {
+            DoSum(int* t) : total(t) { };
+            int* total;
+            void operator()(int element)
+            {
+                *total += element;
+            }
+        };
+
+        sum = 0;
+        DoSum doSum(&sum);
+        for_each(vec.begin(), vec.end(), doSum);
+        cout << "\nSum 5a = " << sum << " (std::for_each with functor, C++03)";
+    }
+
+    {
+        // Method 5b (std::for_each with lambda, C++11)
+        sum = 0;
+        for_each(vec.begin(), vec.end(), [&] (int n) { sum += n; });
+        cout << "\nSum 5b = " << sum << " (std::for_each with lambda, C++11)";
+    }
+
+    {
+        // Method 6 (using range-based loop, C++11)
+        sum = 0;
+        for (auto& elem : vec)
+            sum += elem;
+
+        cout << "\nSum 6  = " << sum << " (range-based loop using auto, C++11)";
     }
 
     cout << "\n#\n";
@@ -139,6 +234,7 @@ int main()
     // Basic vector tests
     basicVector();
     copyVector();
+    sumVector();
 
     // Prompt for exit
     cout << "\nFinished...press a key to exit\n";
