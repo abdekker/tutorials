@@ -65,7 +65,7 @@ void RunPuzzle0007(MATRIX* input, const int size)
 		else if (option == 2)
 		{
 			// Option 2: Use std::generate and a local function with an internal static variable. Array
-			// must have the required number of lements already. If required, uncomment function "f".
+			// must have the required number of elements already. If required, uncomment function "f".
 			// Generates: [5, 6, 7, ...] (the first time)
 			std::generate(rowDummy.begin(), rowDummy.end(), f);
 		}
