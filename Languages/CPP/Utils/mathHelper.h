@@ -11,6 +11,26 @@ public:
     mathHelper() {}
     ~mathHelper() {}
 
+    // Primarily testing
+    bool IsPrime(const int cCandidate)
+    {
+        if (cCandidate < 2)
+            return false; // Too small
+
+        if (!(cCandidate & 1) && (cCandidate != 2))
+            return false; // Even (and not 2)
+
+        // Test for odd divisors
+        int square = 9;
+        for (int i=3; square <= cCandidate; square += (i*2 + 1), i+=2)
+        {
+            if (!(cCandidate % i))
+                return false; // Odd and composite
+        }
+
+        return true;
+    }
+
     // Count bits set
     int CountBitsSet_U1(unsigned int input)
     {
