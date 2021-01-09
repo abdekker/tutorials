@@ -18,5 +18,6 @@
 // External helper classes and utilities
 #include "../../Languages/CPP/Utils/stringHelper.h"
 #include "../../Languages/CPP/Utils/dataTypes.h"
+#include "../../Languages/CPP/Utils/mathHelper.h"
 
 //#endif //PUZZLES_STD_H
