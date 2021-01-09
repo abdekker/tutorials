@@ -6,6 +6,7 @@
 
 #include "..\Utils\stringHelper.h"
 
+using namespace std;
 void basicVector()
 {
     // Inserting data in std::vector
@@ -46,8 +47,85 @@ void basicVector()
 
     // Clear the vector
     vecOfInts.clear();
-    std::cout << "\nVector cleared, there are now " << vecOfInts.size() << " elements\n";
-    std::cout << "#\n";
+    cout << "\nVector cleared, there are now " << vecOfInts.size() << " elements\n";
+    cout << "#\n";
+}
+
+void copyVector()
+{
+    // Copying std::vector
+    cout << "### Copying variables of type 'std::vector<T>' ###\n";
+
+    // Declare a helper to investigate types
+    stringHelper helper;
+
+    // Construct a simple vector of integers
+    vector<int> vec1 = {3, 1, 4, 1, 5, 9};
+    cout << "Start   : ";
+    helper.PrintVector<int>(vec1);
+
+    // Copy the vector
+    {
+        // Method 1 (Looping)
+        cout << "\nCopy 1  : ";
+        vector<int> copy1;
+        for (int i=0; i<vec1.size(); i++)
+            copy1.push_back(vec1[i]);
+
+        helper.PrintVector<int>(copy1);
+        cout << "(loop over elements)";
+    }
+
+    {
+        // Method 2 (Iterative)
+        cout << "\nCopy 2  : ";
+        vector<int> copy2;
+        vector<int>::iterator it = vec1.begin();
+        while (it != vec1.end())
+        {
+            copy2.push_back(*it);
+            it++;
+        }
+
+        helper.PrintVector<int>(copy2);
+        cout << "(using an iterator)";
+    }
+
+    {
+        // Method 3 (Assignment)
+        cout << "\nCopy 3  : ";
+        vector<int> copy3 = vec1;
+        helper.PrintVector<int>(copy3);
+        cout << "(by assignment)";
+    }
+
+    {
+        // Method 4 (Passing to constructor)
+        cout << "\nCopy 4  : ";
+        vector<int> copy4(vec1);
+        helper.PrintVector<int>(copy4);
+        cout << "(constructor)";
+    }
+
+    {
+        // Method 5a (In-built methods - copy)
+        cout << "\nCopy 5a : ";
+        vector<int> copy5a;
+        copy(vec1.begin(), vec1.end(), back_inserter(copy5a)); 
+        helper.PrintVector<int>(copy5a);
+        cout << "(using std::copy)";
+    }
+
+    {
+        // Method 5b (In-built methods - assign)
+        cout << "\nCopy 5b : ";
+        vector<int> copy5b;
+        copy5b.assign(vec1.begin(), vec1.end()); 
+        helper.PrintVector<int>(copy5b);
+        cout << "(using std::assign)";
+    }
+
+    cout << "\n#\n";
 }
 
 int main()
@@ -55,13 +133,15 @@ int main()
     // References for the std::map data structure:
     // * https://en.cppreference.com/w/cpp/container/vector
 
-    // Basic vector
+    // Send output to console
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    // Basic vector tests
     basicVector();
+    copyVector();
 
     // Prompt for exit
     cout << "\nFinished...press a key to exit\n";
     (void) _getch();
     return 0;
 }
-
-// Helper function(s)
