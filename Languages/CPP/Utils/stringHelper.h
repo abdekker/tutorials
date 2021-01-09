@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <vector>
 
 // Header-only helper class for using strings
 // Note: It is bad practice to include something like "using namepsace X" in header files, or
@@ -35,6 +36,23 @@ public:
         }
         else
             return std::string(); // Empty std::string
+    }
+
+    template <class T>
+    void PrintVector(std::vector<T> input, const char cSeparator = ' ', bool bNewLine = false)
+    {
+        // Output an array (std::vector) to the console eg. {1,11,21} => 1 11 21.
+        // Example: stringHelper::PrintVector<int>(vecOfInts);
+        if (input.size() > 0)
+        {
+            for (auto a : input)
+                std::cout << a << cSeparator;
+
+            if (bNewLine)
+                std::cout << std::endl;
+        }
+        //else
+        //    std::cout << "(empty)\n";
     }
 
     // Non-template functions

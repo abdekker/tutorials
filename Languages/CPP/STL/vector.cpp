@@ -4,7 +4,7 @@
 #include <string>
 #include <iterator>
 
-using namespace std;
+#include "..\Utils\stringHelper.h"
 
 void basicVector()
 {
