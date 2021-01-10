@@ -46,20 +46,22 @@ public:
         // Example: stringHelper::PrintVector<int>(vecOfInts);
         if (input.size() > 0)
         {
-			// This does not compile in VS 2019...to be investigated
-            /*for (std::vector<T>::iterator it = input.begin(); it != input.end();)
+            // This does not compile in VS 2019 (reported to MS in Jan 2021)
+            //      for (std::vector<T>::iterator it = input.begin(); it != input.end();)
+
+            for (auto it = input.begin(); it != input.end();)
             {
                 std::cout << *it;
                 if (++it != input.end())
                     std::cout << cSeparator;
-            }*/
+            }
 
             // Alternatively, use a range-based loop using auto. This has the disadvantage of not
             // being easy to identify specific elements (such as the last):
-            for (auto a : input)
+            /*for (auto a : input)
             {
                 std::cout << a << cSeparator;
-            }
+            }*/
 
             if (bNewLine)
                 std::cout << std::endl;
