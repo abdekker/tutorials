@@ -4,10 +4,26 @@ using System.Data;
 
 namespace SimpleDbReader
 {
-    // Database structure and mapper(s) for the SimpleTest.mdb database
-    class SimpleMember
+    // Database structure(s) and mapper(s) for the SimpleTest.mdb database
+
+    #region Member table
+    public class SimpleMember
     {
+        // Member table
+
+        #region Constants
+        // Default values when a nullable entry is blank or the SQL query did not return the value
+        public readonly int cDefaultMemberID = -1;
+        public readonly string cDefaultSurname = string.Empty;
+        public readonly string cDefaultFirstName = string.Empty;
+        public readonly DateTime cDefaultDOB = DateTime.MinValue;
+        public readonly decimal cDefaultFee = 0.0m;
+        public readonly bool cDefaultAccepted = false;
+        public readonly int cDefaultPoints = -1;
+        #endregion
+
         #region Fields
+        // Fields (columns) in this table
         private int m_memberID;
         private string m_surname;
         private string m_firstName;
@@ -66,51 +82,104 @@ namespace SimpleDbReader
         }
         #endregion // Properties
     }
+    #endregion // Member table
 
-    #region Classes for SQL Server
-    class SimpleMapperSqlServer : MapperBaseSqlServer<SimpleMember>
+    #region Mapper and Reader
+    class SimpleMapper_Member : MapperBase<SimpleMember>
     {
-        // Mapper for SQL Server
         protected override SimpleMember Map(IDataRecord record)
         {
             SimpleMember m = new SimpleMember();
             try
             {
-                m.MemberID = (DBNull.Value == record[CommonSimple.colMemberID]) ?
-                    -1 : (int)record[CommonSimple.colMemberID];
-                m.Surname = (DBNull.Value == record[CommonSimple.colSurname]) ?
-                    string.Empty : (string)record[CommonSimple.colSurname];
-                m.FirstName = (DBNull.Value == record[CommonSimple.colFirstName]) ?
-                    string.Empty : (string)record[CommonSimple.colFirstName];
-                m.DOB = (DBNull.Value == record[CommonSimple.colDOB]) ?
-                    DateTime.MinValue : (DateTime)record[CommonSimple.colDOB];
-                m.Fee = (DBNull.Value == record[CommonSimple.colFee]) ?
-                    0.0m : (decimal)record[CommonSimple.colFee];
-                m.Accepted = (DBNull.Value == record[CommonSimple.colAccepted]) ?
-                    false : (bool)record[CommonSimple.colAccepted];
-                m.Points = (DBNull.Value == record[CommonSimple.colPoints]) ?
-                    -1 : (int)record[CommonSimple.colPoints];
+                m.MemberID = (DBNull.Value == record[CommonSimple.colMemberID])
+                    ? m.cDefaultMemberID
+                    : (int)record[CommonSimple.colMemberID];
             }
-            catch
+            catch { }
+
+            try
             {
-                //throw;
+                m.Surname = (DBNull.Value == record[CommonSimple.colSurname])
+                    ? m.cDefaultSurname
+                    : (string)record[CommonSimple.colSurname];
             }
+            catch { }
+
+            try
+            {
+                m.FirstName = (DBNull.Value == record[CommonSimple.colFirstName])
+                    ? m.cDefaultFirstName
+                    : (string)record[CommonSimple.colFirstName];
+            }
+            catch { }
+
+            try
+            {
+                m.DOB = (DBNull.Value == record[CommonSimple.colDOB])
+                    ? m.cDefaultDOB
+                    : (DateTime)record[CommonSimple.colDOB];
+            }
+            catch { }
+
+            try
+            {
+                m.Fee = (DBNull.Value == record[CommonSimple.colFee])
+                    ? m.cDefaultFee
+                    : (decimal)record[CommonSimple.colFee];
+            }
+            catch { }
+
+            try
+            {
+                m.Accepted = (DBNull.Value == record[CommonSimple.colAccepted])
+                    ? m.Accepted
+                    : (bool)record[CommonSimple.colAccepted];
+            }
+            catch { }
+
+            try
+            {
+                m.Points = (DBNull.Value == record[CommonSimple.colPoints])
+                    ? m.cDefaultPoints
+                    : (int)record[CommonSimple.colPoints];
+            }
+            catch { }
 
             return m;
         }
     }
 
-    class SimpleMemberReaderSqlServer : ObjectReaderWithConnectionSqlServer<SimpleMember>
+    class SimpleReader_Member : ObjectReaderWithConnection<SimpleMember>
     {
-        // Reader for SQL Server
-        protected override string CommandText
+        public override DatabaseTechnology DbTechnology
         {
-            get { return "SELECT * FROM Members"; }
+            get { return m_tech; }
+            set { m_tech = value; }
         }
 
-        protected override CommandType CommandType
+        public override string ConnectionString
         {
-            get { return CommandType.Text; }
+            get { return m_connectionString; }
+            set { m_connectionString = value; }
+        }
+
+        public override string CmdText
+        {
+            //get { return "SELECT * FROM Members"; }
+            //get { return "SELECT MemberID,Surname FROM Members"; }
+            get { return m_cmdText; }
+            set { m_cmdText = value; }
+        }
+
+        public override CommandType CmdType
+        {
+            // Available command types are:
+            // * Text (standard SQL query) = 1,
+            // * StoredProcedure
+            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
+            get { return m_cmdType; }
+            set { m_cmdType = value; }
         }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
@@ -126,76 +195,9 @@ namespace SimpleDbReader
             //return collection;   
         }
 
-        protected override MapperBaseSqlServer<SimpleMember> GetMapper()
+        protected override MapperBase<SimpleMember> GetMapper()
         {
-            MapperBaseSqlServer<SimpleMember> mapper = new SimpleMapperSqlServer();
-            return mapper;
-        }
-    }
-    #endregion // Classes for SQL Server
-
-    #region Classes for ODBC
-    class SimpleMapperODBC : MapperBaseODBC<SimpleMember>
-    {
-        // Mapper for ODBC
-        protected override SimpleMember Map(IDataRecord record)
-        {
-            SimpleMember m = new SimpleMember();
-            try
-            {
-                m.MemberID = (DBNull.Value == record[CommonSimple.colMemberID]) ?
-                    -1 : (int)record[CommonSimple.colMemberID];
-                m.Surname = (DBNull.Value == record[CommonSimple.colSurname]) ?
-                    string.Empty : (string)record[CommonSimple.colSurname];
-                m.FirstName = (DBNull.Value == record[CommonSimple.colFirstName]) ?
-                    string.Empty : (string)record[CommonSimple.colFirstName];
-                m.DOB = (DBNull.Value == record[CommonSimple.colDOB]) ?
-                    DateTime.MinValue : (DateTime)record[CommonSimple.colDOB];
-                m.Fee = (DBNull.Value == record[CommonSimple.colFee]) ?
-                    0.0m : (decimal)record[CommonSimple.colFee];
-                m.Accepted = (DBNull.Value == record[CommonSimple.colAccepted]) ?
-                    false : (bool)record[CommonSimple.colAccepted];
-                m.Points = (DBNull.Value == record[CommonSimple.colPoints]) ?
-                    -1 : (int)record[CommonSimple.colPoints];
-            }
-            catch
-            {
-                //throw;
-            }
-
-            return m;
-        }
-    }
-
-    class SimpleMemberReaderODBC : ObjectReaderWithConnectionODBC<SimpleMember>
-    {
-        // Reader for ODBC
-        protected override string CmdText
-        {
-            get { return "SELECT * FROM Members"; }
-        }
-
-        protected override CommandType CmdType
-        {
-            get { return CommandType.Text; }
-        }
-
-        protected override Collection<IDataParameter> GetParameters(IDbCommand command)
-        {
-            Collection<IDataParameter> collection = new Collection<IDataParameter>();
-            return collection;
-
-            // If you have parameters:
-            //IDataParameter param1 = command.CreateParameter();
-            //param1.ParameterName = "paramName 1";     // Put the parameter name here
-            //param1.Value = 5;                         // Put the parameter value here
-            //collection.Add(param1);
-            //return collection;   
-        }
-
-        protected override MapperBaseODBC<SimpleMember> GetMapper()
-        {
-            MapperBaseODBC<SimpleMember> mapper = new SimpleMapperODBC();
+            MapperBase<SimpleMember> mapper = new SimpleMapper_Member();
             return mapper;
         }
     }
