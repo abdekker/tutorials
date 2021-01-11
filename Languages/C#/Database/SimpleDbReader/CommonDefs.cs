@@ -59,18 +59,4 @@
         //    40                12 
         public int paramValue;
     }
-
-    class CommonSimple
-    {
-        #region Constants
-        // Constants unique the SimpleTest.mdb database
-        public const string colMemberID = "MemberID";
-        public const string colSurname = "Surname";
-        public const string colFirstName = "FirstName";
-        public const string colDOB = "DOB";
-        public const string colFee = "Fee";
-        public const string colAccepted = "Accepted";
-        public const string colPoints = "Points";
-        #endregion // Constants
-    };
 }
