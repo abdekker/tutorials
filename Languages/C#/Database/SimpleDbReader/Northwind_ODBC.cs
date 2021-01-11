@@ -30,7 +30,7 @@ namespace SimpleDbReader
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -54,7 +54,7 @@ namespace SimpleDbReader
             // System.Data.Odbc.OdbcConnection
             Console.WriteLine("### START: ODBC - Performance tests ###");
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -85,7 +85,7 @@ namespace SimpleDbReader
             string strDataSource = ("Dbq=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
-                case AccessDbType.eAccess97:
+                case MSAccessDbType.eMSAccess97:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
                     {
@@ -100,7 +100,7 @@ namespace SimpleDbReader
                     }
                     break;
 
-                case AccessDbType.eAccess2000:
+                case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
                     {
@@ -115,7 +115,7 @@ namespace SimpleDbReader
                     }
                     break;
 
-                case AccessDbType.eAccess2007_2016:
+                case MSAccessDbType.eMSAccess2007_2016:
                     // 64-bit only
                     if (!m_cfgGeneral.b64bit)
                     {

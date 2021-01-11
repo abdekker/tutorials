@@ -5,7 +5,7 @@ namespace SimpleDbReader
     public class Northwind_DAO : DatabaseCommon
     {
         // Member variables unique to this class
-        private Utilities_DAO m_utilsDAO = new Utilities_DAO();
+        private readonly Utilities_DAO m_utilsDAO = new Utilities_DAO();
 
         // Constructor
         public Northwind_DAO(ConfigGeneral cfgGeneral, ConfigDatabase cfgDatabase) :
@@ -26,7 +26,7 @@ namespace SimpleDbReader
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -44,7 +44,7 @@ namespace SimpleDbReader
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -62,7 +62,7 @@ namespace SimpleDbReader
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -78,7 +78,7 @@ namespace SimpleDbReader
             // DAO
             Console.WriteLine("### START: DAO - Performance tests ###");
             string strConnection = string.Empty;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
@@ -107,7 +107,7 @@ namespace SimpleDbReader
             bool bHaveConnectionString = true;
             switch (m_cfgDatabase.dbType)
             {
-                case AccessDbType.eAccess97:
+                case MSAccessDbType.eMSAccess97:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
                         strConnection = (m_cfgGeneral.strDevDataPath + "\\Northwind 97.mdb");
@@ -118,7 +118,7 @@ namespace SimpleDbReader
                     }
                     break;
 
-                case AccessDbType.eAccess2000:
+                case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
                         strConnection = (m_cfgGeneral.strDevDataPath + "\\Northwind 2000.mdb");
@@ -126,17 +126,15 @@ namespace SimpleDbReader
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
-                        // Error same as for Access 97
                     }
                     break;
 
-                case AccessDbType.eAccess2007_2016:
+                case MSAccessDbType.eMSAccess2007_2016:
                     // 64-bit only
                     if (!m_cfgGeneral.b64bit)
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(false));
-                        // Error same as for Access 97
                     }
                     else
                         strConnection = (m_cfgGeneral.strDevDataPath + "\\2007-2016");
@@ -253,7 +251,7 @@ namespace SimpleDbReader
                 Console.WriteLine("  (Using the \"ProductName\" field as an example)");
                 Console.WriteLine(
                     "#\tRequired\tValidateOnSet\tValidationRule\tValidationText\tSize\tValue");
-                DAO.Field fd = null;
+                DAO.Field fd;
                 rs.MoveFirst();
                 while (!rs.EOF)
                 {
@@ -322,7 +320,7 @@ namespace SimpleDbReader
             string strConnection = string.Empty;
             DAO.DBEngine dbEngine = new DAO.DBEngine();
             DAO.Database db = null;
-            foreach (AccessDbType dbType in Enum.GetValues(typeof(AccessDbType)))
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
