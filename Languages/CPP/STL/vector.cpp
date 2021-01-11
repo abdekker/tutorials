@@ -8,7 +8,7 @@
 #include <valarray>
 #include <vector>
 
-#include "..\Utils\stringHelper.h"
+#include "..\Utils\vectorHelper.h"
 
 using namespace std;
 void basicVector()
@@ -61,7 +61,7 @@ void copyVector()
     cout << "\n### Copy variables of type 'std::vector<T>' ###\n";
 
     // Declare a helper to investigate types
-    stringHelper helper;
+    vectorHelper helper;
 
     // Construct a simple vector of integers
     vector<int> vec1 = {3, 1, 4, 1, 5, 9};
@@ -137,8 +137,8 @@ void sumVector()
     // Summing the elements in a std::vector
     cout << "\n### Sum elements of 'std::vector<int>' ###\n";
 
-    // Declare a helper to investigate types
-    stringHelper helper;
+    // Declare a helper to easily print vectors
+    vectorHelper helper;
 
     // Construct a simple vector
     vector<int> vec = {3, 1, 4, 1, 5, 9};
@@ -223,6 +223,78 @@ void sumVector()
     cout << "\n#\n";
 }
 
+void searchVector()
+{
+    // Determine whether a particular value is in the vector
+    cout << "\n### Searching 'std::vector<int>' ###\n";
+
+    // Declare a helper to work with vectors
+    vectorHelper helper;
+
+    // Construct a simple vector
+    vector<int> vec = {3, 1, 4, 1, 5, 9};
+    cout << "(";
+    helper.PrintVector<int>(vec);
+    cout << ")";
+
+    // Search for the existence of particular value (we'll search for the numbers 1 through 4)
+    {
+        // Method 1 (using loop). Simple loops, iterators, range-based loops, etc are all essentially
+        // the same. Only a simple loop is demonstrated here.
+        cout << "\nSearch 1 - Simple loop\n";
+        bool found = false;
+        for (int findMe=1; findMe<=4; findMe++)
+        {
+            found = false;
+            cout << "  " << findMe << ": ";
+            for (int i=0; i<vec.size(); i++)
+            {
+                if (vec[i] == findMe)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            
+            cout << boolalpha << found << endl;
+        }
+    }
+
+    {
+        // Method 2 (std::find). See vectorHelper.h for implementation details.
+        cout << "\nSearch 2 - std::find (recommended)\n";
+        for (int findMe=1; findMe<=4; findMe++)
+        {
+            cout << "  " << findMe << ": ";
+            cout << boolalpha << helper.Contains(vec, findMe) << endl;
+        }
+    }
+
+    {
+        // Method 3 (std::anyof using a lambda). Not recommended - use std::find instead.
+        cout << "\nSearch 3 - std::any_of with a lambda function\n";
+        for (int findMe=1; findMe<=4; findMe++)
+        {
+            cout << "  " << findMe << ": ";
+            cout << boolalpha <<
+                any_of(vec.begin(), vec.end(), [&](const int& elem) { return elem == findMe; }) << endl;
+        }
+    }
+
+    {
+        // Method 4 (std::count). Not recommended (because of efficiency) - use std::find instead.
+        cout << "\nSearch 4 - std::count\n";
+        for (int findMe=1; findMe<=4; findMe++)
+        {
+            cout << "  " << findMe << ": ";
+            cout << boolalpha <<
+                (count(vec.begin(), vec.end(), findMe) > 0) << endl;
+        }
+    }
+
+    cout << "#\n";
+}
+
 int main()
 {
     // References for the std::map data structure:
@@ -235,6 +307,7 @@ int main()
     basicVector();
     copyVector();
     sumVector();
+    searchVector();
 
     // Prompt for exit
     cout << "\nFinished...press a key to exit\n";
