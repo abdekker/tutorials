@@ -152,6 +152,12 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:N}\t\t\t[using 0:N]", f1);
             Console.WriteLine("  A = {0:P}\t\t\t[using 0:P]", f1);
             Console.WriteLine();
+
+            Console.WriteLine("(list of basic methods to format a floating point number)");
+            Console.WriteLine("  A = {0:0.0000}\t\t\t[using \"{{0:0.0...}}\"]", f1);
+            Console.WriteLine("  A = {0}\t\t\t[custom function using \"{{0:F*}}\" internally]", FormatFloat(f1, 4));
+            Console.WriteLine("  A = {0}\t\t\t[using System.Single::ToString(format)]", f1.ToString("0.0000"));
+            Console.WriteLine();
         }
 
         private static void OutputInfo_Double()
