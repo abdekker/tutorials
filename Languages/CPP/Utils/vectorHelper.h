@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 // Header-only helper class for using vectors
@@ -11,10 +12,10 @@ public:
     ~vectorHelper() {}
 
     template <typename T> 
-    const bool Contains(std::vector<T>& vec, const T& elem)
+    const bool Contains(std::vector<T>& input, const T& elem)
     {
         // Does the vector contains the requested value?
-        if (std::find(vec.begin(), vec.end(), elem) != vec.end())
+        if (std::find(input.begin(), input.end(), elem) != input.end())
             return true;
 
         return false;
