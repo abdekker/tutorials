@@ -9,6 +9,7 @@ Additional details on puzzles (where the one-line description i
 0007: Generate a square spiral matrix from 1 to n^2
 0008: In the MIU system invented by Douglas R. Hofstadter, can the word "MU" be generated from "MI"?
 0009: Generate a number of rounds for 18 people in groups of size 3 (ie. 6 groups per round). Everyone should be in a group with everyone else at least once.
+0010: Starting with 200 blocks, remove a different prime number of blocks in seven rounds according to rules given below
 
 ### 0001 - nothing more required ###
 ### 0002 - nothing more required ###
@@ -85,9 +86,22 @@ Ideally, the total number of people and the group size would be flexible.
 An example application:
 * 18 young violin players are meeting at a summer camp
 * The organiser has acquired a number of violin trios
-* Each round, the organiser wishes to partition the players together into six groups (18/3=6)
+* Each round, the organiser wishes to create six groups, with 3 violinists per group
 * During a round, all groups play through the same trio
 * After, say, 30 minutes and a short break, a new round starts with a fresh grouping and new trio
-* Everyone should play with everyone else at least once during the day (order does not matter)
+* Everyone should play with everyone else at least once during the day
+* The order when they play with each other, or the order within each group does not matter
 * What is the minimum number of rounds required to product this result?
+#
+
+### 0010 ###
+You build a large tower of 200 Lego bricks. Each round, launch a missile (eg. a ball) at the tower and knock off a (different) prime number of bricks off the tower, fewer than remain. After each shot, the number of bricks left in the tower was:
+1) a prime
+2) a square
+3) a cube
+4) a prime times a square greater than 1
+5) a prime times a cube greater than 1
+6) none of the aforementioned
+7) a prime
+The above would still be valid if the numbers blasted off by the sixth and seventh shots were swapped. How many bricks remained in the tower after the seventh shot?
 #

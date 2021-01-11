@@ -39,6 +39,9 @@
     <ClCompile Include="puzzle0007.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="puzzle0010.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

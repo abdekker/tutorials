@@ -10,3 +10,4 @@ These puzzles are common programming tasks, such as might be asked in a job inte
 0007: Generate a square spiral matrix from 1 to n^2
 0008: In the MIU system invented by Douglas R. Hofstadter, can the word "MU" be generated from "MI"?
 0009: Generate a number of rounds for 18 people in groups of size 3 (ie. 6 groups per round). Everyone should be in a group with everyone else at least once.
+0010: Starting with 200 blocks, remove a different prime number of blocks in seven rounds according to rules in the "Details" file

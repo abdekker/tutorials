@@ -157,6 +157,7 @@
     <ClCompile Include="puzzle0005.cpp" />
     <ClCompile Include="puzzle0006.cpp" />
     <ClCompile Include="puzzle0007.cpp" />
+    <ClCompile Include="puzzle0010.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helperFunctions.h" />

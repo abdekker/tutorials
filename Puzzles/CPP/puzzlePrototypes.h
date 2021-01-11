@@ -13,5 +13,5 @@ void RunPuzzle0004();
 ARRAY RunPuzzle0005(ARRAY input);
 void RunPuzzle0006(ARRAY* input, const int cMultiplier);
 void RunPuzzle0007(MATRIX* input, const int size);
-
-
+// Puzzle 0008/0009 (currently) solved in Delphi only
+int RunPuzzle0010(int startingBricks);
