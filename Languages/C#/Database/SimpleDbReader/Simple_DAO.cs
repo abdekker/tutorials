@@ -29,7 +29,7 @@ namespace SimpleDbReader
         public override void Read()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: DAO (read) ###");
+            Console.WriteLine("### START: DAO (read, SimpleTest.mdb) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -94,20 +94,6 @@ namespace SimpleDbReader
 
         protected override void Connect_Read(string strConnection)
         {
-            /*SimpleMemberReaderSqlServer reader = new SimpleMemberReaderSqlServer();
-            SimpleMemberReaderODBC reader = new SimpleMemberReaderODBC();
-            Collection<SimpleMember> members = reader.Execute();
-            foreach (SimpleMember m in members)
-                Console.WriteLine(string.Format("{0}, {1}: {2}",
-                    m.MemberID,
-                    m.Surname,
-                    m.FirstName,
-                    m.DOB,
-                    m.Fee,
-                    m.Accepted,
-                    m.Points));
-            Console.ReadLine();*/
-
             // Use the DAO::DBEngine to open an Access database and read recordsets
 
             // Note: On one machine running Windows 10 and Office 365, the DBEngine had these details:
@@ -127,18 +113,9 @@ namespace SimpleDbReader
             {
                 // Go through each record in the RecordSet, writing the result to the console window
                 int recordsRead = 0;
-                Console.WriteLine("\t{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-                    CommonSimple.colMemberID,
-                    CommonSimple.colSurname,
-                    CommonSimple.colFirstName,
-                    CommonSimple.colDOB,
-                    CommonSimple.colFee,
-                    CommonSimple.colAccepted,
-                    CommonSimple.colPoints);
+                Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
 
-                string[] s = new string[10];
-                object obj;
-                DateTime dt;
+                CommonSimpleMemberRecord rsTmp = new CommonSimpleMemberRecord();
                 rs.MoveFirst();
                 dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 while (!rs.EOF)
@@ -146,24 +123,8 @@ namespace SimpleDbReader
                     recordsRead++;
                     try
                     {
-                        s[0] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colMemberID).ToString();
-                        s[1] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colSurname).ToString();
-                        s[2] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colFirstName).ToString();
-                        s[3] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colDOB).ToString();
-                        obj = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colDOB);
-                        dt = (DateTime)m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colDOB);
-                        s[4] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colFee).ToString();
-                        s[5] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colAccepted).ToString();
-                        s[6] = m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colPoints).ToString();
-
-                        Console.WriteLine("\t{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-                            m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colMemberID),
-                            m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colSurname),
-                            m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colFirstName),
-                            ((DateTime)m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colDOB)).ToString(cszDateISO8601),
-                            (Decimal)m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colFee),
-                            (bool)m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colAccepted),
-                            (int)m_utilsDAO.HelperSafeGetFieldValue(rs, CommonSimple.colPoints));
+                        ConvertRecordset(in rs, ref rsTmp);
+                        Console.WriteLine(CommonSimpleMemberRecord.GetRecordAsString(in rsTmp));
                     }
                     catch { }
                     rs.MoveNext();
@@ -188,5 +149,54 @@ namespace SimpleDbReader
             return 0;
         }
         #endregion // Abstract methods from the base class
+
+        #region Methods specific to this class
+        private void ConvertRecordset(in DAO.Recordset rsDAO, ref CommonSimpleMemberRecord rsSimple)
+        {
+            // Convert the DAO recordset to a local, strongly-typed, version
+            CommonSimpleMemberRecord.DefaultRecord(ref rsSimple);
+            try
+            {
+                rsSimple.MemberID = (int)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colMemberID);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Surname = (string)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colSurname);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.FirstName = (string)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colFirstName);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.DOB = (DateTime)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colDOB);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Fee = (Decimal)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colDOB);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Accepted = (bool)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colAccepted);
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Points = (int)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colPoints);
+            }
+            catch { }
+        }
+        #endregion // Methods specific to this class
     }
 }

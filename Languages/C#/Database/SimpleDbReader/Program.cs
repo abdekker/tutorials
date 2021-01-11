@@ -38,12 +38,12 @@ namespace SimpleDbReader
             // Define the tests to be performed
             m_tests = (
                 //cSimpleCreateDB +
-                //cSimpleRead +
+                cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
                 //cNorthwindDummyOpenClose +
                 //cNorthwindStats
-                cNorthwindRead
+                //cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance +
                 //cDifferentQueryStrings
@@ -68,7 +68,7 @@ namespace SimpleDbReader
 
             if ((m_tests & cSimpleRead) != 0)
             {
-                m_db.SimpleRead(DatabaseTechnology.eDB_DAO);
+                //m_db.SimpleRead(DatabaseTechnology.eDB_DAO);
                 m_db.SimpleRead(DatabaseTechnology.eDB_ODBC);
             }
 

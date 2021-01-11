@@ -39,7 +39,13 @@ namespace SimpleDbReader
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
-                    Connect_Read(strConnection);
+                {
+                    foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
+                    {
+                        m_dbAccess = dbAccess;
+                        Connect_Read(strConnection);
+                    }
+                }
             }
 
             Console.WriteLine("### END: Simple DAO (read) ###\n");
@@ -115,46 +121,10 @@ namespace SimpleDbReader
 
         protected override void Connect_Read(string strConnection)
         {
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
-            {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-
-                // Open the connection in a try/catch block
-                try
-                {
-                    // Create and execute the DataReader, writing the result to the console window
-                    int recordsRead = 0;
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-                        CommonSimple.colMemberID,
-                        CommonSimple.colSurname,
-                        CommonSimple.colFirstName,
-                        CommonSimple.colDOB,
-                        CommonSimple.colFee,
-                        CommonSimple.colAccepted,
-                        CommonSimple.colPoints);
-
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        recordsRead++;
-                        Console.WriteLine("\t{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-                            reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6]);
-                    }
-                    reader.Close();
-                    Console.WriteLine("    ({0} records)", recordsRead);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            Console.WriteLine();
+            if (m_dbAccess == DatabaseAccess.eDbAccess_Raw)
+                Connect_Read_Raw(strConnection);
+            else if (m_dbAccess == DatabaseAccess.eDbAccess_Template)
+                Connect_Read_Template(strConnection);
         }
 
         protected override void Connect_Write(string strConnection)
@@ -168,5 +138,113 @@ namespace SimpleDbReader
             return 0;
         }
         #endregion // Abstract methods from the base class
+
+        #region Methods specific to this class
+        private void Connect_Read_Raw(string strConnection)
+        {
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            Console.WriteLine("(raw)");
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader, writing the result to the console window
+                    int recordsRead = 0;
+                    Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
+
+                    CommonSimpleMemberRecord rsTmp = new CommonSimpleMemberRecord();
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                        ConvertRecordset(in reader, ref rsTmp);
+                        Console.WriteLine(CommonSimpleMemberRecord.GetRecordAsString(in rsTmp));
+                    }
+                    reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        private void Connect_Read_Template(string strConnection)
+        {
+            // This method uses a template method to create a Data Access Layer (DAL) to the database
+            Console.WriteLine("(template)");
+            SimpleReader_Member reader = new SimpleReader_Member();
+            reader.DbTechnology = m_tech;
+            reader.ConnectionString = strConnection;
+            reader.CmdText = m_cfgDatabase.strQuery;
+            Collection<SimpleMember> members = reader.Execute();
+
+            int recordsRead = 0;
+            Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
+            foreach (SimpleMember m in members)
+            {
+                recordsRead++;
+                Console.WriteLine(CommonSimpleMemberRecord.GetSimpleMemberAsString(in m));
+            }
+            Console.WriteLine();
+        }
+
+        private void ConvertRecordset(in OdbcDataReader reader, ref CommonSimpleMemberRecord rsSimple)
+        {
+            // Convert the ODBC recordset to a local, strongly-typed, version
+            CommonSimpleMemberRecord.DefaultRecord(ref rsSimple);
+            try
+            {
+                rsSimple.MemberID = (int)reader[0];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Surname = (string)reader[1];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.FirstName = (string)reader[2];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.DOB = (DateTime)reader[3];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Fee = (Decimal)reader[4];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Accepted = (bool)reader[5];
+            }
+            catch { }
+
+            try
+            {
+                rsSimple.Points = (int)reader[6];
+            }
+            catch { }
+        }
+        #endregion // Methods specific to this class
     }
 }
