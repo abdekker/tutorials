@@ -69,10 +69,10 @@
         protected string HelperGetAccessName(bool bFullDescription)
         {
             // Provide a human-readable name for the access database
-            string strName = string.Empty;
+            string strName;
             switch (m_cfgDatabase.dbType)
             {
-                case AccessDbType.eAccess97:
+                case MSAccessDbType.eMSAccess97:
                     strName = "Access 97";
                     if (bFullDescription)
                     {
@@ -84,7 +84,7 @@
                     }
                     break;
 
-                case AccessDbType.eAccess2000:
+                case MSAccessDbType.eMSAccess2000:
                     strName = "Access 2000";
                     if (bFullDescription)
                     {
@@ -96,7 +96,7 @@
                     }
                     break;
 
-                case AccessDbType.eAccess2007_2016:
+                case MSAccessDbType.eMSAccess2007_2016:
                     strName = "Access 2007-2016";
                     if (bFullDescription)
                     {
