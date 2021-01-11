@@ -6,19 +6,28 @@
     public enum DatabaseTechnology
     {
         // DB technology being tested (approximate chronological order when they were introduced)
+        // Note: Modern database technologies (ODBC, OleDB, SqlServer, ...) derive from DbConnection
         eDB_Unknown,
-        eDB_DAO,        // DAO (add reference to Microsoft DAO 3.6 Object Library)
-        eDB_ODBC,       // System.Data.Odbc.OdbcConnection
-        eDB_OleDB       // System.Data.OleDb.OleDbConnection
+        eDB_DAO,                // DAO (add reference to Microsoft DAO 3.6 Object Library)
+        eDB_ODBC,               // System.Data.Odbc.OdbcConnection : DbConnection
+        eDB_OleDB,              // System.Data.OleDb.OleDbConnection : DbConnection
+        eDB_SqlServer           // System.Data.SqlClient.SqlConnection : DbConnection
     };
 
-    public enum AccessDbType
+    public enum DatabaseAccess
     {
-        // Access database formats
-        eAccessUnknown,
-        eAccess97,
-        eAccess2000,
-        eAccess2007_2016
+        // How the database is read (raw or through a templated mapper)
+        eDbAccess_Raw,
+        eDbAccess_Template
+    };
+
+    public enum MSAccessDbType
+    {
+        // Microsoft Access database formats
+        eMSAccessUnknown,
+        eMSAccess97,              // .mdb
+        eMSAccess2000,            // .mdb
+        eMSAccess2007_2016        // .mdb and .accdb
     }
 
     public enum QueryType
@@ -45,8 +54,8 @@
     {
         // Configuration information about the database being accessed
 
-        // Access database format
-        public AccessDbType dbType;
+        // Microsoft Access database format
+        public MSAccessDbType dbType;
 
         // Main query
         public QueryType queryType;
