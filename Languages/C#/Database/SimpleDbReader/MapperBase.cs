@@ -10,6 +10,18 @@ namespace SimpleDbReader
     // Template mapper and object readers are adapted from:
     // https://www.c-sharpcorner.com/article/an-elegant-C-Sharp-data-access-layer-using-the-template-pattern-a/
 
+    #region Base class for records
+    interface IRecordBase
+    {
+        // Base class for all database records
+
+        // Helper methods (which might be used for printing to the console)
+        void DefaultRecord();
+        string GetRecordHeader();
+        string GetRecordAsString();
+    }
+    # endregion // Base class for records
+
     #region Mapper base class (for SQL Server, ODBC, ...)
     abstract class MapperBase<T>
     {
@@ -54,7 +66,7 @@ namespace SimpleDbReader
         // Constructor
         public ObjectReaderBase()
         {
-            // Set defaults for the technlogy and connection strings (these should be updated by the user)
+            // Set defaults for the technology and connection strings (these should be updated by the user)
             DbTechnology = DatabaseTechnology.eDB_ODBC;
             ConnectionString = @"Driver={Microsoft Access Driver (*.mdb)};Dbq=YOUR_DATABASE_HERE;Uid=Admin;Pwd=;";
             CmdText = "SELECT * FROM SOME_TABLE";

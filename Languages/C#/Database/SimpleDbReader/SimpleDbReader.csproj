@@ -100,9 +100,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonDefsSimple.cs" />
     <Compile Include="DbTester.cs" />
     <Compile Include="CommonDefs.cs" />
+    <Compile Include="MapperNorthwind.cs" />
     <Compile Include="MapperSimple.cs" />
     <Compile Include="MapperBase.cs" />
     <Compile Include="DatabaseCommon.cs" />

@@ -23,7 +23,20 @@ namespace SimpleDbReader
         #region Abstract methods from the base class
         public override void GetStats()
         {
-            // TODO
+            // DAO (Data Access Objects)
+            Console.WriteLine("### START: DAO (stats, SimpleTest.mdb) ###");
+
+            // See the class constructor for details on databases
+            string strConnection = string.Empty;
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
+            {
+                m_cfgDatabase.dbType = dbType;
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
+                if (SetConnectionString(ref strConnection))
+                    Connect_Stats(strConnection);
+            }
+
+            Console.WriteLine("### END: DAO (stats) ###\n");
         }
 
         public override void Read()
@@ -56,7 +69,26 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
-            // TODO
+            // Generate some statistics about the selected database
+            DAO.DBEngine dbEngine = new DAO.DBEngine();
+            dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
+            DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
+
+            // Tables
+            if (db.TableDefs.Count > 0)
+            {
+                // Note: Access 97 databases tend to come with 
+                Console.WriteLine("    ({0} tables in {1})", db.TableDefs.Count, db.Name);
+                foreach (DAO.TableDef td in db.TableDefs)
+                {
+                    Console.WriteLine("      {0}", td.Name);
+                }
+            }
+            else
+                Console.WriteLine("    (There are no tables in {0}!)", db.Name);
+
+            db.Close();
+            Console.WriteLine();
         }
 
         public override bool SetConnectionString(ref string strConnection)
@@ -112,19 +144,21 @@ namespace SimpleDbReader
             if (!(rs.BOF && rs.EOF))
             {
                 // Go through each record in the RecordSet, writing the result to the console window
-                int recordsRead = 0;
-                Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
+                Simple_Members rsTmp = new Simple_Members();
+                Console.WriteLine(rsTmp.GetRecordHeader());
 
-                CommonSimpleMemberRecord rsTmp = new CommonSimpleMemberRecord();
+                int recordsRead = 0;
                 rs.MoveFirst();
                 dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 while (!rs.EOF)
                 {
+                    if (recordsRead == 0)
+
                     recordsRead++;
                     try
                     {
                         ConvertRecordset(in rs, ref rsTmp);
-                        Console.WriteLine(CommonSimpleMemberRecord.GetRecordAsString(in rsTmp));
+                        Console.WriteLine(rsTmp.GetRecordAsString());
                     }
                     catch { }
                     rs.MoveNext();
@@ -151,49 +185,49 @@ namespace SimpleDbReader
         #endregion // Abstract methods from the base class
 
         #region Methods specific to this class
-        private void ConvertRecordset(in DAO.Recordset rsDAO, ref CommonSimpleMemberRecord rsSimple)
+        private void ConvertRecordset(in DAO.Recordset rsDAO, ref Simple_Members rsMember)
         {
             // Convert the DAO recordset to a local, strongly-typed, version
-            CommonSimpleMemberRecord.DefaultRecord(ref rsSimple);
+            rsMember.DefaultRecord();
             try
             {
-                rsSimple.MemberID = (int)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colMemberID);
+                rsMember.MemberID = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colMemberID);
             }
             catch { }
 
             try
             {
-                rsSimple.Surname = (string)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colSurname);
+                rsMember.Surname = (string)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colSurname);
             }
             catch { }
 
             try
             {
-                rsSimple.FirstName = (string)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colFirstName);
+                rsMember.FirstName = (string)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colFirstName);
             }
             catch { }
 
             try
             {
-                rsSimple.DOB = (DateTime)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colDOB);
+                rsMember.DOB = (DateTime)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colDOB);
             }
             catch { }
 
             try
             {
-                rsSimple.Fee = (Decimal)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colDOB);
+                rsMember.Fee = (Decimal)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colDOB);
             }
             catch { }
 
             try
             {
-                rsSimple.Accepted = (bool)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colAccepted);
+                rsMember.Accepted = (bool)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colAccepted);
             }
             catch { }
 
             try
             {
-                rsSimple.Points = (int)m_utilsDAO.HelperSafeGetFieldValue(rsDAO, CommonSimple.colPoints);
+                rsMember.Points = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colPoints);
             }
             catch { }
         }

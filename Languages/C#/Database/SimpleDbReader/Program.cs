@@ -15,15 +15,19 @@ namespace SimpleDbReader
 
         // Tests to be performed
         private static UInt32 m_tests = 0x00000000;
+
         private static readonly UInt32 cSimpleCreateDB              = 0x00000001;
-        private static readonly UInt32 cSimpleRead                  = 0x00000002;
-        private static readonly UInt32 cSimpleModify                = 0x00000004;
-        private static readonly UInt32 cNorthwindDummyOpenClose     = 0x00000010;
-        private static readonly UInt32 cNorthwindRead               = 0x00000100;
-        private static readonly UInt32 cNorthwindWrite              = 0x00000200;
-        private static readonly UInt32 cNorthwindStats              = 0x00000400;
-        private static readonly UInt32 cNorthwindPerformance        = 0x00000800;
+        private static readonly UInt32 cSimpleStats                 = 0x00000002;
+        private static readonly UInt32 cSimpleRead                  = 0x00000004;
+        private static readonly UInt32 cSimpleModify                = 0x00000008;
+
+        private static readonly UInt32 cNorthwindDummyOpenClose     = 0x00000100;
+        private static readonly UInt32 cNorthwindStats              = 0x00000200;
+        private static readonly UInt32 cNorthwindRead               = 0x00000400;
+        private static readonly UInt32 cNorthwindWrite              = 0x00000800;
+        private static readonly UInt32 cNorthwindPerformance        = 0x00001000;
         private static readonly UInt32 cDifferentQueryStrings       = 0x00100000;
+
         private static readonly UInt32 cOtherTests                  = 0x80000000;
 
         // Access method for this application
@@ -38,12 +42,13 @@ namespace SimpleDbReader
             // Define the tests to be performed
             m_tests = (
                 //cSimpleCreateDB +
-                cSimpleRead
+                //cSimpleStats
+                //cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
                 //cNorthwindDummyOpenClose +
                 //cNorthwindStats
-                //cNorthwindRead
+                cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance +
                 //cDifferentQueryStrings
@@ -66,9 +71,17 @@ namespace SimpleDbReader
             if ((m_tests & cSimpleCreateDB) != 0)
                 m_db.SimpleCreateDB();
 
+            // Count tables, columns and other statistics
+            if ((m_tests & cSimpleStats) != 0)
+            {
+                m_db.SimpleStats(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
+                Console.WriteLine();
+            }
+
             if ((m_tests & cSimpleRead) != 0)
             {
-                //m_db.SimpleRead(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleRead(DatabaseTechnology.eDB_DAO);
                 m_db.SimpleRead(DatabaseTechnology.eDB_ODBC);
             }
 
@@ -91,7 +104,7 @@ namespace SimpleDbReader
                 Console.WriteLine();
             }
 
-            // Count columns and other statistics
+            // Count tables, columns and other statistics
             if ((m_tests & cNorthwindStats) != 0)
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);

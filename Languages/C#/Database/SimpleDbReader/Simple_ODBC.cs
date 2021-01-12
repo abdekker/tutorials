@@ -6,7 +6,7 @@ namespace SimpleDbReader
 {
     class Simple_ODBC : DatabaseCommon
     {
-        // Member variables unique to this class
+        // Member variables specific to this class
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
 
         // Constructor
@@ -30,7 +30,7 @@ namespace SimpleDbReader
         public override void Read()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: Simple ODBC (read) ###");
+            Console.WriteLine("### START: Simple ODBC (read, SimpleTest.mdb) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -155,17 +155,17 @@ namespace SimpleDbReader
                 try
                 {
                     // Create and execute the DataReader, writing the result to the console window
-                    int recordsRead = 0;
-                    Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
+                    Simple_Members rsTmp = new Simple_Members();
+                    Console.WriteLine(rsTmp.GetRecordHeader());
 
-                    CommonSimpleMemberRecord rsTmp = new CommonSimpleMemberRecord();
+                    int recordsRead = 0;
                     connection.Open();
                     OdbcDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
                         recordsRead++;
                         ConvertRecordset(in reader, ref rsTmp);
-                        Console.WriteLine(CommonSimpleMemberRecord.GetRecordAsString(in rsTmp));
+                        Console.WriteLine(rsTmp.GetRecordAsString());
                     }
                     reader.Close();
                     Console.WriteLine("    ({0} records)", recordsRead);
@@ -183,65 +183,67 @@ namespace SimpleDbReader
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
             Console.WriteLine("(template)");
-            SimpleReader_Member reader = new SimpleReader_Member();
+            SimpleReader_Members reader = new SimpleReader_Members();
             reader.DbTechnology = m_tech;
             reader.ConnectionString = strConnection;
             reader.CmdText = m_cfgDatabase.strQuery;
-            Collection<SimpleMember> members = reader.Execute();
+            Collection<Simple_Members> members = reader.Execute();
 
             int recordsRead = 0;
-            Console.WriteLine(CommonSimpleMemberRecord.GetRecordHeader());
-            foreach (SimpleMember m in members)
+            foreach (Simple_Members m in members)
             {
+                if (recordsRead == 0)
+                    Console.WriteLine(m.GetRecordHeader());
+
                 recordsRead++;
-                Console.WriteLine(CommonSimpleMemberRecord.GetSimpleMemberAsString(in m));
+                Console.WriteLine(m.GetRecordAsString());
             }
             Console.WriteLine();
         }
 
-        private void ConvertRecordset(in OdbcDataReader reader, ref CommonSimpleMemberRecord rsSimple)
+        private void ConvertRecordset(in OdbcDataReader reader, ref Simple_Members rsMember)
         {
             // Convert the ODBC recordset to a local, strongly-typed, version
-            CommonSimpleMemberRecord.DefaultRecord(ref rsSimple);
+            rsMember.DefaultRecord();
             try
             {
-                rsSimple.MemberID = (int)reader[0];
+                rsMember.MemberID = (int)reader[0];
             }
             catch { }
 
             try
             {
-                rsSimple.Surname = (string)reader[1];
+                rsMember.Surname = (string)reader[1];
             }
             catch { }
 
             try
             {
-                rsSimple.FirstName = (string)reader[2];
+                rsMember.FirstName = (string)reader[2];
             }
             catch { }
 
             try
             {
-                rsSimple.DOB = (DateTime)reader[3];
+                rsMember.DOB = (DateTime)reader[3];
             }
             catch { }
 
             try
             {
-                rsSimple.Fee = (Decimal)reader[4];
+                rsMember.Fee = (Decimal)reader[4];
             }
             catch { }
 
             try
             {
-                rsSimple.Accepted = (bool)reader[5];
+                rsMember.Accepted = (bool)reader[5];
             }
             catch { }
 
             try
             {
-                rsSimple.Points = (int)reader[6];
+                rsMember.Points = (int)reader[6];
             }
             catch { }
         }

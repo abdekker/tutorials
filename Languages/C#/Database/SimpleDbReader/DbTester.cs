@@ -118,6 +118,17 @@ namespace SimpleDbReader
             //    File.Delete(strDatabase);
         }
 
+        public void SimpleStats(DatabaseTechnology eTechnology)
+        {
+            // Test one of the database technologies available in .NET (reading)
+            if (eTechnology == DatabaseTechnology.eDB_DAO)
+                m_simpleDAO.GetStats();
+            else if (eTechnology == DatabaseTechnology.eDB_ODBC)
+                m_simpleODBC.GetStats();
+
+            // TODO: OleDB
+        }
+
         public void SimpleRead(DatabaseTechnology eTechnology)
         {
             if (eTechnology == DatabaseTechnology.eDB_DAO)

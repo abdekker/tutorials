@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Data.Odbc;
 
 namespace SimpleDbReader
 {
     class Northwind_ODBC : DatabaseCommon
     {
+        // Member variables specific to this class
+        private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
+
         // Constructor
         public Northwind_ODBC(ConfigGeneral cfgGeneral, ConfigDatabase cfgDatabase) :
             base(cfgGeneral, cfgDatabase)
@@ -35,7 +39,13 @@ namespace SimpleDbReader
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
-                    Connect_Read(strConnection);
+                {
+                    foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
+                    {
+                        m_dbAccess = dbAccess;
+                        Connect_Read(strConnection);
+                    }
+                }
             }
 
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (read) ###\n");
@@ -151,40 +161,10 @@ namespace SimpleDbReader
 
         protected override void Connect_Read(string strConnection)
         {
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
-            {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-
-                // Open the connection in a try/catch block
-                try
-                {
-                    // Create and execute the DataReader, writing the result to the console window
-                    int recordsRead = 0;
-                    Console.WriteLine("\t{0}\t{1}\t{2}",
-                        "ProductID", "UnitPrice", "ProductName");
-
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        recordsRead++;
-                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                            reader[0], reader[1], reader[2]);
-                    }
-                    reader.Close();
-                    Console.WriteLine("    ({0} records)", recordsRead);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            Console.WriteLine();
+            if (m_dbAccess == DatabaseAccess.eDbAccess_Raw)
+                Connect_Read_Raw(strConnection);
+            else if (m_dbAccess == DatabaseAccess.eDbAccess_Template)
+                Connect_Read_Template(strConnection);
         }
 
         protected override void Connect_Write(string strConnection)
@@ -224,5 +204,134 @@ namespace SimpleDbReader
             return recordsRead;
         }
         #endregion // Abstract methods from the base class
+
+        #region Methods specific to this class
+        private void Connect_Read_Raw(string strConnection)
+        {
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            Console.WriteLine("(raw)");
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                // Create the Command and Parameter objects
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+
+                // Open the connection in a try/catch block
+                try
+                {
+                    // Create and execute the DataReader, writing the result to the console window
+                    Northwind_Products rsTmp = new Northwind_Products();
+                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                        "ProductID", "UnitPrice", "ProductName");
+
+                    int recordsRead = 0;
+                    connection.Open();
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        recordsRead++;
+                        //TODO ConvertRecordset(in reader, ref rsTmp);
+                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
+                            reader[0], reader[1], reader[2]);
+                    }
+                    reader.Close();
+                    Console.WriteLine("    ({0} records)", recordsRead);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        private void Connect_Read_Template(string strConnection)
+        {
+            // This method uses a template method to create a Data Access Layer (DAL) to the database
+            Console.WriteLine("(template)");
+            NorthwindReader_Products reader = new NorthwindReader_Products();
+            reader.DbTechnology = m_tech;
+            reader.ConnectionString = strConnection;
+            reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+            Collection<Northwind_Products> products = reader.Execute();
+
+            int recordsRead = 0;
+            Console.WriteLine(Northwind_Products.GetRecordHeader());
+            foreach (Northwind_Products p in products)
+            {
+                recordsRead++;
+                Console.WriteLine(p.GetRecordAsString());
+            }
+            Console.WriteLine("    ({0} records)", recordsRead);
+            Console.WriteLine();
+        }
+
+        private void ConvertRecordset(in OdbcDataReader reader, ref Northwind_Products rsProduct)
+        {
+            // Convert the ODBC recordset to a local, strongly-typed, version
+            rsProduct.DefaultRecord();
+            try
+            {
+                rsProduct.ProductID = (int)reader[0];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ProductName = (string)reader[1];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.SupplierID = (int)reader[2];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.CategoryID = (int)reader[3];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.QuantityPerUnit = (string)reader[4];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitPrice = (decimal)reader[5];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsInStock = (int)reader[6];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsOnOrder = (int)reader[7];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ReorderLevel = (int)reader[8];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.Discontinued = (bool)reader[8];
+            }
+            catch { }
+        }
+        #endregion // Methods specific to this class
     }
 }

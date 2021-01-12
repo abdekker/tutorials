@@ -22,7 +22,7 @@ namespace SimpleDbReader
         public override void GetStats()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: DAO (stats) ###");
+            Console.WriteLine("### START: DAO (stats, Northwind) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -161,16 +161,17 @@ namespace SimpleDbReader
             if (db.TableDefs.Count > 0)
             {
                 // Note: Access 97 databases tend to come with 
-                Console.WriteLine("    There are {0} tables in {1}:", db.TableDefs.Count, db.Name);
+                Console.WriteLine("    ({0} tables in {1})", db.TableDefs.Count, db.Name);
                 foreach (DAO.TableDef td in db.TableDefs)
                 {
                     Console.WriteLine("      {0}", td.Name);
                 }
             }
             else
-                Console.WriteLine("    There are no tables in {0}!", db.Name);
+                Console.WriteLine("    (There are no tables in {0}!)", db.Name);
 
             db.Close();
+            Console.WriteLine();
         }
 
         protected override void Connect_Read(string strConnection)
@@ -203,9 +204,9 @@ namespace SimpleDbReader
                 {
                     recordsRead++;
                     Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                        (int)m_utilsDAO.HelperSafeGetFieldValue(rs, "ProductID"),
-                        (Decimal)m_utilsDAO.HelperSafeGetFieldValue(rs, "UnitPrice"),
-                        m_utilsDAO.HelperSafeGetFieldValue(rs, "ProductName"));
+                        (int)m_utilsDAO.SafeGetFieldValue(rs, "ProductID"),
+                        (Decimal)m_utilsDAO.SafeGetFieldValue(rs, "UnitPrice"),
+                        m_utilsDAO.SafeGetFieldValue(rs, "ProductName"));
                     rs.MoveNext();
                     dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 }
@@ -233,7 +234,7 @@ namespace SimpleDbReader
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
             {
-                Console.WriteLine(m_utilsDAO.HelperIsRecordsetUpdateable(rs));
+                Console.WriteLine(m_utilsDAO.IsRecordUpdateable(rs));
                 rs.Close();
             }
 
@@ -243,7 +244,7 @@ namespace SimpleDbReader
                 DAO.RecordsetTypeEnum.dbOpenDynaset);
             if (!(rs.BOF && rs.EOF))
             {
-                Console.WriteLine(m_utilsDAO.HelperIsRecordsetUpdateable(rs));
+                Console.WriteLine(m_utilsDAO.IsRecordUpdateable(rs));
                 Console.WriteLine();
 
                 // Now go through all records and check various properties
@@ -256,15 +257,15 @@ namespace SimpleDbReader
                 while (!rs.EOF)
                 {
                     recordsRead++;
-                    fd = m_utilsDAO.HelperSafeGetField(rs, "ProductName");
+                    fd = m_utilsDAO.SafeGetField(rs, "ProductName");
                     if (fd != null)
                     {
                         Console.WriteLine("{0}\t{1}\t\t{2}\t\t{3}\t\t{4}\t\t{5}\t{6}",
                             recordsRead,
                             fd.Required,
-                            m_utilsDAO.HelperBoolFieldToString(fd.ValidateOnSet),
-                            m_utilsDAO.HelperStringFieldToString(fd.ValidationRule),
-                            m_utilsDAO.HelperStringFieldToString(fd.ValidationText),
+                            m_utilsDAO.BoolFieldToString(fd.ValidateOnSet),
+                            m_utilsDAO.StringFieldToString(fd.ValidationRule),
+                            m_utilsDAO.StringFieldToString(fd.ValidationText),
                             fd.Size,
                             fd.Value);
                     }

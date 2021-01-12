@@ -6,21 +6,41 @@ namespace SimpleDbReader
 {
     // Database structure(s) and mapper(s) for the SimpleTest.mdb database
 
-    #region Member table
-    public class SimpleMember
+    #region Tables
+
+    #region Members table
+    public class Simple_Members : IRecordBase
     {
-        // Member table
+        // Class to hold records from the Members table
 
         #region Constants
+        // Columns (fields)
+        public static readonly string colMemberID = "MemberID";
+        public static readonly string colSurname = "Surname";
+        public static readonly string colFirstName = "FirstName";
+        public static readonly string colDOB = "DOB";
+        public static readonly string colFee = "Fee";
+        public static readonly string colAccepted = "Accepted";
+        public static readonly string colPoints = "Points";
+
+        // Display width
+        public static readonly int colMemberIDWidth = 10;
+        public static readonly int colSurnameWidth = 20;
+        public static readonly int colFirstNameWidth = 15;
+        public static readonly int colDOBWidth = 15;
+        public static readonly int colFeeWidth = 9;
+        public static readonly int colAcceptedWidth = 12;
+        public static readonly int colPointsWidth = 10;
+
         // Default values when a nullable entry is blank or the SQL query did not return the value
-        public readonly int cDefaultMemberID = -1;
-        public readonly string cDefaultSurname = string.Empty;
-        public readonly string cDefaultFirstName = string.Empty;
-        public readonly DateTime cDefaultDOB = DateTime.MinValue;
-        public readonly decimal cDefaultFee = 0.0m;
-        public readonly bool cDefaultAccepted = false;
-        public readonly int cDefaultPoints = -1;
-        #endregion
+        public static readonly int cDefaultMemberID = -1;
+        public static readonly string cDefaultSurname = string.Empty;
+        public static readonly string cDefaultFirstName = string.Empty;
+        public static readonly DateTime cDefaultDOB = DateTime.MinValue;
+        public static readonly decimal cDefaultFee = 0.0m;
+        public static readonly bool cDefaultAccepted = false;
+        public static readonly int cDefaultPoints = -1;
+        #endregion // Constants
 
         #region Fields
         // Fields (columns) in this table
@@ -32,11 +52,6 @@ namespace SimpleDbReader
         private bool m_accepted;
         private int m_points;
         #endregion // Fields
-
-        // Constructor
-        public SimpleMember()
-        {
-        }
 
         #region Properties
         public int MemberID
@@ -81,68 +96,113 @@ namespace SimpleDbReader
             set { m_points = value; }
         }
         #endregion // Properties
-    }
-    #endregion // Member table
 
-    #region Mapper and Reader
-    class SimpleMapper_Member : MapperBase<SimpleMember>
-    {
-        protected override SimpleMember Map(IDataRecord record)
+        // Constructor
+        public Simple_Members() { }
+
+        #region Helper methods
+        public void DefaultRecord()
         {
-            SimpleMember m = new SimpleMember();
+            // Default this record
+            this.MemberID = cDefaultMemberID;
+            this.Surname = cDefaultSurname;
+            this.FirstName = cDefaultFirstName;
+            this.DOB = cDefaultDOB;
+            this.Fee = cDefaultFee;
+            this.Accepted = cDefaultAccepted;
+            this.Points = cDefaultPoints;
+        }
+
+        public string GetRecordHeader()
+        {
+            // Helper method to print a table header to the console
+            return string.Format("\t{0}{1}{2}{3}{4}{5}{6}",
+                colMemberID.PadRight(colMemberIDWidth),
+                colSurname.PadRight(colSurnameWidth),
+                colFirstName.PadRight(colFirstNameWidth),
+                colDOB.PadRight(colDOBWidth),
+                colFee.PadRight(colFeeWidth),
+                colAccepted.PadRight(colAcceptedWidth),
+                colPoints);
+        }
+
+        public string GetRecordAsString()
+        {
+            // Helper method to format a record for printing to the console
+            return string.Format("\t{0}{1}{2}{3}{4}{5}{6}",
+                this.MemberID.ToString().PadRight(colMemberIDWidth),
+                this.Surname.PadRight(colSurnameWidth),
+                this.FirstName.PadRight(colFirstNameWidth),
+                this.DOB.ToString(DatabaseCommon.cszDateISO8601).PadRight(colDOBWidth),
+                this.Fee.ToString("0.00").PadRight(colFeeWidth),
+                this.Accepted.ToString().PadRight(colAcceptedWidth),
+                this.Points);
+        }
+        #endregion // Helper methods
+    }
+    #endregion // Members table
+    #endregion // Tables
+
+    #region Mappers, Readers
+    class SimpleMapper_Members : MapperBase<Simple_Members>
+    {
+        protected override Simple_Members Map(IDataRecord record)
+        {
+            Simple_Members m = new Simple_Members();
+            m.DefaultRecord();
             try
             {
-                m.MemberID = (DBNull.Value == record[CommonSimple.colMemberID])
-                    ? m.cDefaultMemberID
-                    : (int)record[CommonSimple.colMemberID];
+                m.MemberID = (DBNull.Value == record[Simple_Members.colMemberID])
+                    ? Simple_Members.cDefaultMemberID
+                    : (int)record[Simple_Members.colMemberID];
             }
             catch { }
 
             try
             {
-                m.Surname = (DBNull.Value == record[CommonSimple.colSurname])
-                    ? m.cDefaultSurname
-                    : (string)record[CommonSimple.colSurname];
+                m.Surname = (DBNull.Value == record[Simple_Members.colSurname])
+                    ? Simple_Members.cDefaultSurname
+                    : (string)record[Simple_Members.colSurname];
             }
             catch { }
 
             try
             {
-                m.FirstName = (DBNull.Value == record[CommonSimple.colFirstName])
-                    ? m.cDefaultFirstName
-                    : (string)record[CommonSimple.colFirstName];
+                m.FirstName = (DBNull.Value == record[Simple_Members.colFirstName])
+                    ? Simple_Members.cDefaultFirstName
+                    : (string)record[Simple_Members.colFirstName];
             }
             catch { }
 
             try
             {
-                m.DOB = (DBNull.Value == record[CommonSimple.colDOB])
-                    ? m.cDefaultDOB
-                    : (DateTime)record[CommonSimple.colDOB];
+                m.DOB = (DBNull.Value == record[Simple_Members.colDOB])
+                    ? Simple_Members.cDefaultDOB
+                    : (DateTime)record[Simple_Members.colDOB];
             }
             catch { }
 
             try
             {
-                m.Fee = (DBNull.Value == record[CommonSimple.colFee])
-                    ? m.cDefaultFee
-                    : (decimal)record[CommonSimple.colFee];
+                m.Fee = (DBNull.Value == record[Simple_Members.colFee])
+                    ? Simple_Members.cDefaultFee
+                    : (decimal)record[Simple_Members.colFee];
             }
             catch { }
 
             try
             {
-                m.Accepted = (DBNull.Value == record[CommonSimple.colAccepted])
-                    ? m.Accepted
-                    : (bool)record[CommonSimple.colAccepted];
+                m.Accepted = (DBNull.Value == record[Simple_Members.colAccepted])
+                    ? Simple_Members.cDefaultAccepted
+                    : (bool)record[Simple_Members.colAccepted];
             }
             catch { }
 
             try
             {
-                m.Points = (DBNull.Value == record[CommonSimple.colPoints])
-                    ? m.cDefaultPoints
-                    : (int)record[CommonSimple.colPoints];
+                m.Points = (DBNull.Value == record[Simple_Members.colPoints])
+                    ? Simple_Members.cDefaultPoints
+                    : (int)record[Simple_Members.colPoints];
             }
             catch { }
 
@@ -150,7 +210,7 @@ namespace SimpleDbReader
         }
     }
 
-    class SimpleReader_Member : ObjectReaderWithConnection<SimpleMember>
+    class SimpleReader_Members : ObjectReaderWithConnection<Simple_Members>
     {
         public override DatabaseTechnology DbTechnology
         {
@@ -195,11 +255,11 @@ namespace SimpleDbReader
             //return collection;   
         }
 
-        protected override MapperBase<SimpleMember> GetMapper()
+        protected override MapperBase<Simple_Members> GetMapper()
         {
-            MapperBase<SimpleMember> mapper = new SimpleMapper_Member();
+            MapperBase<Simple_Members> mapper = new SimpleMapper_Members();
             return mapper;
         }
     }
-    #endregion // Classes for SQL Server
+    #endregion // Mappers, Readers
 }

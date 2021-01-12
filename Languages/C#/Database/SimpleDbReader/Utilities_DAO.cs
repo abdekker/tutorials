@@ -5,7 +5,19 @@
         // Utilities for using DAO
         public Utilities_DAO() { }
 
-        public object HelperSafeGetFieldValue(DAO.Recordset rs, string strField)
+        public bool DoesFieldExist(DAO.Database db, string strTable, string strField)
+        {
+            // DAO: HelperBoolFieldToString function to determine if a field exists
+            try
+            {
+                DAO.Field ThisField = db.TableDefs[strTable].Fields[strField];
+                return true;
+            }
+            catch { }
+            return false;
+        }
+
+        public object SafeGetFieldValue(DAO.Recordset rs, string strField)
         {
             // DAO: Helper function for recordsets which may contain a null value
             object objResult = null;
@@ -18,7 +30,7 @@
             return objResult;
         }
 
-        public DAO.Field HelperSafeGetField(DAO.Recordset rs, string strField)
+        public DAO.Field SafeGetField(DAO.Recordset rs, string strField)
         {
             // DAO: Helper function for recordset fields
             object objField = null;
@@ -30,7 +42,7 @@
             return (DAO.Field)objField;
         }
 
-        public string HelperIsRecordsetUpdateable(DAO.Recordset rs)
+        public string IsRecordUpdateable(DAO.Recordset rs)
         {
             // DAO: Can the recordset be updated?
             if (rs.Updatable)
@@ -39,7 +51,7 @@
                 return "recordset is read-only";
         }
 
-        public string HelperBoolFieldToString(bool? prop)
+        public string BoolFieldToString(bool? prop)
         {
             // DAO: Does the field have a value?
             if (prop.HasValue)
@@ -48,7 +60,7 @@
                 return "(null)";
         }
 
-        public string HelperStringFieldToString(string prop)
+        public string StringFieldToString(string prop)
         {
             // DAO: Does the field have a value?
             if (string.IsNullOrEmpty(prop))
