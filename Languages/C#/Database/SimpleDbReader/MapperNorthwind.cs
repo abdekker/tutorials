@@ -27,7 +27,7 @@ namespace SimpleDbReader
         public static readonly string colDiscontinued = "Discontinued";
 
         // Display width
-        public static readonly int colProductIDWidth = 10;
+        public static readonly int colProductIDWidth = 12;
         public static readonly int colProductNameWidth = 40;
         public static readonly int colSupplierIDWidth = 12;
         public static readonly int colCategoryIDWidth = 12;

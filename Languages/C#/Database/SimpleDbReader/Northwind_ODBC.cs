@@ -30,7 +30,7 @@ namespace SimpleDbReader
         {
             // System.Data.Odbc.OdbcConnection
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.odbc.odbccommand
-            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (read) ###");
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (read, Northwind) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -54,7 +54,7 @@ namespace SimpleDbReader
         public override void Write()
         {
             // System.Data.Odbc.OdbcConnection
-            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (write) ###");
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (write, Northwind) ###");
             Console.WriteLine("  (TODO)");
             Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (write) ###\n");
         }
@@ -223,10 +223,10 @@ namespace SimpleDbReader
                 {
                     // Create and execute the DataReader, writing the result to the console window
                     Northwind_Products rsTmp = new Northwind_Products();
-                    Console.WriteLine("\t{0}\t{1}\t{2}",
+                    Console.WriteLine("\t{0}{1}{2}",
                         Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
                         Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
-                        Northwind_Products.colProductName.PadRight(Northwind_Products.colProductNameWidth));
+                        Northwind_Products.colProductName);
 
                     int recordsRead = 0;
                     connection.Open();
@@ -235,13 +235,13 @@ namespace SimpleDbReader
                     {
                         recordsRead++;
                         //TODO ConvertRecordset(in reader, ref rsTmp);
-                        Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                            reader[Northwind_Products.colProductID],
-                            reader[Northwind_Products.colUnitPrice],
-                            reader[Northwind_Products.colProductName]);
-                        // Note: The reader returns 3 items, so you can access them with reader[0], reader[1],
-                        // and so on. Using the field name is preferable though because then the SQL order is
-                        // less relevant.
+                        Console.WriteLine("\t{0}{1}{2}",
+                            ((int)reader[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                            ((decimal)reader[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                            (string)reader[Northwind_Products.colProductName]);
+                        // Note: The reader returns 3 items (since the query was for three fields). You can access them
+                        // with reader[0], reader[1], and so on. Using the field name is preferable, though, because
+                        // then we are less dependent on the order of fields in the SQL query.
                     }
                     reader.Close();
                     Console.WriteLine("    ({0} records)", recordsRead);

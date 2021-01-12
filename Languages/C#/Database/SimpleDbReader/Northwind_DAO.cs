@@ -40,7 +40,7 @@ namespace SimpleDbReader
         public override void Read()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: DAO (read) ###");
+            Console.WriteLine("### START: DAO (read, Northwind) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -195,18 +195,20 @@ namespace SimpleDbReader
             {
                 // Go through each record in the RecordSet, writing the result to the console window
                 int recordsRead = 0;
-                Console.WriteLine("\t{0}\t{1}\t{2}",
-                    "ProductID", "UnitPrice", "ProductName");
+                Console.WriteLine("\t{0}{1}{2}",
+                        Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                        Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                        Northwind_Products.colProductName);
 
                 rs.MoveFirst();
                 dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 while (!rs.EOF)
                 {
                     recordsRead++;
-                    Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                        (int)m_utilsDAO.SafeGetFieldValue(rs, "ProductID"),
-                        (Decimal)m_utilsDAO.SafeGetFieldValue(rs, "UnitPrice"),
-                        m_utilsDAO.SafeGetFieldValue(rs, "ProductName"));
+                    Console.WriteLine("\t{0}{1}{2}",
+                        ((int)m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colProductID)).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                        ((decimal)m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colUnitPrice)).ToString("0.00").PadRight(Northwind_Products.colProductIDWidth),
+                        (m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colProductName)).ToString());
                     rs.MoveNext();
                     dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 }
