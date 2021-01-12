@@ -128,13 +128,16 @@ namespace SimpleDbReader
 
     abstract class ObjectReaderWithConnection<T> : ObjectReaderBase<T>
     {
-        // SQL Server
-        //private static string m_connectionString =
-        //    @"Data Source=C:\\Apps\\Data\\SimpleTest.mdb;Initial Catalog=Test;Integrated Security=True";
+        // Examples for "m_connectionString"
 
-        // ODBC
-        //private static string m_connectionString =
-        //    @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\SimpleTest.mdb;Uid=Admin;Pwd=;";
+        // ODBC (OdbcConnection)
+        //    @"Driver={Microsoft Access Driver (*.mdb)};Dbq=PATH\\TO\\DATABASE;Uid=Admin;Pwd=;";
+
+        // OleDB (OleDbConnection)
+        //  @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=PATH\\TO\\DATABASE;User Id=admin;Password=;"
+
+        // SQL Server (SqlConnection)
+        //    @"Data Source=PATH\\TO\\DATABASE;Initial Catalog=Test;Integrated Security=True";
         protected override IDbConnection GetConnection()
         {
             // Update to get your connection here
