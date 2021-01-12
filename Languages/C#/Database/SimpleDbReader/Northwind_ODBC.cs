@@ -161,6 +161,7 @@ namespace SimpleDbReader
 
         protected override void Connect_Read(string strConnection)
         {
+            // Read records from the database using ODBC
             if (m_dbAccess == DatabaseAccess.eDbAccess_Raw)
                 Connect_Read_Raw(strConnection);
             else if (m_dbAccess == DatabaseAccess.eDbAccess_Template)
@@ -328,7 +329,7 @@ namespace SimpleDbReader
 
             try
             {
-                rsProduct.Discontinued = (bool)reader[8];
+                rsProduct.Discontinued = (bool)reader[9];
             }
             catch { }
         }
