@@ -44,7 +44,9 @@ namespace SimpleDbReader
             Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read, Northwind) ###");
 
             // Use OleDbDataReader or OleDbDataAdapter?
-            m_eOleDBTechnology = OleDBTechnology.eOleDB_DataReader;
+            m_eOleDBTechnology =
+                //OleDBTechnology.eOleDB_DataReader;
+                OleDBTechnology.eOleDB_DataAdapter;
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -257,6 +259,7 @@ namespace SimpleDbReader
                     if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataReader)
                     {
                         // Using System.Data.OleDb.OleDbDataReader
+                        Console.WriteLine("(OleDb.OleDbDataReader)");
 
                         // Create and open the connection in a using block. This ensures that all resources
                         // will be closed and disposed when the code exits.
@@ -276,16 +279,20 @@ namespace SimpleDbReader
 
                         // Create and execute the DataReader, writing the result to the console window
                         int recordsRead = 0;
-                        Console.WriteLine("\t{0}\t{1}\t{2}",
-                            "ProductID", "UnitPrice", "ProductName");
+                        Console.WriteLine("\t{0}{1}{2}",
+                            Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                            Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                            Northwind_Products.colProductName);
 
                         connection.Open();
                         OleDbDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
                             recordsRead++;
-                            Console.WriteLine("\t{0}\t\t{1}\t\t{2}",
-                                reader[0], reader[1], reader[2]);
+                            Console.WriteLine("\t{0}{1}{2}",
+                                ((int)reader[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                                ((decimal)reader[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                                (string)reader[Northwind_Products.colProductName]);
                         }
                         reader.Close();
                         Console.WriteLine("    ({0} records)", recordsRead);
@@ -296,11 +303,14 @@ namespace SimpleDbReader
                         // * System.Data.DataSet
                         // * System.Data.OleDb.OleDbDataAdapter
                         // * System.Data.DataRow
+                        Console.WriteLine("(DataSet, OleDb.OleDbDataAdapter and DataRow)");
 
                         // Create and fill the DataSet, writing the result to the console window
                         int recordsRead = 0;
-                        Console.WriteLine("\t{0}\t{1}\t{2}",
-                            "ProductID", "UnitPrice", "ProductName");
+                        Console.WriteLine("\t{0}{1}{2}",
+                            Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                            Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                            Northwind_Products.colProductName);
 
                         connection.Open();
                         DataSet ds = new DataSet();
@@ -310,10 +320,10 @@ namespace SimpleDbReader
                         foreach (DataRow row in ds.Tables[0].Rows)
                         {
                             recordsRead++;
-                            Console.WriteLine("\t{0}\t\t{1}\t\t{2}",
-                                row["ProductID"],
-                                row["UnitPrice"],
-                                row["ProductName"]);
+                            Console.WriteLine("\t{0}{1}{2}",
+                                ((int)row[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                                ((decimal)row[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                                (string)row[Northwind_Products.colProductName]);
                         }
                         Console.WriteLine("    ({0} records)", recordsRead);
                     }
@@ -346,6 +356,8 @@ namespace SimpleDbReader
             }
             Console.WriteLine("    ({0} records)", recordsRead);
             Console.WriteLine();*/
+
+            Console.WriteLine();
         }
 
         private void ConvertRecordset(in OleDbDataReader reader, ref Northwind_Products rsProduct)
