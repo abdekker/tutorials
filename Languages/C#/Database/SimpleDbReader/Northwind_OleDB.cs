@@ -6,6 +6,9 @@ namespace SimpleDbReader
 {
     class Northwind_OleDB : DatabaseCommon
     {
+        // Member variables specific to this class
+        private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
+
         // Enumerations
         private enum OleDBTechnology
         {
@@ -50,7 +53,13 @@ namespace SimpleDbReader
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
-                    Connect_Read(strConnection);
+                {
+                    foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
+                    {
+                        m_dbAccess = dbAccess;
+                        Connect_Read(strConnection);
+                    }
+                }
             }
 
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (read) ###\n");
@@ -59,7 +68,7 @@ namespace SimpleDbReader
         public override void Write()
         {
             //  System.Data.OleDb.OleDbCommand
-            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (write) ###");
+            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (write, Northwind) ###");
             Console.WriteLine("  (TODO)");
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (write) ###\n");
         }
@@ -169,6 +178,77 @@ namespace SimpleDbReader
 
         protected override void Connect_Read(string strConnection)
         {
+            // Read records from the database using OleDB
+            if (m_dbAccess == DatabaseAccess.eDbAccess_Raw)
+                Connect_Read_Raw(strConnection);
+            else if (m_dbAccess == DatabaseAccess.eDbAccess_Template)
+                Connect_Read_Template(strConnection);
+        }
+
+        protected override void Connect_Write(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override int Connect_PerformanceTest(string strConnection)
+        {
+            // Version for performance testing
+            int recordsRead = 0;
+
+            // This version uses System.Data.OleDb.OleDbDataReader
+            using (OleDbConnection connection = new OleDbConnection(strConnection))
+            {
+                // Open the connection in a try/catch block
+                try
+                {
+                    if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataReader)
+                    {
+                        // Using System.Data.OleDb.OleDbDataReader
+
+                        // Create the Command object
+                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
+                        command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+
+                        // Create and execute the DataReader; for this performance version just count
+                        // the number of records read
+                        connection.Open();
+                        OleDbDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            recordsRead++;
+                        }
+                        reader.Close();
+                    }
+                    else if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataAdapter)
+                    {
+                        // Using System.Data.OleDb.OleDbDataAdapter
+                        connection.Open();
+                        DataSet ds = new DataSet();
+                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.strQuery, connection);
+                        adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_cfgDatabase.paramValue;
+                        adapter.Fill(ds);
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            recordsRead++;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return recordsRead;
+        }
+        #endregion // Abstract methods from the base class
+
+        #region Methods specific to this class
+        private void Connect_Read_Raw(string strConnection)
+        {
+            // Create and open the connection in a using block. This ensures that all resources
+            // will be closed and disposed when the code exits.
+            Console.WriteLine("(raw)");
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 // Open the connection in a try/catch block
@@ -247,62 +327,156 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        protected override void Connect_Write(string strConnection)
+        private void Connect_Read_Template(string strConnection)
         {
-            // TODO
-        }
+            // This method uses a template method to create a Data Access Layer (DAL) to the database
+            Console.WriteLine("(template)");
+            /*NorthwindReader_Products reader = new NorthwindReader_Products();
+            reader.DbTechnology = m_tech;
+            reader.ConnectionString = strConnection;
+            reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+            Collection<Northwind_Products> products = reader.Execute();
 
-        protected override int Connect_PerformanceTest(string strConnection)
-        {
-            // Version for performance testing
             int recordsRead = 0;
-
-            // This version uses System.Data.OleDb.OleDbDataReader
-            using (OleDbConnection connection = new OleDbConnection(strConnection))
+            Console.WriteLine(Northwind_Products.GetRecordHeader());
+            foreach (Northwind_Products p in products)
             {
-                // Open the connection in a try/catch block
-                try
-                {
-                    if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataReader)
-                    {
-                        // Using System.Data.OleDb.OleDbDataReader
-
-                        // Create the Command object
-                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
-                        command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-
-                        // Create and execute the DataReader; for this performance version just count
-                        // the number of records read
-                        connection.Open();
-                        OleDbDataReader reader = command.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            recordsRead++;
-                        }
-                        reader.Close();
-                    }
-                    else if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataAdapter)
-                    {
-                        // Using System.Data.OleDb.OleDbDataAdapter
-                        connection.Open();
-                        DataSet ds = new DataSet();
-                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.strQuery, connection);
-                        adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_cfgDatabase.paramValue;
-                        adapter.Fill(ds);
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            recordsRead++;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                recordsRead++;
+                Console.WriteLine(p.GetRecordAsString());
             }
-
-            return recordsRead;
+            Console.WriteLine("    ({0} records)", recordsRead);
+            Console.WriteLine();*/
         }
-        #endregion // Abstract methods from the base class
+
+        private void ConvertRecordset(in OleDbDataReader reader, ref Northwind_Products rsProduct)
+        {
+            // Convert the OleDbDataReader recordset to a local, strongly-typed, version (overload)
+            rsProduct.DefaultRecord();
+            try
+            {
+                rsProduct.ProductID = (int)reader[0];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ProductName = (string)reader[1];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.SupplierID = (int)reader[2];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.CategoryID = (int)reader[3];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.QuantityPerUnit = (string)reader[4];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitPrice = (decimal)reader[5];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsInStock = (int)reader[6];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsOnOrder = (int)reader[7];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ReorderLevel = (int)reader[8];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.Discontinued = (bool)reader[8];
+            }
+            catch { }
+        }
+
+        private void ConvertRecordset(in DataRow row, ref Northwind_Products rsProduct)
+        {
+            // Convert the DataRow record to a local, strongly-typed, version (overload)
+            rsProduct.DefaultRecord();
+            try
+            {
+                rsProduct.ProductID = (int)row[Northwind_Products.colProductID];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ProductName = (string)row[Northwind_Products.colProductName];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.SupplierID = (int)row[Northwind_Products.colSupplierID];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.CategoryID = (int)row[Northwind_Products.colCategoryID];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.QuantityPerUnit = (string)row[Northwind_Products.colQuantityPerUnit];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitPrice = (decimal)row[Northwind_Products.colUnitPrice];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsInStock = (int)row[Northwind_Products.colUnitsInStock];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.UnitsOnOrder = (int)row[Northwind_Products.colUnitsOnOrder];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.ReorderLevel = (int)row[Northwind_Products.colReorderLevel];
+            }
+            catch { }
+
+            try
+            {
+                rsProduct.Discontinued = (bool)row[Northwind_Products.colDiscontinued];
+            }
+            catch { }
+        }
+        #endregion // Methods specific to this class
     }
 }
