@@ -38,7 +38,7 @@ namespace SimpleDbReader
         {
             //  System.Data.OleDb.OleDbCommand
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand
-            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read) ###");
+            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read, Northwind) ###");
 
             // Use OleDbDataReader or OleDbDataAdapter?
             m_eOleDBTechnology = OleDBTechnology.eOleDB_DataReader;
