@@ -224,7 +224,9 @@ namespace SimpleDbReader
                     // Create and execute the DataReader, writing the result to the console window
                     Northwind_Products rsTmp = new Northwind_Products();
                     Console.WriteLine("\t{0}\t{1}\t{2}",
-                        "ProductID", "UnitPrice", "ProductName");
+                        Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                        Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                        Northwind_Products.colProductName.PadRight(Northwind_Products.colProductNameWidth));
 
                     int recordsRead = 0;
                     connection.Open();
