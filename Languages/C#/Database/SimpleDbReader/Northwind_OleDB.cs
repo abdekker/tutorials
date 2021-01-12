@@ -341,22 +341,28 @@ namespace SimpleDbReader
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
             Console.WriteLine("(template)");
-            /*NorthwindReader_Products reader = new NorthwindReader_Products();
+            NorthwindReader_Products reader = new NorthwindReader_Products();
             reader.DbTechnology = m_tech;
             reader.ConnectionString = strConnection;
             reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
             Collection<Northwind_Products> products = reader.Execute();
 
             int recordsRead = 0;
-            Console.WriteLine(Northwind_Products.GetRecordHeader());
+            //Console.WriteLine(Northwind_Products.GetRecordHeader());
+            Console.WriteLine("\t{0}{1}{2}",
+                Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                Northwind_Products.colProductName);
             foreach (Northwind_Products p in products)
             {
                 recordsRead++;
-                Console.WriteLine(p.GetRecordAsString());
+                //Console.WriteLine(p.GetRecordAsString());
+                Console.WriteLine("\t{0}{1}{2}",
+                    p.ProductID.ToString().PadRight(Northwind_Products.colProductIDWidth),
+                    p.UnitPrice.ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                    p.ProductName.ToString());
             }
             Console.WriteLine("    ({0} records)", recordsRead);
-            Console.WriteLine();*/
-
             Console.WriteLine();
         }
 
