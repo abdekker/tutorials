@@ -236,7 +236,12 @@ namespace SimpleDbReader
                         recordsRead++;
                         //TODO ConvertRecordset(in reader, ref rsTmp);
                         Console.WriteLine("\t{0}\t\t{1:0.0}\t\t{2}",
-                            reader[0], reader[1], reader[2]);
+                            reader[Northwind_Products.colProductID],
+                            reader[Northwind_Products.colUnitPrice],
+                            reader[Northwind_Products.colProductName]);
+                        // Note: The reader returns 3 items, so you can access them with reader[0], reader[1],
+                        // and so on. Using the field name is preferable though because then the SQL order is
+                        // less relevant.
                     }
                     reader.Close();
                     Console.WriteLine("    ({0} records)", recordsRead);
