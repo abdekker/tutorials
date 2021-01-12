@@ -207,7 +207,7 @@ namespace SimpleDbReader
                     recordsRead++;
                     Console.WriteLine("\t{0}{1}{2}",
                         ((int)m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colProductID)).ToString().PadRight(Northwind_Products.colProductIDWidth),
-                        ((decimal)m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colUnitPrice)).ToString("0.00").PadRight(Northwind_Products.colProductIDWidth),
+                        ((decimal)m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colUnitPrice)).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
                         (m_utilsDAO.SafeGetFieldValue(rs, Northwind_Products.colProductName)).ToString());
                     rs.MoveNext();
                     dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
