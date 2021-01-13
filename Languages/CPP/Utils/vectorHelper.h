@@ -28,9 +28,15 @@ public:
         // Example: stringHelper::PrintVector<int>(vecOfInts);
         if (input.size() > 0)
         {
-            // This does not compile in VS 2019 (reported to MS in Jan 2021)
+            // This does not compile in VS 2019 with the "/permissive-" compiler option:
             //      for (std::vector<T>::iterator it = input.begin(); it != input.end();)
-            for (auto it = input.begin(); it != input.end();)
+            // because std::vector<T>::iterator is a "dependent name". See full discussion here:
+            // https://stackoverflow.com/questions/65647489
+
+            // Resolve by using "auto" (or specify "std::vector<T>::iterator" is a type as in the code):
+            //        for (auto it = input.begin(); it != input.end();)
+            typename std::vector<T>::iterator it = input.begin();
+            for (; it != input.end();)
             {
                 std::cout << *it;
                 if (++it != input.end())
