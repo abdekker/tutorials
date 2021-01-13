@@ -32,5 +32,17 @@ namespace systemHelperLibrary
             // Method 2: Check the size of IntPtr
             return (IntPtr.Size == 8);
         }
+
+        public static string GetOSName()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return "MacOS";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return "Linux";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return "Windows";
+
+            return "Unknown";
+        }
     }
 }
