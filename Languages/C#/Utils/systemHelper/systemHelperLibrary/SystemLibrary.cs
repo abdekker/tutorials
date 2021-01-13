@@ -32,18 +32,5 @@ namespace systemHelperLibrary
             // Method 2: Check the size of IntPtr
             return (IntPtr.Size == 8);
         }
-
-        public static int GetObjectSize(object obj)
-        {
-            // Return the size of the object (eg. 1 for "System.Byte")
-            int objSize = -1;
-            try
-            {
-                // This fails for types such as "System.String"...
-                objSize = Marshal.SizeOf(obj);
-            }
-            catch { }
-            return objSize;
-        }
     }
 }
