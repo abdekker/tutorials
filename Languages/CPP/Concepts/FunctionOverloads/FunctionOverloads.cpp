@@ -1,9 +1,21 @@
 #include <iostream>
 
 // Function overload resolution in C++
-double f(__int64 a, double b) { return (a * b); }
-double f(unsigned __int64 a, double b) { return (a * b); }
-double f(double a, double b) { return (a * b); }
+double f(__int64 a, double b)
+{
+    std::cout << "Overload 1) double f(__int64 a, double b)\n";
+    return (a * b);
+}
+double f(unsigned __int64 a, double b)
+{
+    std::cout << "Overload 2) double f(unsigned __int64 a, double b)\n";
+    return (a * b);
+}
+double f(double a, double b)
+{
+    std::cout << "Overload 3) double f(double a, double b)\n";
+    return (a * b);
+}
 
 int main()
 {
