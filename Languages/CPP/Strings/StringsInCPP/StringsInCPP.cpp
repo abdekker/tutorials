@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sstream>		// For std::stringstream
+#include <sstream>      // For std::stringstream
 #include <codecvt>      // For char16_t and char32_t conversions
 
 #include "..\..\Utils\stringHelper.h"
@@ -9,7 +9,7 @@ void ConstructStdString()
 {
     // Various ways to construct a std::string
     // Note: Some of these examples may generate reports (including false positives) of memory
-    // leaks in tool such as valgrind. These may be related to how the memory is managed internally
+    // leaks in tools such as valgrind. These may be related to how the memory is managed internally
     // with the standard library.
     cout << "Construct a std::string\n";
 
