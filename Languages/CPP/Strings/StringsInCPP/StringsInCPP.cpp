@@ -146,7 +146,7 @@ void ConstructCharPointers()
 	{
 		string s = "Hello char* 3";
 		char c[20];
-		std::copy(s.begin(), s.end(), c);
+		copy(s.begin(), s.end(), c);
 		c[s.size()] = '\0';
 		printf("  Using std::copy\t\t\t%s\n", c);
 	}
