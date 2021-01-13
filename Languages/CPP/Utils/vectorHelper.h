@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iomanip>
 #include <vector>
 
 // Header-only helper class for using vectors
@@ -55,5 +56,25 @@ public:
         }
         //else
         //    std::cout << "(empty)\n";
+    }
+
+    template <typename T>
+    void PrintVector(std::vector<T> input, const int width, const char cSeparator = ' ', bool bNewLine = false)
+    {
+        // Version which uses an alignment specifier (std::setw)
+        if (input.size() > 0)
+        {
+            (void) std::clamp(width, 1, 10); // Ensure width is valid
+            typename std::vector<T>::iterator it = input.begin();
+            for (; it != input.end();)
+            {
+                std::cout << std::setw(width) << *it;
+                if (++it != input.end())
+                    std::cout << cSeparator;
+            }
+
+            if (bNewLine)
+                std::cout << std::endl;
+        }
     }
 };
