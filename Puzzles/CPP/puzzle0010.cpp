@@ -223,7 +223,7 @@ int RunPuzzle0010(int startingBricks)
     puzzle.startingBricks = startingBricks;
     puzzle.totalRounds = 7; // ie. rounds go from 0 to 6
 
-    // Pre-calculate lists to help calculations. These will the possible number of bricks left in the
+    // Pre-calculate lists to speed up calculations. These will the possible number of bricks left in the
     // tower at the end of each round (and therefore strictly fewer than the number of starting bricks).
 
     // List: Primes (used for removal each round and the requirement for rounds 1 & 7)
