@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>      // For std::stringstream
 #include <codecvt>      // For char16_t and char32_t conversions
+#include <iomanip>      // For std::setw
 
 #include "..\..\Utils\stringHelper.h"
 
@@ -153,6 +154,41 @@ void ConstructCharPointers()
 	cout << endl;
 }
 
+void FormattingStdString()
+{
+    // Various ways to format std::string output
+	cout << "Formatting a std::string\n";
+    int myInt = 123;
+
+    {
+        cout << "  Left padding (std::setw)\t\t";
+        cout << "!" << setw(10) << myInt << "!\n";
+    }
+
+    {
+        cout << "  Right padding (std::left, std::setw)\t";
+        cout << "!" << left << setw(10) << myInt << "!\n";
+    }
+
+    {
+        cout << "  Left padding (std::snprintf, %10d)\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("!%10d!\n", myInt);
+    }
+
+    {
+        cout << "  Right padding (std::snprintf, %-10d)\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("!%-10d!\n", myInt);
+    }
+
+    {
+        cout << "  Left padding spaces (std::snprintf)\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("!%010d!\n", myInt);
+    }
+}
+
 int main()
 {
     cout << "Simple string manipulations in C++\n\n";
@@ -165,6 +201,9 @@ int main()
 
     // Construct char* from std::string
     ConstructCharPointers();
+
+    // Formatting a std::string
+    FormattingStdString();
 
     cout << "\nAll Done!\n";
 }

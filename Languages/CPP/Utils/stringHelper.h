@@ -22,8 +22,8 @@ public:
         //      string myString = "Hello";
         //      int myInt = 123;
         //      double myDouble = 456.789;
-        //      cout << formatString("%s %05d %10.5f", myString.c_str(), myInt, myDouble);
-        // Result: Hello 00123  456.78900
+        //      cout << formatString("%s %05d %12.5f", myString.c_str(), myInt, myDouble);
+        // Result: Hello 00123    456.78900
         int length = snprintf(nullptr, 0, format, args...);
         if (length >= 0)
         {
