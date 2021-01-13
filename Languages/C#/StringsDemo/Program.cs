@@ -11,6 +11,19 @@ namespace StringsDemo
         public const string szDateTimeFormat_ISO8601 = "yyyy-MM-ddTHH:mm:ss";
         #endregion // Constants
 
+        #region Enumerations
+        private enum Weekdays
+        {
+            Monday = 0,
+            Tuesday,
+            Wednesday,
+            Thursday,
+            Friday,
+            Saturday,
+            Sunday
+        };
+        #endregion // Enumerations
+
         private static void WriteConsole(string value)
         {
             Console.WriteLine(value);
@@ -218,6 +231,34 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
+        private static void OutputInfo_Enum()
+        {
+            // Displaying enumerated values
+            Console.WriteLine("# Enumerations #");
+            Console.WriteLine("(Weekdays contains {0} values)", Enum.GetNames(typeof(Weekdays)).Length);
+            foreach (var day in Enum.GetValues(typeof(Weekdays)))
+            {
+                Console.WriteLine("  {0,2}  {1}", (int)day, day);
+            }
+            Console.WriteLine();
+
+            string[] dayStrings = { "2", "8", "Friday", "Blue" };
+            foreach (string dayString in dayStrings)
+            {
+                Weekdays day;
+                if (Enum.TryParse(dayString, true, out day))
+                {
+                    if (Enum.IsDefined(typeof(Weekdays), day) | day.ToString().Contains(","))
+                        Console.WriteLine("  '{0}' converts to {1}", dayString, day.ToString());
+                    else
+                        Console.WriteLine("  '{0}' is not an underlying value of Weekdays", dayString);
+                }
+                else
+                    Console.WriteLine("  '{0}' is not a member of Weekdays", dayString);
+            }
+            Console.WriteLine();
+        }
+
         static void Main(string[] args)
         {
             // Demonstrating some aspects of string formatting in C#
@@ -230,6 +271,7 @@ namespace StringsDemo
             OutputInfo_Float();
             OutputInfo_Double();
             OutputInfo_DateTime();
+            OutputInfo_Enum();
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
         }
