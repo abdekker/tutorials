@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 using Microsoft.Win32;
 
@@ -17,6 +18,20 @@ namespace SampleConsole
     class Program
     {
         // Property accessors
+        private static string OSType
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    return "MacOS";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    return "Linux";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return "Windows";
+
+                return "Unknown";
+            }
+        }
         private static string ExecutablePath
         {
             get;
@@ -25,7 +40,6 @@ namespace SampleConsole
 
         private static string GetAssemblyPath
         {
-            set { }
             get
             {
                 var assemblyPath = Assembly.GetEntryAssembly().Location;
@@ -35,7 +49,6 @@ namespace SampleConsole
 
         private static string GetAssemblyDirectory
         {
-            set { }
             get
             {
                 var assemblyPath = Assembly.GetEntryAssembly().Location;
@@ -74,15 +87,15 @@ namespace SampleConsole
                     if (string.IsNullOrEmpty(install))
                     {
                         // No install info; it must be in a child subkey
-                        dotNetInstalled += ($"{versionKeyName}  {name}" + Environment.NewLine);
+                        dotNetInstalled += ($"    {versionKeyName}  {name}" + Environment.NewLine);
                     }
                     else if (install == "1")
                     {
                         // Install = 1 means the version is installed
                         if (!string.IsNullOrEmpty(sp))
-                            dotNetInstalled += ($"{versionKeyName}  {name}  SP{sp}" + Environment.NewLine);
+                            dotNetInstalled += ($"    {versionKeyName}  {name}  SP{sp}" + Environment.NewLine);
                         else
-                            dotNetInstalled += ($"{versionKeyName}  {name}" + Environment.NewLine);
+                            dotNetInstalled += ($"    {versionKeyName}  {name}" + Environment.NewLine);
                     }
 
                     if (!string.IsNullOrEmpty(name))
@@ -102,15 +115,15 @@ namespace SampleConsole
                         if (string.IsNullOrEmpty(install))
                         {
                             // No install info
-                            dotNetInstalled += ($"{versionKeyName}  {name}" + Environment.NewLine);
+                            dotNetInstalled += ($"    {versionKeyName}  {name}" + Environment.NewLine);
                         }
                         else if (install == "1")
                         {
                             // Install = 1 means the version is installed
                             if (!string.IsNullOrEmpty(sp))
-                                dotNetInstalled += ($"{subKeyName}  {name}  SP{sp}" + Environment.NewLine);
+                                dotNetInstalled += ($"    {subKeyName}  {name}  SP{sp}" + Environment.NewLine);
                             else
-                                dotNetInstalled += ($"  {subKeyName}  {name}" + Environment.NewLine);
+                                dotNetInstalled += ($"    {subKeyName}  {name}" + Environment.NewLine);
                         }
                     }
                 }
@@ -131,12 +144,12 @@ namespace SampleConsole
                 if (ndpKey != null && ndpKey.GetValue("Release") != null)
                 {
                     dotNetInstalled += (
-                        $".NET Framework Version: {CheckFor45PlusVersion((int)ndpKey.GetValue("Release"))}" +
+                        $"    .NET Framework Version: {CheckFor45PlusVersion((int)ndpKey.GetValue("Release"))}" +
                         Environment.NewLine);
                 }
                 else
                 {
-                    dotNetInstalled += (".NET Framework Version 4.5 or later is not detected." + Environment.NewLine);
+                    dotNetInstalled += ("    .NET Framework Version 4.5 or later is not detected." + Environment.NewLine);
                 }
             }
 
@@ -337,39 +350,66 @@ namespace SampleConsole
                 strDotNetVersion = "3.1"); 
             #endif
 
-            return (".NET Framework and version = " + strDotNetFramework + " " + strDotNetVersion);
+            return ("    .NET Framework and version = " + strDotNetFramework + " " + strDotNetVersion);
+        }
+
+        private static void DisplayAssemblyInfo()
+        {
+            Console.WriteLine("# Assembly Information #");
+            Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
+            Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
+            Console.WriteLine();
+        }
+
+        private static void DisplayDotNetInfo()
+        {
+            Console.WriteLine("# .NET Version Information #");
+            Console.WriteLine($"  .NET environment version: {Environment.Version}");
+            Console.WriteLine("");
+            Console.WriteLine("  Older .NET frameworks installed (v1-v4):");
+            Console.WriteLine(GetDotNetInstalledOlder());
+            Console.WriteLine("  Recent .NET frameworks installed (v4.5 and later):");
+            Console.WriteLine(GetDotNetInstalledNewer());
+            Console.WriteLine("  Conditional compilation to detect the .NET version being targetted:");
+            Console.WriteLine(GetDotNetByConditionalCompilation());
+
+            // In C/C++, there are pre-defined preprocessor macros such as "_MSC_VER" which give you the version of the
+            // compiler at compile-time. These are not available in C# (because there is no preprocessor).
+            Console.WriteLine();
+        }
+
+        private static void DisplaySystemInformation()
+        {
+            Console.WriteLine("# System Information #");
+            Console.WriteLine("  OS Description\t\t{0} ({1})", RuntimeInformation.OSDescription, OSType);
+            Console.WriteLine("  OS Architecture\t\t{0}", RuntimeInformation.OSArchitecture.ToString());
+            Console.WriteLine("  Process Architecture\t\t{0}", RuntimeInformation.ProcessArchitecture.ToString());
+            Console.WriteLine("  Framework Description\t\t{0}", RuntimeInformation.FrameworkDescription);
+            Console.WriteLine();
         }
 
         // Main entry point for the console application
         static void Main(string[] args)
         {
-            // Welcome message about how this application was created
+            // Sample console application in C#
             System.Runtime.Versioning.TargetFrameworkAttribute targetFramework =
                 (System.Runtime.Versioning.TargetFrameworkAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(
                     typeof(System.Runtime.Versioning.TargetFrameworkAttribute), false).SingleOrDefault();
             string msgWelcome = String.Format("### C# console application, targetting {0} ###", targetFramework.FrameworkDisplayName);
             Console.WriteLine(msgWelcome);
-            Console.WriteLine($".NET environment version: {Environment.Version}");
-            Console.WriteLine("");
-            Console.WriteLine("Older .NET frameworks installed (v1-v4):");
-            Console.WriteLine("  " + GetDotNetInstalledOlder());
-            Console.WriteLine("More recent .NET frameworks installed (v4.5 and later):");
-            Console.WriteLine("  " + GetDotNetInstalledNewer());
-            Console.WriteLine("Conditional compilation to detect the .NET version being targetted:");
-            Console.WriteLine("  " + GetDotNetByConditionalCompilation());
+            Console.WriteLine();
 
-            // In C/C++, there are pre-defined preprocessor macros such as "_MSC_VER" which give you the version of the
-            // compiler at compile-time. These are not available in C# (because there is no preprocessor).
+            // Display some system information
+            DisplaySystemInformation();
+
+            // Display information about .NET versions installed
+            DisplayDotNetInfo();
 
             // Show some information about this assembly
-            Console.WriteLine();
-            Console.WriteLine("Assembly information");
-            Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
-            Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
-            Console.WriteLine();
+            DisplayAssemblyInfo();
 
             // Show the arguments passed to this console application
-            Console.WriteLine("Check for arguments");
+            Console.WriteLine("# Check for arguments #");
             if (args.Length == 0)
                 Console.WriteLine("  No arguments supplied...");
             else
