@@ -275,87 +275,87 @@ namespace SimpleDbReader
 
     class NorthwindMapperAdapter_Products : MapperAdapterBase<Northwind_Products>
     {
-        protected override Northwind_Products Map(IDataRecord record, UInt64 uRecords)
+        protected override Northwind_Products Map(DataRow row, UInt64 uRecords)
         {
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
             try
             {
-                p.ProductID = (DBNull.Value == record[Northwind_Products.colProductID])
+                p.ProductID = (DBNull.Value == row[Northwind_Products.colProductID])
                     ? Northwind_Products.cDefaultProductID
-                    : (int)record[Northwind_Products.colProductID];
+                    : (int)row[Northwind_Products.colProductID];
             }
             catch { }
 
             try
             {
-                p.ProductName = (DBNull.Value == record[Northwind_Products.colProductName])
+                p.ProductName = (DBNull.Value == row[Northwind_Products.colProductName])
                     ? Northwind_Products.cDefaultProductName
-                    : (string)record[Northwind_Products.colProductName];
+                    : (string)row[Northwind_Products.colProductName];
             }
             catch { }
 
             try
             {
-                p.SupplierID = (DBNull.Value == record[Northwind_Products.colSupplierID])
+                p.SupplierID = (DBNull.Value == row[Northwind_Products.colSupplierID])
                     ? Northwind_Products.cDefaultSupplierID
-                    : (int)record[Northwind_Products.colSupplierID];
+                    : (int)row[Northwind_Products.colSupplierID];
             }
             catch { }
 
             try
             {
-                p.CategoryID = (DBNull.Value == record[Northwind_Products.colCategoryID])
+                p.CategoryID = (DBNull.Value == row[Northwind_Products.colCategoryID])
                     ? Northwind_Products.cDefaultCategoryID
-                    : (int)record[Northwind_Products.colCategoryID];
+                    : (int)row[Northwind_Products.colCategoryID];
             }
             catch { }
 
             try
             {
-                p.QuantityPerUnit = (DBNull.Value == record[Northwind_Products.colQuantityPerUnit])
+                p.QuantityPerUnit = (DBNull.Value == row[Northwind_Products.colQuantityPerUnit])
                     ? Northwind_Products.cDefaultQuantityPerUnit
-                    : (string)record[Northwind_Products.colQuantityPerUnit];
+                    : (string)row[Northwind_Products.colQuantityPerUnit];
             }
             catch { }
 
             try
             {
-                p.UnitPrice = (DBNull.Value == record[Northwind_Products.colUnitPrice])
+                p.UnitPrice = (DBNull.Value == row[Northwind_Products.colUnitPrice])
                     ? Northwind_Products.cDefaultUnitPrice
-                    : (decimal)record[Northwind_Products.colUnitPrice];
+                    : (decimal)row[Northwind_Products.colUnitPrice];
             }
             catch { }
 
             try
             {
-                p.UnitsInStock = (DBNull.Value == record[Northwind_Products.colUnitsInStock])
+                p.UnitsInStock = (DBNull.Value == row[Northwind_Products.colUnitsInStock])
                     ? Northwind_Products.cDefaultUnitsInStock
-                    : (int)record[Northwind_Products.colUnitsInStock];
+                    : (int)row[Northwind_Products.colUnitsInStock];
             }
             catch { }
 
             try
             {
-                p.UnitsOnOrder = (DBNull.Value == record[Northwind_Products.colUnitsOnOrder])
+                p.UnitsOnOrder = (DBNull.Value == row[Northwind_Products.colUnitsOnOrder])
                     ? Northwind_Products.cDefaultUnitsOnOrder
-                    : (int)record[Northwind_Products.colUnitsOnOrder];
+                    : (int)row[Northwind_Products.colUnitsOnOrder];
             }
             catch { }
 
             try
             {
-                p.ReorderLevel = (DBNull.Value == record[Northwind_Products.colReorderLevel])
+                p.ReorderLevel = (DBNull.Value == row[Northwind_Products.colReorderLevel])
                     ? Northwind_Products.cDefaultReorderLevel
-                    : (int)record[Northwind_Products.colReorderLevel];
+                    : (int)row[Northwind_Products.colReorderLevel];
             }
             catch { }
 
             try
             {
-                p.Discontinued = (DBNull.Value == record[Northwind_Products.colDiscontinued])
+                p.Discontinued = (DBNull.Value == row[Northwind_Products.colDiscontinued])
                     ? Northwind_Products.cDefaultDiscontinued
-                    : (bool)record[Northwind_Products.colDiscontinued];
+                    : (bool)row[Northwind_Products.colDiscontinued];
             }
             catch { }
 

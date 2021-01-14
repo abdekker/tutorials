@@ -58,15 +58,15 @@ namespace SimpleDbReader
     abstract class MapperAdapterBase<T>
     {
         // This mapper can be used with SQL Server,  ODBC, etc.
-        protected abstract T Map(IDataRecord record, UInt64 uRecordsToRead);
-        public Collection<T> MapAll(IDataReader reader, UInt64 uRecordsToRead)
+        protected abstract T Map(DataRow record, UInt64 uRecordsToRead);
+        public Collection<T> MapAll(DataSet ds, UInt64 uRecordsToRead)
         {
             Collection<T> collection = new Collection<T>();
-            while (reader.Read())
+            foreach (DataRow row in ds.Tables[0].Rows)
             {
                 try
                 {
-                    collection.Add(Map(reader, uRecordsToRead));
+                    collection.Add(Map(row, uRecordsToRead));
                 }
                 catch
                 {
@@ -225,28 +225,28 @@ namespace SimpleDbReader
                 command.Connection = connection;
                 command.CommandText = this.CmdText;
                 command.CommandType = this.CmdType;
-
                 foreach (IDataParameter param in this.GetParameters(command))
                     command.Parameters.Add(param);
+
+                IDbDataAdapter adapter = GetAdapter();
+                adapter.SelectCommand = command;
 
                 try
                 {
                     connection.Open();
-                    using (IDataReader reader = command.ExecuteReader())
+                    DataSet ds = new DataSet();
+                    adapter.Fill(ds);
+                    try
                     {
-                        try
-                        {
-                            MapperAdapterBase<T> mapper = GetMapperAdapter();
-                            collection = mapper.MapAll(reader, RecordsToRead);
-                        }
-                        catch
-                        {
-                            //throw;
-                        }
-                        finally
-                        {
-                            reader.Close();
-                        }
+                        MapperAdapterBase<T> mapper = GetMapperAdapter();
+                        collection = mapper.MapAll(ds, RecordsToRead);
+                    }
+                    catch
+                    {
+                        //throw;
+                    }
+                    finally
+                    {
                     }
                 }
                 catch
@@ -262,10 +262,9 @@ namespace SimpleDbReader
             return collection;
         }
 
-        // Connection method
         public IDbConnection GetConnection()
         {
-            //See ObjectReaderBase::GetConnection for examples for "m_connectionString"
+            // See ObjectReaderBase::GetConnection for examples for "m_connectionString"
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 connection = new OdbcConnection(m_connectionString);
@@ -275,6 +274,19 @@ namespace SimpleDbReader
                 connection = new SqlConnection(m_connectionString);
 
             return connection;
+        }
+
+        public IDbDataAdapter GetAdapter()
+        {
+            IDbDataAdapter adapter = null;
+            if (DbTechnology == DatabaseTechnology.eDB_ODBC)
+                adapter = new OdbcDataAdapter();
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
+                adapter = new OleDbDataAdapter();
+            else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
+                adapter = new SqlDataAdapter();
+
+            return adapter;
         }
     }
     #endregion // Reader base classes (for SQL Server, ODBC, ...)

@@ -7,6 +7,7 @@ namespace SimpleDbReader
     class Northwind_ODBC : DatabaseCommon
     {
         // Member variables specific to this class
+        private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
 
         // Constructor
@@ -42,8 +43,12 @@ namespace SimpleDbReader
                 {
                     foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
                     {
-                        m_dbAccess = dbAccess;
-                        Connect_Read(strConnection);
+                        foreach (DatabaseReadTechnology dbReadTech in Enum.GetValues(typeof(DatabaseReadTechnology)))
+                        {
+                            m_dbAccess = dbAccess;
+                            m_eDbReadTechnology = dbReadTech;
+                            Connect_Read(strConnection);
+                        }
                     }
                 }
             }
@@ -236,7 +241,6 @@ namespace SimpleDbReader
                     while (reader.Read())
                     {
                         recordsRead++;
-                        //TODO ConvertRecordset(in reader, ref rsTmp);
                         Console.WriteLine("\t{0}{1}{2}",
                             ((int)reader[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
                             ((decimal)reader[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
@@ -261,11 +265,27 @@ namespace SimpleDbReader
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
             Console.WriteLine("(template)");
-            NorthwindReader_Products reader = new NorthwindReader_Products();
-            reader.DbTechnology = m_tech;
-            reader.ConnectionString = strConnection;
-            reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-            Collection<Northwind_Products> products = reader.Execute();
+            Collection<Northwind_Products> products = null;
+            if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+            {
+                // Using System.Data.Odbc.OdbcDataReader : IDataReader
+                Console.WriteLine("(Odbc.OdbcDataReader)");
+                NorthwindReader_Products reader = new NorthwindReader_Products();
+                reader.DbTechnology = m_tech;
+                reader.ConnectionString = strConnection;
+                reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                products = reader.Execute();
+            }
+            else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
+            {
+                // Using System.Data.Odbc.OdbcDataAdapter : IDbDataAdapter
+                Console.WriteLine("(Odbc.OdbcDataAdapter)");
+                NorthwindAdapter_Products adapter = new NorthwindAdapter_Products();
+                adapter.DbTechnology = m_tech;
+                adapter.ConnectionString = strConnection;
+                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                products = adapter.Execute();
+            }
 
             int recordsRead = 0;
             //Console.WriteLine(Northwind_Products.GetRecordHeader());

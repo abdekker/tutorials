@@ -34,11 +34,6 @@ namespace SimpleDbReader
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.data.oledb.oledbcommand
             Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read, Northwind) ###");
 
-            // Use OleDbDataReader or OleDbDataAdapter?
-            m_eDbReadTechnology =
-                //DatabaseReadTechnology.eRbRead_DataReader;
-                DatabaseReadTechnology.eRbRead_DataAdapter;
-
             // See the class constructor for details on databases
             string strConnection = string.Empty;
             foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
@@ -49,8 +44,12 @@ namespace SimpleDbReader
                 {
                     foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
                     {
-                        m_dbAccess = dbAccess;
-                        Connect_Read(strConnection);
+                        foreach (DatabaseReadTechnology dbReadTech in Enum.GetValues(typeof(DatabaseReadTechnology)))
+                        {
+                            m_dbAccess = dbAccess;
+                            m_eDbReadTechnology = dbReadTech;
+                            Connect_Read(strConnection);
+                        }
                     }
                 }
             }
@@ -265,11 +264,6 @@ namespace SimpleDbReader
                         // We could write a generic function to access the database with OleDB or ODBC, but it
                         // is simpler to write an unique method for each technology.
 
-                        // Create the Command object
-                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
-                        command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-                        // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
-
                         // Create and execute the DataReader, writing the result to the console window
                         int recordsRead = 0;
                         Console.WriteLine("\t{0}{1}{2}",
@@ -278,6 +272,10 @@ namespace SimpleDbReader
                             Northwind_Products.colProductName);
 
                         connection.Open();
+                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
+                        command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+                        // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
+
                         OleDbDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
@@ -294,7 +292,7 @@ namespace SimpleDbReader
                     {
                         // This version uses:
                         // * System.Data.DataSet
-                        // * System.Data.OleDb.OleDbDataAdapter : IDataAdapter
+                        // * System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
                         // * System.Data.DataRow
                         Console.WriteLine("(DataSet, OleDb.OleDbDataAdapter and DataRow)");
 
@@ -334,11 +332,27 @@ namespace SimpleDbReader
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
             Console.WriteLine("(template)");
-            NorthwindReader_Products reader = new NorthwindReader_Products();
-            reader.DbTechnology = m_tech;
-            reader.ConnectionString = strConnection;
-            reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-            Collection<Northwind_Products> products = reader.Execute();
+            Collection<Northwind_Products> products = null;
+            if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+            {
+                // Using System.Data.OleDb.OleDbDataReader : IDataReader
+                Console.WriteLine("(OleDb.OleDbDataReader)");
+                NorthwindReader_Products reader = new NorthwindReader_Products();
+                reader.DbTechnology = m_tech;
+                reader.ConnectionString = strConnection;
+                reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                products = reader.Execute();
+            }
+            else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
+            {
+                // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
+                Console.WriteLine("(OleDb.OleDbDataAdapter)");
+                NorthwindAdapter_Products adapter = new NorthwindAdapter_Products();
+                adapter.DbTechnology = m_tech;
+                adapter.ConnectionString = strConnection;
+                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                products = adapter.Execute();
+            }
 
             int recordsRead = 0;
             //Console.WriteLine(Northwind_Products.GetRecordHeader());
