@@ -74,6 +74,11 @@ namespace StringsDemo
             Console.WriteLine("  Add together = {0}\t\t[using string::Concat]", string.Concat(s1, s2));
             Console.WriteLine();
 
+            Console.WriteLine("(string padding)");
+            Console.WriteLine("  Left padding with {{0,N}}\t!{0,8}!", s1);
+            Console.WriteLine("  Right padding with {{0,-N}}\t!{0,-8}!", s1);
+            Console.WriteLine();
+
             // Note: In the loop below we should check for outbreaks (where "16-name.Length" is negative)
             Console.WriteLine("(output strings in a loop with padding)");
             Console.WriteLine("  (using String.PadLeft)");
