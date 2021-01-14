@@ -174,11 +174,11 @@ namespace SimpleDbReader
             //    @"Data Source=PATH\\TO\\DATABASE;Initial Catalog=Test;Integrated Security=True";
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
-                connection = new OdbcConnection(m_connectionString);
+                connection = new OdbcConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
-                connection = new OleDbConnection(m_connectionString);
+                connection = new OleDbConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
-                connection = new SqlConnection(m_connectionString);
+                connection = new SqlConnection(ConnectionString);
 
             return connection;
         }
@@ -267,11 +267,11 @@ namespace SimpleDbReader
             // See ObjectReaderBase::GetConnection for examples for "m_connectionString"
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
-                connection = new OdbcConnection(m_connectionString);
+                connection = new OdbcConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
-                connection = new OleDbConnection(m_connectionString);
+                connection = new OleDbConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
-                connection = new SqlConnection(m_connectionString);
+                connection = new SqlConnection(ConnectionString);
 
             return connection;
         }

@@ -185,7 +185,7 @@ namespace SimpleDbReader
     #region Mappers, Readers
     class NorthwindMapperReader_Products : MapperReaderBase<Northwind_Products>
     {
-        protected override Northwind_Products Map(IDataRecord record, UInt64 uRecords)
+        protected override Northwind_Products Map(IDataRecord record, UInt64 uRecordsToRead)
         {
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
@@ -275,7 +275,7 @@ namespace SimpleDbReader
 
     class NorthwindMapperAdapter_Products : MapperAdapterBase<Northwind_Products>
     {
-        protected override Northwind_Products Map(DataRow row, UInt64 uRecords)
+        protected override Northwind_Products Map(DataRow row, UInt64 uRecordsToRead)
         {
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
@@ -363,8 +363,9 @@ namespace SimpleDbReader
         }
     }
 
-    class NorthwindReader_Products : ObjectReaderBase<Northwind_Products>
+    class NorthwindReader_Products : ObjectReaderBase<Northwind_Products>, IDisposable
     {
+        #region Properties and methods from ObjectAdapterBase
         public override DatabaseTechnology DbTechnology
         {
             get { return m_tech; }
@@ -421,10 +422,16 @@ namespace SimpleDbReader
             MapperReaderBase<Northwind_Products> mapper = new NorthwindMapperReader_Products();
             return mapper;
         }
+        #endregion // Properties and methods from ObjectAdapterBase
+
+        #region Methods from IDisposable
+        public void Dispose() { }
+        #endregion // Methods from IDisposable
     }
 
-    class NorthwindAdapter_Products : ObjectAdapterBase<Northwind_Products>
+    class NorthwindAdapter_Products : ObjectAdapterBase<Northwind_Products>, IDisposable
     {
+        #region Properties and methods from ObjectAdapterBase
         public override DatabaseTechnology DbTechnology
         {
             get { return m_tech; }
@@ -481,6 +488,11 @@ namespace SimpleDbReader
             MapperAdapterBase<Northwind_Products> mapper = new NorthwindMapperAdapter_Products();
             return mapper;
         }
+        #endregion // Properties and methods from ObjectAdapterBase
+
+        #region Methods from IDisposable
+        public void Dispose() { }
+        #endregion // Methods from IDisposable
     }
     #endregion // Mappers, Readers
 }

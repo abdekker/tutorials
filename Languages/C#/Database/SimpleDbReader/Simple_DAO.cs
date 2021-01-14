@@ -152,8 +152,6 @@ namespace SimpleDbReader
                 dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 while (!rs.EOF)
                 {
-                    if (recordsRead == 0)
-
                     recordsRead++;
                     try
                     {

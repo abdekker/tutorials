@@ -7,6 +7,7 @@ namespace SimpleDbReader
     class Simple_ODBC : DatabaseCommon
     {
         // Member variables specific to this class
+        private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
 
         // Constructor
@@ -42,8 +43,12 @@ namespace SimpleDbReader
                 {
                     foreach (DatabaseAccess dbAccess in Enum.GetValues(typeof(DatabaseAccess)))
                     {
-                        m_dbAccess = dbAccess;
-                        Connect_Read(strConnection);
+                        foreach (DatabaseReadTechnology dbReadTech in Enum.GetValues(typeof(DatabaseReadTechnology)))
+                        {
+                            m_dbAccess = dbAccess;
+                            m_eDbReadTechnology = dbReadTech;
+                            Connect_Read(strConnection);
+                        }
                     }
                 }
             }
@@ -181,12 +186,32 @@ namespace SimpleDbReader
         private void Connect_Read_Template(string strConnection)
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
-            Console.WriteLine("(template)");
-            SimpleReader_Members reader = new SimpleReader_Members();
-            reader.DbTechnology = m_tech;
-            reader.ConnectionString = strConnection;
-            reader.CmdText = m_cfgDatabase.strQuery;
-            Collection<Simple_Members> members = reader.Execute();
+            Console.Write("(template)");
+            Collection<Simple_Members> members = null;
+            if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+            {
+                // Using System.Data.Odbc.OdbcDataReader : IDataReader
+                Console.WriteLine(" (Odbc.OdbcDataReader)");
+                using (SimpleReader_Members reader = new SimpleReader_Members())
+                {
+                    reader.DbTechnology = m_tech;
+                    reader.ConnectionString = strConnection;
+                    reader.CmdText = m_cfgDatabase.strQuery;
+                    members = reader.Execute();
+                }
+            }
+            else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
+            {
+                // Using System.Data.Odbc.OdbcDataAdapter : IDbDataAdapter
+                Console.WriteLine(" (Odbc.OdbcDataAdapter)");
+                using (SimpleAdapter_Members adapter = new SimpleAdapter_Members())
+                {
+                    adapter.DbTechnology = m_tech;
+                    adapter.ConnectionString = strConnection;
+                    adapter.CmdText = m_cfgDatabase.strQuery;
+                    members = adapter.Execute();
+                }
+            }
 
             int recordsRead = 0;
             foreach (Simple_Members m in members)
@@ -197,6 +222,7 @@ namespace SimpleDbReader
                 recordsRead++;
                 Console.WriteLine(m.GetRecordAsString());
             }
+            Console.WriteLine("    ({0} records)", recordsRead);
             Console.WriteLine();
         }
 

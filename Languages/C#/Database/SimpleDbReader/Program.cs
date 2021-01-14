@@ -43,12 +43,12 @@ namespace SimpleDbReader
             m_tests = (
                 //cSimpleCreateDB +
                 //cSimpleStats +
-                //cSimpleRead
+                cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
                 //cNorthwindDummyOpenClose +
                 //cNorthwindStats
-                cNorthwindRead
+                //cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance +
                 //cDifferentQueryStrings
@@ -75,7 +75,7 @@ namespace SimpleDbReader
             if ((m_tests & cSimpleStats) != 0)
             {
                 m_db.SimpleStats(DatabaseTechnology.eDB_DAO);
-                //m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
+                m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
                 Console.WriteLine();
             }
 

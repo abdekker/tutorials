@@ -264,27 +264,31 @@ namespace SimpleDbReader
         private void Connect_Read_Template(string strConnection)
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
-            Console.WriteLine("(template)");
+            Console.Write("(template)");
             Collection<Northwind_Products> products = null;
             if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
             {
                 // Using System.Data.Odbc.OdbcDataReader : IDataReader
-                Console.WriteLine("(Odbc.OdbcDataReader)");
-                NorthwindReader_Products reader = new NorthwindReader_Products();
-                reader.DbTechnology = m_tech;
-                reader.ConnectionString = strConnection;
-                reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-                products = reader.Execute();
+                Console.WriteLine(" (Odbc.OdbcDataReader)");
+                using (NorthwindReader_Products reader = new NorthwindReader_Products())
+                {
+                    reader.DbTechnology = m_tech;
+                    reader.ConnectionString = strConnection;
+                    reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    products = reader.Execute();
+                }
             }
             else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
             {
                 // Using System.Data.Odbc.OdbcDataAdapter : IDbDataAdapter
-                Console.WriteLine("(Odbc.OdbcDataAdapter)");
-                NorthwindAdapter_Products adapter = new NorthwindAdapter_Products();
-                adapter.DbTechnology = m_tech;
-                adapter.ConnectionString = strConnection;
-                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-                products = adapter.Execute();
+                Console.WriteLine(" (Odbc.OdbcDataAdapter)");
+                using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
+                {
+                    adapter.DbTechnology = m_tech;
+                    adapter.ConnectionString = strConnection;
+                    adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    products = adapter.Execute();
+                }
             }
 
             int recordsRead = 0;

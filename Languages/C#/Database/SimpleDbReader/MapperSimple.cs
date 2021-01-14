@@ -146,7 +146,7 @@ namespace SimpleDbReader
     #region Mappers, Readers
     class SimpleMapperReader_Members : MapperReaderBase<Simple_Members>
     {
-        protected override Simple_Members Map(IDataRecord record, UInt64 uRecords)
+        protected override Simple_Members Map(IDataRecord record, UInt64 uRecordsToRead)
         {
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
@@ -210,8 +210,75 @@ namespace SimpleDbReader
         }
     }
 
-    class SimpleReader_Members : ObjectReaderBase<Simple_Members>
+    class SimpleMapperAdapter_Members : MapperAdapterBase<Simple_Members>
     {
+        protected override Simple_Members Map(DataRow row, UInt64 uRecordsToRead)
+        {
+            Simple_Members m = new Simple_Members();
+            m.DefaultRecord();
+            try
+            {
+                m.MemberID = (DBNull.Value == row[Simple_Members.colMemberID])
+                    ? Simple_Members.cDefaultMemberID
+                    : (int)row[Simple_Members.colMemberID];
+            }
+            catch { }
+
+            try
+            {
+                m.Surname = (DBNull.Value == row[Simple_Members.colSurname])
+                    ? Simple_Members.cDefaultSurname
+                    : (string)row[Simple_Members.colSurname];
+            }
+            catch { }
+
+            try
+            {
+                m.FirstName = (DBNull.Value == row[Simple_Members.colFirstName])
+                    ? Simple_Members.cDefaultFirstName
+                    : (string)row[Simple_Members.colFirstName];
+            }
+            catch { }
+
+            try
+            {
+                m.DOB = (DBNull.Value == row[Simple_Members.colDOB])
+                    ? Simple_Members.cDefaultDOB
+                    : (DateTime)row[Simple_Members.colDOB];
+            }
+            catch { }
+
+            try
+            {
+                m.Fee = (DBNull.Value == row[Simple_Members.colFee])
+                    ? Simple_Members.cDefaultFee
+                    : (decimal)row[Simple_Members.colFee];
+            }
+            catch { }
+
+            try
+            {
+                m.Accepted = (DBNull.Value == row[Simple_Members.colAccepted])
+                    ? Simple_Members.cDefaultAccepted
+                    : (bool)row[Simple_Members.colAccepted];
+            }
+            catch { }
+
+            try
+            {
+                m.Points = (DBNull.Value == row[Simple_Members.colPoints])
+                    ? Simple_Members.cDefaultPoints
+                    : (int)row[Simple_Members.colPoints];
+            }
+            catch { }
+
+            return m;
+        }
+    }
+
+    class SimpleReader_Members : ObjectReaderBase<Simple_Members>, IDisposable
+    {
+        #region Properties and methods from ObjectAdapterBase
         public override DatabaseTechnology DbTechnology
         {
             get { return m_tech; }
@@ -266,6 +333,75 @@ namespace SimpleDbReader
             MapperReaderBase<Simple_Members> mapper = new SimpleMapperReader_Members();
             return mapper;
         }
+        #endregion // Properties and methods from ObjectAdapterBase
+
+        #region Methods from IDisposable
+        public void Dispose() { }
+        #endregion // Methods from IDisposable
+    }
+
+    class SimpleAdapter_Members : ObjectAdapterBase<Simple_Members>, IDisposable
+    {
+        #region Properties and methods from ObjectAdapterBase
+        public override DatabaseTechnology DbTechnology
+        {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
+
+        public override string ConnectionString
+        {
+            get { return m_connectionString; }
+            set { m_connectionString = value; }
+        }
+
+        public override string CmdText
+        {
+            //get { return "SELECT * FROM Members"; }
+            //get { return "SELECT MemberID,Surname FROM Members"; }
+            get { return m_cmdText; }
+            set { m_cmdText = value; }
+        }
+
+        public override CommandType CmdType
+        {
+            // Available command types are:
+            // * Text (standard SQL query) = 1,
+            // * StoredProcedure
+            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
+            get { return m_cmdType; }
+            set { m_cmdType = value; }
+        }
+
+        public override UInt64 RecordsToRead
+        {
+            get { return m_uRecordsToRead; }
+            set { m_uRecordsToRead = value; }
+        }
+
+        protected override Collection<IDataParameter> GetParameters(IDbCommand command)
+        {
+            Collection<IDataParameter> collection = new Collection<IDataParameter>();
+            return collection;
+
+            // If you have parameters:
+            //IDataParameter param1 = command.CreateParameter();
+            //param1.ParameterName = "paramName 1";     // Put the parameter name here
+            //param1.Value = 5;                         // Put the parameter value here
+            //collection.Add(param1);
+            //return collection;   
+        }
+
+        protected override MapperAdapterBase<Simple_Members> GetMapperAdapter()
+        {
+            MapperAdapterBase<Simple_Members> mapper = new SimpleMapperAdapter_Members();
+            return mapper;
+        }
+        #endregion // Properties and methods from ObjectAdapterBase
+
+        #region Methods from IDisposable
+        public void Dispose() { }
+        #endregion // Methods from IDisposable
     }
     #endregion // Mappers, Readers
 }

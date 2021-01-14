@@ -331,12 +331,12 @@ namespace SimpleDbReader
         private void Connect_Read_Template(string strConnection)
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
-            Console.WriteLine("(template)");
+            Console.Write("(template)");
             Collection<Northwind_Products> products = null;
             if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
             {
                 // Using System.Data.OleDb.OleDbDataReader : IDataReader
-                Console.WriteLine("(OleDb.OleDbDataReader)");
+                Console.WriteLine(" (OleDb.OleDbDataReader)");
                 NorthwindReader_Products reader = new NorthwindReader_Products();
                 reader.DbTechnology = m_tech;
                 reader.ConnectionString = strConnection;
@@ -346,7 +346,7 @@ namespace SimpleDbReader
             else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
             {
                 // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
-                Console.WriteLine("(OleDb.OleDbDataAdapter)");
+                Console.WriteLine(" (OleDb.OleDbDataAdapter)");
                 NorthwindAdapter_Products adapter = new NorthwindAdapter_Products();
                 adapter.DbTechnology = m_tech;
                 adapter.ConnectionString = strConnection;
