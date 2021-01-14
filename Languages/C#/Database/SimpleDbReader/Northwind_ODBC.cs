@@ -89,6 +89,9 @@ namespace SimpleDbReader
 
         public override bool SetConnectionString(ref string strConnection)
         {
+            //ADAD
+            //OdbcCommandBuilder builder = new OdbcCommandBuilder(adapter);
+
             // ODBC: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
             string strDataDriver = "Driver=";
@@ -138,7 +141,6 @@ namespace SimpleDbReader
                         strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
                         strDataSource += "\\Northwind 2007-2016.accdb;";
                     }
-
                     break;
 
                 default:

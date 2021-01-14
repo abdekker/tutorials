@@ -144,9 +144,9 @@ namespace SimpleDbReader
     #endregion // Tables
 
     #region Mappers, Readers
-    class SimpleMapper_Members : MapperBase<Simple_Members>
+    class SimpleMapperReader_Members : MapperReaderBase<Simple_Members>
     {
-        protected override Simple_Members Map(IDataRecord record)
+        protected override Simple_Members Map(IDataRecord record, UInt64 uRecords)
         {
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
@@ -210,7 +210,7 @@ namespace SimpleDbReader
         }
     }
 
-    class SimpleReader_Members : ObjectReaderWithConnection<Simple_Members>
+    class SimpleReader_Members : ObjectReaderBase<Simple_Members>
     {
         public override DatabaseTechnology DbTechnology
         {
@@ -242,6 +242,12 @@ namespace SimpleDbReader
             set { m_cmdType = value; }
         }
 
+        public override UInt64 RecordsToRead
+        {
+            get { return m_uRecordsToRead; }
+            set { m_uRecordsToRead = value; }
+        }
+
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
         {
             Collection<IDataParameter> collection = new Collection<IDataParameter>();
@@ -255,9 +261,9 @@ namespace SimpleDbReader
             //return collection;   
         }
 
-        protected override MapperBase<Simple_Members> GetMapper()
+        protected override MapperReaderBase<Simple_Members> GetMapperReader()
         {
-            MapperBase<Simple_Members> mapper = new SimpleMapper_Members();
+            MapperReaderBase<Simple_Members> mapper = new SimpleMapperReader_Members();
             return mapper;
         }
     }

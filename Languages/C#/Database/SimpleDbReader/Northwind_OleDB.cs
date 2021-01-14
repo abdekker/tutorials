@@ -8,18 +8,8 @@ namespace SimpleDbReader
     class Northwind_OleDB : DatabaseCommon
     {
         // Member variables specific to this class
+        private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
-
-        // Enumerations
-        private enum OleDBTechnology
-        {
-            // The OleDB technology used for reading data
-            eOleDB_DataReader,      // System.Data.OleDb.OleDbDataReader
-            eOleDB_DataAdapter      // System.Data.OleDb.OleDbDataAdapter
-        };
-
-        // Member variables
-        private OleDBTechnology m_eOleDBTechnology = OleDBTechnology.eOleDB_DataReader;
 
         // Constructor
         public Northwind_OleDB(ConfigGeneral cfgGeneral, ConfigDatabase cfgDatabase) :
@@ -45,9 +35,9 @@ namespace SimpleDbReader
             Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (read, Northwind) ###");
 
             // Use OleDbDataReader or OleDbDataAdapter?
-            m_eOleDBTechnology =
-                //OleDBTechnology.eOleDB_DataReader;
-                OleDBTechnology.eOleDB_DataAdapter;
+            m_eDbReadTechnology =
+                //DatabaseReadTechnology.eRbRead_DataReader;
+                DatabaseReadTechnology.eRbRead_DataAdapter;
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -82,7 +72,9 @@ namespace SimpleDbReader
             Console.WriteLine("### START: OleDb - Performance tests ###");
 
             // Use OleDbDataReader or OleDbDataAdapter?
-            m_eOleDBTechnology = OleDBTechnology.eOleDB_DataReader;
+            m_eDbReadTechnology =
+                //DatabaseReadTechnology.eRbRead_DataReader;
+                DatabaseReadTechnology.eRbRead_DataAdapter;
 
             string strConnection = string.Empty;
             foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
@@ -204,9 +196,9 @@ namespace SimpleDbReader
                 // Open the connection in a try/catch block
                 try
                 {
-                    if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataReader)
+                    if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
                     {
-                        // Using System.Data.OleDb.OleDbDataReader
+                        // Using System.Data.OleDb.OleDbDataReader : IDataReader
 
                         // Create the Command object
                         OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
@@ -222,9 +214,9 @@ namespace SimpleDbReader
                         }
                         reader.Close();
                     }
-                    else if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataAdapter)
+                    else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
                     {
-                        // Using System.Data.OleDb.OleDbDataAdapter
+                        // Using System.Data.OleDb.OleDbDataAdapter : IDataAdapter
                         connection.Open();
                         DataSet ds = new DataSet();
                         OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.strQuery, connection);
@@ -257,9 +249,9 @@ namespace SimpleDbReader
                 // Open the connection in a try/catch block
                 try
                 {
-                    if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataReader)
+                    if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
                     {
-                        // Using System.Data.OleDb.OleDbDataReader
+                        // Using System.Data.OleDb.OleDbDataReader : IDataReader
                         Console.WriteLine("(OleDb.OleDbDataReader)");
 
                         // Create and open the connection in a using block. This ensures that all resources
@@ -298,11 +290,11 @@ namespace SimpleDbReader
                         reader.Close();
                         Console.WriteLine("    ({0} records)", recordsRead);
                     }
-                    else if (m_eOleDBTechnology == OleDBTechnology.eOleDB_DataAdapter)
+                    else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
                     {
                         // This version uses:
                         // * System.Data.DataSet
-                        // * System.Data.OleDb.OleDbDataAdapter
+                        // * System.Data.OleDb.OleDbDataAdapter : IDataAdapter
                         // * System.Data.DataRow
                         Console.WriteLine("(DataSet, OleDb.OleDbDataAdapter and DataRow)");
 

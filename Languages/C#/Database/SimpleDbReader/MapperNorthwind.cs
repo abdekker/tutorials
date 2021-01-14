@@ -183,9 +183,9 @@ namespace SimpleDbReader
     #endregion // Tables
 
     #region Mappers, Readers
-    class NorthwindMapper_Products : MapperBase<Northwind_Products>
+    class NorthwindMapperReader_Products : MapperReaderBase<Northwind_Products>
     {
-        protected override Northwind_Products Map(IDataRecord record)
+        protected override Northwind_Products Map(IDataRecord record, UInt64 uRecords)
         {
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
@@ -273,7 +273,97 @@ namespace SimpleDbReader
         }
     }
 
-    class NorthwindReader_Products : ObjectReaderWithConnection<Northwind_Products>
+    class NorthwindMapperAdapter_Products : MapperAdapterBase<Northwind_Products>
+    {
+        protected override Northwind_Products Map(IDataRecord record, UInt64 uRecords)
+        {
+            Northwind_Products p = new Northwind_Products();
+            p.DefaultRecord();
+            try
+            {
+                p.ProductID = (DBNull.Value == record[Northwind_Products.colProductID])
+                    ? Northwind_Products.cDefaultProductID
+                    : (int)record[Northwind_Products.colProductID];
+            }
+            catch { }
+
+            try
+            {
+                p.ProductName = (DBNull.Value == record[Northwind_Products.colProductName])
+                    ? Northwind_Products.cDefaultProductName
+                    : (string)record[Northwind_Products.colProductName];
+            }
+            catch { }
+
+            try
+            {
+                p.SupplierID = (DBNull.Value == record[Northwind_Products.colSupplierID])
+                    ? Northwind_Products.cDefaultSupplierID
+                    : (int)record[Northwind_Products.colSupplierID];
+            }
+            catch { }
+
+            try
+            {
+                p.CategoryID = (DBNull.Value == record[Northwind_Products.colCategoryID])
+                    ? Northwind_Products.cDefaultCategoryID
+                    : (int)record[Northwind_Products.colCategoryID];
+            }
+            catch { }
+
+            try
+            {
+                p.QuantityPerUnit = (DBNull.Value == record[Northwind_Products.colQuantityPerUnit])
+                    ? Northwind_Products.cDefaultQuantityPerUnit
+                    : (string)record[Northwind_Products.colQuantityPerUnit];
+            }
+            catch { }
+
+            try
+            {
+                p.UnitPrice = (DBNull.Value == record[Northwind_Products.colUnitPrice])
+                    ? Northwind_Products.cDefaultUnitPrice
+                    : (decimal)record[Northwind_Products.colUnitPrice];
+            }
+            catch { }
+
+            try
+            {
+                p.UnitsInStock = (DBNull.Value == record[Northwind_Products.colUnitsInStock])
+                    ? Northwind_Products.cDefaultUnitsInStock
+                    : (int)record[Northwind_Products.colUnitsInStock];
+            }
+            catch { }
+
+            try
+            {
+                p.UnitsOnOrder = (DBNull.Value == record[Northwind_Products.colUnitsOnOrder])
+                    ? Northwind_Products.cDefaultUnitsOnOrder
+                    : (int)record[Northwind_Products.colUnitsOnOrder];
+            }
+            catch { }
+
+            try
+            {
+                p.ReorderLevel = (DBNull.Value == record[Northwind_Products.colReorderLevel])
+                    ? Northwind_Products.cDefaultReorderLevel
+                    : (int)record[Northwind_Products.colReorderLevel];
+            }
+            catch { }
+
+            try
+            {
+                p.Discontinued = (DBNull.Value == record[Northwind_Products.colDiscontinued])
+                    ? Northwind_Products.cDefaultDiscontinued
+                    : (bool)record[Northwind_Products.colDiscontinued];
+            }
+            catch { }
+
+            return p;
+        }
+    }
+
+    class NorthwindReader_Products : ObjectReaderBase<Northwind_Products>
     {
         public override DatabaseTechnology DbTechnology
         {
@@ -300,11 +390,17 @@ namespace SimpleDbReader
         public override CommandType CmdType
         {
             // Available command types are:
-            // * Text (standard SQL query) = 1,
+            // * Text (standard SQL query)
             // * StoredProcedure
             // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
             get { return m_cmdType; }
             set { m_cmdType = value; }
+        }
+
+        public override UInt64 RecordsToRead
+        {
+            get { return m_uRecordsToRead; }
+            set { m_uRecordsToRead = value; }
         }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
@@ -320,9 +416,69 @@ namespace SimpleDbReader
             //return collection;   
         }
 
-        protected override MapperBase<Northwind_Products> GetMapper()
+        protected override MapperReaderBase<Northwind_Products> GetMapperReader()
         {
-            MapperBase<Northwind_Products> mapper = new NorthwindMapper_Products();
+            MapperReaderBase<Northwind_Products> mapper = new NorthwindMapperReader_Products();
+            return mapper;
+        }
+    }
+
+    class NorthwindAdapter_Products : ObjectAdapterBase<Northwind_Products>
+    {
+        public override DatabaseTechnology DbTechnology
+        {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
+
+        public override string ConnectionString
+        {
+            get { return m_connectionString; }
+            set { m_connectionString = value; }
+        }
+
+        public override string CmdText
+        {
+            //sqlQuery = (
+            //    "SELECT ProductID, UnitPrice, ProductName FROM Products " +
+            //    "WHERE UnitPrice > ? " +
+            //    "ORDER BY UnitPrice DESC;");
+            get { return m_cmdText; }
+            set { m_cmdText = value; }
+        }
+
+        public override CommandType CmdType
+        {
+            // Available command types are:
+            // * Text (standard SQL query)
+            // * StoredProcedure
+            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
+            get { return m_cmdType; }
+            set { m_cmdType = value; }
+        }
+
+        public override UInt64 RecordsToRead
+        {
+            get { return m_uRecordsToRead; }
+            set { m_uRecordsToRead = value; }
+        }
+
+        protected override Collection<IDataParameter> GetParameters(IDbCommand command)
+        {
+            Collection<IDataParameter> collection = new Collection<IDataParameter>();
+            return collection;
+
+            // If you have parameters:
+            //IDataParameter param1 = command.CreateParameter();
+            //param1.ParameterName = "paramName 1";     // Put the parameter name here
+            //param1.Value = 5;                         // Put the parameter value here
+            //collection.Add(param1);
+            //return collection;   
+        }
+
+        protected override MapperAdapterBase<Northwind_Products> GetMapperAdapter()
+        {
+            MapperAdapterBase<Northwind_Products> mapper = new NorthwindMapperAdapter_Products();
             return mapper;
         }
     }

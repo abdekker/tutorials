@@ -42,7 +42,7 @@ namespace SimpleDbReader
             // Define the tests to be performed
             m_tests = (
                 //cSimpleCreateDB +
-                //cSimpleStats
+                //cSimpleStats +
                 //cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
@@ -75,7 +75,7 @@ namespace SimpleDbReader
             if ((m_tests & cSimpleStats) != 0)
             {
                 m_db.SimpleStats(DatabaseTechnology.eDB_DAO);
-                m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
+                //m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
                 Console.WriteLine();
             }
 
@@ -118,8 +118,8 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindRead) != 0)
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);
-                //m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
-                //m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
+                m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
+                m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }

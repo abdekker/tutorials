@@ -103,7 +103,6 @@ namespace SimpleDbReader
                         strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
                         strDataSource += "\\SimpleTest.accdb;";
                     }
-
                     break;
 
                 default:

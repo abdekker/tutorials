@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SimpleDbReader
 {
@@ -138,7 +139,6 @@ namespace SimpleDbReader
                     }
                     else
                         strConnection = (m_cfgGeneral.strDevDataPath + "\\2007-2016");
-
                     break;
 
                 default:
@@ -153,24 +153,31 @@ namespace SimpleDbReader
         protected override void Connect_Stats(string strConnection)
         {
             // Generate some statistics about the selected database
-            DAO.DBEngine dbEngine = new DAO.DBEngine();
-            dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
-            DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
-
-            // Tables
-            if (db.TableDefs.Count > 0)
+            // Tables and fields
+            string dbName = m_utilsDAO.GetDbName(strConnection);
+            List<string> tables = m_utilsDAO.GetTables(strConnection, true);
+            List<string> fields;
+            if (tables.Count > 0)
             {
-                // Note: Access 97 databases tend to come with 
-                Console.WriteLine("    ({0} tables in {1})", db.TableDefs.Count, db.Name);
-                foreach (DAO.TableDef td in db.TableDefs)
+                Console.WriteLine("    ({0} tables in {1})", tables.Count, dbName);
+                foreach (string tb in tables)
                 {
-                    Console.WriteLine("      {0}", td.Name);
+                    Console.WriteLine("      {0}", tb);
+                    fields = m_utilsDAO.GetFields(strConnection, tb);
+                    if (fields.Count > 0)
+                    {
+                        Console.WriteLine("        ({0} fields in {1})", fields.Count, tb);
+                        foreach (string fd in fields)
+                        {
+                            Console.WriteLine("        {0}", fd);
+                        }
+                    }
+                    else
+                        Console.WriteLine("        (no columns in this table)");
                 }
             }
-            else
-                Console.WriteLine("    (There are no tables in {0}!)", db.Name);
 
-            db.Close();
+            List<string> columns = m_utilsDAO.GetFields(strConnection, tables[0]);
             Console.WriteLine();
         }
 

@@ -14,6 +14,14 @@
         eDB_SqlServer           // System.Data.SqlClient.SqlConnection : DbConnection
     };
 
+    // Enumerations
+    public enum DatabaseReadTechnology
+    {
+        // The OleDB technology used for reading data
+        eRbRead_DataReader,     // System.Data.OleDb.OleDbDataReader
+        eRbRead_DataAdapter     // System.Data.OleDb.OleDbDataAdapter
+    };
+
     public enum DatabaseAccess
     {
         // How the database is read (raw or through a templated mapper)

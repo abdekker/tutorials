@@ -69,7 +69,8 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
-            // Generate some statistics about the selected database
+            // Generate some statistics about the selected database (see "Northwind_DAO.Connect_Stats()"
+            // for additional information)
             DAO.DBEngine dbEngine = new DAO.DBEngine();
             dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
@@ -113,7 +114,6 @@ namespace SimpleDbReader
                         bHaveConnectionString = false;
                     else
                         strConnection = (m_cfgGeneral.strDevDataPath + "\\SimpleTest.mdb");
-
                     break;
 
                 default:
