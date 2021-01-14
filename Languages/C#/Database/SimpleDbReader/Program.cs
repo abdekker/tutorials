@@ -43,11 +43,11 @@ namespace SimpleDbReader
             m_tests = (
                 //cSimpleCreateDB +
                 //cSimpleStats +
-                cSimpleRead
+                //cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
                 //cNorthwindDummyOpenClose +
-                //cNorthwindStats
+                cNorthwindStats
                 //cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance +
