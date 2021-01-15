@@ -6,12 +6,24 @@ namespace SimpleDbReader
     class Utilities_DAO
     {
         // Utilities for using DAO
+        #region Member variables
         private string m_fieldHeader;
+        #endregion // Member variables
+
+        #region Constants
+        private readonly string Schema_Header_Column_Formatting = "{0,-20}{1,-12}{2}";
+        private readonly string Schema_Header_Column_Name = "Name";
+        private readonly string Schema_Header_Column_Type = "Type";
+        private readonly string Schema_Header_Column_Size = "Size";
+        #endregion // Constants
 
         public Utilities_DAO()
         {
             // Header when displaying field information
-            m_fieldHeader = string.Format("{0,-20}{1,-12}{2}", "Name", "Type", "Size");
+            m_fieldHeader = string.Format(Schema_Header_Column_Formatting,
+                Schema_Header_Column_Name,
+                Schema_Header_Column_Type,
+                Schema_Header_Column_Size);
         }
 
         #region Public methods
@@ -75,7 +87,7 @@ namespace SimpleDbReader
                         columns.Add(m_fieldHeader);
                         foreach (DAO.Field fd in db.TableDefs[strTable].Fields)
                         {
-                            columns.Add(string.Format("{0,-20}{1,-12}{2}",
+                            columns.Add(string.Format(Schema_Header_Column_Formatting,
                                 fd.Name,
                                 GetFieldTypeAsString(fd),
                                 fd.Size));
@@ -176,6 +188,6 @@ namespace SimpleDbReader
             catch { }
             return strType;
         }
-    #endregion // Private methods
-}
+        #endregion // Private methods
+    }
 }

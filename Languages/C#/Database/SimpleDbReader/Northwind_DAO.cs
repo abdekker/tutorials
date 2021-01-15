@@ -176,8 +176,10 @@ namespace SimpleDbReader
                         Console.WriteLine("        (no columns in this table)");
                 }
             }
+            else
+                Console.WriteLine("    (not tables in {0}", dbName);
 
-            List<string> columns = m_utilsDAO.GetFields(strConnection, tables[0]);
+            //ADAD List<string> columns = m_utilsDAO.GetFields(strConnection, tables[0]);
             Console.WriteLine();
         }
 
