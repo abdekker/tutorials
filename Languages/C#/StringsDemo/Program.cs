@@ -40,7 +40,7 @@ namespace StringsDemo
             return string.Format(formatString, value);*/
         }
 
-        private static void OutputInfo_Basic()
+        private static void Info_Basic()
         {
             // Basic information on formatting (see each section for more detailed examples)
             Console.WriteLine("# Basics #");
@@ -62,7 +62,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_String()
+        private static void Info_String()
         {
             // Formatting strings
             // Note: You can also use the "string.Format(...)" methods
@@ -91,9 +91,34 @@ namespace StringsDemo
                  Console.WriteLine($"    {{0}}{{0,{16-name.Length}}}", name);
 
             Console.WriteLine();
+
+            string s3 = "AAA";
+            string s4 = "aaa";
+            Console.WriteLine("(string comparisons)");
+            Console.WriteLine("(A = {0}, B = {1}, C = {2}, D = {3})", s1, s2, s3, s4);
+            Console.WriteLine("  (A == B):\t{0}\t[using operator==]", (s1 == s2));
+            Console.WriteLine("  (A == C):\t{0}", (s1 == s3));
+            Console.WriteLine("  (A == D):\t{0}", (s1 == s4));
+            Console.WriteLine();
+            Console.WriteLine("  (A == B):\t{0}\t[using string::Compare (case-sensitive)]", (string.Compare(s1, s2) == 0));
+            Console.WriteLine("  (A == C):\t{0}", (string.Compare(s1, s3) == 0));
+            Console.WriteLine("  (A == D):\t{0}", (string.Compare(s1, s4) == 0));
+            Console.WriteLine();
+            Console.WriteLine("  (A == B):\t{0}\t[using string::Compare (ignore case)]", (string.Compare(s1, s2, true) == 0));
+            Console.WriteLine("  (A == C):\t{0}", (string.Compare(s1, s3, true) == 0));
+            Console.WriteLine("  (A == D):\t{0}", (string.Compare(s1, s4, true) == 0));
+            Console.WriteLine();
+            Console.WriteLine("  (A == B):\t{0}\t[using string::Equals (case-sensitive)]", s1.Equals(s2));
+            Console.WriteLine("  (A == C):\t{0}", s1.Equals(s3));
+            Console.WriteLine("  (A == D):\t{0}", s1.Equals(s4));
+            Console.WriteLine();
+            Console.WriteLine("  (A == B):\t{0}\t[using string::Equals (ignore case)]", s1.Equals(s2, StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine("  (A == C):\t{0}", s1.Equals(s3, StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine("  (A == D):\t{0}", s1.Equals(s4, StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine();
         }
 
-        private static void OutputInfo_Boolean()
+        private static void Info_Boolean()
         {
             // Formatting boolean values
             Console.WriteLine("# Booleans #");
@@ -108,7 +133,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_Integer()
+        private static void Info_Integer()
         {
             // Formatting integers
             Console.WriteLine("# Integers #");
@@ -133,7 +158,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_Float()
+        private static void Info_Float()
         {
             // Formatting floating point numbers (of type "float")
             Console.WriteLine("# Floats #");
@@ -178,7 +203,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_Double()
+        private static void Info_Double()
         {
             // Formatting floating point numbers (of type "double")
             // Note: Similar to float, so this section is simpler
@@ -194,7 +219,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_DateTime()
+        private static void Info_DateTime()
         {
             // Formatting System.Date variables
             // Note: Date/Time variables are specific to culture/locale. Change locale like this:
@@ -236,7 +261,7 @@ namespace StringsDemo
             Console.WriteLine();
         }
 
-        private static void OutputInfo_Enum()
+        private static void Info_Enum()
         {
             // Displaying enumerated values
             Console.WriteLine("# Enumerations #");
@@ -269,14 +294,14 @@ namespace StringsDemo
             // Demonstrating some aspects of string formatting in C#
             Console.WriteLine("=== Strings and string formatting in C# ===");
             Console.WriteLine();    // Or "Console.Write(Environment.NewLine)"
-            OutputInfo_Basic();
-            OutputInfo_String();
-            OutputInfo_Boolean();
-            OutputInfo_Integer();
-            OutputInfo_Float();
-            OutputInfo_Double();
-            OutputInfo_DateTime();
-            OutputInfo_Enum();
+            Info_Basic();
+            Info_String();
+            Info_Boolean();
+            Info_Integer();
+            Info_Float();
+            Info_Double();
+            Info_DateTime();
+            Info_Enum();
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
         }
