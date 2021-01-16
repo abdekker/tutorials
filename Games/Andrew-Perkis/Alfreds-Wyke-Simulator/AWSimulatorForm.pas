@@ -45,7 +45,7 @@ type
 
   // Statistics
   AW_STATS = record
-	dwNumberOfGames: DWORD;
+	dwStartTicks, dwNumberOfGames: DWORD;
 	adwWinsForPlayer: array[eBuilder..eDestroyer] of DWORD;
 	wShortestGame, wLongestGame: WORD;
 
@@ -654,6 +654,11 @@ var
 begin
 	// Start analysis
 
+	// Reset statistics
+	ZeroMemory(@m_Stats, SizeOf(AW_STATS));
+	m_Stats.dwStartTicks := GetTickCount();
+	m_Stats.wShortestGame := 65535;
+
 	// Set up the game state
 	m_Setup.byType := BYTE(ddlBoardSize.ItemIndex);
 	if (m_Setup.byType = cnBoard4x4) then
@@ -701,10 +706,6 @@ begin
 
 	m_Setup.bAlwayTake11111 := (tbAlwaysTake11111.Checked);
 
-	// Reset the statistics
-	ZeroMemory(@m_Stats, SizeOf(AW_STATS));
-	m_Stats.wShortestGame := 65535;
-
 	// Seed the random number generator
 	DecodeTime(Now(), wHours, wMins, wSecs, wMilliSecs);
 	RandSeed := wMilliSecs;
@@ -726,6 +727,7 @@ end;
 
 procedure TfrmAWSimulator.OnUpdateTimerTick(Sender: TObject);
 var
+	dwElapsed: DWORD;
 	fTmp: Single;
 	byTile: BYTE;
 	AComponent: TComponent;
@@ -765,8 +767,19 @@ begin
 	// Update stats
 	if (m_bAnalysing) or (m_bForceUpdate) then
 		begin
-		// Total number of games played
-		lblNumberOfGames.Caption := IntToStr(m_Stats.dwNumberOfGames);
+		// Total number of games played (and games per second)
+		dwElapsed := (GetTickCount() - m_Stats.dwStartTicks);
+		//fTmp := (Single(m_Stats.dwNumberOfGames)/Single(dwElapsed));
+		fTmp := (m_Stats.dwNumberOfGames/dwElapsed);
+		lblNumberOfGames.Caption := Format('%s (%.1f per ms)', [
+			FloatToStrF(m_Stats.dwNumberOfGames, ffNumber, 10, 0),
+			fTmp]);
+
+		{
+		lblMinValue.Caption := Format('%s: %s', [
+					CachedString(cszMinOnly),
+					FloatToStrF(m_nMinValue, ffNumber, 10, 0)]);
+		}
 
 		// Wins by each player
 		fTmp := 50.0;
