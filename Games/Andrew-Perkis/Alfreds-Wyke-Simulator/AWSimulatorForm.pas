@@ -17,31 +17,31 @@ type
 
   // Game setup
   AW_GAME_SETUP = record
-	byType: BYTE;											// 4x4 or 6x6
-	byRows, byCols: BYTE;									// Rows and columns; same as type above
-	byWinByNumber: BYTE;									// Requirement for number of plots to win
-	byWinByDifference: BYTE;								// Requirement for win by having more plots than other
-	abyClaim: array[eBuilder..eDestroyer] of BYTE;			// Requirement for claiming a plot (0/8)
-	abyComponents: array[e11111..e4] of BYTE;				// How many components per move eg. 2-1-1 => 3
-	abyTiles: array[e11111..e4, 1..5] of BYTE;				// For each component, number of tiles to add/remove
+	byType: BYTE;										// 4x4 or 6x6
+	byRows, byCols: BYTE;								// Rows and columns; same as type above
+	byWinByNumber: BYTE;								// Requirement for number of plots to win
+	byWinByDifference: BYTE;							// Requirement for win by having more plots than other
+	abyClaim: array[eBuilder..eDestroyer] of BYTE;		// Requirement for claiming a plot (0/8)
+	abyComponents: array[e11111..e4] of BYTE;			// How many components per move eg. 2-1-1 => 3
+	abyTiles: array[e11111..e4, 1..5] of BYTE;			// For each component, number of tiles to add/remove
 
-	bFirstMove11111: Boolean;								// Should Builder take 11111 as the first move?
-	bSecondMove11111: Boolean;								// Should Destroyer take 11111 as first move (assuming Builder does not)?
+	bFirstMove11111: Boolean;							// Should Builder take 11111 as the first move?
+	bSecondMove11111: Boolean;							// Should Destroyer take 11111 as first move (assuming Builder does not)?
   end;
 
   // Game state
   AW_GAME_STATE = record
-	abyBoard: array[1..6, 1..6] of BYTE;					// Current board
-	abyLegalPlots: array[1..6, 1..6] of Boolean;			// For current board, legal moves
-	abyPlotPlayedTo: array[1..6, 1..6] of Boolean;			// Plot has been already been played to this turn
+	abyBoard: array[1..6, 1..6] of BYTE;				// Current board
+	abyLegalPlots: array[1..6, 1..6] of Boolean;		// For current board, legal moves
+	abyPlotPlayedTo: array[1..6, 1..6] of Boolean;		// Plot has been already been played to this turn
 
-	ePlayer, eOtherPlayer: TPlayer;							// Current player to move and his opponent
-	byPlots: array[eBuilder..eDestroyer] of BYTE;			// Plots claimed by each player
+	ePlayer, eOtherPlayer: TPlayer;						// Current player to move and his opponent
+	byPlots: array[eBuilder..eDestroyer] of BYTE;		// Plots claimed by each player
 
-	wMoveNumber: WORD;										// Move number
-	abyMoveRefCount: array[e11111..e4] of BYTE;				// Which moves are available
+	wMoveNumber: WORD;									// Move number
+	abyMoveRefCount: array[e11111..e4] of BYTE;			// Which moves are available
 
-	bGameIsWon: Boolean;									// Has the game been won
+	bGameIsWon: Boolean;								// Has the game been won
   end;
 
   // Statistics
@@ -50,8 +50,8 @@ type
 	adwWinsForPlayer: array[eBuilder..eDestroyer] of DWORD;
 	wShortestGame, wLongestGame: WORD;
 
-	adwWinByType: array[eLine..eDifference] of DWORD;		// Win by type (eg. vertical line)
-	abyMaxTilesRequired: array[0..8] of BYTE;				// How many 0s were needed, etc
+	adwWinByType: array[eLine..eDifference] of DWORD;	// Win by type (eg. vertical line)
+	abyMaxTilesRequired: array[0..8] of BYTE;			// How many 0s were needed, etc
   end;
 
   TfrmAWSimulator = class(TForm)
@@ -129,7 +129,7 @@ type
 
 	procedure RunAnalysis();
 	procedure SetupNewBoard();
-	procedure MakeARandomMove();
+	procedure MakeRandomMove();
 	function SetLegalMoves(byTiles: BYTE) : BYTE;
 	procedure CheckForWin();
 
@@ -152,14 +152,14 @@ procedure TfrmAWSimulator.RunAnalysis();
 var
 	dwSpinRound: DWORD;
 begin
-	// Run the analysis loop. This will take the following form:
+	// Run the analysis loop. Each loop takes the following form:
 	// 1) Set up a new board
 	// 2) Play a random (legal) move for Builder
 	// 3) Check for won game
-	// 4) If won, start back at step (1). If not, go to step (5)
+	// 4) If won, start back at step 1. If not, go to step 5.
 	// 5) Play a random (legal) move for Destroyer
 	// 6) Check for won game
-	// 7) If won, start back at step (1). If not, go to step (2)
+	// 7) If won, start back at step 1. If not, go to step 2.
 
 	dwSpinRound := 0;
 	while (m_bAnalysing) do
@@ -171,7 +171,7 @@ begin
 		while (not m_Game.bGameIsWon) do
 			begin
 			Inc(m_Game.wMoveNumber);
-			MakeARandomMove();
+			MakeRandomMove();
 			CheckForWin();
 			UpdateStats_Tiles();
 
@@ -287,15 +287,15 @@ begin
 	UpdateStats_Tiles();
 end;
 
-procedure TfrmAWSimulator.MakeARandomMove();
+procedure TfrmAWSimulator.MakeRandomMove();
 var
 	byMoveCount, byChosenMove, byComponent, byMoveRow, byMoveCol: BYTE;
 	byRow, byCol: BYTE;
 	eMove, eChosenMove: TMoveTypes;
 	bMoveFound: Boolean;
 begin
-	// First select a move from the available move types (where the reference
-	// count is zero). There are usually 3 available moves.
+	// First select a move from the available move types (where the reference count is zero).
+	// Except for the first moves of the game, there will be 3 available moves.
 	if (m_Game.wMoveNumber < 3) then
 		byMoveCount := (6 - BYTE(m_Game.wMoveNumber))
 	else
@@ -303,15 +303,14 @@ begin
 
 	if (m_Game.wMoveNumber = 1) and (m_Setup.bFirstMove11111) then
 		byChosenMove := 1
-	else if (m_Game.wMoveNumber = 2) and
+	else if (	(m_Game.wMoveNumber = 2) and
 				(m_Setup.bSecondMove11111) and
-				(m_Game.abyMoveRefCount[e11111] = 0) then
+				(m_Game.abyMoveRefCount[e11111] = 0)) then
 		byChosenMove := 1
 	else
 		byChosenMove := ((Random(21474843647) mod byMoveCount) + 1);
 
-	// Ok, so which moves was selected? If "byChosenMove" is 2 (say) then find
-	// the second legal move.
+	// Which move was selected? If "byChosenMove" is 2 (say), then find the second legal move.
 	byMoveCount := 0;
 	for eMove:=e11111 to e4 do
 		begin
@@ -322,8 +321,8 @@ begin
 			break;
 		end;
 
-	// Ok, we've chosen a random move, increase its reference count and decrease
-	// the reference count of all other moves
+	// * Increase the reference count of the selected move
+	// * Decrease the reference count of all other moves
 	eChosenMove := eMove;
 	for eMove:=e11111 to e4 do
 		begin
@@ -400,12 +399,10 @@ begin
 			begin
 			if (m_Game.ePlayer = eBuilder) then
 				begin
-				// Builder...adding the tile(s) to the plot must leave the plot
-				// with eight or fewer tiles
-				if (m_Setup.abyClaim[eBuilder] >=
-						(m_Game.abyBoard[byRow][byCol] + byTiles)) and
+				// Builder...adding the tile(s) must leave the plot with eight or fewer tiles
+				if (	(m_Setup.abyClaim[eBuilder] >= (m_Game.abyBoard[byRow][byCol] + byTiles)) and
 						(not m_Game.abyPlotPlayedTo[byRow][byCol]) and
-						(m_Game.abyBoard[byRow][byCol] > m_Setup.abyClaim[eDestroyer]) then
+						(m_Game.abyBoard[byRow][byCol] > m_Setup.abyClaim[eDestroyer])) then
 					begin
 					m_Game.abyLegalPlots[byRow][byCol] := True;
 					Inc(byLegalMoveCount);
@@ -415,11 +412,10 @@ begin
 				end
 			else
 				begin
-				// Destroyer...removing the tile(s) from the plot must leave
-				// the plot with zero or move tiles
-				if (m_Game.abyBoard[byRow][byCol] >= byTiles) and
+				// Destroyer...removing the tile(s) must leave the plot with zero or move tiles
+				if (	(m_Game.abyBoard[byRow][byCol] >= byTiles) and
 						(not m_Game.abyPlotPlayedTo[byRow][byCol]) and
-						(m_Game.abyBoard[byRow][byCol] < m_Setup.abyClaim[eBuilder]) then
+						(m_Game.abyBoard[byRow][byCol] < m_Setup.abyClaim[eBuilder])) then
 					begin
 					m_Game.abyLegalPlots[byRow][byCol] := True;
 					Inc(byLegalMoveCount);
@@ -439,8 +435,8 @@ var
 	byRow, byCol, byPlotsDiff: BYTE;
 begin
 	// Check for a win
-	// Note: Check for all winning conditions so that we can get accurate stats
-	// when multiple winning conditions are met
+	// Note: Check for all winning conditions for accurate stats when multiple winning conditions
+	// are met
 	bGameWon := False;
 
 	// Lines of four, horizontal ?
@@ -448,10 +444,10 @@ begin
 		begin
 		for byCol:=1 to (m_Setup.byCols-3) do
 			begin
-			if (m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
+			if (	(m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow][byCol+2] = m_Setup.abyClaim[m_Game.ePlayer]) and
-					(m_Game.abyBoard[byRow][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer]) then
+					(m_Game.abyBoard[byRow][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer])) then
 				begin
 				bGameWon := True;
 				Inc(m_Stats.adwWinByType[eLine]);
@@ -464,10 +460,10 @@ begin
 		begin
 		for byRow:=1 to (m_Setup.byRows-3) do
 			begin
-			if (m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
+			if (	(m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow+1][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow+2][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
-					(m_Game.abyBoard[byRow+3][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) then
+					(m_Game.abyBoard[byRow+3][byCol] = m_Setup.abyClaim[m_Game.ePlayer])) then
 				begin
 				bGameWon := True;
 				Inc(m_Stats.adwWinByType[eLine]);
@@ -480,10 +476,10 @@ begin
 		begin
 		for byCol:=1 to (m_Setup.byCols-3) do
 			begin
-			if (m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
+			if (	(m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow+1][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow+2][byCol+2] = m_Setup.abyClaim[m_Game.ePlayer]) and
-					(m_Game.abyBoard[byRow+3][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer]) then
+					(m_Game.abyBoard[byRow+3][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer])) then
 				begin
 				bGameWon := True;
 				Inc(m_Stats.adwWinByType[eDiagonal]);
@@ -496,10 +492,10 @@ begin
 		begin
 		for byCol:=1 to (m_Setup.byCols-3) do
 			begin
-			if (m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
+			if (	(m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow-1][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow-2][byCol+2] = m_Setup.abyClaim[m_Game.ePlayer]) and
-					(m_Game.abyBoard[byRow-3][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer]) then
+					(m_Game.abyBoard[byRow-3][byCol+3] = m_Setup.abyClaim[m_Game.ePlayer])) then
 				begin
 				bGameWon := True;
 				Inc(m_Stats.adwWinByType[eDiagonal]);
@@ -512,10 +508,10 @@ begin
 		begin
 		for byRow:=1 to (m_Setup.byRows-1) do
 			begin
-			if (m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
+			if (	(m_Game.abyBoard[byRow][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer]) and
 					(m_Game.abyBoard[byRow+1][byCol] = m_Setup.abyClaim[m_Game.ePlayer]) and
-					(m_Game.abyBoard[byRow+1][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer]) then
+					(m_Game.abyBoard[byRow+1][byCol+1] = m_Setup.abyClaim[m_Game.ePlayer])) then
 				begin
 				bGameWon := True;
 				Inc(m_Stats.adwWinByType[eBlock]);
@@ -540,7 +536,7 @@ begin
 		Inc(m_Stats.adwWinByType[eCount]);
 		end;
 
-	// Win by difference (having N number of plots more than your opponent) ?
+	// Win by difference (having N plots more than your opponent) ?
 	// Note: This win condition does not apply in the 6x6 game.
 	if (m_Setup.byType = cnBoard4x4) then
 		begin
@@ -558,14 +554,11 @@ begin
 	// Has the game being won ?
 	if (bGameWon) then
 		begin
-		if (m_Game.wMoveNumber < 5) then
-			byPlotsDiff := 5;
-
 		// Game is won! Increment stats and start a new game.
 		m_Game.bGameIsWon := True;
 		Inc(m_Stats.adwWinsForPlayer[m_Game.ePlayer]);
 
-		// Check if this is a record for the length of game
+		// Check if game sets a record for the length of game
 		if (m_Game.wMoveNumber < m_Stats.wShortestGame) then
 			m_Stats.wShortestGame := m_Game.wMoveNumber;
 
@@ -574,7 +567,7 @@ begin
 		end
 	else
 		begin
-		// Game is not won yet...switch the active player and make another move
+		// Game is not won yet...switch the active player and continue the game
 		m_Game.eOtherPlayer := m_Game.ePlayer;
 		if (m_Game.ePlayer = eBuilder) then
 			m_Game.ePlayer := eDestroyer
@@ -611,9 +604,6 @@ begin
 end;
 // Private functions: End
 
-// Public functions: Start
-// Public functions: End
-
 procedure TfrmAWSimulator.FormCreate(Sender: TObject);
 begin
 	// Creation...
@@ -647,6 +637,7 @@ end;
 procedure TfrmAWSimulator.btnOkClick(Sender: TObject);
 begin
 	// Terminate the application
+	m_bAnalysing := False;
 	ModalResult := mrOk;
 	Application.Terminate();
 end;
@@ -682,14 +673,14 @@ begin
 		m_Setup.byRows := 6;
 		m_Setup.byCols := 6;
 		m_Setup.byWinByNumber := 12;
-		m_Setup.byWinByDifference := 12;		// Does not apply in the 6x6 version
+		m_Setup.byWinByDifference := 12;	// Does not apply in the 6x6 version
 		end;
 
-	// Set up the number of tiles needed to claim a plot for Builder / Destroyer
+	// Set the number of tiles needed to claim a plot for Builder / Destroyer
 	m_Setup.abyClaim[eBuilder] := 8;
 	m_Setup.abyClaim[eDestroyer] := 0;
 
-	// For each move type, set up the components
+	// Set up the components for each move
 	m_Setup.abyComponents[e11111] := 5;
 	m_Setup.abyTiles[e11111][1] := 1;
 	m_Setup.abyTiles[e11111][2] := 1;
@@ -716,7 +707,7 @@ begin
 	m_Setup.bFirstMove11111 := (tbFirstMove11111.Checked);
 	m_Setup.bSecondMove11111 := (tbSecondMove11111.Checked);
 
-	// Set up the statistics
+	// Reset the statistics
 	ZeroMemory(@m_Stats, SizeOf(AW_STATS));
 	m_Stats.wShortestGame := 65535;
 
