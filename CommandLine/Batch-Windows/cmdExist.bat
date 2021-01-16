@@ -1,7 +1,6 @@
 @echo off
 
-rem Demonstrates the "exists" command
-
+rem The script demonstrates the "exists" command
 echo File or folder known to exist
 if EXIST %windir%\regedit.exe (echo   Registry editor found, huzzah!) else (echo   Registry editor missing, oops)
 echo .

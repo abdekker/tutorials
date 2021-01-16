@@ -1,6 +1,6 @@
 @echo off
 
-rem This script demonstrates using the "forfiles" command
+rem This script demonstrates the "forfiles" command
 echo ### List all log files in %WINDIR% older than 30 days ###
 forfiles /p C:\Windows /m *.log /d -30 /c "cmd /c echo @FDATE @FILE"
 echo .
