@@ -58,21 +58,13 @@ object frmAWSimulator: TfrmAWSimulator
       OnCloseUp = ddlBoardSizeCloseUp
       OnDropDown = ddlBoardSizeDropDown
     end
-    object tbFirstMove11111: TCheckBox
+    object tbAlwaysTake11111: TCheckBox
       Left = 20
       Top = 85
-      Width = 220
+      Width = 225
       Height = 17
-      Caption = 'Builder takes 1-1-1-1-1 first move'
+      Caption = 'Always take 1-1-1-1-1 (if available)'
       TabOrder = 1
-    end
-    object tbSecondMove11111: TCheckBox
-      Left = 20
-      Top = 105
-      Width = 235
-      Height = 17
-      Caption = 'Destroyer takes 1-1-1-1-1 first move'
-      TabOrder = 2
     end
   end
   object gbResults: TGroupBox

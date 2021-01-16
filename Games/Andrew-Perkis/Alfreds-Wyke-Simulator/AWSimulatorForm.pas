@@ -7,8 +7,8 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, StrUtils;
 
 const
-	cnBoard4x4		= 0;
-	cnBoard6x6		= 1;
+  cnBoard4x4 = 0;
+  cnBoard6x6 = 1;
 
 type
   TPlayer = (eBuilder, eDestroyer);
@@ -25,8 +25,7 @@ type
 	abyComponents: array[e11111..e4] of BYTE;			// How many components per move eg. 2-1-1 => 3
 	abyTiles: array[e11111..e4, 1..5] of BYTE;			// For each component, number of tiles to add/remove
 
-	bFirstMove11111: Boolean;							// Should Builder take 11111 as the first move?
-	bSecondMove11111: Boolean;							// Should Destroyer take 11111 as first move (assuming Builder does not)?
+	bAlwayTake11111: Boolean;							// If available, always take 1-1-1-1-1?
   end;
 
   // Game state
@@ -61,8 +60,7 @@ type
 	gbSettings: TGroupBox;
 	lblBoardSize: TLabel;
 	ddlBoardSize: TComboBox;
-	tbFirstMove11111: TCheckBox;
-	tbSecondMove11111: TCheckBox;
+    tbAlwaysTake11111: TCheckBox;
 
 	gbResults: TGroupBox;
 	btnStartAnalysis: TButton;
@@ -301,11 +299,8 @@ begin
 	else
 		byMoveCount := 3;
 
-	if (m_Game.wMoveNumber = 1) and (m_Setup.bFirstMove11111) then
-		byChosenMove := 1
-	else if (	(m_Game.wMoveNumber = 2) and
-				(m_Setup.bSecondMove11111) and
-				(m_Game.abyMoveRefCount[e11111] = 0)) then
+	if (	(m_Setup.bAlwayTake11111) and
+			(m_Game.abyMoveRefCount[e11111] = 0)) then
 		byChosenMove := 1
 	else
 		byChosenMove := ((Random(21474843647) mod byMoveCount) + 1);
@@ -322,7 +317,7 @@ begin
 		end;
 
 	// * Increase the reference count of the selected move
-	// * Decrease the reference count of all other moves
+	// * Decrease the reference count of all other moves (a move is playable when this reaches 0)
 	eChosenMove := eMove;
 	for eMove:=e11111 to e4 do
 		begin
@@ -704,8 +699,7 @@ begin
 	m_Setup.abyComponents[e4] := 1;
 	m_Setup.abyTiles[e4][1] := 4;
 
-	m_Setup.bFirstMove11111 := (tbFirstMove11111.Checked);
-	m_Setup.bSecondMove11111 := (tbSecondMove11111.Checked);
+	m_Setup.bAlwayTake11111 := (tbAlwaysTake11111.Checked);
 
 	// Reset the statistics
 	ZeroMemory(@m_Stats, SizeOf(AW_STATS));
@@ -747,28 +741,24 @@ begin
 			// Settings
 			lblBoardSize.Enabled := False;
 			ddlBoardSize.Enabled := False;
-			tbFirstMove11111.Enabled := False;
-			tbSecondMove11111.Enabled := False;
+			tbAlwaysTake11111.Enabled := False;
 
 			// Results
 			gbResults.Caption := 'Results (Analysing)';
 			btnStartAnalysis.Enabled := False;
 			btnStopAnalysis.Enabled := True;
-			btnOk.Enabled := False;
 			end
 		else
 			begin
 			// Settings
 			lblBoardSize.Enabled := True;
 			ddlBoardSize.Enabled := True;
-			tbFirstMove11111.Enabled := True;
-			tbSecondMove11111.Enabled := True;
+			tbAlwaysTake11111.Enabled := True;
 
 			// Results
 			gbResults.Caption := 'Results';
 			btnStartAnalysis.Enabled := True;
 			btnStopAnalysis.Enabled := False;
-			btnOk.Enabled := True;
 			end;
 		end;
 
