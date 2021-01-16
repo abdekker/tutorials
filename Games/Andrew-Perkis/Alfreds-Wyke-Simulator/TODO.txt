@@ -1,0 +1,14 @@
+* Change label colours on right to blue (for line, 1-8, etc)
+* When a value has changed in the last 5 minutes, colour red; last 30 minutes; colour orange, etc
+* Check out memset and memcpy for speeding up operations
+* Check out using bitmasks to speed up calculations
+* Use TStringList to determine unique games (to prevent double-counting); count games not counted ie. duplicates
+* Sort of 1-1-1-1-1 move GUI logic on left-hand-side
+* Offer choice to choose 1-1-1-1-1 every time it is available
+* Offer choice to never choose the 1-1-1-1-1 even if it is available
+* Offer choice to win immediately every time it is possible
+* Show starting grid on LHS
+* Convert to tabbed so you can do detailed setup on one tab and then run analysis on the other; show settings on analysis tab
+* Allow win conditions to be tweaked
+* Show % for all win by type (of total) [???]
+* Offer option to only allow 1-1-1-1-1 move once at least one plot has been captured
