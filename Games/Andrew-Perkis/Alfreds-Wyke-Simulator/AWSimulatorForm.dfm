@@ -35,14 +35,14 @@ object frmAWSimulator: TfrmAWSimulator
     Caption = 'Settings'
     TabOrder = 1
     object lblBoardSize: TLabel
-      Left = 20
+      Left = 15
       Top = 25
       Width = 66
       Height = 16
       Caption = 'Board Size'
     end
     object ddlBoardSize: TComboBox
-      Left = 20
+      Left = 15
       Top = 45
       Width = 145
       Height = 28
@@ -60,7 +60,7 @@ object frmAWSimulator: TfrmAWSimulator
       OnDropDown = ddlBoardSizeDropDown
     end
     object tbAlwaysTake11111: TCheckBox
-      Left = 20
+      Left = 15
       Top = 80
       Width = 225
       Height = 17
@@ -76,7 +76,7 @@ object frmAWSimulator: TfrmAWSimulator
     Caption = 'Results'
     TabOrder = 2
     object lblNumberOfGamesTitle: TLabel
-      Left = 20
+      Left = 15
       Top = 70
       Width = 121
       Height = 16
@@ -96,7 +96,7 @@ object frmAWSimulator: TfrmAWSimulator
       Caption = '0'
     end
     object lblWinsForPlayerTitle: TLabel
-      Left = 20
+      Left = 15
       Top = 90
       Width = 122
       Height = 16
@@ -116,7 +116,7 @@ object frmAWSimulator: TfrmAWSimulator
       Caption = 'B = 1234 (52.56%); D = 1197 (47.44%)'
     end
     object lblWinByTypeTitle: TLabel
-      Left = 20
+      Left = 15
       Top = 154
       Width = 70
       Height = 16
@@ -174,11 +174,11 @@ object frmAWSimulator: TfrmAWSimulator
       Caption = 'NA'
     end
     object lblGameLengthTitle: TLabel
-      Left = 20
+      Left = 15
       Top = 110
-      Width = 76
+      Width = 105
       Height = 16
-      Caption = 'Game length'
+      Caption = 'Game length (ply)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
       Font.Height = -13
@@ -194,7 +194,7 @@ object frmAWSimulator: TfrmAWSimulator
       Caption = 'Min = 5; Max = 72'
     end
     object lblTilesRequiredTitle: TLabel
-      Left = 20
+      Left = 15
       Top = 197
       Width = 137
       Height = 16
@@ -333,7 +333,7 @@ object frmAWSimulator: TfrmAWSimulator
       Caption = '12'
     end
     object btnStartAnalysis: TButton
-      Left = 20
+      Left = 15
       Top = 25
       Width = 150
       Height = 40

@@ -47,7 +47,9 @@ type
   AW_STATS = record
 	dwStartTicks, dwNumberOfGames: DWORD;
 	adwWinsForPlayer: array[eBuilder..eDestroyer] of DWORD;
-	wShortestGame, wLongestGame: WORD;
+
+	dwGameMovesTotal: DWORD;
+	wGameLengthMin, wGameLengthMax: WORD;
 
 	adwWinByType: array[eLine..eDifference] of DWORD;	// Win by type (eg. vertical line)
 	abyMaxTilesRequired: array[0..8] of BYTE;			// How many 0s were needed, etc
@@ -554,11 +556,12 @@ begin
 		Inc(m_Stats.adwWinsForPlayer[m_Game.ePlayer]);
 
 		// Check if game sets a record for the length of game
-		if (m_Game.wMoveNumber < m_Stats.wShortestGame) then
-			m_Stats.wShortestGame := m_Game.wMoveNumber;
+		Inc(m_Stats.dwGameMovesTotal, m_Game.wMoveNumber);
+		if (m_Game.wMoveNumber < m_Stats.wGameLengthMin) then
+			m_Stats.wGameLengthMin := m_Game.wMoveNumber;
 
-		if (m_Game.wMoveNumber > m_Stats.wLongestGame) then
-			m_Stats.wLongestGame := m_Game.wMoveNumber;
+		if (m_Game.wMoveNumber > m_Stats.wGameLengthMax) then
+			m_Stats.wGameLengthMax := m_Game.wMoveNumber;
 		end
 	else
 		begin
@@ -657,7 +660,7 @@ begin
 	// Reset statistics
 	ZeroMemory(@m_Stats, SizeOf(AW_STATS));
 	m_Stats.dwStartTicks := GetTickCount();
-	m_Stats.wShortestGame := 65535;
+	m_Stats.wGameLengthMin := 65535;
 
 	// Set up the game state
 	m_Setup.byType := BYTE(ddlBoardSize.ItemIndex);
@@ -769,7 +772,7 @@ begin
 		begin
 		// Total number of games played (and games per second)
 		dwElapsed := (GetTickCount() - m_Stats.dwStartTicks);
-		fTmp := (m_Stats.dwNumberOfGames/dwElapsed);
+		fTmp := (m_Stats.dwNumberOfGames / dwElapsed);
 		lblNumberOfGames.Caption := Format('%s (%.1f per ms)', [
 			FloatToStrF(m_Stats.dwNumberOfGames, ffNumber, 10, 0), fTmp]);
 
@@ -783,8 +786,12 @@ begin
 			m_Stats.adwWinsForPlayer[eDestroyer], (100.0 - fTmp)]);
 
 		// Game length
-		lblGameLength.Caption := Format('Min = %d; Max = %d', [
-			m_Stats.wShortestGame, m_Stats.wLongestGame]);
+		fTmp := 50.0;
+		if (m_Stats.dwNumberOfGames > 0) then
+			fTmp := (m_Stats.dwGameMovesTotal / m_Stats.dwNumberOfGames);
+
+		lblGameLength.Caption := Format('Min = %d; Max = %d; Avg = %.1f', [
+			m_Stats.wGameLengthMin, m_Stats.wGameLengthMax, fTmp]);
 
 		// Win by type
 		lblLine.Caption := IntToStr(m_Stats.adwWinByType[eLine]);
