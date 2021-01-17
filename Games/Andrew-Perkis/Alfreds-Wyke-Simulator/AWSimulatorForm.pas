@@ -60,7 +60,7 @@ type
 	gbSettings: TGroupBox;
 	lblBoardSize: TLabel;
 	ddlBoardSize: TComboBox;
-    tbAlwaysTake11111: TCheckBox;
+	tbAlwaysTake11111: TCheckBox;
 
 	gbResults: TGroupBox;
 	btnStartAnalysis: TButton;
@@ -70,19 +70,14 @@ type
 
 	lblWinsForPlayerTitle: TLabel;
 	lblWinsForPlayer: TLabel;
-	lblWinByTypeTitle: TLabel;
-	lblLine: TLabel;
-	lblLineTitle: TLabel;
-	lblDiagonalTitle: TLabel;
-	lblDiagonal: TLabel;
-	lblBlockTitle: TLabel;
-	lblBlock: TLabel;
-	lblCountTitle: TLabel;
-	lblCount: TLabel;
-	lblDifferenceTitle: TLabel;
-	lblDifference: TLabel;
 	lblGameLengthTitle: TLabel;
 	lblGameLength: TLabel;
+	lblWinByTypeTitle: TLabel;
+	lblLine: TLabel;
+	lblDiagonal: TLabel;
+	lblBlock: TLabel;
+	lblCount: TLabel;
+	lblDifference: TLabel;
 	lblTilesRequiredTitle: TLabel;
 	lblTile0Title: TLabel;
 	lblTile1Title: TLabel;
@@ -102,6 +97,11 @@ type
 	lblTile6: TLabel;
 	lblTile7: TLabel;
 	lblTile8: TLabel;
+    lblLineTitle: TStaticText;
+    lblBlockTitle: TStaticText;
+    lblCountTitle: TStaticText;
+    lblDifferenceTitle: TStaticText;
+    lblDiagonalTitle: TStaticText;
 
 	procedure FormCreate(Sender: TObject);
 	procedure FormDestroy(Sender: TObject);
@@ -769,26 +769,22 @@ begin
 		begin
 		// Total number of games played (and games per second)
 		dwElapsed := (GetTickCount() - m_Stats.dwStartTicks);
-		//fTmp := (Single(m_Stats.dwNumberOfGames)/Single(dwElapsed));
 		fTmp := (m_Stats.dwNumberOfGames/dwElapsed);
 		lblNumberOfGames.Caption := Format('%s (%.1f per ms)', [
-			FloatToStrF(m_Stats.dwNumberOfGames, ffNumber, 10, 0),
-			fTmp]);
-
-		{
-		lblMinValue.Caption := Format('%s: %s', [
-					CachedString(cszMinOnly),
-					FloatToStrF(m_nMinValue, ffNumber, 10, 0)]);
-		}
+			FloatToStrF(m_Stats.dwNumberOfGames, ffNumber, 10, 0), fTmp]);
 
 		// Wins by each player
 		fTmp := 50.0;
 		if (m_Stats.dwNumberOfGames > 0) then
-			fTmp := 100.0 * (m_Stats.adwWinsForPlayer[eBuilder] / m_Stats.dwNumberOfGames);
+			fTmp := (100.0 * (m_Stats.adwWinsForPlayer[eBuilder] / m_Stats.dwNumberOfGames));
 
 		lblWinsForPlayer.Caption := Format('B = %d (%.2f%%); D = %d (%.2f%%)', [
 			m_Stats.adwWinsForPlayer[eBuilder], fTmp,
 			m_Stats.adwWinsForPlayer[eDestroyer], (100.0 - fTmp)]);
+
+		// Game length
+		lblGameLength.Caption := Format('Min = %d; Max = %d', [
+			m_Stats.wShortestGame, m_Stats.wLongestGame]);
 
 		// Win by type
 		lblLine.Caption := IntToStr(m_Stats.adwWinByType[eLine]);
@@ -800,11 +796,9 @@ begin
 		else
 			lblDifference.Caption := 'NA';
 
-		// Game length
-		lblGameLength.Caption := Format('Min = %d; Max = %d', [
-			m_Stats.wShortestGame, m_Stats.wLongestGame]);
-
 		// Tiles required
+		// Note: This statistic is designed to inform the designer how many tiles are required for
+		// a production version of the game (so that any game is guaranteed to be playable)
 		for byTile:=0 to 8 do
 			begin
 			AComponent := FindComponent(Format('lblTile%d', [byTile]));
