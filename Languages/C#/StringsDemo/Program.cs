@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 
+using systemHelperLibrary;
+
 namespace StringsDemo
 {
     class Program
@@ -22,43 +24,45 @@ namespace StringsDemo
             Saturday,
             Sunday
         };
+
+        [Flags]
+        private enum EnumWithFlags
+        {
+            First = 1,
+            Second = 2,
+            Third = 4,
+            Fourth = 8
+        };
+
+        private enum EnumWithNegativeNumbers
+        {
+            First = -2,
+            Second,
+            Third,
+            Fourth
+        };
         #endregion // Enumerations
 
-        private static void WriteConsole(string value)
-        {
-            Console.WriteLine(value);
-        }
-
-        private static string FormatFloat<T>(T value, int precision)
-        {
-            // Generic method to format a floating point number
-            // Note: String interpolation replaces double braces "{{" with a single brace
-            return string.Format($"{{0:F{precision}}}", value);
-
-            // Alternative:
-            /*string formatString = string.Concat("{0:F", precision, "}");
-            return string.Format(formatString, value);*/
-        }
-
+        #region Testing methods
         private static void Info_Basic()
         {
             // Basic information on formatting (see each section for more detailed examples)
             Console.WriteLine("# Basics #");
-            WriteConsole("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on");
-            WriteConsole("    Note: Use \"$\" for string literals. The following are equivalent.");
-            WriteConsole("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
-            WriteConsole("          Console.WriteLine($\"My integer is {myInt} and I like it\");");
+            Console.WriteLine("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on");
+            Console.WriteLine("    Note: Use \"$\" for string literals. The following are equivalent.");
+            Console.WriteLine("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
+            Console.WriteLine("          Console.WriteLine($\"My integer is {myInt} and I like it\");");
             Console.WriteLine();
 
             Console.WriteLine("  * Integers");
-            WriteConsole("    - {0:000} adds leading zeroes to pad the number to a fixed length (eg. 3)");
-            WriteConsole("    - {0:D3} achieves the same thing");
-            WriteConsole("    - {0,3} adds leading spaces to pad the number to a fixed length");
-            WriteConsole("    - {0,3:00} adds leading zeroes, then spaces to pad the number to a fixed length");
-            WriteConsole("    - {0:X2} displays the number in hexadecimal");
+            Console.WriteLine("    - {0:000} adds leading zeroes to pad the number to a fixed length (eg. 3)");
+            Console.WriteLine("    - {0:D3} achieves the same thing");
+            Console.WriteLine("    - {0,3} adds leading spaces to pad the number to a fixed length");
+            Console.WriteLine("    - {0,3:00} adds leading zeroes, then spaces to pad the number to a fixed length");
+            Console.WriteLine("    - {0:X2} displays the number in hexadecimal");
             Console.WriteLine();
 
-            WriteConsole("  * Floats...TODO");
+            Console.WriteLine("  * Floats...TODO");
             Console.WriteLine();
         }
 
@@ -173,7 +177,7 @@ namespace StringsDemo
 
             Console.WriteLine("(using a method to display a variable number of decimal places)");
             for (int places = 0; places <= 5; places++)
-                Console.WriteLine("  decimals = {0}, output = {1}", places, FormatFloat(f2, places));
+                Console.WriteLine("  decimals = {0}, output = {1}", places, StringLibrary.FormatFloat(f2, places));
             Console.WriteLine();
 
             Console.WriteLine("(using different formatting for positive and negative numbers, and zero)");
@@ -198,7 +202,7 @@ namespace StringsDemo
 
             Console.WriteLine("(list of basic methods to format a floating point number)");
             Console.WriteLine("  A = {0:0.0000}\t\t\t[using \"{{0:0.0...}}\"]", f1);
-            Console.WriteLine("  A = {0}\t\t\t[custom function using \"{{0:F*}}\" internally]", FormatFloat(f1, 4));
+            Console.WriteLine("  A = {0}\t\t\t[custom function using \"{{0:F*}}\" internally]", StringLibrary.FormatFloat(f1, 4));
             Console.WriteLine("  A = {0}\t\t\t[using System.Single::ToString(format)]", f1.ToString("0.0000"));
             Console.WriteLine();
         }
@@ -214,7 +218,7 @@ namespace StringsDemo
 
             Console.WriteLine("(using a method to display a variable number of decimal places)");
             for (int places = 0; places <= 10; places++)
-                Console.WriteLine("  decimals = {0,2}, output = {1}", places, FormatFloat(d, places));
+                Console.WriteLine("  decimals = {0,2}, output = {1}", places, StringLibrary.FormatFloat(d, places));
 
             Console.WriteLine();
         }
@@ -272,22 +276,53 @@ namespace StringsDemo
             }
             Console.WriteLine();
 
-            string[] dayStrings = { "2", "8", "Friday", "Blue" };
+            Console.WriteLine("(integer -> enum using Enum.IsDefined)");
+            int [] dayNums = { 2, 3, -1, 8 };
+            foreach (int dayNum in dayNums)
+            {
+                if (Enum.IsDefined(typeof(Weekdays), dayNum))
+                {
+                    Weekdays day = (Weekdays)dayNum;
+                    Console.WriteLine("  {0,-10} converts to {1}", dayNum, day);
+                }
+                else
+                    Console.WriteLine("  {0,-10} is not an underlying value of Weekday", dayNum);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("(integer -> enum using naming hack)");
+            foreach (int dayNum in dayNums)
+            {
+                if (TypesLibrary.IsValidEnumValue((Weekdays)dayNum))
+                {
+                    Weekdays day = (Weekdays)dayNum;
+                    Console.WriteLine("  {0,-10} converts to {1}", dayNum, day);
+                }
+                else
+                    Console.WriteLine("  {0,-10} is not an underlying value of Weekday", dayNum);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("(string -> enum)");
+            string[] dayStrings = { "2", "Friday", "8", "Blue" };
+            string tmp;
             foreach (string dayString in dayStrings)
             {
+                tmp = string.Format("'{0}'", dayString);
                 Weekdays day;
                 if (Enum.TryParse(dayString, true, out day))
                 {
                     if (Enum.IsDefined(typeof(Weekdays), day) | day.ToString().Contains(","))
-                        Console.WriteLine("  '{0}' converts to {1}", dayString, day.ToString());
+                        Console.WriteLine("  {0,-10} converts to {1}", tmp, day.ToString());
                     else
-                        Console.WriteLine("  '{0}' is not an underlying value of Weekdays", dayString);
+                        Console.WriteLine("  {0,-10} is not an underlying value of Weekdays", tmp);
                 }
                 else
-                    Console.WriteLine("  '{0}' is not a member of Weekdays", dayString);
+                    Console.WriteLine("  {0,-10} is not a member of Weekdays", tmp);
             }
             Console.WriteLine();
         }
+        #endregion // Testing methods
 
         static void Main(string[] args)
         {
