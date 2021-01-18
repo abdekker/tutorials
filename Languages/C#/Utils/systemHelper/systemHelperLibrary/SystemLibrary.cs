@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace systemHelperLibrary
 {
+    #region Comments on how to use this library
     // This library project was original adapted from:
     // https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio
     // Note: To run "unsafe" code, enable "Build > Allow unsafe code" on the project properties
@@ -21,8 +22,16 @@ namespace systemHelperLibrary
     /* To use this library in another project:
         - In Solution Explorer, right-click References and select "Add Reference..."
         - Select Browse then click "Browse..."
-        - Navigate to this library
+        - Navigate to this library, select "Add" then "OK"
     */
+
+    /* To use methods, choose one of these options:
+        1) Add "using systemHelperLibrary;" (top of the file) and use "LIBRARY.METHOD"
+        2) Add "using someLib = systemHelperLibrary.LIBRARY;" (top of file) and use "someLib.METHOD"
+        3) Fully qualify the reference with "systemHelperLibrary.LIBRARY.METHOD"
+    */
+    #endregion // Comments on how to use this library
+
     public static class SystemLibrary
     {
         public static bool Is64Bit()
