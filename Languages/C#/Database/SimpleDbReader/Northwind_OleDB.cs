@@ -202,6 +202,7 @@ namespace SimpleDbReader
                 else
                     Console.WriteLine("    (not tables in {0})", connection.Database);
             }
+            Console.WriteLine();
         }
 
         protected override void Connect_Read(string strConnection)
