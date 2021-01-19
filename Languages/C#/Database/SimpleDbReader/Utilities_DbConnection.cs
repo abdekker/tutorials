@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-using typeLib = systemHelperLibrary.TypesLibrary;
+using System.Data.Odbc;
+using System.Data.OleDb;
 
 namespace SimpleDbReader
 {
     class Utilities_DbConnection
     {
-        // Utilities for using:
+        // Utilities for using both ODBC and OleDb:
         // * System.Data.DbConnection (such as System.Data.Odbc.OdbcConnection)
         // * System.Data.DataTable (such as returned from DbConnection::GetSchema)
-        #region Member variables
-        private string m_fieldHeader;
 
+        #region Member variables
+        private readonly Utilities_ODBC m_utilsODBC = new Utilities_ODBC();
+        private readonly Utilities_OleDb m_utilsOleDb = new Utilities_OleDb();
+
+        private string m_fieldHeader;
         struct SchemaFieldDefinition
         {
             // Subset of schema information available for fields (columns)
@@ -27,30 +31,15 @@ namespace SimpleDbReader
         #endregion // Member variables
 
         #region Constants
+        // Tables schema
         private readonly string Schema_Tables = "Tables";
-        private readonly string Schema_Columns = "Columns";
-
         private readonly string Schema_Tables_Column_TableName = "TABLE_NAME";
         private readonly string Schema_Tables_Column_TableType = "TABLE_TYPE";
 
-        private readonly string Schema_Tables_ODBC_SystemTable = "SYSTEM TABLE";
+        // Columns schema
+        private readonly string Schema_Columns = "Columns";
 
-        private readonly string Schema_Tables_OleDB_SystemTable = "ACCESS TABLE";
-        private readonly string Schema_Tables_OleDB_ViewTable = "VIEW";
-
-        private readonly string Schema_Columns_ODBC_Name = "COLUMN_NAME";
-        private readonly string Schema_Columns_ODBC_Type = "DATA_TYPE";
-        private readonly string Schema_Columns_ODBC_TypeName = "TYPE_NAME";
-        private readonly string Schema_Columns_ODBC_Size = "COLUMN_SIZE";
-        private readonly string Schema_Columns_ODBC_Nullable = "IS_NULLABLE";
-
-        private readonly string Schema_Columns_OleDB_Name = "COLUMN_NAME";
-        private readonly string Schema_Columns_OleDB_Type = "DATA_TYPE";
-        private readonly string Schema_Columns_OleDB_Size_Number = "NUMERIC_PRECISION";
-        private readonly string Schema_Columns_OleDB_Size_String = "CHARACTER_MAXIMUM_LENGTH";
-        private readonly string Schema_Columns_OleDB_Size_Date = "DATETIME_PRECISION";
-        private readonly string Schema_Columns_OleDB_Nullable = "IS_NULLABLE";
-
+        // Formatting for output to the console
         private readonly string Schema_Header_Column_Formatting = "{0,-25}{1,-8}{2,-15}{3,-13}{4}";
         private readonly string Schema_Header_Column_Name = "Name";
         private readonly string Schema_Header_Column_Type = "Type";
@@ -100,24 +89,29 @@ namespace SimpleDbReader
             // Retrieve "Tables" schema information, which differs between connection types. To see all columns, use "GetSchemaTablesFull".
             
             #region Schema details
-            // ### OdbcConnection ###
-            // * TABLE_CAT          Name of database (eg. C:\Apps\Data\Northwind 2000)
-            // * TABLE_SCHEM        ?
-            // * TABLE_NAME         Name of table (eg. Customers)
-            // * TABLE_TYPE         Type of table ("SYSTEM TABLE" or "TABLE") [the ODBC "Tables" schema does not include Views]
-            // * REMARKS            Description of table
-            // Note: Schema information may differ between ODBC drivers
+            /* ### OdbcConnection ###
+            See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/odbc-schema-collections
+            ColumnName          DataType    Description
+            TABLE_CAT           String      Name of database (eg. C:\Apps\Data\Northwind 2000)
+            TABLE_SCHEM         String      ?
+            TABLE_NAME          String      Name of table (eg. Customers)
+            TABLE_TYPE          String      Type of table ("SYSTEM TABLE" or "TABLE") [the ODBC "Tables" schema does not include Views]
+            REMARKS             String      Description of table
+            * Note, 1: Schema information may differ between ODBC drivers
+            * Note, 2: The above schema applies to Views as well */
 
-            // ### OleDbConnection ###
-            // * TABLE_CATALOG      ?
-            // * TABLE_SCHEMA       ?
-            // * TABLE_NAME         Name of table (eg. Customers)
-            // * TABLE_TYPE         Type of table or view ("ACCESS TABLE", "TABLE" or "VIEW")
-            // * TABLE_GUID         ?
-            // * DESCRIPTION        Description of table
-            // * TABLE_PROPID       ?
-            // * DATE_CREATED       Date created (eg. 13/09/1995 10:51:45)
-            // * DATE_MODIFIED      Date modified (eg. 12/03/2003 05:09:58)
+            /* ### OleDbConnection ###
+            See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/ole-db-schema-collections
+            ColumnName          DataType    Description
+            TABLE_CATALOG       String      ?
+            TABLE_SCHEMA        String      ?
+            TABLE_NAME          String      Name of table (eg. Customers)
+            TABLE_TYPE          String      Type of table or view ("ACCESS TABLE", "TABLE" or "VIEW")
+            TABLE_GUID          Guid        ?
+            DESCRIPTION         String      Description of table
+            TABLE_PROPID        Int64       ?
+            DATE_CREATED        DateTime    Date created (eg. 13/09/1995 10:51:45)
+            DATE_MODIFIED       DateTime    Date modified (eg. 12/03/2003 05:09:58) */
             #endregion // Schema details
 
             DataTable schemaTables = connection.GetSchema(Schema_Tables);
@@ -129,17 +123,17 @@ namespace SimpleDbReader
                 {
                     try
                     {
-                        if (connection is System.Data.Odbc.OdbcConnection)
+                        if (connection is OdbcConnection)
                         {
                             // ODBC
-                            addTable = (!row[Schema_Tables_Column_TableType].Equals(Schema_Tables_ODBC_SystemTable));
+                            addTable = (!row[Schema_Tables_Column_TableType].Equals(m_utilsODBC.Schema_Tables_ODBC_SystemTable));
                         }
-                        else if (connection is System.Data.OleDb.OleDbConnection)
+                        else if (connection is OleDbConnection)
                         {
                             // OleDB
                             addTable = (
-                                (!row[Schema_Tables_Column_TableType].Equals(Schema_Tables_OleDB_SystemTable)) &&
-                                (!row[Schema_Tables_Column_TableType].Equals(Schema_Tables_OleDB_ViewTable)));
+                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDb.Schema_Tables_OleDB_SystemTable)) &&
+                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDb.Schema_Tables_OleDB_ViewTable)));
 
                         }
                     }
@@ -200,7 +194,7 @@ namespace SimpleDbReader
             ORDINAL_POSITION            Int32       Column number (eg. 1)
             IS_NULLABLE                 String      Does this field allow null values as string? NO for the key column.
             ORDINAL                     ?           Column number (eg. 1)
-            Note: Schema information may differ between ODBC drivers */
+            * Note: Schema information may differ between ODBC drivers */
 
             /* ### OleDbConnection ###
             See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/ole-db-schema-collections
@@ -258,7 +252,7 @@ namespace SimpleDbReader
                         fd.nullable));
 
                     // Alternatively, you code it right here:
-                    /*if (connection is System.Data.Odbc.OdbcConnection)
+                    /*if (connection is OdbcConnection)
                     {
                         // ODBC
                         columns.Add(string.Format(Schema_Header_Column_Formatting,
@@ -266,22 +260,11 @@ namespace SimpleDbReader
                             row[Schema_Columns_ODBC_Type],
                             row[Schema_Columns_ODBC_TypeName],
                             row[Schema_Columns_ODBC_Size],
-                            row[Schema_Columns_ODBC_Nullable]));                        
+                            row[Schema_Columns_ODBC_Nullable]));
                     }
-                    else if (connection is System.Data.OleDb.OleDbConnection)
-                    {
-                        // OleDB
-                        columns.Add(string.Format(Schema_Header_Column_Formatting,
-                            row[Schema_Columns_OleDB_Name],
-                            row[Schema_Columns_OleDB_Type],
-                            "(name)",
-                            row[Schema_Columns_OleDB_Size_Number],
-                            row[Schema_Columns_OleDB_Nullable]));
-                    }*/
+                    (etc) */
                 }
             }
-
-            //System.Data.Odbc.OdbcType
         }
 
         private void GetSchemaColumnsFull(ref List<string> columns, DbConnection connection, string table)
@@ -302,12 +285,12 @@ namespace SimpleDbReader
         private void ConvertRowToSchemaColumns(ref SchemaFieldDefinition fd, DataRow row, DbConnection connection)
         {
             // Helper function to convert schema information (in a DataRow variable) into our own format
-            if (connection is System.Data.Odbc.OdbcConnection)
+            if (connection is OdbcConnection)
             {
                 // ODBC
                 try
                 {
-                    fd.name = (string)row[Schema_Columns_ODBC_Name];
+                    fd.name = (string)row[m_utilsODBC.Schema_Columns_ODBC_Name];
                 }
                 catch { fd.name = "(name)"; }
 
@@ -317,134 +300,73 @@ namespace SimpleDbReader
                     // across multiple data sources and the mappings from underlying SQL data types to ODBC type
                     // identifiers are only approximate.
                     // Note: The "DATA_TYPE" column for ODBC data sources is actually an Int16
-                    fd.type = Convert.ToInt32(row[Schema_Columns_ODBC_Type]);
+                    fd.type = Convert.ToInt32(row[m_utilsODBC.Schema_Columns_ODBC_Type]);
                 }
                 catch
                 {
                     // The value contained in COUNTER or INTEGER columns is "4", but the value of "4" in
                     // System.Data.Odbc.OdbcType is "Char" (and the "Int" type is "10"). These appear to be different
                     // types...to be investigated.
-                    fd.type = (int)System.Data.Odbc.OdbcType.Int;
+                    fd.type = (int)OdbcType.Int;
                 }
 
                 try
                 {
-                    fd.typeName = (string)row[Schema_Columns_ODBC_TypeName];
+                    fd.typeName = (string)row[m_utilsODBC.Schema_Columns_ODBC_TypeName];
                 }
                 catch
                 { fd.typeName = "(type)"; }
 
                 try
                 {
-                    fd.size = (int)row[Schema_Columns_ODBC_Size];
+                    fd.size = (int)row[m_utilsODBC.Schema_Columns_ODBC_Size];
                 }
                 catch { fd.size = -1; }
 
                 try
                 {
-                    fd.nullable = (string)row[Schema_Columns_ODBC_Nullable];
+                    fd.nullable = (string)row[m_utilsODBC.Schema_Columns_ODBC_Nullable];
                 }
                 catch { fd.nullable = "(nullable)"; }
             }
-            else if (connection is System.Data.OleDb.OleDbConnection)
+            else if (connection is OleDbConnection)
             {
                 // OleDB
                 try
                 {
-                    fd.name = (string)row[Schema_Columns_OleDB_Name];
+                    fd.name = (string)row[m_utilsOleDb.Schema_Columns_OleDB_Name];
                 }
                 catch { fd.name = "(name)"; }
 
                 try
                 {
-                    fd.type = (int)row[Schema_Columns_OleDB_Type];
+                    fd.type = (int)row[m_utilsOleDb.Schema_Columns_OleDB_Type];
                 }
-                catch { fd.type = (int)System.Data.OleDb.OleDbType.Integer; }
+                catch { fd.type = (int)OleDbType.Integer; }
 
                 try
                 {
-                    if (Enum.IsDefined(typeof(System.Data.OleDb.OleDbType), fd.type))
-                        fd.typeName = ((System.Data.OleDb.OleDbType)fd.type).ToString();
+                    if (Enum.IsDefined(typeof(OleDbType), fd.type))
+                        fd.typeName = ((OleDbType)fd.type).ToString();
                 }
                 catch { fd.typeName = "(type)"; }
 
                 try
                 {
                     // Note:
-                    // * "NUMERIC_PRECISION"            => Int32
-                    // * "CHARACTER_MAXIMUM_LENGTH"     =>  Int64
-                    // * "DATETIME_PRECISION"           =>  Int64
-                    fd.size =Convert.ToInt32(row[GetOleDBTypeSchemaSizeColumn(fd.type)]);
+                    // NUMERIC_PRECISION            => Int32
+                    // CHARACTER_MAXIMUM_LENGTH     =>  Int64
+                    // DATETIME_PRECISION           =>  Int64
+                    fd.size =Convert.ToInt32(row[m_utilsOleDb.GetOleDBTypeSchemaSizeColumn(fd.type)]);
                 }
                 catch { fd.size = -1; }
 
                 try
                 {
-                    //fd.nullable = (string)row[Schema_Columns_OleDB_Nullable];
-                    fd.nullable = Convert.ToString(row[Schema_Columns_OleDB_Nullable]);
+                    fd.nullable = Convert.ToString(row[m_utilsOleDb.Schema_Columns_OleDB_Nullable]);
                 }
                 catch { fd.nullable = "(nullable)"; }
             }
-        }
-
-        private string GetOleDBTypeSchemaSizeColumn(int type)
-        {
-            // Convert the OleDB type to the schema column name required to read the size of that type
-            // Note: Some of these are guessed because I only have a limited set of sample databases
-            string column = Schema_Columns_OleDB_Size_Number;
-            if (Enum.IsDefined(typeof(System.Data.OleDb.OleDbType), type))
-            {
-                System.Data.OleDb.OleDbType typeOleDb = ((System.Data.OleDb.OleDbType)type);
-                switch (typeOleDb)
-                {
-                    case System.Data.OleDb.OleDbType.Empty:
-                    case System.Data.OleDb.OleDbType.SmallInt:
-                    case System.Data.OleDb.OleDbType.Integer:
-                    case System.Data.OleDb.OleDbType.Single:
-                    case System.Data.OleDb.OleDbType.Double:
-                    case System.Data.OleDb.OleDbType.Currency:
-                    case System.Data.OleDb.OleDbType.IDispatch:
-                    case System.Data.OleDb.OleDbType.Error:
-                    case System.Data.OleDb.OleDbType.Variant:
-                    case System.Data.OleDb.OleDbType.IUnknown:
-                    case System.Data.OleDb.OleDbType.Decimal:
-                    case System.Data.OleDb.OleDbType.TinyInt:
-                    case System.Data.OleDb.OleDbType.UnsignedTinyInt:
-                    case System.Data.OleDb.OleDbType.UnsignedSmallInt:
-                    case System.Data.OleDb.OleDbType.UnsignedInt:
-                    case System.Data.OleDb.OleDbType.UnsignedBigInt:
-                    case System.Data.OleDb.OleDbType.Guid:
-                    case System.Data.OleDb.OleDbType.Numeric:
-                    case System.Data.OleDb.OleDbType.PropVariant:
-                    case System.Data.OleDb.OleDbType.VarNumeric:
-                    case System.Data.OleDb.OleDbType.VarBinary:
-                    case System.Data.OleDb.OleDbType.LongVarBinary:
-                        column = Schema_Columns_OleDB_Size_Number;
-                        break;
-
-                    case System.Data.OleDb.OleDbType.Date:
-                    case System.Data.OleDb.OleDbType.Filetime:
-                    case System.Data.OleDb.OleDbType.DBDate:
-                    case System.Data.OleDb.OleDbType.DBTime:
-                    case System.Data.OleDb.OleDbType.DBTimeStamp:
-                        column = Schema_Columns_OleDB_Size_Date;
-                        break;
-
-                    case System.Data.OleDb.OleDbType.BSTR:
-                        case System.Data.OleDb.OleDbType.Boolean:
-                    case System.Data.OleDb.OleDbType.Binary:
-                    case System.Data.OleDb.OleDbType.Char:
-                    case System.Data.OleDb.OleDbType.WChar:
-                    case System.Data.OleDb.OleDbType.VarChar:
-                    case System.Data.OleDb.OleDbType.LongVarChar:
-                    case System.Data.OleDb.OleDbType.VarWChar:
-                    case System.Data.OleDb.OleDbType.LongVarWChar:
-                        column = Schema_Columns_OleDB_Size_String;
-                        break;
-                }
-            }
-
-            return column;
         }
         #endregion // Private methods
     }

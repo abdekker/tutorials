@@ -6,6 +6,7 @@ namespace SimpleDbReader
     class Utilities_DAO
     {
         // Utilities for using DAO
+
         #region Member variables
         private string m_fieldHeader;
         #endregion // Member variables
