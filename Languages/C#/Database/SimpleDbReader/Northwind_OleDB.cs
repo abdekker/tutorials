@@ -184,6 +184,8 @@ namespace SimpleDbReader
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 connection.Open();
+                Console.WriteLine("  (connection is: {0})", m_utilsDbConnection.GetConnectionStateAsString(connection));
+
                 DataTable schema = connection.GetSchema("Tables"); // Other useful schema include "Procedures" and "Views"
                 List<string> tables = m_utilsDbConnection.GetSchemaInfo(connection, "Tables", true);
                 List<string> fields;

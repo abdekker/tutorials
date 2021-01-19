@@ -47,8 +47,8 @@ namespace SimpleDbReader
                 //cSimpleWrite
                 //cOtherTests
                 //cNorthwindDummyOpenClose
-                //cNorthwindStats
-                cNorthwindRead
+                cNorthwindStats
+                //cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance
                 //cDifferentQueryStrings
