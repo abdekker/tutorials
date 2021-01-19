@@ -33,6 +33,16 @@ namespace systemHelperLibrary
             return objType.FullName;
         }
 
+        public static bool AreTypesEqual(object obj1, object obj2)
+        {
+            // Or to test for a specific type:
+            //      if (obj1.GetType() == typeof(System.Int32))
+            if (obj1.GetType() == obj2.GetType())
+                return true;
+
+            return false;
+        }
+
         public static bool IsValidEnumValue<T>(T value) where T : Enum
         {
             // This hack relies on three assumptions:
