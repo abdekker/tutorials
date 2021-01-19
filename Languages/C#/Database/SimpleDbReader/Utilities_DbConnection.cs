@@ -76,46 +76,8 @@ namespace SimpleDbReader
                 return m_utilsODBC.GetDbName(strConnection);
             else if (m_tech == DatabaseTechnology.eDB_OleDb)
                 return m_utilsOleDb.GetDbName(strConnection);
-            else return string.Empty;
-
-            /*// Don't call this directly, ra
-            string dbName = string.Empty;
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
-            {
-                connection.Open();
-                DataTable schema = connection.GetSchema("Tables"); // Other useful schema include "Procedures" and "Views"
-                List<string> tables = m_utilsDbConnection.GetSchemaInfo(connection, "Tables", true);
-                List<string> fields;
-                if (tables.Count > 0)
-                {
-                    string test1 = connection.Database;
-                    string test2 = connection.DataSource;
-                    Console.WriteLine("    ({0} tables in {1})", tables.Count, connection.Database);
-                    foreach (string tb in tables)
-                    {
-                        Console.WriteLine("      {0}", tb);
-                        fields = m_utilsDbConnection.GetFields(connection, tb);
-                        foreach (string fd in fields)
-                        {
-                            Console.WriteLine("        {0}", fd);
-                        }
-                    }
-                }
-                else
-                    Console.WriteLine("    (not tables in {0})", connection.Database);
-            }
-            Console.WriteLine();*/
-
-            /*try
-            {
-                DAO.DBEngine dbEngine = new DAO.DBEngine();
-                dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
-                DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
-                dbName = db.Name;
-                db.Close();
-            }
-            catch { } 
-            return dbName;*/
+            else
+                return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
 
