@@ -108,8 +108,8 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindStats) != 0)
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);
-                //m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
-                //m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
+                m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
+                m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
