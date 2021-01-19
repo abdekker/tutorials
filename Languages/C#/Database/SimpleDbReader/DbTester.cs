@@ -1,10 +1,7 @@
 ﻿using System;
-//using System.Data;
-//using System.Data.OleDb;
-//using System.Data.Odbc;
 using System.IO;
 
-using systemHelperLibrary;
+using sysLib = systemHelperLibrary.SystemLibrary;
 using System.Linq.Expressions;
 
 namespace SimpleDbReader
@@ -12,7 +9,10 @@ namespace SimpleDbReader
     class DbTester
     {
         #region Constants
-        const int cPerformanceLoops = 200;
+        // Database names
+        private const int cPerformanceLoops = 200;
+
+        //P:\HqVar\_clin\Data
         #endregion  // Constants
 
         #region Member variables
@@ -54,7 +54,7 @@ namespace SimpleDbReader
             // (eg. C:\Apps\Data). If not defined, add this User environment variable to Windows and
             // restart Visual Studio (or alternatively hard-code the path).
             ConfigGeneral cfgGeneral = new ConfigGeneral();
-            cfgGeneral.b64bit = SystemLibrary.Is64Bit();
+            cfgGeneral.b64bit = sysLib.Is64Bit();
             cfgGeneral.strDevDataPath = Environment.GetEnvironmentVariable("DevDataDirectory");
 
             // Set generic query details (these can be updated later)
