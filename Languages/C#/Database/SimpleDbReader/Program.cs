@@ -19,7 +19,7 @@ namespace SimpleDbReader
         private static readonly UInt32 cSimpleCreateDB              = 0x00000001;
         private static readonly UInt32 cSimpleStats                 = 0x00000002;
         private static readonly UInt32 cSimpleRead                  = 0x00000004;
-        private static readonly UInt32 cSimpleModify                = 0x00000008;
+        private static readonly UInt32 cSimpleWrite                 = 0x00000008;
 
         private static readonly UInt32 cNorthwindDummyOpenClose     = 0x00000100;
         private static readonly UInt32 cNorthwindStats              = 0x00000200;
@@ -41,16 +41,16 @@ namespace SimpleDbReader
 
             // Define the tests to be performed
             m_tests = (
-                //cSimpleCreateDB +
-                cSimpleStats
+                //cSimpleCreateDB
+                //cSimpleStats
                 //cSimpleRead
-                //cSimpleModify +
-                //cOtherTests +
-                //cNorthwindDummyOpenClose +
+                //cSimpleWrite
+                //cOtherTests
+                //cNorthwindDummyOpenClose
                 //cNorthwindStats
-                //cNorthwindRead
+                cNorthwindRead
                 //cNorthwindWrite
-                //cNorthwindPerformance +
+                //cNorthwindPerformance
                 //cDifferentQueryStrings
                 );
 
@@ -85,7 +85,7 @@ namespace SimpleDbReader
                 m_db.SimpleRead(DatabaseTechnology.eDB_ODBC);
             }
 
-            if ((m_tests & cSimpleModify) != 0)
+            if ((m_tests & cSimpleWrite) != 0)
             {
                 m_db.SimpleWrite(DatabaseTechnology.eDB_DAO);
                 m_db.SimpleWrite(DatabaseTechnology.eDB_ODBC);
@@ -129,8 +129,8 @@ namespace SimpleDbReader
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindWrite(DatabaseTechnology.eDB_DAO);
-                m_db.NorthwindWrite(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindWrite(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindWrite(DatabaseTechnology.eDB_ODBC);
+                //m_db.NorthwindWrite(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 

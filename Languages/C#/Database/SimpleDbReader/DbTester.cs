@@ -10,7 +10,7 @@ namespace SimpleDbReader
     {
         #region Constants
         // Database names
-        private const int cPerformanceLoops = 200;
+        private const int cPerformanceLoops = 100;
 
         //P:\HqVar\_clin\Data
         #endregion  // Constants
@@ -199,7 +199,6 @@ namespace SimpleDbReader
             else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.PerformanceTest(nLoops);
         }
-        // End: Methods (public)
-     
+        // End: Methods (public)     
     }
 }

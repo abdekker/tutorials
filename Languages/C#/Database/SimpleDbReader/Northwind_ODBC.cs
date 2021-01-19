@@ -81,7 +81,7 @@ namespace SimpleDbReader
         public override void PerformanceTest(int nLoops)
         {
             // System.Data.Odbc.OdbcConnection
-            Console.WriteLine("### START: ODBC - Performance tests ###");
+            Console.WriteLine("### START: ODBC - Performance tests (Northwind) ###");
             string strConnection = string.Empty;
             foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
@@ -89,17 +89,23 @@ namespace SimpleDbReader
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
                 {
-                    int totalRecordsRead = 0;
-                    int startTicks = Environment.TickCount;
-                    for (int loop = 0; loop < nLoops; loop++)
-                        totalRecordsRead += Connect_PerformanceTest(strConnection);
+                    foreach (DatabaseReadTechnology dbReadTech in Enum.GetValues(typeof(DatabaseReadTechnology)))
+                    {
+                        m_eDbReadTechnology = dbReadTech;
+                        Console.Write("    ({0}) ", m_utilsDbConnection.GetReadTechnologyAsString(m_eDbReadTechnology));
 
-                    int elapsedTicks = (Environment.TickCount - startTicks);
-                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
-                        nLoops,
-                        elapsedTicks,
-                        (float)elapsedTicks / (float)nLoops,
-                        (float)totalRecordsRead / (float)nLoops);
+                        int totalRecordsRead = 0;
+                        int startTicks = Environment.TickCount;
+                        for (int loop = 0; loop < nLoops; loop++)
+                            totalRecordsRead += Connect_PerformanceTest(strConnection);
+
+                        int elapsedTicks = (Environment.TickCount - startTicks);
+                        Console.WriteLine("({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                            nLoops,
+                            elapsedTicks,
+                            (float)elapsedTicks / (float)nLoops,
+                            (float)totalRecordsRead / (float)nLoops);
+                    }
                 }
             }
 
@@ -223,7 +229,35 @@ namespace SimpleDbReader
             int recordsRead = 0;
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
-                // Create the Command and Parameter objects
+                // Use template methods
+                Collection<Northwind_Products> products = null;
+                if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+                {
+                    // Using System.Data.Odbc.OdbcDataReader : IDataReader
+                    using (NorthwindReader_Products reader = new NorthwindReader_Products())
+                    {
+                        reader.DbTechnology = m_tech;
+                        reader.ConnectionString = strConnection;
+                        reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        products = reader.Execute();
+                    }
+                }
+                else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
+                {
+                    // Using System.Data.Odbc.OdbcDataAdapter : IDbDataAdapter
+                    using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
+                    {
+                        adapter.DbTechnology = m_tech;
+                        adapter.ConnectionString = strConnection;
+                        adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        products = adapter.Execute();
+                    }
+                }
+
+                recordsRead = products.Count;
+
+                // Use raw DbDataReader
+                /* // Create the Command and Parameter objects
                 OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
                 command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
 
@@ -243,7 +277,7 @@ namespace SimpleDbReader
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                }
+                }*/
             }
 
             return recordsRead;
@@ -255,47 +289,50 @@ namespace SimpleDbReader
         {
             // Create and open the connection in a using block. This ensures that all resources will be
             // closed and disposed when the code exits.
-            Console.WriteLine("(raw)");
-            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
             {
-                // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
-                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-
-                // Open the connection in a try/catch block
-                try
+                Console.WriteLine("(raw)");
+                using (OdbcConnection connection = new OdbcConnection(strConnection))
                 {
-                    // Create and execute the DataReader, writing the result to the console window
-                    Northwind_Products rsTmp = new Northwind_Products();
-                    Console.WriteLine("\t{0}{1}{2}",
-                        Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
-                        Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
-                        Northwind_Products.colProductName);
+                    // Create the Command and Parameter objects
+                    OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                    command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
 
-                    int recordsRead = 0;
-                    connection.Open();
-                    OdbcDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
+                    // Open the connection in a try/catch block
+                    try
                     {
-                        recordsRead++;
+                        // Create and execute the DataReader, writing the result to the console window
+                        Northwind_Products rsTmp = new Northwind_Products();
                         Console.WriteLine("\t{0}{1}{2}",
-                            ((int)reader[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
-                            ((decimal)reader[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
-                            (string)reader[Northwind_Products.colProductName]);
-                        // Note: The reader returns 3 items (since the query was for three fields). You can access them
-                        // with reader[0], reader[1], and so on. Using the field name is preferable, though, because
-                        // then we are less dependent on the order of fields in the SQL query.
-                    }
-                    reader.Close();
-                    Console.WriteLine("    ({0} records)", recordsRead);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+                            Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                            Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                            Northwind_Products.colProductName);
 
-            Console.WriteLine();
+                        int recordsRead = 0;
+                        connection.Open();
+                        OdbcDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            recordsRead++;
+                            Console.WriteLine("\t{0}{1}{2}",
+                                ((int)reader[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                                ((decimal)reader[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                                (string)reader[Northwind_Products.colProductName]);
+                            // Note: The reader returns 3 items (since the query was for three fields). You can access them
+                            // with reader[0], reader[1], and so on. Using the field name is preferable, though, because
+                            // then we are less dependent on the order of fields in the SQL query.
+                        }
+                        reader.Close();
+                        Console.WriteLine("    ({0} records)", recordsRead);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+                Console.WriteLine();
+            }
+            // Do nothing for DatabaseReadTechnology.eRbRead_DataAdapter
         }
 
         private void Connect_Read_Template(string strConnection)

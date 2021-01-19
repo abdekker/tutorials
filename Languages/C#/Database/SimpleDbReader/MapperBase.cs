@@ -57,7 +57,7 @@ namespace SimpleDbReader
 
     abstract class MapperAdapterBase<T>
     {
-        // This mapper can be used with SQL Server,  ODBC, etc.
+        // This mapper can be used with SQL Server, ODBC, etc.
         protected abstract T Map(DataRow record, UInt64 uRecordsToRead);
         public Collection<T> MapAll(DataSet ds, UInt64 uRecordsToRead)
         {

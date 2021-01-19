@@ -19,7 +19,20 @@ namespace SimpleDbReader
         // Property accessors (for member variables)
         public abstract DatabaseTechnology DbTechnology { get; set; }
 
-        // Methods
+        // Abstract methods
         public abstract string GetDbName(string strConnection);
+
+        // Methods
+        public string GetReadTechnologyAsString(DatabaseReadTechnology eReadTechnology)
+        {
+            // Return a header for the console which describes the performance test
+            string header = string.Empty;
+            if (eReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+                header += "IDataReader";
+            else if (eReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
+                header += "IDbDataAdapter";
+
+            return header;
+        }
     }
 }
