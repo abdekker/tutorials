@@ -7,12 +7,9 @@ using System.Data.Odbc;
 
 namespace SimpleDbReader
 {
-    class Utilities_ODBC
+    class Utilities_ODBC : UtilitiesBase
     {
         // Utilities for using ODBC
-
-        #region Member variables
-        #endregion // Member variables
 
         #region Constants
         // Tables schema
@@ -26,12 +23,33 @@ namespace SimpleDbReader
         public readonly string Schema_Columns_ODBC_Nullable = "IS_NULLABLE";
         #endregion // Constants
 
-        public Utilities_ODBC() { }
+        public Utilities_ODBC()
+        {
+            // This utility class uses ODBC
+            DbTechnology = DatabaseTechnology.eDB_ODBC;
+        }
 
-        #region Public methods
-        #endregion // Public methods
+        #region Properties and methods from UtilitiesBase
+        public override DatabaseTechnology DbTechnology
+        {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
 
-        #region Private methods
-        #endregion // Private methods
+        public override string GetDbName(string strConnection)
+        {
+            // Get the name of the database associated with the connection string
+            string dbName = string.Empty;
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                connection.Open();
+                dbName = connection.Database;
+                if (connection.DataSource.Equals("ACCESS"))
+                    dbName += ".mdb";
+            }
+
+            return dbName;
+        }
+        #endregion // Properties and methods from UtilitiesBase
     }
 }

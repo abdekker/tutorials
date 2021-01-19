@@ -157,7 +157,7 @@ namespace SimpleDbReader
                 m_nwDAO.GetStats();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.GetStats();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.GetStats();
         }
 
@@ -168,7 +168,7 @@ namespace SimpleDbReader
                 m_nwDAO.Read();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Read();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.Read();
         }
 
@@ -179,7 +179,7 @@ namespace SimpleDbReader
                 m_nwDAO.Write();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Write();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.Write();
         }
 
@@ -196,7 +196,7 @@ namespace SimpleDbReader
                 m_nwDAO.PerformanceTest(nLoops);
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.PerformanceTest(nLoops);
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.PerformanceTest(nLoops);
         }
         // End: Methods (public)

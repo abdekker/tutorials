@@ -8,7 +8,7 @@ using System.Data.OleDb;
 
 namespace SimpleDbReader
 {
-    class Utilities_DbConnection
+    class Utilities_DbConnection : UtilitiesBase
     {
         // Utilities for using both ODBC and OleDb:
         // * System.Data.DbConnection (such as System.Data.Odbc.OdbcConnection)
@@ -48,8 +48,11 @@ namespace SimpleDbReader
         private readonly string Schema_Header_Column_Nullable = "Nullable";
         #endregion // Constants
 
-        public Utilities_DbConnection()
+        public Utilities_DbConnection(DatabaseTechnology tech)
         {
+            // This utility class could be used for ODBC, OleDB, SQL Server, etc
+            DbTechnology = tech;
+
             // Header when displaying field information
             m_fieldHeader = string.Format(Schema_Header_Column_Formatting,
                 Schema_Header_Column_Name,
@@ -58,6 +61,63 @@ namespace SimpleDbReader
                 Schema_Header_Column_Size,
                 Schema_Header_Column_Nullable);
         }
+
+        #region Properties and methods from UtilitiesBase
+        public override DatabaseTechnology DbTechnology
+        {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
+
+        public override string GetDbName(string strConnection)
+        {
+            // Get the name of the database associated with the connection string
+            if (m_tech == DatabaseTechnology.eDB_ODBC)
+                return m_utilsODBC.GetDbName(strConnection);
+            else if (m_tech == DatabaseTechnology.eDB_OleDb)
+                return m_utilsOleDb.GetDbName(strConnection);
+            else return string.Empty;
+
+            /*// Don't call this directly, ra
+            string dbName = string.Empty;
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                connection.Open();
+                DataTable schema = connection.GetSchema("Tables"); // Other useful schema include "Procedures" and "Views"
+                List<string> tables = m_utilsDbConnection.GetSchemaInfo(connection, "Tables", true);
+                List<string> fields;
+                if (tables.Count > 0)
+                {
+                    string test1 = connection.Database;
+                    string test2 = connection.DataSource;
+                    Console.WriteLine("    ({0} tables in {1})", tables.Count, connection.Database);
+                    foreach (string tb in tables)
+                    {
+                        Console.WriteLine("      {0}", tb);
+                        fields = m_utilsDbConnection.GetFields(connection, tb);
+                        foreach (string fd in fields)
+                        {
+                            Console.WriteLine("        {0}", fd);
+                        }
+                    }
+                }
+                else
+                    Console.WriteLine("    (not tables in {0})", connection.Database);
+            }
+            Console.WriteLine();*/
+
+            /*try
+            {
+                DAO.DBEngine dbEngine = new DAO.DBEngine();
+                dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
+                DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
+                dbName = db.Name;
+                db.Close();
+            }
+            catch { } 
+            return dbName;*/
+        }
+        #endregion // Properties and methods from UtilitiesBase
 
         #region Public methods
         public List<string> GetSchemaInfo(DbConnection connection, string collection, bool removeSysTables = false)

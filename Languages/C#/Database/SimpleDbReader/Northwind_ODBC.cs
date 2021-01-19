@@ -9,7 +9,7 @@ namespace SimpleDbReader
     class Northwind_ODBC : DatabaseCommon
     {
         // Member variables specific to this class
-        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection();
+        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_ODBC);
 
         private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
@@ -177,6 +177,7 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
+            string dbName = m_utilsDbConnection.GetDbName(strConnection);
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 connection.Open();
@@ -185,7 +186,7 @@ namespace SimpleDbReader
                 List<string> fields;
                 if (tables.Count > 0)
                 {
-                    Console.WriteLine("    ({0} tables in {1})", tables.Count, connection.Database);
+                    Console.WriteLine("    ({0} tables in {1})", tables.Count, dbName);
                     foreach (string tb in tables)
                     {
                         Console.WriteLine("      {0}", tb);
@@ -252,8 +253,8 @@ namespace SimpleDbReader
         #region Methods specific to this class
         private void Connect_Read_Raw(string strConnection)
         {
-            // Create and open the connection in a using block. This ensures that all resources
-            // will be closed and disposed when the code exits.
+            // Create and open the connection in a using block. This ensures that all resources will be
+            // closed and disposed when the code exits.
             Console.WriteLine("(raw)");
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {

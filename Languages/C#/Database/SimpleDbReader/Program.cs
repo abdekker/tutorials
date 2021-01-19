@@ -42,12 +42,12 @@ namespace SimpleDbReader
             // Define the tests to be performed
             m_tests = (
                 //cSimpleCreateDB +
-                //cSimpleStats +
+                cSimpleStats
                 //cSimpleRead
                 //cSimpleModify +
                 //cOtherTests +
                 //cNorthwindDummyOpenClose +
-                cNorthwindStats
+                //cNorthwindStats
                 //cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance +
@@ -110,7 +110,7 @@ namespace SimpleDbReader
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindStats(DatabaseTechnology.eDB_OleDB);
+                m_db.NorthwindStats(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 
@@ -120,7 +120,7 @@ namespace SimpleDbReader
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindRead(DatabaseTechnology.eDB_OleDB);
+                m_db.NorthwindRead(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 
@@ -130,7 +130,7 @@ namespace SimpleDbReader
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindWrite(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindWrite(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindWrite(DatabaseTechnology.eDB_OleDB);
+                m_db.NorthwindWrite(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 
@@ -140,7 +140,7 @@ namespace SimpleDbReader
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindPerformance(DatabaseTechnology.eDB_OleDB);
+                m_db.NorthwindPerformance(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 

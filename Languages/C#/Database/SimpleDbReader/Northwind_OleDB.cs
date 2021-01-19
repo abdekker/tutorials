@@ -9,7 +9,7 @@ namespace SimpleDbReader
     class Northwind_OleDB : DatabaseCommon
     {
         // Member variables specific to this class
-        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection();
+        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_OleDb);
 
         private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
@@ -19,7 +19,7 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses OleDB
-            m_tech = DatabaseTechnology.eDB_OleDB;
+            m_tech = DatabaseTechnology.eDB_OleDb;
         }
 
         #region Abstract methods from the base class
@@ -180,6 +180,7 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
+            string dbName = m_utilsDbConnection.GetDbName(strConnection);
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 connection.Open();
@@ -188,7 +189,7 @@ namespace SimpleDbReader
                 List<string> fields;
                 if (tables.Count > 0)
                 {
-                    Console.WriteLine("    ({0} tables in {1})", tables.Count, connection.Database);
+                    Console.WriteLine("    ({0} tables in {1})", tables.Count, dbName);
                     foreach (string tb in tables)
                     {
                         Console.WriteLine("      {0}", tb);

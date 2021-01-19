@@ -4,7 +4,7 @@ using System.Data.OleDb;
 
 namespace SimpleDbReader
 {
-    class Utilities_OleDb
+    class Utilities_OleDb : UtilitiesBase
     {
         // Utilities for using OleDB
 
@@ -28,10 +28,34 @@ namespace SimpleDbReader
 
         public Utilities_OleDb()
         {
+            // This utility class uses OleDb
+            DbTechnology = DatabaseTechnology.eDB_OleDb;
+
             // Initialise a dictionary to convert between System.Data.OleDb.OleDbType and the column name in the schema
             // which contains the size for that data type
             InitialiseOleDbTypeSchemaSizeColumn();
         }
+
+        #region Properties and methods from UtilitiesBase
+        public override DatabaseTechnology DbTechnology
+        {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
+
+        public override string GetDbName(string strConnection)
+        {
+            // Get the name of the database associated with the connection string
+            string dbName = string.Empty;
+            using (OleDbConnection connection = new OleDbConnection(strConnection))
+            {
+                connection.Open();
+                dbName = connection.DataSource;
+            }
+
+            return dbName;
+        }
+        #endregion // Properties and methods from UtilitiesBase
 
         #region Public methods
         public string GetOleDBTypeSchemaSizeColumn(int type)

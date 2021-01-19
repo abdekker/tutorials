@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SimpleDbReader
 {
-    class Utilities_DAO
+    class Utilities_DAO : UtilitiesBase
     {
         // Utilities for using DAO
 
@@ -20,6 +20,9 @@ namespace SimpleDbReader
 
         public Utilities_DAO()
         {
+            // This utility class uses DAO
+            DbTechnology = DatabaseTechnology.eDB_DAO;
+
             // Header when displaying field information
             m_fieldHeader = string.Format(Schema_Header_Column_Formatting,
                 Schema_Header_Column_Name,
@@ -27,9 +30,16 @@ namespace SimpleDbReader
                 Schema_Header_Column_Size);
         }
 
-        #region Public methods
-        public string GetDbName(string strConnection)
+        #region Properties and methods from UtilitiesBase
+        public override DatabaseTechnology DbTechnology
         {
+            get { return m_tech; }
+            set { m_tech = value; }
+        }
+
+        public override string GetDbName(string strConnection)
+        {
+            // Get the name of the database associated with the connection string
             string dbName = string.Empty;
             try
             {
@@ -42,7 +52,9 @@ namespace SimpleDbReader
             catch { } 
             return dbName;
         }
+        #endregion // Properties and methods from UtilitiesBase
 
+        #region Public methods
         public List<string> GetTables(string strConnection, bool removeSysTables = false)
         {
             // Return a list of the tables in the supplied database
@@ -171,7 +183,7 @@ namespace SimpleDbReader
         {
             // Convert DAO.Type to a human-readable string. This can be converted like this:
             //       ((DAO.DataTypeEnum)DAO.Field .Type).ToString()) 
-            // but returns something like "dbText", when we want "Text" (or similar).
+            // but returns something like "dbText", when we want to display "Text" (or similar).
 
             // Alternatively, use a giant switch:
             /*  switch (type)
