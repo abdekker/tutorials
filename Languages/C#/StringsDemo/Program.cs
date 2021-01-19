@@ -321,6 +321,12 @@ namespace StringsDemo
                     Console.WriteLine("  {0,-10} is not a member of Weekdays", tmp);
             }
             Console.WriteLine();
+
+            Console.WriteLine("(enum with FlagsAttribute)");
+            for (int val = 0; val <= 16; val++)
+                Console.WriteLine( "{0,3} - {1:G}", val, (EnumWithFlags)val);
+
+            Console.WriteLine();
         }
         #endregion // Testing methods
 
