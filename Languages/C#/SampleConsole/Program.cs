@@ -32,6 +32,7 @@ namespace SampleConsole
                 return "Unknown";
             }
         }
+
         private static string ExecutablePath
         {
             get;
@@ -358,6 +359,11 @@ namespace SampleConsole
             Console.WriteLine("# Assembly Information #");
             Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
             Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
+            #if DEBUG
+                Console.WriteLine("  Assembly built in DEBUG mode");
+            #else
+                Console.WriteLine("  Assembly built in RELEASE mode");
+            #endif
             Console.WriteLine();
         }
 
