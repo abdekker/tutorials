@@ -350,6 +350,30 @@ void searchVector()
     cout << "#\n";
 }
 
+void templateVector()
+{
+    // Supplying different types to the vector
+    cout << "\n### Types and templates with 'std::vector' ###\n";
+
+    // Construct vectors of various types
+    cout << "  "; vector<int> vecInt = {3, 1, 4, 1, 5, 9};
+    g_helper.PrintVector<int>(vecInt);
+    cout << "\t\t[std::vector<int>]\n";
+
+    cout << "  "; vector<double> vecDouble = {3.14159, -3.2};
+    g_helper.PrintVector<double>(vecDouble);
+    cout << "\t\t[std::vector<double>]\n";
+
+    cout << "  "; vector<char> vecChar = {'h', 'e', 'l', 'p', '?'};
+    g_helper.PrintVector<char>(vecChar);
+    cout << "\t\t[std::vector<char>]\n";
+
+    cout << "  "; vector<string> vecString = {"hello", "world", "!"};
+    g_helper.PrintVector<string>(vecString);
+    cout << "\t\t[std::vector<string>]\n";
+    cout << "#\n";
+}
+
 int main()
 {
     // References for the std::map data structure:
@@ -364,6 +388,7 @@ int main()
     copyVector();
     sumVector();
     searchVector();
+    templateVector();
 
     // Prompt for exit
     cout << "\nFinished...press a key to exit\n";
