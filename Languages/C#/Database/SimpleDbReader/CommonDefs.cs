@@ -14,7 +14,7 @@
         // * Constants also be defined as a property accessor, as in "public static string Const1 => "Value1";"
 
         // Database names
-        public static readonly string DbName_Simple = "SimpleTest.mdb";
+        //public static readonly string DbName_Simple = "SimpleTest.mdb";
     }
 
     // Enumerations

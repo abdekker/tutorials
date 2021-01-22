@@ -10,6 +10,9 @@
 
 #include "..\Utils\vectorHelper.h"
 
+// Declare a helper to work with vectors
+vectorHelper g_helper;
+
 using namespace std;
 void basicVector()
 {
@@ -60,13 +63,10 @@ void copyVector()
     // Copying std::vector
     cout << "\n### Copy variables of type 'std::vector<T>' ###\n";
 
-    // Declare a helper to investigate types
-    vectorHelper helper;
-
     // Construct a simple vector of integers
     vector<int> vec1 = {3, 1, 4, 1, 5, 9};
     cout << "Start   : ";
-    helper.PrintVector<int>(vec1);
+    g_helper.PrintVector<int>(vec1);
 
     // Copy the vector
     {
@@ -76,8 +76,8 @@ void copyVector()
         for (int i=0; i<vec1.size(); i++)
             copy1.push_back(vec1[i]);
 
-        helper.PrintVector<int>(copy1);
-        cout << "(loop over elements)";
+        g_helper.PrintVector<int>(copy1);
+        cout << " (loop over elements)";
     }
 
     {
@@ -91,24 +91,24 @@ void copyVector()
             it++;
         }
 
-        helper.PrintVector<int>(copy2);
-        cout << "(using an iterator)";
+        g_helper.PrintVector<int>(copy2);
+        cout << " (using an iterator)";
     }
 
     {
         // Method 3 (by direct assignment)
         cout << "\nCopy 3  : ";
         vector<int> copy3 = vec1;
-        helper.PrintVector<int>(copy3);
-        cout << "(by assignment)";
+        g_helper.PrintVector<int>(copy3);
+        cout << " (by assignment)";
     }
 
     {
         // Method 4 (passing to constructor)
         cout << "\nCopy 4  : ";
         vector<int> copy4(vec1);
-        helper.PrintVector<int>(copy4);
-        cout << "(constructor)";
+        g_helper.PrintVector<int>(copy4);
+        cout << " (constructor)";
     }
 
     {
@@ -116,8 +116,8 @@ void copyVector()
         cout << "\nCopy 5a : ";
         vector<int> copy5a;
         copy(vec1.begin(), vec1.end(), back_inserter(copy5a)); 
-        helper.PrintVector<int>(copy5a);
-        cout << "(using std::copy)";
+        g_helper.PrintVector<int>(copy5a);
+        cout << " (using std::copy)";
     }
 
     {
@@ -125,8 +125,8 @@ void copyVector()
         cout << "\nCopy 5b : ";
         vector<int> copy5b;
         copy5b.assign(vec1.begin(), vec1.end()); 
-        helper.PrintVector<int>(copy5b);
-        cout << "(using std::assign)";
+        g_helper.PrintVector<int>(copy5b);
+        cout << " (using std::assign)";
     }
 
     cout << "\n#\n";
@@ -137,13 +137,10 @@ void sumVector()
     // Summing the elements in a std::vector
     cout << "\n### Sum elements of 'std::vector<int>' ###\n";
 
-    // Declare a helper to easily print vectors
-    vectorHelper helper;
-
     // Construct a simple vector
     vector<int> vec = {3, 1, 4, 1, 5, 9};
     cout << "(";
-    helper.PrintVector<int>(vec);
+    g_helper.PrintVector<int>(vec);
     cout << ")";
 
     // Sum the elements
@@ -228,13 +225,10 @@ void searchVector()
     // Determine whether a particular value is in the vector
     cout << "\n### Searching 'std::vector<int>' ###\n";
 
-    // Declare a helper to work with vectors
-    vectorHelper helper;
-
     // Construct a simple vector
     vector<int> vec = {3, 1, 4, 1, 5, 9};
     cout << "(";
-    helper.PrintVector<int>(vec);
+    g_helper.PrintVector<int>(vec);
     cout << ")";
 
     // Search for the existence of particular value (we'll search for the numbers 1 through 4)
@@ -266,7 +260,7 @@ void searchVector()
         for (int findMe=1; findMe<=4; findMe++)
         {
             cout << "  " << findMe << ": ";
-            cout << boolalpha << helper.Contains(vec, findMe) << endl;
+            cout << boolalpha << g_helper.Contains(vec, findMe) << endl;
         }
     }
 
