@@ -101,12 +101,20 @@ void firstLastVector()
         cout << endl;
     }
 
-    cout << "\nUsing range-based 'auto' and fact that std::vector elements are stored contiguously (fine)\n";
+    cout << "\nRange-based 'auto' and knowledge that std::vector elements are stored contiguously (fine)\n";
     for (auto& elem : vec)
     {
         pos = (&elem - &*(vec.begin()));
         cout << "  " << elem << " " << firstLastHelper(vec.size(), pos) << endl;
     }
+
+    cout << "\nLambda with 'std::for_each' (weird)\n";
+    int vecSize = vec.size();
+    std::for_each(begin(vec), end(vec), [pos = size_t{}, vecSize] (auto elem) mutable
+    {
+        cout << "  " << elem << " " << firstLastHelper(vecSize, pos) << endl;
+        ++pos;
+    });
 
     cout << "#\n";
 }
