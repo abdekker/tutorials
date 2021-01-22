@@ -75,7 +75,7 @@ void firstLastVector()
     cout << "\n### Finding first and last elements of a 'std::vector<int>' ###\n";
 
     // Construct a simple vector of integers
-    vector<int> vec = {3, 1, 4, 1, 5, 9};
+    vector<int> vec = {3, 1, 4, 1};
     cout << "(";
     g_helper.PrintVector<int>(vec);
     cout << ")";
