@@ -115,7 +115,7 @@ namespace SimpleDbReader
         {
             // ODBC: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
-            string strDataDriver = "Driver=";
+            string strDataDriver = ("Driver=" + m_utilsDbConnection.GetConnectionDetailsDriver(m_cfgGeneral.b64bit) + ";");
             string strDataSource = ("Dbq=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
@@ -123,10 +123,7 @@ namespace SimpleDbReader
                 case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
                         strDataSource += "\\SimpleTest.mdb;";
-                    }
                     else
                     {
                         bHaveConnectionString = false;
@@ -144,10 +141,8 @@ namespace SimpleDbReader
                         // Error same as for Access 97
                     }
                     else
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
                         strDataSource += "\\SimpleTest.accdb;";
-                    }
+
                     break;
 
                 default:

@@ -116,37 +116,16 @@ namespace SimpleDbReader
         {
             // OleDB: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
-            string strDataDriver = "Provider=";
-            string strDataSource = ("Data Source=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
                 case MSAccessDbType.eMSAccess97:
+                case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "Microsoft.Jet.OLEDB.4.0;";
-                        strDataSource += "\\Northwind 97.mdb;";
-                    }
-                    else
+                    if (m_cfgGeneral.b64bit)
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
                         // Error is "The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine."
-                    }
-                    break;
-
-                case MSAccessDbType.eMSAccess2000:
-                    // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "Microsoft.Jet.OLEDB.4.0;";
-                        strDataSource += "\\Northwind 2000.mdb;";
-                    }
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
-                        // Error same as for Access 97
                     }
                     break;
 
@@ -158,11 +137,6 @@ namespace SimpleDbReader
                         Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(false));
                         // Error is "The 'Microsoft.ACE.OLEDB.16.0' provider is not registered on the local machine."
                     }
-                    else
-                    {
-                        strDataDriver += "Microsoft.ACE.OLEDB.16.0;";
-                        strDataSource += "\\Northwind 2007-2016.accdb;";
-                    }
                     break;
 
                 default:
@@ -171,7 +145,14 @@ namespace SimpleDbReader
             }
 
             if (bHaveConnectionString)
+            {
+                string strDataDriver = ("Provider=" +
+                    m_utilsDbConnection.GetConnectionDetailsDriver(m_cfgGeneral.b64bit) + ";");
+                string strDataSource = ("Data Source=" +
+                    m_cfgGeneral.strDevDataPath + "\\" +
+                    m_utilsDbConnection.GetConnectionDetailsFilename(m_cfgDatabase.dbType) + ";");
                 strConnection = (strDataDriver + strDataSource + "User Id=admin;Password=;");
+            }
 
             // Example (Access 97) =
             //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\Northwind 97.mdb;;User Id=admin;Password=;

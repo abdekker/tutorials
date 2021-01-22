@@ -114,42 +114,18 @@ namespace SimpleDbReader
 
         public override bool SetConnectionString(ref string strConnection)
         {
-            //ADAD
-            //OdbcCommandBuilder builder = new OdbcCommandBuilder(adapter);
-
             // ODBC: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
-            string strDataDriver = "Driver=";
-            string strDataSource = ("Dbq=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
                 case MSAccessDbType.eMSAccess97:
+                case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
-                        strDataSource += "\\Northwind 97.mdb;";
-                    }
-                    else
+                    if (m_cfgGeneral.b64bit)
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
                         // Error is "ERROR [IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified"
-                    }
-                    break;
-
-                case MSAccessDbType.eMSAccess2000:
-                    // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
-                        strDataSource += "\\Northwind 2000.mdb;";
-                    }
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
-                        // Error same as for Access 97
                     }
                     break;
 
@@ -161,11 +137,7 @@ namespace SimpleDbReader
                         Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(false));
                         // Error same as for Access 97
                     }
-                    else
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
-                        strDataSource += "\\Northwind 2007-2016.accdb;";
-                    }
+
                     break;
 
                 default:
@@ -174,7 +146,14 @@ namespace SimpleDbReader
             }
 
             if (bHaveConnectionString)
+            {
+                string strDataDriver = ("Driver=" +
+                    m_utilsDbConnection.GetConnectionDetailsDriver(m_cfgGeneral.b64bit) + ";");
+                string strDataSource = ("Dbq=" +
+                    m_cfgGeneral.strDevDataPath + "\\" +
+                    m_utilsDbConnection.GetConnectionDetailsFilename(m_cfgDatabase.dbType) + ";");
                 strConnection = (strDataDriver + strDataSource + "Uid=Admin;Pwd=;");
+            }
 
             // Example (Access 97) =
             //      Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\Northwind 97.mdb;Uid=Admin;Pwd=;

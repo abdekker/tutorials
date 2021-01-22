@@ -11,13 +11,6 @@ namespace SimpleDbReader
         private string m_fieldHeader;
         #endregion // Member variables
 
-        #region Constants
-        private readonly string Schema_Header_Column_Formatting = "{0,-20}{1,-12}{2}";
-        private readonly string Schema_Header_Column_Name = "Name";
-        private readonly string Schema_Header_Column_Type = "Type";
-        private readonly string Schema_Header_Column_Size = "Size";
-        #endregion // Constants
-
         public Utilities_DAO()
         {
             // This utility class uses DAO
@@ -27,7 +20,9 @@ namespace SimpleDbReader
             m_fieldHeader = string.Format(Schema_Header_Column_Formatting,
                 Schema_Header_Column_Name,
                 Schema_Header_Column_Type,
-                Schema_Header_Column_Size);
+                Schema_Header_Column_TypeName,
+                Schema_Header_Column_Size,
+                Schema_Header_Column_Nullable);
         }
 
         #region Properties and methods from UtilitiesBase
@@ -102,8 +97,10 @@ namespace SimpleDbReader
                         {
                             columns.Add(string.Format(Schema_Header_Column_Formatting,
                                 fd.Name,
+                                fd.Type,
                                 GetFieldTypeAsString(fd),
-                                fd.Size));
+                                fd.Size,
+                                fd.Required));
                         }
                     }
                 }

@@ -38,14 +38,6 @@ namespace SimpleDbReader
 
         // Columns schema
         private readonly string Schema_Columns = "Columns";
-
-        // Formatting for output to the console
-        private readonly string Schema_Header_Column_Formatting = "{0,-25}{1,-8}{2,-15}{3,-13}{4}";
-        private readonly string Schema_Header_Column_Name = "Name";
-        private readonly string Schema_Header_Column_Type = "Type";
-        private readonly string Schema_Header_Column_TypeName = "Type Name";
-        private readonly string Schema_Header_Column_Size = "Size";
-        private readonly string Schema_Header_Column_Nullable = "Nullable";
         #endregion // Constants
 
         public Utilities_DbConnection(DatabaseTechnology tech)
