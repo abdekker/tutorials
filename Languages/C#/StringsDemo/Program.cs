@@ -182,7 +182,7 @@ namespace StringsDemo
 
             Console.WriteLine("(using different formatting for positive and negative numbers, and zero)");
             string formatter = "{0:0.000;(0.000);zero}";    // The string "zero" can be anything
-            Console.WriteLine("  A = {0}, B = {1}, C = {2}", 
+            Console.WriteLine("  A = {0}, B = {1}, C = {2}",
                 string.Format(formatter, f1),
                 string.Format(formatter, f2),
                 string.Format(formatter, f3));

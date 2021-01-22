@@ -54,6 +54,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\
+copy ..\..\..\Utils\systemHelperLibrary.dll ..\..\</PostBuildEvent>
   </PropertyGroup>
 </Project>
