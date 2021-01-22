@@ -51,80 +51,28 @@ namespace SimpleDbReader
         public static readonly bool cDefaultDiscontinued = false;
         #endregion
 
-        #region Fields
-        // Fields (columns) in this table
-        private int m_productID;
-        private string m_productName;
-        private int m_supplierID;
-        private int m_categoryID;
-        private string m_quantityPerUnit;
-        private decimal m_unitPrice;
-        private int m_unitsInStock;
-        private int m_unitsOnOrder;
-        private int m_reorderLevel;
-        private bool m_discontinued;
-        #endregion // Fields
-
         #region Properties
-        public int ProductID
+        /* Note: Provide a named member variable and manually code the property accessor, for example:
+        private int m_someMember;
+        public int SomeMember
         {
-            get { return m_productID; }
-            set { m_productID = value; }
+            get { return m_someMember; }
+            set { m_someMember = value; }
         }
 
-        public string ProductName
-        {
-            get { return m_productName; }
-            set { m_productName = value; }
-        }
-
-        public int SupplierID
-        {
-            get { return m_supplierID; }
-            set { m_supplierID = value; }
-        }
-
-        public int CategoryID
-        {
-            get { return m_categoryID; }
-            set { m_categoryID = value; }
-        }
-
-        public string QuantityPerUnit
-        {
-            get { return m_quantityPerUnit; }
-            set { m_quantityPerUnit = value; }
-        }
-
-        public decimal UnitPrice
-        {
-            get { return m_unitPrice; }
-            set { m_unitPrice = value; }
-        }
-
-        public int UnitsInStock
-        {
-            get { return m_unitsInStock; }
-            set { m_unitsInStock = value; }
-        }
-
-        public int UnitsOnOrder
-        {
-            get { return m_unitsOnOrder; }
-            set { m_unitsOnOrder = value; }
-        }
-
-        public int ReorderLevel
-        {
-            get { return m_reorderLevel; }
-            set { m_reorderLevel = value; }
-        }
-
-        public bool Discontinued
-        {
-            get { return m_discontinued; }
-            set { m_discontinued = value; }
-        }
+        // Alternatively if you don't need specialised get/set functionality, provide a generic property
+        // accessor and leave the rest to the compiler:
+        public int SomeMember { get; set; }*/
+        public int ProductID { get; set; }
+        public string ProductName { get; set; }
+        public int SupplierID { get; set; }
+        public int CategoryID { get; set; }
+        public string QuantityPerUnit { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int UnitsInStock { get; set; }
+        public int UnitsOnOrder { get; set; }
+        public int ReorderLevel { get; set; }
+        public bool Discontinued { get; set; }
         #endregion // Properties
 
         // Constructor

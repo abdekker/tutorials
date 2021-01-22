@@ -47,8 +47,8 @@ namespace SimpleDbReader
                 //cSimpleWrite
                 //cOtherTests
                 //cNorthwindDummyOpenClose
-                cNorthwindStats
-                //cNorthwindRead
+                //cNorthwindStats
+                cNorthwindRead
                 //cNorthwindWrite
                 //cNorthwindPerformance
                 //cDifferentQueryStrings
@@ -118,9 +118,9 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindRead) != 0)
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);
-                m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
+                //m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindRead(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindRead(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 

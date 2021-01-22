@@ -28,7 +28,9 @@ namespace SimpleDbReader
         private readonly string DbName_Northwind97 = "Northwind 97.mdb";
         private readonly string DbName_Northwind2000 = "Northwind 97.mdb";
         private readonly string DbName_Northwind2007_2016 = "Northwind 2007-2016.accdb";
-        private readonly string DbName_HMQ = "HMQ.mdb";     // Used when "USE_HMQ_DATABASE" is defined
+        #if USE_HMQ_DATABASE
+            private readonly string DbName_HMQ = "HMQ.mdb";
+        #endif
 
         // Member variables
         protected DatabaseTechnology m_tech;
