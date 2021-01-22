@@ -46,7 +46,7 @@ void basicVector()
 
     cout << endl;
 
-    std::cout << "\nIterate using 'for (auto& elem : vector)' (requires C++11)\n  ";
+    std::cout << "\nIterate using range-based 'for (auto& elem : vector)' (requires C++11)\n  ";
     for (auto& elem : vecOfInts)
         cout << elem << " ";
     
@@ -55,6 +55,59 @@ void basicVector()
     // Clear the vector
     vecOfInts.clear();
     cout << "\nVector cleared, there are now " << vecOfInts.size() << " elements\n";
+    cout << "#\n";
+}
+
+string firstLastHelper(const int vecSize, const int pos)
+{
+    // Helper for "firstLastVector"
+    if (pos == 0)
+        return "first";
+    else if (pos == (vecSize - 1))
+        return "last";
+    
+    return "middle";
+}
+
+void firstLastVector()
+{
+    // Detecting the first and last element of std::vector (while looping)
+    cout << "\n### Finding first and last elements of a 'std::vector<int>' ###\n";
+
+    // Construct a simple vector of integers
+    vector<int> vec = {3, 1, 4, 1, 5, 9};
+    cout << "(";
+    g_helper.PrintVector<int>(vec);
+    cout << ")";
+
+    // As we iterate through the vector, detect when we are on the first or last element
+    cout << "\nSimple 'for' loop (good)\n";
+    int pos = 0;
+    for (pos = 0; pos < vec.size(); pos++)
+        cout << "  " << vec[pos] << " " << firstLastHelper(vec.size(), pos) << endl;
+    
+    cout << "\nUsing 'std::vector::iterator' and 'std::next' (good)\n";
+    vector<int>::iterator it = vec.begin();
+    for (; it != vec.end(); it++)
+    {
+        cout << "  " << *it << " ";
+        if (it == vec.begin())
+            cout << "first";
+        else if (next(it) == vec.end()) // Using std::next from C++11
+            cout << "last";
+        else
+            cout << "middle";
+        
+        cout << endl;
+    }
+
+    cout << "\nUsing range-based 'auto' and fact that std::vector elements are stored contiguously (fine)\n";
+    for (auto& elem : vec)
+    {
+        pos = (&elem - &*(vec.begin()));
+        cout << "  " << elem << " " << firstLastHelper(vec.size(), pos) << endl;
+    }
+
     cout << "#\n";
 }
 
@@ -299,6 +352,7 @@ int main()
 
     // Basic vector tests
     basicVector();
+    firstLastVector();
     copyVector();
     sumVector();
     searchVector();
