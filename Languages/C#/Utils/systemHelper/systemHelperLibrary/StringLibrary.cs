@@ -19,8 +19,8 @@
             return string.Format($"{{0:F{precision}}}", value);
 
             // Alternative:
-            /*string formatString = string.Concat("{0:F", precision, "}");
-            return string.Format(formatString, value);*/
+            //  string formatString = string.Concat("{0:F", precision, "}");
+            //  return string.Format(formatString, value);
         }
     }
 }

@@ -10,6 +10,9 @@
 
 #include "..\Utils\vectorHelper.h"
 
+// Declare a helper to work with vectors
+vectorHelper g_helper;
+
 using namespace std;
 void basicVector()
 {
@@ -43,7 +46,7 @@ void basicVector()
 
     cout << endl;
 
-    std::cout << "\nIterate using 'for (auto& elem : vector)' (requires C++11)\n  ";
+    std::cout << "\nIterate using range-based 'for (auto& elem : vector)' (requires C++11)\n  ";
     for (auto& elem : vecOfInts)
         cout << elem << " ";
     
@@ -55,18 +58,76 @@ void basicVector()
     cout << "#\n";
 }
 
+string firstLastHelper(const int vecSize, const int pos)
+{
+    // Helper for "firstLastVector"
+    if (pos == 0)
+        return "first";
+    else if (pos == (vecSize - 1))
+        return "last";
+    
+    return "middle";
+}
+
+void firstLastVector()
+{
+    // Detecting the first and last element of std::vector (while looping)
+    cout << "\n### Finding first and last elements of a 'std::vector<int>' ###\n";
+
+    // Construct a simple vector of integers
+    vector<int> vec = {3, 1, 4, 1};
+    cout << "(";
+    g_helper.PrintVector<int>(vec);
+    cout << ")";
+
+    // As we iterate through the vector, detect when we are on the first or last element
+    cout << "\nSimple 'for' loop (good)\n";
+    int pos = 0;
+    for (pos = 0; pos < vec.size(); pos++)
+        cout << "  " << vec[pos] << " " << firstLastHelper(vec.size(), pos) << endl;
+    
+    cout << "\nUsing 'std::vector::iterator' and 'std::next' (good)\n";
+    vector<int>::iterator it = vec.begin();
+    for (; it != vec.end(); it++)
+    {
+        cout << "  " << *it << " ";
+        if (it == vec.begin())
+            cout << "first";
+        else if (next(it) == vec.end()) // Using std::next from C++11
+            cout << "last";
+        else
+            cout << "middle";
+        
+        cout << endl;
+    }
+
+    cout << "\nRange-based 'auto' and knowledge that std::vector elements are stored contiguously (fine)\n";
+    for (auto& elem : vec)
+    {
+        pos = (&elem - &*(vec.begin()));
+        cout << "  " << elem << " " << firstLastHelper(vec.size(), pos) << endl;
+    }
+
+    cout << "\nLambda with 'std::for_each' (weird)\n";
+    int vecSize = vec.size();
+    std::for_each(begin(vec), end(vec), [pos = size_t{}, vecSize] (auto elem) mutable
+    {
+        cout << "  " << elem << " " << firstLastHelper(vecSize, pos) << endl;
+        ++pos;
+    });
+
+    cout << "#\n";
+}
+
 void copyVector()
 {
     // Copying std::vector
     cout << "\n### Copy variables of type 'std::vector<T>' ###\n";
 
-    // Declare a helper to investigate types
-    vectorHelper helper;
-
     // Construct a simple vector of integers
     vector<int> vec1 = {3, 1, 4, 1, 5, 9};
     cout << "Start   : ";
-    helper.PrintVector<int>(vec1);
+    g_helper.PrintVector<int>(vec1);
 
     // Copy the vector
     {
@@ -76,8 +137,8 @@ void copyVector()
         for (int i=0; i<vec1.size(); i++)
             copy1.push_back(vec1[i]);
 
-        helper.PrintVector<int>(copy1);
-        cout << "(loop over elements)";
+        g_helper.PrintVector<int>(copy1);
+        cout << " (loop over elements)";
     }
 
     {
@@ -91,24 +152,24 @@ void copyVector()
             it++;
         }
 
-        helper.PrintVector<int>(copy2);
-        cout << "(using an iterator)";
+        g_helper.PrintVector<int>(copy2);
+        cout << " (using an iterator)";
     }
 
     {
         // Method 3 (by direct assignment)
         cout << "\nCopy 3  : ";
         vector<int> copy3 = vec1;
-        helper.PrintVector<int>(copy3);
-        cout << "(by assignment)";
+        g_helper.PrintVector<int>(copy3);
+        cout << " (by assignment)";
     }
 
     {
         // Method 4 (passing to constructor)
         cout << "\nCopy 4  : ";
         vector<int> copy4(vec1);
-        helper.PrintVector<int>(copy4);
-        cout << "(constructor)";
+        g_helper.PrintVector<int>(copy4);
+        cout << " (constructor)";
     }
 
     {
@@ -116,8 +177,8 @@ void copyVector()
         cout << "\nCopy 5a : ";
         vector<int> copy5a;
         copy(vec1.begin(), vec1.end(), back_inserter(copy5a)); 
-        helper.PrintVector<int>(copy5a);
-        cout << "(using std::copy)";
+        g_helper.PrintVector<int>(copy5a);
+        cout << " (using std::copy)";
     }
 
     {
@@ -125,8 +186,8 @@ void copyVector()
         cout << "\nCopy 5b : ";
         vector<int> copy5b;
         copy5b.assign(vec1.begin(), vec1.end()); 
-        helper.PrintVector<int>(copy5b);
-        cout << "(using std::assign)";
+        g_helper.PrintVector<int>(copy5b);
+        cout << " (using std::assign)";
     }
 
     cout << "\n#\n";
@@ -137,13 +198,10 @@ void sumVector()
     // Summing the elements in a std::vector
     cout << "\n### Sum elements of 'std::vector<int>' ###\n";
 
-    // Declare a helper to easily print vectors
-    vectorHelper helper;
-
     // Construct a simple vector
     vector<int> vec = {3, 1, 4, 1, 5, 9};
     cout << "(";
-    helper.PrintVector<int>(vec);
+    g_helper.PrintVector<int>(vec);
     cout << ")";
 
     // Sum the elements
@@ -228,13 +286,10 @@ void searchVector()
     // Determine whether a particular value is in the vector
     cout << "\n### Searching 'std::vector<int>' ###\n";
 
-    // Declare a helper to work with vectors
-    vectorHelper helper;
-
     // Construct a simple vector
     vector<int> vec = {3, 1, 4, 1, 5, 9};
     cout << "(";
-    helper.PrintVector<int>(vec);
+    g_helper.PrintVector<int>(vec);
     cout << ")";
 
     // Search for the existence of particular value (we'll search for the numbers 1 through 4)
@@ -266,7 +321,7 @@ void searchVector()
         for (int findMe=1; findMe<=4; findMe++)
         {
             cout << "  " << findMe << ": ";
-            cout << boolalpha << helper.Contains(vec, findMe) << endl;
+            cout << boolalpha << g_helper.Contains(vec, findMe) << endl;
         }
     }
 
@@ -295,6 +350,30 @@ void searchVector()
     cout << "#\n";
 }
 
+void templateVector()
+{
+    // Supplying different types to the vector
+    cout << "\n### Types and templates with 'std::vector' ###\n";
+
+    // Construct vectors of various types
+    cout << "  "; vector<int> vecInt = {3, 1, 4, 1, 5, 9};
+    g_helper.PrintVector<int>(vecInt);
+    cout << "\t\t[std::vector<int>]\n";
+
+    cout << "  "; vector<double> vecDouble = {3.14159, -3.2};
+    g_helper.PrintVector<double>(vecDouble);
+    cout << "\t\t[std::vector<double>]\n";
+
+    cout << "  "; vector<char> vecChar = {'h', 'e', 'l', 'p', '?'};
+    g_helper.PrintVector<char>(vecChar);
+    cout << "\t\t[std::vector<char>]\n";
+
+    cout << "  "; vector<string> vecString = {"hello", "world", "!"};
+    g_helper.PrintVector<string>(vecString);
+    cout << "\t\t[std::vector<string>]\n";
+    cout << "#\n";
+}
+
 int main()
 {
     // References for the std::map data structure:
@@ -305,9 +384,11 @@ int main()
 
     // Basic vector tests
     basicVector();
+    firstLastVector();
     copyVector();
     sumVector();
     searchVector();
+    templateVector();
 
     // Prompt for exit
     cout << "\nFinished...press a key to exit\n";

@@ -109,21 +109,9 @@ namespace SimpleDbReader
             switch (m_cfgDatabase.dbType)
             {
                 case MSAccessDbType.eMSAccess97:
-                    // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                        strConnection = (m_cfgGeneral.strDevDataPath + "\\Northwind 97.mdb");
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
-                    }
-                    break;
-
                 case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                        strConnection = (m_cfgGeneral.strDevDataPath + "\\Northwind 2000.mdb");
-                    else
+                    if (m_cfgGeneral.b64bit)
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
@@ -137,14 +125,16 @@ namespace SimpleDbReader
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(false));
                     }
-                    else
-                        strConnection = (m_cfgGeneral.strDevDataPath + "\\2007-2016");
                     break;
 
                 default:
                     bHaveConnectionString = false;
                     break;
             }
+
+            if (bHaveConnectionString)
+                strConnection = (m_cfgGeneral.strDevDataPath + "\\" +
+                    m_utilsDAO.GetConnectionDetailsFilename(m_cfgDatabase.dbType));
 
             // Example (Access 97) = C:\Apps\Data\Northwind 97.mdb
             return bHaveConnectionString;

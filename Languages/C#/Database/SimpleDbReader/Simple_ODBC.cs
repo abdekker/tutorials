@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.Odbc;
 
 namespace SimpleDbReader
@@ -7,6 +9,8 @@ namespace SimpleDbReader
     class Simple_ODBC : DatabaseCommon
     {
         // Member variables specific to this class
+        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_ODBC);
+
         private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
 
@@ -25,7 +29,20 @@ namespace SimpleDbReader
         #region Abstract methods from the base class
         public override void GetStats()
         {
-            // TODO
+            // System.Data.Odbc.OdbcConnection
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (stats, SimpleTest.mdb) ###");
+
+            // See the class constructor for details on databases
+            string strConnection = string.Empty;
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
+            {
+                m_cfgDatabase.dbType = dbType;
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
+                if (SetConnectionString(ref strConnection))
+                    Connect_Stats(strConnection);
+            }
+
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (stats) ###\n");
         }
 
         public override void Read()
@@ -68,14 +85,37 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
-            // TODO
+            string dbName = m_utilsDbConnection.GetDbName(strConnection);
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                connection.Open();
+                DataTable schema = connection.GetSchema("Tables"); // Other useful schema include "Procedures" and "Views"
+                List<string> tables = m_utilsDbConnection.GetSchemaInfo(connection, "Tables", true);
+                List<string> fields;
+                if (tables.Count > 0)
+                {
+                    Console.WriteLine("    ({0} tables in {1})", tables.Count, dbName);
+                    foreach (string tb in tables)
+                    {
+                        Console.WriteLine("      {0}", tb);
+                        fields = m_utilsDbConnection.GetFields(connection, tb);
+                        foreach (string fd in fields)
+                        {
+                            Console.WriteLine("        {0}", fd);
+                        }
+                    }
+                }
+                else
+                    Console.WriteLine("    (not tables in {0})", connection.Database);
+            }
+            Console.WriteLine();
         }
 
         public override bool SetConnectionString(ref string strConnection)
         {
             // ODBC: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
-            string strDataDriver = "Driver=";
+            string strDataDriver = ("Driver=" + m_utilsDbConnection.GetConnectionDetailsDriver(m_cfgGeneral.b64bit) + ";");
             string strDataSource = ("Dbq=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
@@ -83,10 +123,7 @@ namespace SimpleDbReader
                 case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
                     if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb)};";
                         strDataSource += "\\SimpleTest.mdb;";
-                    }
                     else
                     {
                         bHaveConnectionString = false;
@@ -104,10 +141,8 @@ namespace SimpleDbReader
                         // Error same as for Access 97
                     }
                     else
-                    {
-                        strDataDriver += "{Microsoft Access Driver (*.mdb, *.accdb)};";
                         strDataSource += "\\SimpleTest.accdb;";
-                    }
+
                     break;
 
                 default:
@@ -232,6 +267,9 @@ namespace SimpleDbReader
             rsMember.DefaultRecord();
             try
             {
+                // Alternatively, use the column name:
+                //      rsMember.MemberID = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colMemberID); or
+                //      rsMember.MemberID = (int)reader[Simple_Members.colMemberID];
                 rsMember.MemberID = (int)reader[0];
             }
             catch { }

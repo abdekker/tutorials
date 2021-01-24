@@ -187,6 +187,7 @@ namespace SimpleDbReader
     {
         protected override Northwind_Products Map(IDataRecord record, UInt64 uRecordsToRead)
         {
+            // Mapper that works with IDataRecord
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
             try
@@ -277,6 +278,7 @@ namespace SimpleDbReader
     {
         protected override Northwind_Products Map(DataRow row, UInt64 uRecordsToRead)
         {
+            // Mapper that works with DataRow
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
             try

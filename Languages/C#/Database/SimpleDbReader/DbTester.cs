@@ -1,10 +1,7 @@
 ﻿using System;
-//using System.Data;
-//using System.Data.OleDb;
-//using System.Data.Odbc;
 using System.IO;
 
-using systemHelperLibrary;
+using sysLib = systemHelperLibrary.SystemLibrary;
 using System.Linq.Expressions;
 
 namespace SimpleDbReader
@@ -12,7 +9,10 @@ namespace SimpleDbReader
     class DbTester
     {
         #region Constants
-        const int cPerformanceLoops = 200;
+        // Database names
+        private const int cPerformanceLoops = 100;
+
+        //P:\HqVar\_clin\Data
         #endregion  // Constants
 
         #region Member variables
@@ -54,7 +54,7 @@ namespace SimpleDbReader
             // (eg. C:\Apps\Data). If not defined, add this User environment variable to Windows and
             // restart Visual Studio (or alternatively hard-code the path).
             ConfigGeneral cfgGeneral = new ConfigGeneral();
-            cfgGeneral.b64bit = SystemLibrary.Is64Bit();
+            cfgGeneral.b64bit = sysLib.Is64Bit();
             cfgGeneral.strDevDataPath = Environment.GetEnvironmentVariable("DevDataDirectory");
 
             // Set generic query details (these can be updated later)
@@ -157,7 +157,7 @@ namespace SimpleDbReader
                 m_nwDAO.GetStats();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.GetStats();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.GetStats();
         }
 
@@ -168,7 +168,7 @@ namespace SimpleDbReader
                 m_nwDAO.Read();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Read();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.Read();
         }
 
@@ -179,7 +179,7 @@ namespace SimpleDbReader
                 m_nwDAO.Write();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Write();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.Write();
         }
 
@@ -196,10 +196,9 @@ namespace SimpleDbReader
                 m_nwDAO.PerformanceTest(nLoops);
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.PerformanceTest(nLoops);
-            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
                 m_nwOleDB.PerformanceTest(nLoops);
         }
-        // End: Methods (public)
-     
+        // End: Methods (public)     
     }
 }

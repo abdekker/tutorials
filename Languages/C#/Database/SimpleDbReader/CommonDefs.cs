@@ -1,6 +1,21 @@
 ﻿namespace SimpleDbReader
 {
     // Common definitions
+    public static class CommonConstants
+    {
+        // Notes:
+        // * Use "const" for internal use, as in "internal static class CommonConstants"
+        //      - "const" is intended for things that are genuinely unchanging (such as mathematical constants)
+        //      - Other assemblies consuming the constant get a hard-coded value of the constant at compile-time
+        //      - If the value of the constant changes, the dependent assemblies will need to be re-compiled
+        // * Use "readonly" for values that may change in future versions of the program
+        //      - This allows these values to be consumed by other assemblies
+        // * Several web sources recommend using the app.config file for storing constants
+        // * Constants also be defined as a property accessor, as in "public static string Const1 => "Value1";"
+
+        // Database names
+        //public static readonly string DbName_Simple = "SimpleTest.mdb";
+    }
 
     // Enumerations
     public enum DatabaseTechnology
@@ -10,7 +25,7 @@
         eDB_Unknown,
         eDB_DAO,                // DAO (add reference to Microsoft DAO 3.6 Object Library)
         eDB_ODBC,               // System.Data.Odbc.OdbcConnection : DbConnection
-        eDB_OleDB,              // System.Data.OleDb.OleDbConnection : DbConnection
+        eDB_OleDb,              // System.Data.OleDb.OleDbConnection : DbConnection
         eDB_SqlServer           // System.Data.SqlClient.SqlConnection : DbConnection
     };
 

@@ -9,7 +9,7 @@ namespace SimpleDbReader
     class Northwind_OleDB : DatabaseCommon
     {
         // Member variables specific to this class
-        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection();
+        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_OleDb);
 
         private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
@@ -19,7 +19,7 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses OleDB
-            m_tech = DatabaseTechnology.eDB_OleDB;
+            m_tech = DatabaseTechnology.eDB_OleDb;
         }
 
         #region Abstract methods from the base class
@@ -81,13 +81,7 @@ namespace SimpleDbReader
         public override void PerformanceTest(int nLoops)
         {
             //  System.Data.OleDb.OleDbCommand
-            Console.WriteLine("### START: OleDb - Performance tests ###");
-
-            // Use OleDbDataReader or OleDbDataAdapter?
-            m_eDbReadTechnology =
-                //DatabaseReadTechnology.eRbRead_DataReader;
-                DatabaseReadTechnology.eRbRead_DataAdapter;
-
+            Console.WriteLine("### START: OleDb - Performance tests (Northwind) ###");
             string strConnection = string.Empty;
             foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
@@ -95,17 +89,23 @@ namespace SimpleDbReader
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
                 {
-                    int totalRecordsRead = 0;
-                    int startTicks = Environment.TickCount;
-                    for (int loop = 0; loop < nLoops; loop++)
-                        totalRecordsRead += Connect_PerformanceTest(strConnection);
+                    foreach (DatabaseReadTechnology dbReadTech in Enum.GetValues(typeof(DatabaseReadTechnology)))
+                    {
+                        m_eDbReadTechnology = dbReadTech;
+                        Console.Write("    ({0}) ", m_utilsDbConnection.GetReadTechnologyAsString(m_eDbReadTechnology));
 
-                    int elapsedTicks = (Environment.TickCount - startTicks);
-                    Console.WriteLine("    ({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
-                        nLoops,
-                        elapsedTicks,
-                        (float)elapsedTicks / (float)nLoops,
-                        (float)totalRecordsRead / (float)nLoops);
+                        int totalRecordsRead = 0;
+                        int startTicks = Environment.TickCount;
+                        for (int loop = 0; loop < nLoops; loop++)
+                            totalRecordsRead += Connect_PerformanceTest(strConnection);
+
+                        int elapsedTicks = (Environment.TickCount - startTicks);
+                        Console.WriteLine("({0} cycles: Took {1}ms at an avg of {2:0.00}ms to read an avg of {3:0.0} records)",
+                            nLoops,
+                            elapsedTicks,
+                            (float)elapsedTicks / (float)nLoops,
+                            (float)totalRecordsRead / (float)nLoops);
+                    }
                 }
             }
 
@@ -116,37 +116,16 @@ namespace SimpleDbReader
         {
             // OleDB: Set up the connection string based on the version of the Access database
             bool bHaveConnectionString = true;
-            string strDataDriver = "Provider=";
-            string strDataSource = ("Data Source=" + m_cfgGeneral.strDevDataPath);
             switch (m_cfgDatabase.dbType)
             {
                 case MSAccessDbType.eMSAccess97:
+                case MSAccessDbType.eMSAccess2000:
                     // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "Microsoft.Jet.OLEDB.4.0;";
-                        strDataSource += "\\Northwind 97.mdb;";
-                    }
-                    else
+                    if (m_cfgGeneral.b64bit)
                     {
                         bHaveConnectionString = false;
                         Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
                         // Error is "The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine."
-                    }
-                    break;
-
-                case MSAccessDbType.eMSAccess2000:
-                    // 32-bit only
-                    if (!m_cfgGeneral.b64bit)
-                    {
-                        strDataDriver += "Microsoft.Jet.OLEDB.4.0;";
-                        strDataSource += "\\Northwind 2000.mdb;";
-                    }
-                    else
-                    {
-                        bHaveConnectionString = false;
-                        Console.WriteLine("    ({0} does not support 64-bit)", HelperGetAccessName(false));
-                        // Error same as for Access 97
                     }
                     break;
 
@@ -158,11 +137,6 @@ namespace SimpleDbReader
                         Console.WriteLine("    ({0} does not support 32-bit)", HelperGetAccessName(false));
                         // Error is "The 'Microsoft.ACE.OLEDB.16.0' provider is not registered on the local machine."
                     }
-                    else
-                    {
-                        strDataDriver += "Microsoft.ACE.OLEDB.16.0;";
-                        strDataSource += "\\Northwind 2007-2016.accdb;";
-                    }
                     break;
 
                 default:
@@ -171,7 +145,14 @@ namespace SimpleDbReader
             }
 
             if (bHaveConnectionString)
+            {
+                string strDataDriver = ("Provider=" +
+                    m_utilsDbConnection.GetConnectionDetailsDriver(m_cfgGeneral.b64bit) + ";");
+                string strDataSource = ("Data Source=" +
+                    m_cfgGeneral.strDevDataPath + "\\" +
+                    m_utilsDbConnection.GetConnectionDetailsFilename(m_cfgDatabase.dbType) + ";");
                 strConnection = (strDataDriver + strDataSource + "User Id=admin;Password=;");
+            }
 
             // Example (Access 97) =
             //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\Northwind 97.mdb;;User Id=admin;Password=;
@@ -180,15 +161,18 @@ namespace SimpleDbReader
 
         protected override void Connect_Stats(string strConnection)
         {
+            string dbName = m_utilsDbConnection.GetDbName(strConnection);
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
                 connection.Open();
+                Console.WriteLine("  (connection is: {0})", m_utilsDbConnection.GetConnectionStateAsString(connection));
+
                 DataTable schema = connection.GetSchema("Tables"); // Other useful schema include "Procedures" and "Views"
                 List<string> tables = m_utilsDbConnection.GetSchemaInfo(connection, "Tables", true);
                 List<string> fields;
                 if (tables.Count > 0)
                 {
-                    Console.WriteLine("    ({0} tables in {1})", tables.Count, connection.Database);
+                    Console.WriteLine("    ({0} tables in {1})", tables.Count, dbName);
                     foreach (string tb in tables)
                     {
                         Console.WriteLine("      {0}", tb);
@@ -202,6 +186,7 @@ namespace SimpleDbReader
                 else
                     Console.WriteLine("    (not tables in {0})", connection.Database);
             }
+            Console.WriteLine();
         }
 
         protected override void Connect_Read(string strConnection)
@@ -226,45 +211,31 @@ namespace SimpleDbReader
             // This version uses System.Data.OleDb.OleDbDataReader
             using (OleDbConnection connection = new OleDbConnection(strConnection))
             {
-                // Open the connection in a try/catch block
-                try
+                Collection<Northwind_Products> products = null;
+                if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
                 {
-                    if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+                    // Using System.Data.OleDb.OleDbDataReader : IDataReader
+                    using (NorthwindReader_Products reader = new NorthwindReader_Products())
                     {
-                        // Using System.Data.OleDb.OleDbDataReader : IDataReader
-
-                        // Create the Command object
-                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
-                        command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
-
-                        // Create and execute the DataReader; for this performance version just count
-                        // the number of records read
-                        connection.Open();
-                        OleDbDataReader reader = command.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            recordsRead++;
-                        }
-                        reader.Close();
-                    }
-                    else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
-                    {
-                        // Using System.Data.OleDb.OleDbDataAdapter : IDataAdapter
-                        connection.Open();
-                        DataSet ds = new DataSet();
-                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.strQuery, connection);
-                        adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_cfgDatabase.paramValue;
-                        adapter.Fill(ds);
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            recordsRead++;
-                        }
+                        reader.DbTechnology = m_tech;
+                        reader.ConnectionString = strConnection;
+                        reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        products = reader.Execute();
                     }
                 }
-                catch (Exception ex)
+                else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
                 {
-                    Console.WriteLine(ex.Message);
+                    // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
+                    using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
+                    {
+                        adapter.DbTechnology = m_tech;
+                        adapter.ConnectionString = strConnection;
+                        adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        products = adapter.Execute();
+                    }
                 }
+
+                recordsRead = products.Count;
             }
 
             return recordsRead;
@@ -371,21 +342,25 @@ namespace SimpleDbReader
             {
                 // Using System.Data.OleDb.OleDbDataReader : IDataReader
                 Console.WriteLine(" (OleDb.OleDbDataReader)");
-                NorthwindReader_Products reader = new NorthwindReader_Products();
-                reader.DbTechnology = m_tech;
-                reader.ConnectionString = strConnection;
-                reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-                products = reader.Execute();
+                using (NorthwindReader_Products reader = new NorthwindReader_Products())
+                {
+                    reader.DbTechnology = m_tech;
+                    reader.ConnectionString = strConnection;
+                    reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    products = reader.Execute();
+                }
             }
             else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
             {
                 // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
                 Console.WriteLine(" (OleDb.OleDbDataAdapter)");
-                NorthwindAdapter_Products adapter = new NorthwindAdapter_Products();
-                adapter.DbTechnology = m_tech;
-                adapter.ConnectionString = strConnection;
-                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
-                products = adapter.Execute();
+                using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
+                {
+                    adapter.DbTechnology = m_tech;
+                    adapter.ConnectionString = strConnection;
+                    adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    products = adapter.Execute();
+                }
             }
 
             int recordsRead = 0;

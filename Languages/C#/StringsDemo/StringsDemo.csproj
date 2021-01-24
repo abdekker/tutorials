@@ -41,6 +41,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="systemHelperLibrary">
+      <HintPath>..\Utils\systemHelperLibrary.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -51,6 +54,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\
+copy ..\..\..\Utils\systemHelperLibrary.dll ..\..\</PostBuildEvent>
   </PropertyGroup>
 </Project>

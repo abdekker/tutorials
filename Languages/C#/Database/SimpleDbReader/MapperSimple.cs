@@ -148,6 +148,7 @@ namespace SimpleDbReader
     {
         protected override Simple_Members Map(IDataRecord record, UInt64 uRecordsToRead)
         {
+            // Mapper that works with IDataRecord
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
             try
@@ -214,6 +215,7 @@ namespace SimpleDbReader
     {
         protected override Simple_Members Map(DataRow row, UInt64 uRecordsToRead)
         {
+            // Mapper that works with DataRow
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
             try

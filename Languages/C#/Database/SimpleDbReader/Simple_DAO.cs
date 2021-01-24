@@ -71,6 +71,7 @@ namespace SimpleDbReader
         {
             // Generate some statistics about the selected database (see "Northwind_DAO.Connect_Stats()"
             // for additional information)
+            string dbName = m_utilsDAO.GetDbName(strConnection);
             DAO.DBEngine dbEngine = new DAO.DBEngine();
             dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
@@ -79,7 +80,7 @@ namespace SimpleDbReader
             if (db.TableDefs.Count > 0)
             {
                 // Note: Access 97 databases tend to come with 
-                Console.WriteLine("    ({0} tables in {1})", db.TableDefs.Count, db.Name);
+                Console.WriteLine("    ({0} tables in {1})", db.TableDefs.Count, dbName);
                 foreach (DAO.TableDef td in db.TableDefs)
                 {
                     Console.WriteLine("      {0}", td.Name);

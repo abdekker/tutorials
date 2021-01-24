@@ -32,5 +32,27 @@ namespace systemHelperLibrary
             Type objType = obj.GetType();
             return objType.FullName;
         }
+
+        public static bool AreTypesEqual(object obj1, object obj2)
+        {
+            // Or to test for a specific type:
+            //      if (obj1.GetType() == typeof(System.Int32))
+            if (obj1.GetType() == obj2.GetType())
+                return true;
+
+            return false;
+        }
+
+        public static bool IsValidEnumValue<T>(T value) where T : Enum
+        {
+            // This hack relies on three assumptions:
+            // * Enum values in C# are only allowed to be integer (and nothing else)
+            // * Enum names in C# must begin with an alphabetic character
+            // * Enum names cannot begin with a minus sign
+
+            // Note: "Enum.IsDefined(typeof(ENUM), VALUE)" may fail for enumerations with the [Flag] attribute
+            var firstChar = value.ToString()[0];
+            return (firstChar < '0' || firstChar > '9') && (firstChar != '-');
+        }
     }
 }
