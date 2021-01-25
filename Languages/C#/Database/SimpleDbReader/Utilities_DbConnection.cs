@@ -193,8 +193,8 @@ namespace SimpleDbReader
             TABLE_SCHEM                 String      ?
             TABLE_NAME                  String      Name of table to which this column belongs (eg. Products)
             COLUMN_NAME                 String      Field name (eg. ProductID)
-            DATA_TYPE                   Int16       Data type as a string numerical code (eg. "4" representing COUNTER or INTEGER)
-            TYPE_NAME                   String      Data type as a string (eg. COUNTER)
+            DATA_TYPE                   Int16       Data type as a numerical code (eg. "4" representing COUNTER or INTEGER)
+            TYPE_NAME                   String      Data type as a string (eg. "COUNTER")
             COLUMN_SIZE                 Int32       Set by the data type, except VARCHAR and NVARCHAR (eg. 1 for BIT, 10 for INTEGER, etc)
             BUFFER_LENGTH               Int32       As above (eg. 1 for BIT, 2 for SMALLINT, 4 for INTEGER, 21 for CURRENCY, etc)
             DECIMAL_DIGITS              Int16       Null for string types and 0 for integral types
