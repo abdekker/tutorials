@@ -33,7 +33,7 @@ namespace SimpleDbReader
     #region Mapper base classes (for SQL Server, ODBC, ...)
     abstract class MapperReaderBase<T>
     {
-        // This mapper can be used with SQL Server,  ODBC, etc.
+        // IDataReader, IDataRecord (strongly typed)
         protected abstract T Map(IDataRecord record, UInt64 uRecordsToRead);
         public Collection<T> MapAll(IDataReader reader, UInt64 uRecordsToRead)
         {
@@ -57,7 +57,7 @@ namespace SimpleDbReader
 
     abstract class MapperAdapterBase<T>
     {
-        // This mapper can be used with SQL Server, ODBC, etc.
+        // IDbDataAdapter, DataSet, DataRow (strongly typed)
         protected abstract T Map(DataRow record, UInt64 uRecordsToRead);
         public Collection<T> MapAll(DataSet ds, UInt64 uRecordsToRead)
         {
@@ -83,6 +83,8 @@ namespace SimpleDbReader
     #region Reader base classes (for SQL Server, ODBC, ...)
     abstract class ObjectReaderBase<T>
     {
+        // IDataReader, IDataRecord (strongly typed)
+
         // Member variables
         protected DatabaseTechnology m_tech;
         protected string m_connectionString;
@@ -186,6 +188,8 @@ namespace SimpleDbReader
 
     abstract class ObjectAdapterBase<T>
     {
+        // IDbDataAdapter, DataSet, DataRow (strongly typed)
+
         // Member variables
         protected DatabaseTechnology m_tech;
         protected string m_connectionString;
@@ -277,6 +281,101 @@ namespace SimpleDbReader
         }
 
         public IDbDataAdapter GetAdapter()
+        {
+            IDbDataAdapter adapter = null;
+            if (DbTechnology == DatabaseTechnology.eDB_ODBC)
+                adapter = new OdbcDataAdapter();
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+                adapter = new OleDbDataAdapter();
+            else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
+                adapter = new SqlDataAdapter();
+
+            return adapter;
+        }
+    }
+
+    public class ObjectDataSetRaw
+    {
+        // IDbDataAdapter, DataSet (raw, caller uses DataRow to manipulate data)
+        // Note: This version is agnostic to the data returned and the caller should manipulate the data manually
+
+        // Property accessors (for member variables)
+        public DatabaseTechnology DbTechnology { get; set; }
+        public string ConnectionString { get; set; }
+        public string CmdText { get; set; }
+        public CommandType CmdType { get; set; }
+
+        // Constructor
+        public ObjectDataSetRaw()
+        {
+            // Set defaults for the technology and connection strings (these should be updated by the user)
+            DbTechnology = DatabaseTechnology.eDB_ODBC;
+            ConnectionString = @"Driver={Microsoft Access Driver (*.mdb)};Dbq=YOUR_DATABASE_HERE;Uid=Admin;Pwd=;";
+            CmdText = "SELECT * FROM SOME_TABLE";
+            CmdType = CommandType.Text;
+        }
+
+        protected Collection<IDataParameter> GetParameters(IDbCommand command)
+        {
+            Collection<IDataParameter> collection = new Collection<IDataParameter>();
+            return collection;
+
+            // If you have parameters:
+            //IDataParameter param1 = command.CreateParameter();
+            //param1.ParameterName = "paramName 1";     // Put the parameter name here
+            //param1.Value = 5;                         // Put the parameter value here
+            //collection.Add(param1);
+            //return collection;   
+        }
+
+        // Execute method
+        public DataSet Execute()
+        {
+            DataSet ds = new DataSet();
+            using (IDbConnection connection = GetConnection())
+            {
+                IDbCommand command = connection.CreateCommand();
+                command.Connection = connection;
+                command.CommandText = CmdText;
+                command.CommandType = CmdType;
+                foreach (IDataParameter param in GetParameters(command))
+                    command.Parameters.Add(param);
+
+                IDbDataAdapter adapter = GetAdapter();
+                adapter.SelectCommand = command;
+                try
+                {
+                    connection.Open();
+                    adapter.Fill(ds);
+                }
+                catch
+                {
+                    // Throw?
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+            return ds;
+        }
+
+        protected IDbConnection GetConnection()
+        {
+            // See ObjectReaderBase::GetConnection for examples for "m_connectionString"
+            IDbConnection connection = null;
+            if (DbTechnology == DatabaseTechnology.eDB_ODBC)
+                connection = new OdbcConnection(ConnectionString);
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+                connection = new OleDbConnection(ConnectionString);
+            else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
+                connection = new SqlConnection(ConnectionString);
+
+            return connection;
+        }
+
+        protected IDbDataAdapter GetAdapter()
         {
             IDbDataAdapter adapter = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)

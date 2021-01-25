@@ -33,8 +33,9 @@
     public enum DatabaseReadTechnology
     {
         // The OleDB technology used for reading data
-        eRbRead_DataReader,     // System.Data.OleDb.OleDbDataReader
-        eRbRead_DataAdapter     // System.Data.OleDb.OleDbDataAdapter
+        eRbRead_DataReader,     // System.Data.IDataReader (strongly typed)
+        eRbRead_DataAdapter,    // System.Data.IDbDataAdapter (strongly typed)
+        eRbRead_DataSet         // System.Data.IDbDataAdapter (raw DataSet)
     };
 
     public enum DatabaseAccess
