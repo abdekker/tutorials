@@ -12,11 +12,23 @@ type
   TCategory = (
 	eCategoryNone,
 	eCategoryWindows,
+	eCategoryFiles,
 	eCategoryHardware,
 	eCategoryRegistry,
 	eCategoryStrings,
 	eCategoryControls
   );
+
+  TBrowseExtraction = (
+	eBrowseFullPath,	// eg. C:\Tmp\MyFile.exe
+	eBrowseFileDrive	// eg. C:
+  );
+
+  CACHE_CONTROL_UPDATES_BROWSE = record
+	// Options when the Browse button is displayed
+	strInitialDir, strFilter: String;
+	eFileOption: TBrowseExtraction;
+  end;
 
   CACHE_CONTROL_UPDATES = record
 	// Cache to assist control updates
@@ -34,17 +46,22 @@ type
 
 	// Whether to display some advanced explanation text
 	strLastExplanationText: String;
+
+	// Options when the Browse button is displayed
+	browse: CACHE_CONTROL_UPDATES_BROWSE;
   end;
 
   CONTROL_UPDATES = record
 	// Updates to the user interface
 	astrSampleTitle, astrSampleText: array [1..3] of String;
 	strExplanationText: String;
+	bShowBrowseButton: Boolean;
   end;
 
   TfrmSampleApplication = class(TGeneralBaseForm)
 	gbSettings: TGroupBox;
 	btnProcess: TBitBtn;
+	btnBrowse: TButton;
 	btnExit: TButton;
 	btnClearOutput: TButton;
 
@@ -80,6 +97,7 @@ type
 	procedure ddlCategoryChange(Sender: TObject);
 	procedure ddlActionClick(Sender: TObject);
 	procedure btnProcessClick(Sender: TObject);
+	procedure btnBrowseClick(Sender: TObject);
 
 	procedure OnUpdateTimer(Sender: TObject);
 
@@ -98,6 +116,7 @@ type
 
 	procedure PopulateActions();
 	procedure PopulateActions_Windows();
+	procedure PopulateActions_Files();
 	procedure PopulateActions_Hardware();
 	procedure PopulateActions_Registry();
 	procedure PopulateActions_Strings();
@@ -105,12 +124,14 @@ type
 
 	procedure UpdateControls(updates: CONTROL_UPDATES);
 	procedure UpdateControls_Windows();
+	procedure UpdateControls_Files();
 	procedure UpdateControls_Hardware();
 	procedure UpdateControls_Registry();
 	procedure UpdateControls_Strings();
 	procedure UpdateControls_Controls();
 
 	procedure PerformAction_Windows();
+	procedure PerformAction_Files();
 	procedure PerformAction_Hardware();
 	procedure PerformAction_Registry();
 	procedure PerformAction_Strings();
@@ -128,7 +149,7 @@ var
 implementation
 
 uses
-  Graphics, Math;
+  Dialogs, Graphics, Math;
 
 const
   DUMMY_CONST = 0;
@@ -150,6 +171,10 @@ type
 	eWindowsAction_CheckDriveIsValid,
 	eWindowsAction_SaveToClipboard,
 	eWindowsAction_BreakIfScrollLock
+  );
+
+  TCategoryFiles = (
+	eFilesAction_GetImageSize
   );
 
   TCategoryHardware = (
@@ -267,6 +292,9 @@ begin
 		eCategoryWindows:
 			PerformAction_Windows();
 
+		eCategoryFiles:
+			PerformAction_Files();
+
 		eCategoryHardware:
 			PerformAction_Hardware();
 
@@ -279,6 +307,27 @@ begin
 		eCategoryControls:
 			PerformAction_Controls();
 		end;
+end;
+
+procedure TfrmSampleApplication.btnBrowseClick(Sender: TObject);
+var
+	dlgOpenFile: TOpenDialog;
+begin
+	// Browse for a file or folder and populate the first sample box
+	// Note: The caller should set the initial directory and filter
+	dlgOpenFile := TOpenDialog.Create(Self);
+	dlgOpenFile.InitialDir := m_cache.browse.strInitialDir;
+	dlgOpenFile.Filter := m_cache.browse.strFilter;
+	dlgOpenFile.FileName := '';
+	if (dlgOpenFile.Execute) then
+		begin
+		if (m_cache.browse.eFileOption = eBrowseFullPath) then
+			ebSample1.Text := dlgOpenFile.FileName
+		else if (m_cache.browse.eFileOption = eBrowseFileDrive) then
+			ebSample1.Text := ExtractFileDrive(dlgOpenFile.FileName);
+		end;
+
+	dlgOpenFile.Free();
 end;
 
 procedure TfrmSampleApplication.OnUpdateTimer(Sender: TObject);
@@ -304,6 +353,9 @@ begin
 		case m_eCategoryCurrent of
 			eCategoryWindows:
 				UpdateControls_Windows();
+
+			eCategoryFiles:
+				UpdateControls_Files();
 
 			eCategoryHardware:
 				UpdateControls_Hardware();
@@ -364,6 +416,7 @@ begin
 	// Add categories
 	ddlCategory.Items.Clear();
 	ddlCategory.Items.AddObject('Windows', TObject(eCategoryWindows));
+	ddlCategory.Items.AddObject('Files', TObject(eCategoryFiles));
 	ddlCategory.Items.AddObject('Hardware', TObject(eCategoryHardware));
 	ddlCategory.Items.AddObject('Registry', TObject(eCategoryRegistry));
 	ddlCategory.Items.AddObject('Strings', TObject(eCategoryStrings));
@@ -383,6 +436,9 @@ begin
 	case m_eCategoryCurrent of
 		eCategoryWindows:
 			PopulateActions_Windows();
+
+		eCategoryFiles:
+			PopulateActions_Files();
 
 		eCategoryHardware:
 			PopulateActions_Hardware();
@@ -441,11 +497,17 @@ begin
 	ddlAction.Items.AddObject('Get disk free space (in GB)', TObject(eWindowsAction_GetDiskSpace));
 	ddlAction.Items.AddObject('Get drive filesystem', TObject(eWindowsAction_GetDriveFileSystem));
 	ddlAction.Items.AddObject('Get system drives', TObject(eWindowsAction_GetSystemDrives));
-	ddlAction.Items.AddObject('Check drive is valud', TObject(eWindowsAction_CheckDriveIsValid));
+	ddlAction.Items.AddObject('Check drive is valid', TObject(eWindowsAction_CheckDriveIsValid));
 	ddlAction.Items.AddObject('Save output to clipboard', TObject(eWindowsAction_SaveToClipboard));
 {$IFDEF DBG}
 	ddlAction.Items.AddObject('Break if Scroll Lock is pressed', TObject(eWindowsAction_BreakIfScrollLock));
 {$ENDIF}
+end;
+
+procedure TfrmSampleApplication.PopulateActions_Files();
+begin
+	// Files: Populate actions for this category
+	ddlAction.Items.AddObject('Get image file size', TObject(eFilesAction_GetImageSize));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Hardware();
@@ -550,6 +612,9 @@ begin
 				m_cache.aebSampleText[nSample].Width := m_cache.nEditBoxWidthMax;
 			end;
 		end;
+
+	// Show a browse button?
+	btnBrowse.Visible := updates.bShowBrowseButton;
 end;
 
 procedure TfrmSampleApplication.UpdateControls_Windows();
@@ -591,17 +656,17 @@ begin
 		eWindowsAction_GetDriveFileSystem:
 			begin
 			updates.astrSampleTitle[1] := 'Drive';
-			updates.astrSampleText[1] := 'C:\';
+			updates.astrSampleText[1] := 'C:';
 			end;
 
 		eWindowsAction_GetSystemDrives: ;
 		eWindowsAction_CheckDriveIsValid:
 			begin
 			updates.astrSampleTitle[1] := 'Drive 1';
-			updates.astrSampleText[1] := 'C';
+			updates.astrSampleText[1] := 'C:';
 
 			updates.astrSampleTitle[2] := 'Drive 2';
-			updates.astrSampleText[2] := 'Q';
+			updates.astrSampleText[2] := 'Q:';
 			end;
 
 		eWindowsAction_SaveToClipboard: ;
@@ -612,6 +677,37 @@ begin
 			updates.astrSampleText[1] := 'Press Scroll Lock while debugging';
 			end;
 {$ENDIF}
+		end;
+
+	UpdateControls(updates);
+end;
+
+procedure TfrmSampleApplication.UpdateControls_Files();
+var
+	updates: CONTROL_UPDATES;
+begin
+	// Files: Update controls based on the selected action
+	ZeroMemory(@updates, SizeOf(CONTROL_UPDATES));
+	case TCategoryFiles(ddlAction.ItemIndex) of
+		eFilesAction_GetImageSize:
+			begin
+			updates.astrSampleTitle[1] := 'Image file';
+			updates.astrSampleText[1] := '(use browse button or paste full path here)';
+
+			updates.bShowBrowseButton := True;
+			m_cache.browse.strInitialDir :=
+				(GetParentFolder(GetCurrentDir(), 3) + 'Graphics\Sample-Image-Types\');
+			m_cache.browse.strFilter := (
+				'All image types|*.*' +
+				'|Bitmap (*.bmp)|*.bmp' +
+				'|JPEG (*.jpg)|*.jpg;*.jpeg' +
+				'|Portable Network Graphics (*.png)|*.png' +
+				'|Graphics Interface Format (*.gif)|*.gif' +
+				'|Icon (*.ico)|*.ico' +
+				'|Tag Image File Format (*.tif)|*.tif;*.tiff' +
+				'|MetaFile (*.emf, *.wmf)|*.emf;*.wmf');
+			m_cache.browse.eFileOption := eBrowseFullPath;
+			end;
 		end;
 
 	UpdateControls(updates);
@@ -934,8 +1030,13 @@ begin
 			end;
 
 		eWindowsAction_GetDriveFileSystem:
-			AddOutputText(Format('The filesystem on %s is %s', [
-				ebSample1.Text, GetDriveFileSystem(ebSample1.Text)]));
+			begin
+			strTmp := GetDriveFileSystem(ebSample1.Text);
+			if (Length(strTmp) > 0) then
+				AddOutputText(Format('The filesystem on %s is %s', [ebSample1.Text, strTmp]))
+			else
+				AddOutputText(Format('Unable to detector filesystem on %s', [ebSample1.Text]));
+			end;
 
 		eWindowsAction_GetSystemDrives:
 			AddOutputText(Format('System drives are %s', [GetSystemDrives()]));
@@ -965,7 +1066,7 @@ begin
 
 			SaveToClipboard(strTmp);
 			Application.MessageBox(
-				PAnsiChar('Output saved to the clipboard)'), 'Windows', MB_ICONEXCLAMATION);
+				PAnsiChar('Output saved to the clipboard'), 'Windows', MB_ICONEXCLAMATION);
 			end;
 
 {$IFDEF DBG}
@@ -977,6 +1078,20 @@ begin
 				AddOutputText('Scroll Lock not detected or not debugging');
 			end;
 {$ENDIF}
+		end;
+end;
+
+procedure TfrmSampleApplication.PerformAction_Files();
+begin
+	// Windows: Perform the action
+	case TCategoryFiles(m_nActionCurrent) of
+		eFilesAction_GetImageSize:
+			begin
+			if (FileExists(ebSample1.Text)) then
+				AddOutputText('File exists...TODO')
+			else
+				AddOutputText('File does not exist');
+			end;
 		end;
 end;
 

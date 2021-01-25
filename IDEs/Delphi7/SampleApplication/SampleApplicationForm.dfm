@@ -1,10 +1,10 @@
 object frmSampleApplication: TfrmSampleApplication
-  Left = 311
-  Top = 143
+  Left = 404
+  Top = 159
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Sample Application for Testing'
-  ClientHeight = 650
+  ClientHeight = 645
   ClientWidth = 875
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,8 +20,8 @@ object frmSampleApplication: TfrmSampleApplication
   PixelsPerInch = 96
   TextHeight = 16
   object gbSettings: TGroupBox
-    Left = 5
-    Top = 5
+    Left = 10
+    Top = -5
     Width = 865
     Height = 600
     Font.Charset = DEFAULT_CHARSET
@@ -122,7 +122,7 @@ object frmSampleApplication: TfrmSampleApplication
       Height = 420
       Color = clInfoBk
       ItemHeight = 16
-      TabOrder = 6
+      TabOrder = 7
     end
     object ebSample2: TEdit
       Left = 150
@@ -170,7 +170,7 @@ object frmSampleApplication: TfrmSampleApplication
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 8
       Visible = False
     end
     object gbSampleControls: TGroupBox
@@ -179,7 +179,7 @@ object frmSampleApplication: TfrmSampleApplication
       Width = 285
       Height = 410
       Caption = 'Sample controls (Controls category only)'
-      TabOrder = 8
+      TabOrder = 9
       Visible = False
       object lblChildControls: TLabel
         Left = 15
@@ -371,21 +371,37 @@ object frmSampleApplication: TfrmSampleApplication
         FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
+    object btnBrowse: TButton
+      Left = 700
+      Top = 24
+      Width = 100
+      Height = 48
+      Caption = 'Browse...'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 6
+      Visible = False
+      OnClick = btnBrowseClick
+    end
   end
   object btnExit: TButton
     Left = 795
-    Top = 610
+    Top = 600
     Width = 75
-    Height = 35
+    Height = 40
     Caption = 'Exit'
     TabOrder = 1
     OnClick = btnExitClick
   end
   object btnClearOutput: TButton
-    Left = 675
-    Top = 610
+    Left = 5
+    Top = 600
     Width = 110
-    Height = 35
+    Height = 40
     Caption = 'Clear Output'
     TabOrder = 2
     OnClick = btnClearOutputClick
@@ -393,7 +409,7 @@ object frmSampleApplication: TfrmSampleApplication
   object UpdateTimer: TTimer
     Interval = 100
     OnTimer = OnUpdateTimer
-    Left = 10
-    Top = 610
+    Left = 760
+    Top = 600
   end
 end

@@ -90,6 +90,7 @@ procedure SortFolderListingByDate(astrList: TStringList; bReverseOrder: Boolean 
 procedure CopyFilesBetweenFolders(strSourceFolder, strTargetFolder, strWildcard: String);
 function DeleteFolder(strFolder: String) : Boolean;
 procedure EmptyFolder(strFolder: String);
+function GetParentFolder(strFolder: String; const cbyLevels: BYTE = 1) : String;
 function IsPathAvailable(const cstrPath: String) : Boolean;
 function IsPathWriteable(const cstrPath: String) : Boolean;
 function RemovePathExtInfo(const cstrPath: String) : String;
@@ -1751,6 +1752,30 @@ begin
 		end;
 end;
 
+function GetParentFolder(strFolder: String; const cbyLevels: BYTE = 1) : String;
+var
+	strParent: String;
+	byLevel: BYTE;
+begin
+	// Given either of the following, return "C:\Parent\"
+	// 		C:\Parent\Child\
+	//		C:\Parent\Child\MyFile.txt
+	if (cbyLevels > 0) then
+		begin
+		strParent := ExcludeTrailingPathDelimiter(strFolder);
+		byLevel := 0;
+		while (byLevel < cbyLevels) do
+			begin
+			strParent := ExcludeTrailingPathDelimiter(ExtractFileDir(ExtractFilePath(strParent)));
+			Inc(byLevel);
+			end;
+
+		Result := IncludeTrailingPathDelimiter(strParent);
+		end
+	else
+		Result := strFolder;
+end;
+
 function IsPathAvailable(const cstrPath: String) : Boolean;
 var
 	nFreeBytes64, nTotalBytes64, nTotalFreeBytes64: Int64;
@@ -1817,7 +1842,7 @@ begin
 	nPosExt := LastDelimiter('.' + PathDelim + DriveDelim, cstrPath);
 	Result := Copy(cstrPath, (nPosPath + 1), (nPosExt - nPosPath - 1));
 
-	// Note: SysUtils provides additional methods, each example uses "C:\Temp\MyFile.txt":
+	// Note,1: SysUtils provides additional methods, each example uses "C:\Temp\MyFile.txt":
 	// * ExtractFileDrive		C:
 	// * ExtractFileDir			C:\Temp
 	// * ExtractFilePath		C:\Temp\
@@ -1829,7 +1854,7 @@ function ExtractPathExtOnly(const cstrPath: String) : String;
 var
 	nPosExt: Integer;
 begin
-	// Teturns the extension only (sans "."). Example: "C:\Temp\MyFile.txt" is converted to "txt".
+	// Returns the extension only (sans "."). Example: "C:\Temp\MyFile.txt" is converted to "txt".
 	// Note: This is an adaptation of SysUtils.ExtractFileExt which returns ".txt"
 	nPosExt := LastDelimiter('.', cstrPath);
 	if (nPosExt > 0) then
