@@ -56,13 +56,19 @@
         // Abstract methods
         public abstract void GetStats();
         public abstract void Read();
-        public abstract void Write();
+        public abstract void Writeable();
+        public abstract void Insert();
+        public abstract void Update();
+        public abstract void Delete();
         public abstract void PerformanceTest(int nLoops);
         public abstract bool SetConnectionString(ref string strConnection);
 
         protected abstract void Connect_Stats(string strConnection);
         protected abstract void Connect_Read(string strConnection);
-        protected abstract void Connect_Write(string strConnection);
+        protected abstract void Connect_Writeable(string strConnection);
+        protected abstract void Connect_Insert(string strConnection);
+        protected abstract void Connect_Update(string strConnection);
+        protected abstract void Connect_Delete(string strConnection);
         protected abstract int Connect_PerformanceTest(string strConnection);
 
         // Helper methods

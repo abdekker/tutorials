@@ -56,10 +56,10 @@ namespace SimpleDbReader
             Console.WriteLine("### END: DAO (read) ###\n");
         }
 
-        public override void Write()
+        public override void Writeable()
         {
             // DAO (Data Access Objects)
-            Console.WriteLine("### START: DAO (write) ###");
+            Console.WriteLine("### START: DAO (writeable, Northwind) ###");
 
             // See the class constructor for details on databases
             string strConnection = string.Empty;
@@ -68,10 +68,25 @@ namespace SimpleDbReader
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
-                    Connect_Write(strConnection);
+                    Connect_Writeable(strConnection);
             }
 
-            Console.WriteLine("### END: DAO (write) ###\n");
+            Console.WriteLine("### END: DAO (writeable) ###\n");
+        }
+
+        public override void Insert()
+        {
+            // TODO
+        }
+
+        public override void Update()
+        {
+            // TODO
+        }
+
+        public override void Delete()
+        {
+            // TODO
         }
 
         public override void PerformanceTest(int nLoops)
@@ -219,7 +234,7 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        protected override void Connect_Write(string strConnection)
+        protected override void Connect_Writeable(string strConnection)
         {
             // Use the DAO::DBEngine to open an Access database and write recordsets
             DAO.DBEngine dbEngine = new DAO.DBEngine();
@@ -280,6 +295,21 @@ namespace SimpleDbReader
 
             db.Close();
             Console.WriteLine();
+        }
+
+        protected override void Connect_Insert(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Update(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Delete(string strConnection)
+        {
+            // TODO
         }
 
         protected override int Connect_PerformanceTest(string strConnection)

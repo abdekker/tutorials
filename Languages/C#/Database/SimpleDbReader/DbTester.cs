@@ -120,7 +120,7 @@ namespace SimpleDbReader
 
         public void SimpleStats(DatabaseTechnology eTechnology)
         {
-            // Test one of the database technologies available in .NET (reading)
+            // Statistics and schema information for the database
             if (eTechnology == DatabaseTechnology.eDB_DAO)
                 m_simpleDAO.GetStats();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
@@ -131,6 +131,7 @@ namespace SimpleDbReader
 
         public void SimpleRead(DatabaseTechnology eTechnology)
         {
+            // Read some data from the database
             if (eTechnology == DatabaseTechnology.eDB_DAO)
                 m_simpleDAO.Read();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
@@ -139,8 +140,27 @@ namespace SimpleDbReader
             // TODO: OleDB
         }
 
-        public void SimpleWrite(DatabaseTechnology eTechnology)
+        public void SimpleWriteable(DatabaseTechnology eTechnology)
         {
+            // Open the database in read-only and writeable mode
+            // TODO
+        }
+
+        public void SimpleInsert(DatabaseTechnology eTechnology)
+        {
+            // Insert a record into the database
+            // TODO
+        }
+
+        public void SimpleUpdate(DatabaseTechnology eTechnology)
+        {
+            // Update an existing record in the database
+            // TODO
+        }
+
+        public void SimpleDelete(DatabaseTechnology eTechnology)
+        {
+            // Delete an existing record in the database
             // TODO
         }
 
@@ -152,7 +172,7 @@ namespace SimpleDbReader
 
         public void NorthwindStats(DatabaseTechnology eTechnology)
         {
-            // Test one of the database technologies available in .NET (reading)
+            // Statistics and schema information for the database
             if (eTechnology == DatabaseTechnology.eDB_DAO)
                 m_nwDAO.GetStats();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
@@ -163,7 +183,7 @@ namespace SimpleDbReader
 
         public void NorthwindRead(DatabaseTechnology eTechnology)
         {
-            // Test one of the database technologies available in .NET (reading)
+            // Read some data from the database
             if (eTechnology == DatabaseTechnology.eDB_DAO)
                 m_nwDAO.Read();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
@@ -172,15 +192,48 @@ namespace SimpleDbReader
                 m_nwOleDB.Read();
         }
 
-        public void NorthwindWrite(DatabaseTechnology eTechnology)
+        public void NorthwindWriteable(DatabaseTechnology eTechnology)
         {
-            // Test one of the database technologies available in .NET (writing)
+            // Open the database in read-only and writeable mode
             if (eTechnology == DatabaseTechnology.eDB_DAO)
-                m_nwDAO.Write();
+                m_nwDAO.Writeable();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
-                m_nwODBC.Write();
+                m_nwODBC.Writeable();
             else if (eTechnology == DatabaseTechnology.eDB_OleDb)
-                m_nwOleDB.Write();
+                m_nwOleDB.Writeable();
+        }
+
+        public void NorthwindInsert(DatabaseTechnology eTechnology)
+        {
+            // Insert a record into the database
+            if (eTechnology == DatabaseTechnology.eDB_DAO)
+                m_nwDAO.Insert();
+            else if (eTechnology == DatabaseTechnology.eDB_ODBC)
+                m_nwODBC.Insert();
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+                m_nwOleDB.Insert();
+        }
+
+        public void NorthwindUpdate(DatabaseTechnology eTechnology)
+        {
+            // Update an existing record in the database
+            if (eTechnology == DatabaseTechnology.eDB_DAO)
+                m_nwDAO.Update();
+            else if (eTechnology == DatabaseTechnology.eDB_ODBC)
+                m_nwODBC.Update();
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+                m_nwOleDB.Update();
+        }
+
+        public void NorthwindDelete(DatabaseTechnology eTechnology)
+        {
+            // Delete an existing record in the database
+            if (eTechnology == DatabaseTechnology.eDB_DAO)
+                m_nwDAO.Delete();
+            else if (eTechnology == DatabaseTechnology.eDB_ODBC)
+                m_nwODBC.Delete();
+            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+                m_nwOleDB.Delete();
         }
 
         public void NorthwindPerformance(DatabaseTechnology eTechnology, int nLoops = cPerformanceLoops)

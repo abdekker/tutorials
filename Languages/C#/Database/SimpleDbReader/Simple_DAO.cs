@@ -57,7 +57,22 @@ namespace SimpleDbReader
             Console.WriteLine("### END: DAO (read) ###\n");
         }
 
-        public override void Write()
+        public override void Writeable()
+        {
+            // TODO
+        }
+
+        public override void Insert()
+        {
+            // TODO
+        }
+
+        public override void Update()
+        {
+            // TODO
+        }
+
+        public override void Delete()
         {
             // TODO
         }
@@ -171,7 +186,22 @@ namespace SimpleDbReader
             Console.WriteLine();
         }
 
-        protected override void Connect_Write(string strConnection)
+        protected override void Connect_Writeable(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Insert(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Update(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Delete(string strConnection)
         {
             // TODO
         }

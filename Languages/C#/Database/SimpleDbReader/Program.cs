@@ -19,20 +19,28 @@ namespace SimpleDbReader
         private static readonly UInt32 cSimpleCreateDB              = 0x00000001;
         private static readonly UInt32 cSimpleStats                 = 0x00000002;
         private static readonly UInt32 cSimpleRead                  = 0x00000004;
-        private static readonly UInt32 cSimpleWrite                 = 0x00000008;
+        private static readonly UInt32 cSimpleWriteable             = 0x00000008;   // Open database in readonly and writeable modes
+        private static readonly UInt32 cSimpleInsert                = 0x00000010;
+        private static readonly UInt32 cSimpleUpdate                = 0x00000020;
+        private static readonly UInt32 cSimpleDelete                = 0x00000040;
+        // No performance method for the basic database...test performance using the Northwind database
 
-        private static readonly UInt32 cNorthwindDummyOpenClose     = 0x00000100;
-        private static readonly UInt32 cNorthwindStats              = 0x00000200;
-        private static readonly UInt32 cNorthwindRead               = 0x00000400;
-        private static readonly UInt32 cNorthwindWrite              = 0x00000800;
-        private static readonly UInt32 cNorthwindPerformance        = 0x00001000;
-        private static readonly UInt32 cDifferentQueryStrings       = 0x00100000;
+        private static readonly UInt32 cNorthwindDummyOpenClose     = 0x00001000;
+        private static readonly UInt32 cNorthwindStats              = 0x00002000;
+        private static readonly UInt32 cNorthwindRead               = 0x00004000;
+        private static readonly UInt32 cNorthwindWriteable          = 0x00008000;   // Open database in readonly and writeable modes (unused)
+        private static readonly UInt32 cNorthwindInsert             = 0x00010000;
+        private static readonly UInt32 cNorthwindUpdate             = 0x00020000;
+        private static readonly UInt32 cNorthwindDelete             = 0x00040000;
+        private static readonly UInt32 cNorthwindPerformance        = 0x00100000;
+        private static readonly UInt32 cDifferentQueryStrings       = 0x00200000;
 
         private static readonly UInt32 cOtherTests                  = 0x80000000;
 
-        // Access method for this application
         static void Main()
         {
+            // Database technologies supported in VS 2019 and C# to read some records
+
             // Create a DbTester class
             m_db = new DbTester();
             m_db.Initialise();
@@ -44,12 +52,18 @@ namespace SimpleDbReader
                 //cSimpleCreateDB
                 //cSimpleStats
                 //cSimpleRead
-                //cSimpleWrite
+                //cSimpleWriteable
+                //cSimpleInsert
+                //cSimpleUpdate
+                //cSimpleDelete
                 //cOtherTests
                 //cNorthwindDummyOpenClose
                 //cNorthwindStats
-                cNorthwindRead
-                //cNorthwindWrite
+                //cNorthwindRead
+                //cNorthwindWriteable
+                cNorthwindInsert
+                //cNorthwindUpdate
+                //cNorthwindDelete
                 //cNorthwindPerformance
                 //cDifferentQueryStrings
                 );
@@ -67,13 +81,13 @@ namespace SimpleDbReader
 
             // Use database technologies supported in VS 2019 and C#
 
-            // Using the SimpleTest.mdb database
+            #region SimpleTest.mdb database
             if ((m_tests & cSimpleCreateDB) != 0)
                 m_db.SimpleCreateDB();
 
-            // Count tables, columns and other statistics
             if ((m_tests & cSimpleStats) != 0)
             {
+                // Count tables, columns and other statistics
                 m_db.SimpleStats(DatabaseTechnology.eDB_DAO);
                 m_db.SimpleStats(DatabaseTechnology.eDB_ODBC);
                 Console.WriteLine();
@@ -85,14 +99,32 @@ namespace SimpleDbReader
                 m_db.SimpleRead(DatabaseTechnology.eDB_ODBC);
             }
 
-            if ((m_tests & cSimpleWrite) != 0)
+            if ((m_tests & cSimpleWriteable) != 0)
             {
-                m_db.SimpleWrite(DatabaseTechnology.eDB_DAO);
-                m_db.SimpleWrite(DatabaseTechnology.eDB_ODBC);
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_ODBC);
             }
 
-            // Using the Northwind sample databases
+            if ((m_tests & cSimpleInsert) != 0)
+            {
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_ODBC);
+            }
 
+            if ((m_tests & cSimpleUpdate) != 0)
+            {
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_ODBC);
+            }
+
+            if ((m_tests & cSimpleDelete) != 0)
+            {
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_DAO);
+                m_db.SimpleWriteable(DatabaseTechnology.eDB_ODBC);
+            }
+            #endregion // SimpleTest.mdb database
+
+            #region Northwind sample database
             // Perform a dummy open and close of each database in DAO. For an unknown reason (to be
             // investigated) this makes subsequent access using ODBC and OleDB faster. This might be
             // related to Windows caching the database file in memory or DAO performing some obscure
@@ -104,9 +136,9 @@ namespace SimpleDbReader
                 Console.WriteLine();
             }
 
-            // Count tables, columns and other statistics
             if ((m_tests & cNorthwindStats) != 0)
             {
+                // Count tables, columns and other statistics
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
@@ -114,7 +146,6 @@ namespace SimpleDbReader
                 Console.WriteLine();
             }
 
-            // Use some database technologies supported in VS 2019 and C# to read some records
             if ((m_tests & cNorthwindRead) != 0)
             {
                 m_db.UpdateQuery(QueryType.eQueryStd1);
@@ -124,19 +155,46 @@ namespace SimpleDbReader
                 Console.WriteLine();
             }
 
-            // Northwind databases
-            if ((m_tests & cNorthwindWrite) != 0)
+            if ((m_tests & cNorthwindWriteable) != 0)
             {
+                // Not implemented...
                 m_db.UpdateQuery(QueryType.eQueryStd1);
-                m_db.NorthwindWrite(DatabaseTechnology.eDB_DAO);
-                //m_db.NorthwindWrite(DatabaseTechnology.eDB_ODBC);
-                //m_db.NorthwindWrite(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
                 Console.WriteLine();
             }
 
-            // Run some performance tests
+            if ((m_tests & cNorthwindInsert) != 0)
+            {
+                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.NorthwindInsert(DatabaseTechnology.eDB_DAO);
+                m_db.NorthwindInsert(DatabaseTechnology.eDB_ODBC);
+                m_db.NorthwindInsert(DatabaseTechnology.eDB_OleDb);
+                Console.WriteLine();
+            }
+
+            if ((m_tests & cNorthwindUpdate) != 0)
+            {
+                m_db.UpdateQuery(QueryType.eQueryStd1);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
+                Console.WriteLine();
+            }
+
+            if ((m_tests & cNorthwindDelete) != 0)
+            {
+                m_db.UpdateQuery(QueryType.eQueryStd1);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
+                Console.WriteLine();
+            }
+
             if ((m_tests & cNorthwindPerformance) != 0)
             {
+                // Performance comparisons
                 m_db.UpdateQuery(QueryType.eQueryStd1);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_ODBC);
@@ -151,6 +209,7 @@ namespace SimpleDbReader
                 m_db.UpdateQuery(QueryType.eQueryLike);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
             }
+            #endregion // Northwind sample database
 
             // Complete!
             Console.Write("Press any key to exit...");

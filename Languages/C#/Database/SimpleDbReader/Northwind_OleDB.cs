@@ -70,12 +70,30 @@ namespace SimpleDbReader
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (read) ###\n");
         }
 
-        public override void Write()
+        public override void Writeable()
         {
             //  System.Data.OleDb.OleDbCommand
-            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (write, Northwind) ###");
+            Console.WriteLine("### START: System.Data.OleDb.OleDbCommand (writeable, Northwind) ###");
             Console.WriteLine("  (TODO)");
             Console.WriteLine("### END: System.Data.OleDb.OleDbCommand (write) ###\n");
+        }
+
+        public override void Insert()
+        {
+            // System.Data.OleDb.OleDbCommand
+            // TODO
+        }
+
+        public override void Update()
+        {
+            // System.Data.OleDb.OleDbCommand
+            // TODO
+        }
+
+        public override void Delete()
+        {
+            // System.Data.OleDb.OleDbCommand
+            // TODO
         }
 
         public override void PerformanceTest(int nLoops)
@@ -198,7 +216,22 @@ namespace SimpleDbReader
                 Connect_Read_Template(strConnection);
         }
 
-        protected override void Connect_Write(string strConnection)
+        protected override void Connect_Writeable(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Insert(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Update(string strConnection)
+        {
+            // TODO
+        }
+
+        protected override void Connect_Delete(string strConnection)
         {
             // TODO
         }
@@ -337,11 +370,11 @@ namespace SimpleDbReader
         {
             // This method uses a template method to create a Data Access Layer (DAL) to the database
             Console.Write("(template)");
-            Collection<Northwind_Products> products = null;
             if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
             {
                 // Using System.Data.OleDb.OleDbDataReader : IDataReader
-                Console.WriteLine(" (OleDb.OleDbDataReader)");
+                Console.WriteLine(" (OleDb.OleDbDataReader, strongly typed)");
+                Collection<Northwind_Products> products = null;
                 using (NorthwindReader_Products reader = new NorthwindReader_Products())
                 {
                     reader.DbTechnology = m_tech;
@@ -349,11 +382,13 @@ namespace SimpleDbReader
                     reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
                     products = reader.Execute();
                 }
+                Connect_Read_Template_Typed(ref products);
             }
             else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
             {
                 // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
-                Console.WriteLine(" (OleDb.OleDbDataAdapter)");
+                Console.WriteLine(" (OleDb.OleDbDataAdapter, strongly typed)");
+                Collection<Northwind_Products> products = null;
                 using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
                 {
                     adapter.DbTechnology = m_tech;
@@ -361,8 +396,29 @@ namespace SimpleDbReader
                     adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
                     products = adapter.Execute();
                 }
+                Connect_Read_Template_Typed(ref products);
+            }
+            else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataSet)
+            {
+                // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
+                Console.WriteLine(" (OleDb.OleDbDataAdapter, raw DataSet)");
+                DataSet products = null;
+                ObjectDataSetRaw adapter = new ObjectDataSetRaw();
+                adapter.DbTechnology = m_tech;
+                adapter.ConnectionString = strConnection;
+                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                products = adapter.Execute();
+                Connect_Read_Template_Raw(ref products);
             }
 
+            Console.WriteLine();
+        }
+
+        private void Connect_Read_Template_Typed(ref Collection<Northwind_Products> products)
+        {
+            // When reading strongly typed data from the database:
+            // * DatabaseReadTechnology.eRbRead_DataReader
+            // * DatabaseReadTechnology.eRbRead_DataAdapter
             int recordsRead = 0;
             //Console.WriteLine(Northwind_Products.GetRecordHeader());
             Console.WriteLine("\t{0}{1}{2}",
@@ -379,7 +435,34 @@ namespace SimpleDbReader
                     p.ProductName.ToString());
             }
             Console.WriteLine("    ({0} records)", recordsRead);
-            Console.WriteLine();
+        }
+
+        private void Connect_Read_Template_Raw(ref DataSet products)
+        {
+            // When reading raw data from the database (DatabaseReadTechnology.eRbRead_DataReader)
+            int recordsRead = 0;
+            Console.WriteLine("\t{0}{1}{2}",
+                Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
+                Northwind_Products.colUnitPrice.PadRight(Northwind_Products.colUnitPriceWidth),
+                Northwind_Products.colProductName);
+
+            foreach (DataRow p in products.Tables[0].Rows)
+            {
+                try
+                {
+                    recordsRead++;
+                    Console.WriteLine("\t{0}{1}{2}",
+                        ((int)p[Northwind_Products.colProductID]).ToString().PadRight(Northwind_Products.colProductIDWidth),
+                        ((decimal)p[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
+                        (string)p[Northwind_Products.colProductName]);
+                }
+                catch
+                {
+                    //throw;
+                    // Consider handling exception (instead of re-throwing) if graceful recovery is possible
+                }
+            }
+            Console.WriteLine("    ({0} records)", recordsRead);
         }
 
         private void ConvertRecordset(in OleDbDataReader reader, ref Northwind_Products rsProduct)
