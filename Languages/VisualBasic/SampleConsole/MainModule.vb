@@ -65,26 +65,28 @@ Module MainModule
         End Get
     End Property
 
-    ' Methods
+    ' Helper methods
     Private Function GetFrameworkDisplayName()
         Dim attribs() As Object = Assembly.GetExecutingAssembly().GetCustomAttributes(GetType(TargetFrameworkAttribute), False)
         Dim targetFramework As TargetFrameworkAttribute = attribs.SingleOrDefault() ' "SingleOrDefault" requires System.Linq
         GetFrameworkDisplayName = targetFramework.FrameworkDisplayName
     End Function
 
+    ' Main methods
     Private Sub DisplaySystemInformation()
         ' See C#\StringsDemo\DisplaySystemInformation
-        Console.WriteLine("# System Information #")
+        Console.WriteLine("### System Information ###")
         Console.WriteLine("  OS Description           {0} ({1})", RuntimeInformation.OSDescription, OSType)
         Console.WriteLine("  OS Architecture          {0}", RuntimeInformation.OSArchitecture.ToString())
         Console.WriteLine("  Process Architecture     {0}", RuntimeInformation.ProcessArchitecture.ToString())
         Console.WriteLine("  Framework Description    {0}", RuntimeInformation.FrameworkDescription)
+        Console.WriteLine("#")
         Console.WriteLine()
     End Sub
 
     Private Sub DisplayAssemblyInfo()
         ' See C#\StringsDemo\DisplayAssemblyInfo
-        Console.WriteLine("# Assembly Information #")
+        Console.WriteLine("### Assembly Information ###")
         Console.WriteLine(String.Format("  Assembly full path: {0}", Assembly.GetEntryAssembly().Location))
         Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory))
         #if DEBUG then
@@ -92,12 +94,29 @@ Module MainModule
         #else
             Console.WriteLine("  Assembly built in RELEASE mode")
         #end if
+
+        Console.WriteLine("#")
         Console.WriteLine()
     End Sub
 
-    Private Sub DisplayEnumInfo()
-        ' See C#\StringsDemo\Info_Enum
-        Console.WriteLine("# Enumerations #")
+    Private Sub StringsInVisualBasic()
+        ' Some details on strings and string formatting in Visual Basic
+        Console.WriteLine("### Strings ###")
+        Dim name As String = "Fred"
+        Dim height As Single = 1.93
+        Dim age As Integer = 29
+
+        Console.WriteLine("  a) {0} is {1:0.00}m tall and {2} years old [implicit formatting]", name, height, age)
+        Console.WriteLine(String.Format("  b) {0} is {1:0.00}m tall and {2} years old [explicit formatting]", name, height, age))
+        Console.WriteLine($"  c) {name} is {height:0.00}m tall and {age} years old [string interpolation]")
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
+    Private Sub EnumerationsInVB()
+        ' Some details on enumerations in Visual Basic (see C#\StringsDemo\Info_Enum)
+        Console.WriteLine("### Enumerations ###")
         Console.WriteLine("  Use [Enum] or System.Enum")
         Console.WriteLine("  Square brackets indicate to the compiler that ""Enum"" should be intepreted as a type (even though it is a keyword)")
         Console.WriteLine()
@@ -151,6 +170,7 @@ Module MainModule
         For val As Integer = 0 To 16
             Console.WriteLine("{0,3} - {1:G}", val, CType(val, EnumWithFlags))
         Next
+        Console.WriteLine("#")
         Console.WriteLine()
     End Sub
 
@@ -160,7 +180,7 @@ Module MainModule
         ' * StringsDemo
         Console.WriteLine("Caution! Visual Basic is rather disgusting...avoid!")
         Console.WriteLine()
-        Dim msgWelcome As String = String.Format("### VB.NET console application, targetting {0} ###", GetFrameworkDisplayName())
+        Dim msgWelcome As String = String.Format("### VB.NET console application, targeting {0} ###", GetFrameworkDisplayName())
         Console.WriteLine(msgWelcome)
         Console.WriteLine()
 
@@ -170,8 +190,9 @@ Module MainModule
         ' Show some information about this assembly
         DisplayAssemblyInfo()
 
-        ' Enumerations
-        DisplayEnumInfo()
+        ' Additional demonstrations
+        StringsInVisualBasic()
+        EnumerationsInVB()
     End Sub
 
 End Module
