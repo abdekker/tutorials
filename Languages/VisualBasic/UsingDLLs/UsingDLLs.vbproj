@@ -48,12 +48,6 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClassLibrary_CSharp">
-      <HintPath>.\ClassLibrary_CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="ClassLibrary_VB">
-      <HintPath>.\ClassLibrary_VB.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -112,5 +106,18 @@
     </None>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ClassLibrary_CSharp\ClassLibrary_CSharp.csproj">
+      <Project>{cabbc75d-8483-41f4-9019-70a6fe49dfc6}</Project>
+      <Name>ClassLibrary_CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="ClassLibrary_VB\ClassLibrary_VB.vbproj">
+      <Project>{0155001d-c366-443d-b7aa-13ce9b015345}</Project>
+      <Name>ClassLibrary_VB</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+  </PropertyGroup>
 </Project>

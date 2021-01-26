@@ -58,25 +58,54 @@ Module ConsoleUsingDLLs
         Console.WriteLine("#")
         Console.WriteLine()
     End Sub
-    #End Region ' Methods
+    #End Region
 
     Sub Main()
+        #Region "About use DLLs in Visual Basic"
         ' This application is a Console App (.NET Framework) (in Visual Basic)
+
         ' To add new projects to this solution:
         ' * Right-click the solution in Solution Explorer and select Add > New Project...
         ' * Select "Class Library (.NET Framework) (in required language)
 
-        ' * Visual Basic Class Library:
-        '   - Right-click the DLL project in Solution Explorer and select properties
-        '   - Application: Note that the Application Type is set to Class Library
-        '   - Compile: Leave the Build output folder set to "bin\Debug\" or "bin\Release\"
-        '   - Compile > Build Events (lower right): Set the post-build event to something like "copy $(TargetDir)$(TargetFileName) ..\..\..\"
+        ' To include the external DLLs as project references, there are two basic methods:
 
-        ' * C# Class Library:
-        '   - Right-click the DLL project in Solution Explorer and select properties
-        '   - Application: Note that the Application Type is set to Class Library
-        '   - Build: Leave the Output path set to "bin\Debug\" or "bin\Release\"
-        '   - Build Events: Set the post-build event to something like "copy $(TargetDir)$(TargetFileName) ..\..\..\"
+        ' ### METHOD 1 ###
+        ' Use a post-build event to copy the output DLL to a common folder; add a reference to the DLL in the common folder
+        '   * Visual Basic Class Library:
+        '     - Right-click the DLL project in Solution Explorer and select properties
+        '     - Application: Note that the Application Type is set to Class Library
+        '     - Compile: Leave the Build output folder set to "bin\Debug\" or "bin\Release\"
+        '     - Compile > Build Events (lower right): Set the post-build event to something like "copy $(TargetDir)$(TargetFileName) ..\..\..\"
+        '   * C# Class Library:
+        '     - Right-click the DLL project in Solution Explorer and select properties
+        '     - Application: Note that the Application Type is set to Class Library
+        '     - Build: Leave the Output path set to "bin\Debug\" or "bin\Release\"
+        '     - Build Events: Set the post-build event to something like "copy $(TargetDir)$(TargetFileName) ..\..\..\"
+        '   * Main Visual Basic project
+        '       - Right-click the main project, right-click "References" and choose "Add Reference..."
+        '       - In the Browse section click "Browse" and navigate to the DLL in the common folder (repeat for both)
+
+        ' METHOD 1 adds something like the following to the main project vbproj:
+        '   <Reference Include="ClassLibrary_CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+        '     <SpecificVersion>False</SpecificVersion>
+        '     <HintPath>.\ClassLibrary_CSharp.dll</HintPath>
+        '   </Reference>
+
+        ' ### METHOD 2 ###
+        ' Add a reference to the shared project (this is probably simpler)
+        '   * Visual Basic Class Library: As above, but no need to configure the post-build event (unless required)
+        '   * C# Class Library: As above, but no need to configure the post-build event (unless required)
+        '   * Main Visual Basic project
+        '       - Right-click the main project, right-click "References" and choose "Add Reference..."
+        '       - In the Projects section select both DLL projects
+
+        ' METHOD 2 adds something like the following to the main project vbproj:
+        '   <ProjectReference Include="ClassLibrary_CSharp\ClassLibrary_CSharp.csproj">
+        '     <Project>{cabbc75d-8483-41f4-9019-70a6fe49dfc6}</Project>
+        '     <Name>ClassLibrary_CSharp</Name>
+        '   </ProjectReference>
+        #End Region
 
         IntParam = 1
         Console.WriteLine("Using DLLs in Visual Basic")

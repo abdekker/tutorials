@@ -1,0 +1,4 @@
+# Note: This .gitignore overrides patterns from the root
+UsingDLLs.exe
+ClassLibrary_CSharp.dll
+ClassLibrary_VB.dll
