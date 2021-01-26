@@ -85,17 +85,25 @@ namespace SimpleDbReader
     {
         // IDataReader, IDataRecord (strongly typed)
 
-        // Member variables
-        protected DatabaseTechnology m_tech;
-        protected string m_connectionString;
-        protected string m_cmdText;
-        protected CommandType m_cmdType;
-        protected UInt64 m_uRecordsToRead;
-
-        // Property accessors (for member variables)
+        // Property accessors
+        // Note: In general, automatic properties can be used in the derived class. A body only needs to be provided
+        // if special processing is required.
         public abstract DatabaseTechnology DbTechnology { get; set; }
         public abstract string ConnectionString { get; set; }
+
+        // Example SQL queries:
+        //      SELECT * FROM Members;
+        //      SELECT MemberID,Surname FROM Members;
+        //      SELECT ProductID, UnitPrice, ProductName FROM Products
+        //          WHERE UnitPrice > ?
+        //          ORDER BY UnitPrice DESC;
+
         public abstract string CmdText { get; set; }
+
+        // Available command types are:
+        // * Text (standard SQL query) = 1,
+        // * StoredProcedure
+        // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
         public abstract CommandType CmdType { get; set; }
         public abstract UInt64 RecordsToRead { get; set; }
 
@@ -191,11 +199,11 @@ namespace SimpleDbReader
         // IDbDataAdapter, DataSet, DataRow (strongly typed)
 
         // Member variables
-        protected DatabaseTechnology m_tech;
+        /*protected DatabaseTechnology m_tech;
         protected string m_connectionString;
         protected string m_cmdText;
         protected CommandType m_cmdType;
-        protected UInt64 m_uRecordsToRead;
+        protected UInt64 m_uRecordsToRead;*/
 
         // Property accessors (for member variables)
         public abstract DatabaseTechnology DbTechnology { get; set; }

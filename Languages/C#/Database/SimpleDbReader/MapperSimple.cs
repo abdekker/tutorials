@@ -281,41 +281,11 @@ namespace SimpleDbReader
     class SimpleReader_Members : ObjectReaderBase<Simple_Members>, IDisposable
     {
         #region Properties and methods from ObjectAdapterBase
-        public override DatabaseTechnology DbTechnology
-        {
-            get { return m_tech; }
-            set { m_tech = value; }
-        }
-
-        public override string ConnectionString
-        {
-            get { return m_connectionString; }
-            set { m_connectionString = value; }
-        }
-
-        public override string CmdText
-        {
-            //get { return "SELECT * FROM Members"; }
-            //get { return "SELECT MemberID,Surname FROM Members"; }
-            get { return m_cmdText; }
-            set { m_cmdText = value; }
-        }
-
-        public override CommandType CmdType
-        {
-            // Available command types are:
-            // * Text (standard SQL query) = 1,
-            // * StoredProcedure
-            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
-            get { return m_cmdType; }
-            set { m_cmdType = value; }
-        }
-
-        public override UInt64 RecordsToRead
-        {
-            get { return m_uRecordsToRead; }
-            set { m_uRecordsToRead = value; }
-        }
+        public override DatabaseTechnology DbTechnology { get; set; }
+        public override string ConnectionString { get; set; }
+        public override string CmdText { get; set; }
+        public override CommandType CmdType { get; set; }
+        public override UInt64 RecordsToRead { get; set; }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
         {
@@ -345,53 +315,16 @@ namespace SimpleDbReader
     class SimpleAdapter_Members : ObjectAdapterBase<Simple_Members>, IDisposable
     {
         #region Properties and methods from ObjectAdapterBase
-        public override DatabaseTechnology DbTechnology
-        {
-            get { return m_tech; }
-            set { m_tech = value; }
-        }
-
-        public override string ConnectionString
-        {
-            get { return m_connectionString; }
-            set { m_connectionString = value; }
-        }
-
-        public override string CmdText
-        {
-            //get { return "SELECT * FROM Members"; }
-            //get { return "SELECT MemberID,Surname FROM Members"; }
-            get { return m_cmdText; }
-            set { m_cmdText = value; }
-        }
-
-        public override CommandType CmdType
-        {
-            // Available command types are:
-            // * Text (standard SQL query) = 1,
-            // * StoredProcedure
-            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
-            get { return m_cmdType; }
-            set { m_cmdType = value; }
-        }
-
-        public override UInt64 RecordsToRead
-        {
-            get { return m_uRecordsToRead; }
-            set { m_uRecordsToRead = value; }
-        }
+        public override DatabaseTechnology DbTechnology { get; set; }
+        public override string ConnectionString { get; set; }
+        public override string CmdText { get; set; }
+        public override CommandType CmdType { get; set; }
+        public override UInt64 RecordsToRead { get; set; }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
         {
             Collection<IDataParameter> collection = new Collection<IDataParameter>();
             return collection;
-
-            // If you have parameters:
-            //IDataParameter param1 = command.CreateParameter();
-            //param1.ParameterName = "paramName 1";     // Put the parameter name here
-            //param1.Value = 5;                         // Put the parameter value here
-            //collection.Add(param1);
-            //return collection;   
         }
 
         protected override MapperAdapterBase<Simple_Members> GetMapperAdapter()

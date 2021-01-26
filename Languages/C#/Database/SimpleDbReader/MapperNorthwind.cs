@@ -316,43 +316,11 @@ namespace SimpleDbReader
     class NorthwindReader_Products : ObjectReaderBase<Northwind_Products>, IDisposable
     {
         #region Properties and methods from ObjectAdapterBase
-        public override DatabaseTechnology DbTechnology
-        {
-            get { return m_tech; }
-            set { m_tech = value; }
-        }
-
-        public override string ConnectionString
-        {
-            get { return m_connectionString; }
-            set { m_connectionString = value; }
-        }
-
-        public override string CmdText
-        {
-            //sqlQuery = (
-            //    "SELECT ProductID, UnitPrice, ProductName FROM Products " +
-            //    "WHERE UnitPrice > ? " +
-            //    "ORDER BY UnitPrice DESC;");
-            get { return m_cmdText; }
-            set { m_cmdText = value; }
-        }
-
-        public override CommandType CmdType
-        {
-            // Available command types are:
-            // * Text (standard SQL query)
-            // * StoredProcedure
-            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
-            get { return m_cmdType; }
-            set { m_cmdType = value; }
-        }
-
-        public override UInt64 RecordsToRead
-        {
-            get { return m_uRecordsToRead; }
-            set { m_uRecordsToRead = value; }
-        }
+        public override DatabaseTechnology DbTechnology { get; set; }
+        public override string ConnectionString { get; set; }
+        public override string CmdText { get; set; }
+        public override CommandType CmdType { get; set; }
+        public override UInt64 RecordsToRead { get; set; }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
         {
@@ -382,43 +350,11 @@ namespace SimpleDbReader
     class NorthwindAdapter_Products : ObjectAdapterBase<Northwind_Products>, IDisposable
     {
         #region Properties and methods from ObjectAdapterBase
-        public override DatabaseTechnology DbTechnology
-        {
-            get { return m_tech; }
-            set { m_tech = value; }
-        }
-
-        public override string ConnectionString
-        {
-            get { return m_connectionString; }
-            set { m_connectionString = value; }
-        }
-
-        public override string CmdText
-        {
-            //sqlQuery = (
-            //    "SELECT ProductID, UnitPrice, ProductName FROM Products " +
-            //    "WHERE UnitPrice > ? " +
-            //    "ORDER BY UnitPrice DESC;");
-            get { return m_cmdText; }
-            set { m_cmdText = value; }
-        }
-
-        public override CommandType CmdType
-        {
-            // Available command types are:
-            // * Text (standard SQL query)
-            // * StoredProcedure
-            // * TableDirect (direct table access) [appears to be a shortcut to "SELECT * FROM TABLENAME"]
-            get { return m_cmdType; }
-            set { m_cmdType = value; }
-        }
-
-        public override UInt64 RecordsToRead
-        {
-            get { return m_uRecordsToRead; }
-            set { m_uRecordsToRead = value; }
-        }
+        public override DatabaseTechnology DbTechnology { get; set; }
+        public override string ConnectionString { get; set; }
+        public override string CmdText { get; set; }
+        public override CommandType CmdType { get; set; }
+        public override UInt64 RecordsToRead { get; set; }
 
         protected override Collection<IDataParameter> GetParameters(IDbCommand command)
         {

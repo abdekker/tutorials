@@ -401,8 +401,8 @@ namespace SimpleDbReader
         private void Connect_Read_Template_Typed(ref Collection<Northwind_Products> products)
         {
             // When reading strongly typed data from the database:
-            // * DatabaseReadTechnology.eRbRead_DataReader
-            // * DatabaseReadTechnology.eRbRead_DataAdapter
+            // * DatabaseReadTechnology.eRbRead_DataReader, using IDataReader
+            // * DatabaseReadTechnology.eRbRead_DataAdapter, using IDbDataAdapter
             int recordsRead = 0;
             //Console.WriteLine(Northwind_Products.GetRecordHeader());
             Console.WriteLine("\t{0}{1}{2}",
@@ -423,7 +423,7 @@ namespace SimpleDbReader
 
         private void Connect_Read_Template_Raw(ref DataSet products)
         {
-            // When reading raw data from the database (DatabaseReadTechnology.eRbRead_DataReader)
+            // When reading raw data from the database (DatabaseReadTechnology.eRbRead_DataSet, using IDbDataAdapter)
             int recordsRead = 0;
             Console.WriteLine("\t{0}{1}{2}",
                 Northwind_Products.colProductID.PadRight(Northwind_Products.colProductIDWidth),
