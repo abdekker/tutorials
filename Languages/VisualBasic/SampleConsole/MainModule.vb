@@ -22,7 +22,7 @@ Imports systemHelperLibrary
 ' * In the lower right, click "Build Events"
 
 Module MainModule
-#Region "Enumerations"
+    #Region "Enumerations"
     Public Enum Weekdays
         Monday = 0
         Tuesday
@@ -40,7 +40,20 @@ Module MainModule
         Third = 4
         Fourth = 8
     End Enum
-#End Region
+    #End Region
+
+    #Region "Structures"
+    Structure Person
+        Dim name As String
+        Dim age As Integer
+
+        Public Sub New(ByVal theirName As String,
+                       ByVal theirAge As Integer)
+            name = theirName
+            age = theirAge
+        End Sub
+    End Structure
+    #End Region
 
     ' Property accessors
     Public ReadOnly Property OSType As String
@@ -99,16 +112,77 @@ Module MainModule
         Console.WriteLine()
     End Sub
 
-    Private Sub StringsInVisualBasic()
+    Private Sub StringsInVB()
         ' Some details on strings and string formatting in Visual Basic
         Console.WriteLine("### Strings ###")
-        Dim name As String = "Fred"
-        Dim height As Single = 1.93
-        Dim age As Integer = 29
 
+        Console.WriteLine("(Basic formatting)")
+        Dim name As String = "Fred"
+        Dim height As Single = 1.936
+        Dim age As Integer = 29
         Console.WriteLine("  a) {0} is {1:0.00}m tall and {2} years old [implicit formatting]", name, height, age)
         Console.WriteLine(String.Format("  b) {0} is {1:0.00}m tall and {2} years old [explicit formatting]", name, height, age))
         Console.WriteLine($"  c) {name} is {height:0.00}m tall and {age} years old [string interpolation]")
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
+    Private Sub NullableTypesInVB()
+        ' Nullable types were introduced into .NET 4.6 (2015)
+        Console.WriteLine("### Nullable types ###")
+
+        ' Create a list of people
+        Dim people As List(Of Person) = New List(Of Person) From
+        {
+            New Person("Sally", 37),
+            New Person("Andrew", 71),
+            Nothing,
+            New Person("Fred", 16)
+        }
+
+        ' Alternatively, the list could be created like this:
+        'Dim people As List(Of Person) = New List(Of Person)
+        'Dim p As Person
+        'p.name = "Sally"
+        'p.age = 37
+        'people.Add(p)
+
+        'p.name = "Andrew"
+        'p.age = 71
+        'people.Add(p)
+
+        'people.Add(Nothing)
+
+        'p.name = "Fred"
+        'p.age = 16
+        'people.Add(p)
+
+        Console.WriteLine("(raw list)")
+        Dim index As Integer = 1
+        For Each item As Person In people
+            Console.WriteLine("  Person {0}: Name: {1,-10} Age: {2}", index, item.name, item.age)
+            index += 1
+        Next
+        Console.WriteLine()
+
+        Console.WriteLine("(using nullable type syntax with '?.')")
+        index = 1
+        For Each item? As Person In people  ' Note the "item?" nullable type
+            Console.WriteLine("  Person {0}: Name: {1,-10} Age: {2}", index, item?.name, item?.age)
+            index += 1
+        Next
+        Console.WriteLine()
+
+        Console.WriteLine("(using nullable type with ternary operator)")
+        index = 1
+        For Each item? As Person In people  ' Note the "item?" nullable type
+            Console.WriteLine("  Person {0}: Name: {1,-10} Age: {2}",
+                index,
+                If (item?.name = Nothing, "(blank)", item?.name),
+                If (item?.age = Nothing, -1, item?.age))
+            index += 1
+        Next
 
         Console.WriteLine("#")
         Console.WriteLine()
@@ -191,8 +265,12 @@ Module MainModule
         DisplayAssemblyInfo()
 
         ' Additional demonstrations
-        StringsInVisualBasic()
+        StringsInVB()
+        NullableTypesInVB()
         EnumerationsInVB()
+
+        Console.WriteLine("Press any key to exit...")
+        Console.ReadKey()
     End Sub
 
 End Module
