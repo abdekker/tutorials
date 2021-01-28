@@ -140,6 +140,19 @@ namespace StringsDemo
             Console.WriteLine("  {0} [string.Concat(System.Linq.Enumerable.Repeat(string, int))]", string.Concat(Enumerable.Repeat(s5, repeat)));
             Console.WriteLine("  {0} [new String(System.Linq.Enumerable.Range(...)) (super weird)]", new String(Enumerable.Range(0, repeat).SelectMany(x => s5).ToArray()));
             Console.WriteLine();
+
+            Console.WriteLine("(string arrays)");
+            string[] array1 = { "hello", "11", "everyone", "!" };
+            Console.WriteLine("  " + string.Join(" ", array1) + "   [string[] array = { ... }]");
+
+            string[] array2 = new string[] { "hello", "22", "everyone", "?" };
+            Console.WriteLine("  " + string.Join(" ", array2) + "   [string[] array = new string[] { ... }]");
+
+            string s6 = "hello,33,everyone,#";
+            string[] array3 = s6.Split(',');
+            Console.WriteLine("  " + string.Join(" ", array3) + "   [using string.Split(char)]");
+
+            Console.WriteLine();
         }
 
         private static void Info_Boolean()
@@ -354,7 +367,8 @@ namespace StringsDemo
         {
             // Demonstrating some aspects of string formatting in C#
             Console.WriteLine("=== Strings and string formatting in C# ===");
-            Console.WriteLine();    // Or "Console.Write(Environment.NewLine)"
+            Console.WriteLine();    // Or "Console.Write(Environment.NewLine)" or "Console.WriteLine("")"
+
             Info_Basic();
             Info_String();
             Info_Boolean();
@@ -363,6 +377,7 @@ namespace StringsDemo
             Info_Double();
             Info_DateTime();
             Info_Enum();
+
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
         }
