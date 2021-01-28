@@ -43,7 +43,7 @@ namespace StringsDemo
         };
         #endregion // Enumerations
 
-        #region Testing methods
+        #region Main test methods
         private static void Info_Basic()
         {
             // Basic information on formatting (see each section for more detailed examples)
@@ -328,7 +328,7 @@ namespace StringsDemo
 
             Console.WriteLine();
         }
-        #endregion // Testing methods
+        #endregion // Main test methods
 
         static void Main(string[] args)
         {
