@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 
 using systemHelperLibrary;
 
@@ -119,6 +121,24 @@ namespace StringsDemo
             Console.WriteLine("  (A == B):\t{0}\t[using string::Equals (ignore case)]", s1.Equals(s2, StringComparison.OrdinalIgnoreCase));
             Console.WriteLine("  (A == C):\t{0}", s1.Equals(s3, StringComparison.OrdinalIgnoreCase));
             Console.WriteLine("  (A == D):\t{0}", s1.Equals(s4, StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine();
+
+            char c1 = 'a';
+            int repeat = 10;
+            Console.WriteLine("(repeating character '{0}' {1} times)", c1, repeat);
+            Console.WriteLine("  {0} [new String(char, int)]", new String(c1, repeat));
+            Console.WriteLine("  {0} [string.Empty.PadLeft(int, char)]", string.Empty.PadLeft(repeat, c1));
+            Console.WriteLine("  {0} [System.Linq.Enumerable.Repeat(T, int)]", string.Concat(Enumerable.Repeat(c1, repeat)));
+            Console.WriteLine("  {0} [new System.Text.StringBuilder(int).Append(char, int)]", new StringBuilder(repeat).Append(c1, repeat));
+            Console.WriteLine();
+
+            string s5 = "xy";
+            repeat = 5;
+            Console.WriteLine("(repeating string \"{0}\" {1} times)", s5, repeat);
+            Console.WriteLine("  {0} [new String(char, int).Replace(string, string)]", new String('+', repeat).Replace("+", s5));
+            Console.WriteLine("  {0} [new System.Text.StringBuilder(int).Insert(...)]", new StringBuilder(s5.Length * repeat).Insert(0, s5, repeat).ToString());
+            Console.WriteLine("  {0} [string.Concat(System.Linq.Enumerable.Repeat(string, int))]", string.Concat(Enumerable.Repeat(s5, repeat)));
+            Console.WriteLine("  {0} [new String(System.Linq.Enumerable.Range(...)) (super weird)]", new String(Enumerable.Range(0, repeat).SelectMany(x => s5).ToArray()));
             Console.WriteLine();
         }
 
