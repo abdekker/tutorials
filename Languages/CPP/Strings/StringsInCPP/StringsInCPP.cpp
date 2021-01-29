@@ -1,3 +1,4 @@
+#include <conio.h>
 #include <iostream>
 #include <sstream>      // For std::stringstream
 #include <codecvt>      // For char16_t and char32_t conversions
@@ -157,35 +158,56 @@ void ConstructCharPointers()
 void FormattingStdString()
 {
     // Various ways to format std::string output
-	cout << "Formatting a std::string\n";
+    cout << "Formatting a std::string\n";
+
+    cout << "(integer)\n";
     int myInt = 123;
-
     {
-        cout << "  Left padding (std::setw)\t\t";
-        cout << "!" << setw(10) << myInt << "!\n";
+        cout << "  Left padding (std::setw)\t\t\t";
+        cout << "|" << setw(10) << myInt << "|\n";
     }
 
     {
-        cout << "  Right padding (std::left, std::setw)\t";
-        cout << "!" << left << setw(10) << myInt << "!\n";
+        cout << "  Right padding (std::left, std::setw)\t\t";
+        cout << "|" << left << setw(10) << myInt << "|\n";
     }
 
     {
-        cout << "  Left padding (std::snprintf, %10d)\t";
+        cout << "  Left padding (std::snprintf, 10d)\t\t";
         stringHelper sHelper;
-        cout << sHelper.formatString("!%10d!\n", myInt);
+        cout << sHelper.formatString("|%10d|\n", myInt);
     }
 
     {
-        cout << "  Right padding (std::snprintf, %-10d)\t";
+        cout << "  Right padding (std::snprintf, -10d)\t\t";
         stringHelper sHelper;
-        cout << sHelper.formatString("!%-10d!\n", myInt);
+        cout << sHelper.formatString("|%-10d|\n", myInt);
     }
 
     {
-        cout << "  Left padding spaces (std::snprintf)\t";
+        cout << "  Left padding zeroes (std::snprintf, 010d)\t";
         stringHelper sHelper;
-        cout << sHelper.formatString("!%010d!\n", myInt);
+        cout << sHelper.formatString("|%010d|\n", myInt);
+    }
+
+    cout << "\n(float)\n";
+    float myFloat = 1.2345f;
+    {
+        cout << "  Left padding (std::snprintf, 10.2f)\t\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("|%10.2f|\n", myFloat);
+    }
+
+    {
+        cout << "  Right padding (std::snprintf, -10.2f)\t\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("|%-10.2f|\n", myFloat);
+    }
+
+    {
+        cout << "  Left padding zeroes (std::snprintf, 010.2f)\t";
+        stringHelper sHelper;
+        cout << sHelper.formatString("|%010.2f|\n", myFloat);
     }
 }
 
@@ -205,5 +227,6 @@ int main()
     // Formatting a std::string
     FormattingStdString();
 
-    cout << "\nAll Done!\n";
+    cout << "\nAll done...press a key to exit\n";
+    _getch();
 }
