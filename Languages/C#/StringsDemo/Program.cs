@@ -211,7 +211,19 @@ namespace StringsDemo
             Console.WriteLine("  A = {0}, B = {1}, C = {2}\t\t[raw]", f1, f2, f3);
             Console.WriteLine("  A = {0:0.###}, B = {1:0.###}, C = {2:0.###}\t\t[max decimal places using \"0:0.#...\"]", f1, f2, f3);
             Console.WriteLine("  A = {0:0.000}, B = {1:0.000}, C = {2:0.000}\t\t[fixed decimal places using \"0:0.0...\"]", f1, f2, f3);
+            Console.WriteLine("  A = {0:F3}, B = {1:F3}, C = {2:F3}\t\t[fixed decimal places using \"0:F*\"]", f1, f2, f3);
             Console.WriteLine("  A = {0:N3}, B = {1:N3}, C = {2:N3}\t[thousand separator and fixed dps using \"0:N*\"]", f1, f2, f3);
+            Console.WriteLine();
+
+            Console.WriteLine("(formatting floats with padding)");
+            f1 = 3.141592f;
+            Console.WriteLine("  A = |{0}|\t\t[raw]", f1);
+            Console.WriteLine("  A = |{0,12}|\t\t[left padding, raw using \"0,N\"]", f1);
+            Console.WriteLine("  A = |{0,-12}|\t\t[right padding, raw using \"0,-N\"]", f1);
+            Console.WriteLine("  A = |{0,12:0.00}|\t\t[left padding, fixed decimal places using \"0,N:0.0...\"]", f1);
+            Console.WriteLine("  A = |{0,-12:0.00}|\t\t[right padding, fixed decimal places using \"0,-N:0.0...\"]", f1);
+            Console.WriteLine("  A = |{0,12:F2}|\t\t[left padding, fixed decimal places using \"0,N:F*\"]", f1);
+            Console.WriteLine("  A = |{0,-12:F2}|\t\t[right padding, fixed decimal places using \"0,-N:F*\"]", f1);
             Console.WriteLine();
 
             Console.WriteLine("(using a method to display a variable number of decimal places)");
@@ -233,7 +245,7 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:0.0000}\t\t\t[original]", f1);
             Console.WriteLine("  A = {0:C}\t\t\t[using 0:C]", f1);
             Console.WriteLine("  A = {0:E}\t\t[using 0:E]", f1);
-            Console.WriteLine("  A = {0:F}\t\t\t[using 0:F]", f1);
+            Console.WriteLine("  A = {0:F}\t\t\t[using 0:F (default of 2 decimal places)]", f1);
             Console.WriteLine("  A = {0:G}\t\t\t[using 0:G]", f1);
             Console.WriteLine("  A = {0:N}\t\t\t[using 0:N]", f1);
             Console.WriteLine("  A = {0:P}\t\t\t[using 0:P]", f1);
