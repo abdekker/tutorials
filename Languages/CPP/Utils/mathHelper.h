@@ -11,9 +11,9 @@ public:
     mathHelper() {}
     ~mathHelper() {}
 
-    // Primarily testing
     bool IsPrime(const int cCandidate)
     {
+        // Primality testing
         if (cCandidate < 2)
             return false; // Too small
 
@@ -31,9 +31,10 @@ public:
         return true;
     }
 
-    // Count bits set
     int CountBitsSet_U1(unsigned int input)
     {
+         // Count the number of bits set
+
         // Known as the 'parallel' or 'variable-precision SWAR' algorithm. This code was taken
         // from the accepted answer to: https://stackoverflow.com/questions/109023
         input = (input - ((input >> 1) & 0x55555555));
