@@ -50,7 +50,7 @@ namespace StringsDemo
         {
             // Basic information on formatting (see each section for more detailed examples)
             Console.WriteLine("# Basics #");
-            Console.WriteLine("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on");
+            Console.WriteLine("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on. These are called placeholders.");
             Console.WriteLine("    Note: Use \"$\" for string literals. The following are equivalent.");
             Console.WriteLine("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
             Console.WriteLine("          Console.WriteLine($\"My integer is {myInt} and I like it\");");
@@ -60,11 +60,17 @@ namespace StringsDemo
             Console.WriteLine("    - {0:000} adds leading zeroes to pad the number to a fixed length (eg. 3)");
             Console.WriteLine("    - {0:D3} achieves the same thing");
             Console.WriteLine("    - {0,3} adds leading spaces to pad the number to a fixed length");
+            Console.WriteLine("    - {0,-3} adds trailing spaces to pad the number to a fixed length");
             Console.WriteLine("    - {0,3:00} adds leading zeroes, then spaces to pad the number to a fixed length");
             Console.WriteLine("    - {0:X2} displays the number in hexadecimal");
             Console.WriteLine();
 
-            Console.WriteLine("  * Floats...TODO");
+            Console.WriteLine("  * Floats");
+            Console.WriteLine("     - {0:0.###} formats with a maximum number of decimal places");
+            Console.WriteLine("     - {0:0.000} formats with a fixed number of decimal places");
+            Console.WriteLine("     - {0,8:0.000} fixed decimals and leading spaces to pad to a fixed length");
+            Console.WriteLine("     - {0,-8:0.000} fixed decimals and trailing spaces to pad to a fixed length");
+            Console.WriteLine("     - {0:N3} fixed decimal places with thousands separator");
             Console.WriteLine();
         }
 
