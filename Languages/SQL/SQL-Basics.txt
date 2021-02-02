@@ -11,7 +11,11 @@ Online tutorials include:
 	- So the following would be equivalent:
 		"SELECT * FROM Customers"
 		"select * from cUsToMeRs"
-	- But by convention: Write verbs in UPPERCASE, and table/column names in PascalCase (and avoid spaces)
+	- But by convention: Verbs in UPPERCASE, and table/column names in PascalCase (and avoid spaces)
+* Similarly, the SQL statement itself is largely insensitive to spacing
+	- So the following would be equivalent
+		"SELECT * FROM Customers"
+		"  Select *             FROM  Customers    "
 
 ### SQL VERBS ###
 * SELECT, WHERE, ORDER BY
@@ -30,7 +34,6 @@ Online tutorials include:
 		- Returns values from the "Country" column
 	$ SELECT DISTINCT Country FROM Customers
 		- Returns only distinct values from the "Country" column
-#
 
 * INSERT INTO, IS NULL, IS NOT NULL
 	$ INSERT INTO Customers
@@ -49,7 +52,6 @@ Online tutorials include:
 		- Return the above inserted record
 	$ SELECT * FROM Customers WHERE Address IS NOT NULL
 		- Returns all other records
-#
 
 *  UPDATE
 	$ UPDATE Customers
