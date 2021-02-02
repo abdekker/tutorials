@@ -19,7 +19,7 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses ODBC
-            m_tech = DatabaseTechnology.eDB_ODBC;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_ODBC;
         }
 
         #region Abstract methods from the base class
@@ -81,7 +81,21 @@ namespace SimpleDbReader
         public override void Insert()
         {
             // System.Data.Odbc.OdbcConnection
-            // TODO
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (insert, Northwind) ###");
+
+            // See the class constructor for details on databases
+            string strConnection = string.Empty;
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
+            {
+                m_cfgDatabase.dbType = dbType;
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
+                if (SetConnectionString(ref strConnection))
+                {
+                    Connect_Insert(strConnection);
+                }
+            }
+
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (read) ###\n");
         }
 
         public override void Update()
@@ -224,6 +238,13 @@ namespace SimpleDbReader
 
         protected override void Connect_Insert(string strConnection)
         {
+            // Run a command against the database
+            // Note: You may want to back up the database before running this code!
+            using (OdbcConnection connection = new OdbcConnection(strConnection))
+            {
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.querySELECT, connection);
+                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+            }
             // TODO
         }
 
@@ -250,9 +271,9 @@ namespace SimpleDbReader
                     // Using System.Data.Odbc.OdbcDataReader : IDataReader
                     using (NorthwindReader_Products reader = new NorthwindReader_Products())
                     {
-                        reader.DbTechnology = m_tech;
+                        reader.DbTechnology = m_cfgDatabase.dbTech;
                         reader.ConnectionString = strConnection;
-                        reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        reader.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                         products = reader.Execute();
                     }
                 }
@@ -261,9 +282,9 @@ namespace SimpleDbReader
                     // Using System.Data.Odbc.OdbcDataAdapter : IDbDataAdapter
                     using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
                     {
-                        adapter.DbTechnology = m_tech;
+                        adapter.DbTechnology = m_cfgDatabase.dbTech;
                         adapter.ConnectionString = strConnection;
-                        adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                         products = adapter.Execute();
                     }
                 }
@@ -272,7 +293,7 @@ namespace SimpleDbReader
 
                 // Use raw DbDataReader
                 /* // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.querySELECT, connection);
                 command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
 
                 // Open the connection in a try/catch block
@@ -290,7 +311,8 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }*/
             }
 
@@ -309,7 +331,7 @@ namespace SimpleDbReader
                 using (OdbcConnection connection = new OdbcConnection(strConnection))
                 {
                     // Create the Command and Parameter objects
-                    OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                    OdbcCommand command = new OdbcCommand(m_cfgDatabase.querySELECT, connection);
                     command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
 
                     // Open the connection in a try/catch block
@@ -341,7 +363,8 @@ namespace SimpleDbReader
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(string.Format("{0}::{1}: {2}",
+                            this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     }
                 }
                 Console.WriteLine();
@@ -360,9 +383,13 @@ namespace SimpleDbReader
                 Collection<Northwind_Products> products = null;
                 using (NorthwindReader_Products reader = new NorthwindReader_Products())
                 {
-                    reader.DbTechnology = m_tech;
+                    reader.DbTechnology = m_cfgDatabase.dbTech;
                     reader.ConnectionString = strConnection;
-                    reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    reader.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    reader.RecordsToRead = (
+                        Northwind_Products.colToReadProductID +
+                        Northwind_Products.colToReadUnitPrice +
+                        Northwind_Products.colToReadProductName);
                     products = reader.Execute();
                 }
 
@@ -375,9 +402,13 @@ namespace SimpleDbReader
                 Collection<Northwind_Products> products = null;
                 using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
                 {
-                    adapter.DbTechnology = m_tech;
+                    adapter.DbTechnology = m_cfgDatabase.dbTech;
                     adapter.ConnectionString = strConnection;
-                    adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    adapter.RecordsToRead = (
+                        Northwind_Products.colToReadProductID +
+                        Northwind_Products.colToReadUnitPrice +
+                        Northwind_Products.colToReadProductName);
                     products = adapter.Execute();
                 }
                 Connect_Read_Template_Typed(ref products);
@@ -388,9 +419,9 @@ namespace SimpleDbReader
                 Console.WriteLine(" (Odbc.OdbcDataAdapter, raw DataSet)");
                 DataSet products = null;
                 ObjectDataSetRaw adapter = new ObjectDataSetRaw();
-                adapter.DbTechnology = m_tech;
+                adapter.DbTechnology = m_cfgDatabase.dbTech;
                 adapter.ConnectionString = strConnection;
-                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                 products = adapter.Execute();
                 Connect_Read_Template_Raw(ref products);
             }
@@ -440,10 +471,12 @@ namespace SimpleDbReader
                         ((decimal)p[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
                         (string)p[Northwind_Products.colProductName]);
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
+                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
             Console.WriteLine("    ({0} records)", recordsRead);
@@ -451,67 +484,42 @@ namespace SimpleDbReader
 
         private void ConvertRecordset(in OdbcDataReader reader, ref Northwind_Products rsProduct)
         {
-            // Convert the ODBC recordset to a local, strongly-typed, version
+            // Convert the ODBC record to a local, strongly-typed, version
+            string error = string.Empty;
             rsProduct.DefaultRecord();
-            try
-            {
-                rsProduct.ProductID = (int)reader[0];
-            }
-            catch { }
+            try { rsProduct.ProductID = (int)reader[0]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.ProductName = (string)reader[1];
-            }
-            catch { }
+            try { rsProduct.ProductName = (string)reader[1]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.SupplierID = (int)reader[2];
-            }
-            catch { }
+            try { rsProduct.SupplierID = (int)reader[2]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.CategoryID = (int)reader[3];
-            }
-            catch { }
+            try { rsProduct.CategoryID = (int)reader[3]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.QuantityPerUnit = (string)reader[4];
-            }
-            catch { }
+            try { rsProduct.QuantityPerUnit = (string)reader[4]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitPrice = (decimal)reader[5];
-            }
-            catch { }
+            try { rsProduct.UnitPrice = (decimal)reader[5]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsInStock = (int)reader[6];
-            }
-            catch { }
+            try { rsProduct.UnitsInStock = (int)reader[6]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsOnOrder = (int)reader[7];
-            }
-            catch { }
+            try { rsProduct.UnitsOnOrder = (int)reader[7]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.ReorderLevel = (int)reader[8];
-            }
-            catch { }
+            try { rsProduct.ReorderLevel = (int)reader[8]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.Discontinued = (bool)reader[9];
-            }
-            catch { }
+            try { rsProduct.Discontinued = (bool)reader[9]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
         }
         #endregion // Methods specific to this class
     }

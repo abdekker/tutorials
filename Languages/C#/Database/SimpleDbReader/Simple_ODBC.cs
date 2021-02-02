@@ -19,11 +19,11 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses ODBC
-            m_tech = DatabaseTechnology.eDB_ODBC;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_ODBC;
 
             // Set the main database query
             m_cfgDatabase.queryType = QueryType.eQueryStd2;
-            m_cfgDatabase.strQuery = HelperGetQueryString();
+            m_cfgDatabase.querySELECT = HelperGetQuerySELECT();
         }
 
         #region Abstract methods from the base class
@@ -217,15 +217,15 @@ namespace SimpleDbReader
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
                 // Create the Command and Parameter objects
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.strQuery, connection);
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.querySELECT, connection);
                 command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
 
                 // Open the connection in a try/catch block
                 try
                 {
                     // Create and execute the DataReader, writing the result to the console window
-                    Simple_Members rsTmp = new Simple_Members();
-                    Console.WriteLine(rsTmp.GetRecordHeader());
+                    Simple_Members rsMember = new Simple_Members();
+                    Console.WriteLine(rsMember.GetRecordHeader());
 
                     int recordsRead = 0;
                     connection.Open();
@@ -233,15 +233,16 @@ namespace SimpleDbReader
                     while (reader.Read())
                     {
                         recordsRead++;
-                        ConvertRecordset(in reader, ref rsTmp);
-                        Console.WriteLine(rsTmp.GetRecordAsString());
+                        ConvertRecordset(in reader, ref rsMember);
+                        Console.WriteLine(rsMember.GetRecordAsString());
                     }
                     reader.Close();
                     Console.WriteLine("    ({0} records)", recordsRead);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
 
@@ -259,9 +260,9 @@ namespace SimpleDbReader
                 Console.WriteLine(" (Odbc.OdbcDataReader)");
                 using (SimpleReader_Members reader = new SimpleReader_Members())
                 {
-                    reader.DbTechnology = m_tech;
+                    reader.DbTechnology = m_cfgDatabase.dbTech;
                     reader.ConnectionString = strConnection;
-                    reader.CmdText = m_cfgDatabase.strQuery;
+                    reader.CmdText = m_cfgDatabase.querySELECT;
                     members = reader.Execute();
                 }
             }
@@ -271,74 +272,64 @@ namespace SimpleDbReader
                 Console.WriteLine(" (Odbc.OdbcDataAdapter)");
                 using (SimpleAdapter_Members adapter = new SimpleAdapter_Members())
                 {
-                    adapter.DbTechnology = m_tech;
+                    adapter.DbTechnology = m_cfgDatabase.dbTech;
                     adapter.ConnectionString = strConnection;
-                    adapter.CmdText = m_cfgDatabase.strQuery;
+                    adapter.CmdText = m_cfgDatabase.querySELECT;
                     members = adapter.Execute();
                 }
             }
 
             int recordsRead = 0;
-            foreach (Simple_Members m in members)
+            if (members != null)
             {
-                if (recordsRead == 0)
-                    Console.WriteLine(m.GetRecordHeader());
+                foreach (Simple_Members m in members)
+                {
+                    if (recordsRead == 0)
+                        Console.WriteLine(m.GetRecordHeader());
 
-                recordsRead++;
-                Console.WriteLine(m.GetRecordAsString());
+                    recordsRead++;
+                    Console.WriteLine(m.GetRecordAsString());
+                }
             }
             Console.WriteLine("    ({0} records)", recordsRead);
             Console.WriteLine();
         }
 
-        private void ConvertRecordset(in OdbcDataReader reader, ref Simple_Members rsMember)
+        private void ConvertRecordset(in OdbcDataReader reader, ref Simple_Members m)
         {
-            // Convert the ODBC recordset to a local, strongly-typed, version
-            rsMember.DefaultRecord();
-            try
-            {
-                // Alternatively, use the column name:
-                //      rsMember.MemberID = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colMemberID); or
-                //      rsMember.MemberID = (int)reader[Simple_Members.colMemberID];
-                rsMember.MemberID = (int)reader[0];
-            }
-            catch { }
+            //ADAD
+            // Convert the ODBC record to a local, strongly-typed, version
+            string error = string.Empty;
+            m.DefaultRecord();
 
             try
             {
-                rsMember.Surname = (string)reader[1];
+                // Alternatively, use the column name directly eg. m.MemberID = (int)reader[Simple_Members.colMemberID];
+                m.MemberID = (int)reader[0];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.FirstName = (string)reader[2];
-            }
-            catch { }
+            try { m.Surname = (string)reader[1]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.DOB = (DateTime)reader[3];
-            }
-            catch { }
+            try { m.FirstName = (string)reader[1]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Fee = (Decimal)reader[4];
-            }
-            catch { }
+            try { m.DOB = (DateTime)reader[3]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Accepted = (bool)reader[5];
-            }
-            catch { }
+            try { m.Fee = (Decimal)reader[4]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Points = (int)reader[6];
-            }
-            catch { }
+            try { m.Accepted = (bool)reader[5]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            try { m.Points = (int)reader[6]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
         }
         #endregion // Methods specific to this class
     }

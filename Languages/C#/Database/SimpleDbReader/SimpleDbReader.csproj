@@ -114,6 +114,7 @@
     <Compile Include="Simple_ODBC.cs" />
     <Compile Include="Simple_DAO.cs" />
     <Compile Include="UtilitiesBase.cs" />
+    <Compile Include="UtilitiesGeneral.cs" />
     <Compile Include="Utilities_ODBC.cs" />
     <Compile Include="Utilities_OleDb.cs" />
     <Compile Include="Utilities_DbConnection.cs" />
