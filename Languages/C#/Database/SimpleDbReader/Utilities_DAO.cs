@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SimpleDbReader
 {
@@ -46,10 +47,16 @@ namespace SimpleDbReader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("{0}::{1}: {2}",
+                Console.WriteLine(UtilitiesGeneral.FormatException(
                     this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
             }
             return dbName;
+        }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // Not used for DAO connections
+            return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
 
@@ -110,7 +117,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
@@ -128,7 +135,7 @@ namespace SimpleDbReader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("{0}::{1}: {2}",
+                Console.WriteLine(UtilitiesGeneral.FormatException(
                     this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
             }
             return false;
@@ -145,7 +152,7 @@ namespace SimpleDbReader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("{0}::{1}: {2}",
+                Console.WriteLine(UtilitiesGeneral.FormatException(
                     this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
             }
             return objResult;
@@ -161,7 +168,7 @@ namespace SimpleDbReader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("{0}::{1}: {2}",
+                Console.WriteLine(UtilitiesGeneral.FormatException(
                     this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
             }
             return (DAO.Field)objField;
@@ -217,7 +224,7 @@ namespace SimpleDbReader
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("{0}::{1}: {2}",
+                Console.WriteLine(UtilitiesGeneral.FormatException(
                     this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
             }
             return strType;

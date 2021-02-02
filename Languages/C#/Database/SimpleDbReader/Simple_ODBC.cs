@@ -241,7 +241,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }

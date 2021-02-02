@@ -90,12 +90,10 @@ namespace SimpleDbReader
                 m_cfgDatabase.dbType = dbType;
                 Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
                 if (SetConnectionString(ref strConnection))
-                {
                     Connect_Insert(strConnection);
-                }
             }
 
-            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (read) ###\n");
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (insert) ###\n");
         }
 
         public override void Update()
@@ -106,6 +104,21 @@ namespace SimpleDbReader
 
         public override void Delete()
         {
+            // System.Data.Odbc.OdbcConnection
+            Console.WriteLine("### START: System.Data.Odbc.OdbcConnection (delete, Northwind) ###");
+
+            // See the class constructor for details on databases
+            string strConnection = string.Empty;
+            foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
+            {
+                m_cfgDatabase.dbType = dbType;
+                Console.WriteLine("  Testing: {0}", HelperGetAccessName(true));
+                if (SetConnectionString(ref strConnection))
+                    Connect_Delete(strConnection);
+            }
+
+            Console.WriteLine("### END: System.Data.Odbc.OdbcConnection (delete) ###\n");
+
             // System.Data.Odbc.OdbcConnection
             // TODO
         }
@@ -188,7 +201,7 @@ namespace SimpleDbReader
             }
 
             // Example (Access 97) =
-            //      Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\Northwind 97.mdb;Uid=Admin;Pwd=;
+            //      Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\\Apps\\Data\\Northwind 97.mdb;Uid=Admin;Pwd=;
             return bHaveConnectionString;
         }
 
@@ -242,10 +255,23 @@ namespace SimpleDbReader
             // Note: You may want to back up the database before running this code!
             using (OdbcConnection connection = new OdbcConnection(strConnection))
             {
-                OdbcCommand command = new OdbcCommand(m_cfgDatabase.querySELECT, connection);
-                command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
+                OdbcCommand command = new OdbcCommand(m_cfgDatabase.queryINSERT, connection);
+                connection.Open();
+                try
+                {
+                    int rowsAffected = command.ExecuteNonQuery();
+                    string dbName = m_utilsDbConnection.GetDbName(connection);
+                    Console.WriteLine("{0} rows inserted into {1}", rowsAffected, m_utilsDbConnection.GetDbName(connection));
+                }
+                catch (Exception ex)
+                {
+                    string dbName = m_utilsDbConnection.GetDbName(connection);
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(),
+                        System.Reflection.MethodBase.GetCurrentMethod().Name,
+                        ex.Message + m_utilsDbConnection.GetDbName(connection)));
+                }
             }
-            // TODO
         }
 
         protected override void Connect_Update(string strConnection)
@@ -311,7 +337,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }*/
             }
@@ -363,7 +389,7 @@ namespace SimpleDbReader
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(string.Format("{0}::{1}: {2}",
+                        Console.WriteLine(UtilitiesGeneral.FormatException(
                             this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     }
                 }
@@ -475,7 +501,7 @@ namespace SimpleDbReader
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }

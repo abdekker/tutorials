@@ -52,7 +52,7 @@ namespace SimpleDbReader
             m_tests = (
                 //cSimpleCreateDB
                 //cSimpleStats
-                cSimpleRead
+                //cSimpleRead
                 //cSimpleWriteable
                 //cSimpleInsert
                 //cSimpleUpdate
@@ -62,7 +62,7 @@ namespace SimpleDbReader
                 //cNorthwindStats
                 //cNorthwindRead
                 //cNorthwindWriteable
-                //cNorthwindInsert
+                cNorthwindInsert
                 //cNorthwindUpdate
                 //cNorthwindDelete
                 //cNorthwindPerformance

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-
+﻿using System.Data;
 using System.Data.Odbc;
 
 namespace SimpleDbReader
@@ -49,6 +45,16 @@ namespace SimpleDbReader
             }
 
             return dbName;
+        }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // Get the name of the database for the given (open) database connection
+            string dbName = connection.Database;
+            if (((OdbcConnection)connection).DataSource.Equals("ACCESS"))
+                dbName += ".mdb";
+
+            return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
     }

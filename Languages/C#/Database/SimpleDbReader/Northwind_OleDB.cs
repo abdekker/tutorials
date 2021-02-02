@@ -173,7 +173,7 @@ namespace SimpleDbReader
             }
 
             // Example (Access 97) =
-            //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\Northwind 97.mdb;;User Id=admin;Password=;
+            //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Apps\\Data\\Northwind 97.mdb;;User Id=admin;Password=;
             return bHaveConnectionString;
         }
 
@@ -359,7 +359,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
@@ -469,7 +469,7 @@ namespace SimpleDbReader
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }

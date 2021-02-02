@@ -71,6 +71,17 @@ namespace SimpleDbReader
             else
                 return string.Empty;
         }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // Get the name of the database associated with the connection string
+            if (m_tech == DatabaseTechnology.eDB_ODBC)
+                return m_utilsODBC.GetDbName(connection);
+            else if (m_tech == DatabaseTechnology.eDB_OleDb)
+                return m_utilsOleDb.GetDbName(connection);
+            else
+                return string.Empty;
+        }
         #endregion // Properties and methods from UtilitiesBase
 
         #region Public methods
@@ -153,7 +164,7 @@ namespace SimpleDbReader
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(string.Format("{0}::{1}: {2}",
+                        Console.WriteLine(UtilitiesGeneral.FormatException(
                             this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     }
                 }
@@ -322,7 +333,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     fd.name = "(name)";
 
@@ -355,7 +366,7 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     fd.name = "(name)";
                     fd.type = (int)OleDbType.Integer;

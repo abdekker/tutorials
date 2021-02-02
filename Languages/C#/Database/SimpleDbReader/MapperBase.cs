@@ -48,7 +48,7 @@ namespace SimpleDbReader
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
@@ -74,7 +74,7 @@ namespace SimpleDbReader
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
@@ -371,7 +371,7 @@ namespace SimpleDbReader
                 catch (Exception ex)
                 {
                     // throw?
-                    Console.WriteLine(string.Format("{0}::{1}: {2}",
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
                         this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
                 finally

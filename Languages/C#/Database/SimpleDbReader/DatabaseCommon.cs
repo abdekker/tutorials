@@ -183,8 +183,7 @@
             // * Give number values as is eg. 92
             // * Enclose string variables in '' eg. 'Germany'
 
-            /*
-            Products
+            /* Products table in the Northwind Database
                 Name                     Type    TypeName          Size         Nullable
                 ProductID                4       COUNTER           10           NO
                 ProductName              -9      VARCHAR           40           YES
@@ -196,7 +195,9 @@
                 UnitsOnOrder             5       SMALLINT          5            YES
                 ReorderLevel             5       SMALLINT          5            YES
                 Discontinued             -7      BIT               1            NO
-            */
+
+            NB! SupplierID must match a supplier in the Suppliers table; range is 1 (Exotic Liquids) to 29 (Forêts d'érables)
+            NB! CategoryID must match a category in the Categories table; range is 1 (Beverages) to 8 (Seafood) */
             string sqlQuery = string.Empty;
             switch (m_cfgDatabase.queryType)
             {
@@ -204,10 +205,8 @@
                 default:
                     // Northwind sample database
                     sqlQuery = (
-                        //"INSERT INTO Products (ProductID,ProductName,SupplierID,CategoryID,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued) " +
-                        //"VALUES (
                         "INSERT INTO Products (ProductID,ProductName,SupplierID,CategoryID,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued) " +
-                        "VALUES ('TestProduct1',123,345,'TestQuantity1',9.87,9977,17,12,0);");
+                        "VALUES (999,'TestProduct1',27,8,'TestQuantity1',9.87,9977,17,12,0);");
                     break;
 
                 case QueryType.eQueryStd2:
