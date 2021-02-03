@@ -201,6 +201,8 @@ namespace SimpleDbReader
             // Retrieve "Columns" schema information, which differs between connection types. To see all columns, use "GetSchemaColumnsFull".
 
             #region Schema details
+            // See the "Data type conversions" section for conversion of the ODBC "TYPE_NAME" or OleDb "DATA_TYPE" to .NET types
+
             /* ### OdbcConnection ###
             See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/odbc-schema-collections
             ColumnName                  DataType    Description
@@ -223,7 +225,7 @@ namespace SimpleDbReader
             ORDINAL_POSITION            Int32       Column number (eg. 1)
             IS_NULLABLE                 String      Does this field allow null values as string? NO for the key column.
             ORDINAL                     ?           Column number (eg. 1)
-            * Note: Schema information may differ between ODBC drivers */
+            Note: Schema information may differ between ODBC drivers */
 
             /* ### OleDbConnection ###
             See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/ole-db-schema-collections
@@ -257,6 +259,28 @@ namespace SimpleDbReader
             DOMAIN_NAME                 String      ?
             DESCRIPTION                 String      Description of field */
             #endregion // Schema details
+
+            #region Data type conversions
+            /*          DAO                 ODBC                OleDb                   C#          VB
+                        TypeName    Type    TypeName    Type    TypeName        Type
+                        ================    ================    ====================    ===================
+            String      Text        10      VARCHAR     -9      WChar           130     string      String
+                        Memo        1       LONGCHAR    -1      WChar           130     string      String
+
+            Integer     Boolean     1       BIT         -7      Boolean         11      bool        Boolean
+                        Byte        2       BYTE        -6      UnsignedTinyInt 17      byte        Byte
+                        Integer     3       SMALLINT    5       SmallInt        2       short       Short
+                        Long        4       INTEGER     4       Integer         3       int         Integer
+
+            Float       Single      6       REAL        7       Single          4       float       Single
+                        Double      7       DOUBLE      8       Double          5       double      Double
+                        Currency    5       CURRENCY    2       Currency        6       decimal     Decimal
+
+            DateTime    Date        8       DATETIME    93      Date            7       DateTime    Date
+
+            Other       LongBinary  11      LONGBINARY  -4      Binary          128     ?           ? */
+            #endregion // Data type conversions
+
 
             // Specify the Catalog, Schema, Table Name, Column Name to get the specified column(s)
             // * Index 0 represents Catalog
