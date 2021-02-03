@@ -180,16 +180,44 @@ namespace SimpleDbReader
         // Connection method
         public IDbConnection GetConnection()
         {
-            // Examples for "m_connectionString"
+            // Notes:
+            // * The examples below are for Access 97, 2000, 2002 and 2003 (.mdb files); generally just change
+            // * Generally only two changes are required for Access 2007+ (.accdb) files:
+            //      - For ODBC, change the "Driver" to "{Microsoft Access Driver (*.mdb, *.accdb)}"
+            //      - Change the database name to "myDB.accdb"
+
+            // Examples connection strings (see https://www.connectionstrings.com/ for more examples)
 
             // ODBC (OdbcConnection)
-            //    @"Driver={Microsoft Access Driver (*.mdb)};Dbq=PATH\\TO\\DATABASE;Uid=Admin;Pwd=;";
+            //  32-bit, std security:           Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\myFolder\myDB.mdb;Uid=Admin;Pwd=;
+            //  32-bit, exclusive access:       Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\myFolder\myDB.mdb;Exclusive=1;Uid=Admin;Pwd=;
+            //  32-bit, admin statements:       Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\myFolder\myDB.mdb;Uid=Admin;Pwd=;ExtendedAnsiSQL=1;
+            //  32-bit, workgroup (system DB):  Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\myFolder\myDB.mdb;SystemDB=C:\sysFolder\sysDB.mdw;
+
+            //  64-bit, std security:           Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=C:\myFolder\myDB.accdb;
+            //  (etc, change driver and database name)
 
             // OleDB (OleDbConnection)
-            //  @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=PATH\\TO\\DATABASE;User Id=admin;Password=;"
+            //  32-bit, std security:           Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\myFolder\myDB.mdb;User Id=admin;Password=;
+            //  32-bit, exclusive access:       Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\myFolder\myDB.mdb;Mode=Share Exclusive;User Id=admin;Password=;
+            //  32-bit, with password:          Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\myFolder\myDB.mdb;Jet OLEDB:Database Password=myPassword;
+            //  32-bit, workgroup (system DB):  Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\myFolder\myDB.mdb;Jet OLEDB:System Database=C:\sysFolder\sysDB.mdw;
+            //  32-bit, workgroup with user:    Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\myFolder\myDB.mdb;Jet OLEDB:System Database=C:\sysFolder\sysDB.mdw;User ID=myUser;Password=myPassword;
+            //  32-bit, network location:       Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\\serverName\shareName\myFolder\myDB.mdb;User Id=admin;Password=;
+            //  32-bit, DataDirectory:          Provider=Microsoft.Jet.OLEDB.4.0;Data Source=|DataDirectory|\myDB.mdb;User Id=admin;Password=;
+
+            //  64-bit, std security:           Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\myFolder\myDB.mdb;Persist Security Info=False;
+            //  64-bit, with password:          Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\myFolder\myDB.mdb;Jet OLEDB:Database Password=myPassword;
+            //  64-bit, DataDirectory:          Provider=Microsoft.ACE.OLEDB.12.0;Data Source=|DataDirectory|\myDB.mdb;Persist Security Info=False;
+            //  64-bit, network location:       Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\\serverName\shareName\myFolder\myDB.mdb;
 
             // SQL Server (SqlConnection)
-            //    @"Data Source=PATH\\TO\\DATABASE;Initial Catalog=Test;Integrated Security=True";
+            //  Local database:                 Data Source=C:\myFolder\myDB.mdf;Initial Catalog=Test;Integrated Security=True;
+            //  SqlClient, std security:        Server=myServerAddress;Database=myDataBase.mdf;User Id=myUser;Password=myPassword;
+            //  OLE DB driver for SQL Server:   Provider=MSOLEDBSQL;Server=myServerAddress;Database=myDataBase;UID=myUsername;PWD=myPassword;
+            //  Connect via IP address:         Data Source=190.190.200.100,1433;Network Library=DBMSSOCN;Initial Catalog=myDataBase.mdf;User ID=myUser;Password=myPassword;
+            // SQL Server 2019, std security:   Driver={ODBC Driver 17 for SQL Server};Server=myServerAddress;Database=myDataBase.mdf;UID=myUser;PWD=myPassword;
+
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 connection = new OdbcConnection(ConnectionString);
