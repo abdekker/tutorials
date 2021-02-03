@@ -13,11 +13,11 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses DAO
-            m_tech = DatabaseTechnology.eDB_DAO;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_DAO;
 
             // Set the main database query
             m_cfgDatabase.queryType = QueryType.eQueryStd2;
-            m_cfgDatabase.strQuery = HelperGetQueryString();
+            m_cfgDatabase.querySELECT = HelperGetQuerySELECT();
         }
 
         #region Abstract methods from the base class
@@ -154,14 +154,14 @@ namespace SimpleDbReader
 
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
             DAO.Recordset rs = db.OpenRecordset(
-                m_cfgDatabase.strQuery,
+                m_cfgDatabase.querySELECT,
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
             {
                 // Go through each record in the RecordSet, writing the result to the console window
-                Simple_Members rsTmp = new Simple_Members();
-                Console.WriteLine(rsTmp.GetRecordHeader());
+                Simple_Members rsMember = new Simple_Members();
+                Console.WriteLine(rsMember.GetRecordHeader());
 
                 int recordsRead = 0;
                 rs.MoveFirst();
@@ -171,10 +171,14 @@ namespace SimpleDbReader
                     recordsRead++;
                     try
                     {
-                        ConvertRecordset(in rs, ref rsTmp);
-                        Console.WriteLine(rsTmp.GetRecordAsString());
+                        ConvertRecordset(in rs, ref rsMember);
+                        Console.WriteLine(rsMember.GetRecordAsString());
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(UtilitiesGeneral.FormatException(
+                            this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+                    }
                     rs.MoveNext();
                     dbEngine.Idle(DAO.IdleEnum.dbFreeLocks);
                 }
@@ -214,51 +218,35 @@ namespace SimpleDbReader
         #endregion // Abstract methods from the base class
 
         #region Methods specific to this class
-        private void ConvertRecordset(in DAO.Recordset rsDAO, ref Simple_Members rsMember)
+        private void ConvertRecordset(in DAO.Recordset rs, ref Simple_Members m)
         {
-            // Convert the DAO recordset to a local, strongly-typed, version
-            rsMember.DefaultRecord();
-            try
-            {
-                rsMember.MemberID = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colMemberID);
-            }
-            catch { }
+            // Convert the DAO record to a local, strongly-typed, version
+            string error = string.Empty;
+            m.DefaultRecord();
+            try { m.MemberID = (int)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colMemberID); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Surname = (string)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colSurname);
-            }
-            catch { }
+            try { m.Surname = (string)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colSurname); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.FirstName = (string)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colFirstName);
-            }
-            catch { }
+            try { m.FirstName = (string)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colFirstName); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.DOB = (DateTime)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colDOB);
-            }
-            catch { }
+            try { m.DOB = (DateTime)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colDOB); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Fee = (Decimal)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colDOB);
-            }
-            catch { }
+            try { m.Fee = (Decimal)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colFee); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Accepted = (bool)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colAccepted);
-            }
-            catch { }
+            try { m.Accepted = (bool)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colAccepted); }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsMember.Points = (int)m_utilsDAO.SafeGetFieldValue(rsDAO, Simple_Members.colPoints);
-            }
-            catch { }
+            try { m.Points = (int)m_utilsDAO.SafeGetFieldValue(rs, Simple_Members.colPoints); }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
         }
         #endregion // Methods specific to this class
     }

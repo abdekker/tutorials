@@ -13,7 +13,7 @@ namespace SimpleDbReader
         // Member variables
         private static DbTester m_db = null;
 
-        // Tests to be performed
+        #region Tests to be performed
         private static UInt32 m_tests = 0x00000000;
 
         private static readonly UInt32 cSimpleCreateDB              = 0x00000001;
@@ -36,6 +36,7 @@ namespace SimpleDbReader
         private static readonly UInt32 cDifferentQueryStrings       = 0x00200000;
 
         private static readonly UInt32 cOtherTests                  = 0x80000000;
+        #endregion //Tests to be performed
 
         static void Main()
         {
@@ -59,9 +60,9 @@ namespace SimpleDbReader
                 //cOtherTests
                 //cNorthwindDummyOpenClose
                 //cNorthwindStats
-                cNorthwindRead
+                //cNorthwindRead
                 //cNorthwindWriteable
-                //cNorthwindInsert
+                cNorthwindInsert
                 //cNorthwindUpdate
                 //cNorthwindDelete
                 //cNorthwindPerformance
@@ -139,7 +140,7 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindStats) != 0)
             {
                 // Count tables, columns and other statistics
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_OleDb);
@@ -148,7 +149,7 @@ namespace SimpleDbReader
 
             if ((m_tests & cNorthwindRead) != 0)
             {
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_OleDb);
@@ -158,7 +159,7 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindWriteable) != 0)
             {
                 // Not implemented...
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
@@ -167,7 +168,7 @@ namespace SimpleDbReader
 
             if ((m_tests & cNorthwindInsert) != 0)
             {
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQueryINSERT(QueryType.eQueryStd1);
                 m_db.NorthwindInsert(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindInsert(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindInsert(DatabaseTechnology.eDB_OleDb);
@@ -176,7 +177,7 @@ namespace SimpleDbReader
 
             if ((m_tests & cNorthwindUpdate) != 0)
             {
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQueryUPDATE(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
@@ -185,7 +186,7 @@ namespace SimpleDbReader
 
             if ((m_tests & cNorthwindDelete) != 0)
             {
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQueryDELETE(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
@@ -195,7 +196,7 @@ namespace SimpleDbReader
             if ((m_tests & cNorthwindPerformance) != 0)
             {
                 // Performance comparisons
-                m_db.UpdateQuery(QueryType.eQueryStd1);
+                m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_ODBC);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_OleDb);
@@ -206,7 +207,7 @@ namespace SimpleDbReader
             if ((m_tests & cDifferentQueryStrings) != 0)
             {
                 Console.WriteLine("Query using the WHERE clause 'LIKE' operator:");
-                m_db.UpdateQuery(QueryType.eQueryLike);
+                m_db.SetQuerySELECT(QueryType.eQueryLike);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
             }
             #endregion // Northwind sample database

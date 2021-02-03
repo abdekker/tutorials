@@ -13,10 +13,10 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses DAO
-            m_tech = DatabaseTechnology.eDB_DAO;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_DAO;
 
             // Set the main database query
-            m_cfgDatabase.strQuery = HelperGetQueryString();
+            m_cfgDatabase.querySELECT = HelperGetQuerySELECT();
         }
 
         #region Abstract methods from the base class
@@ -184,7 +184,8 @@ namespace SimpleDbReader
             else
                 Console.WriteLine("    (not tables in {0}", dbName);
 
-            //ADAD List<string> columns = m_utilsDAO.GetFields(strConnection, tables[0]);
+            // To get a list of just the columns (in a specific table)
+            //  List<string> columns = m_utilsDAO.GetFields(strConnection, tables[0]);
             Console.WriteLine();
         }
 
@@ -202,7 +203,7 @@ namespace SimpleDbReader
 
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
             DAO.Recordset rs = db.OpenRecordset(
-                m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString()),
+                m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString()),
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))
@@ -241,7 +242,7 @@ namespace SimpleDbReader
             dbEngine.Idle(DAO.IdleEnum.dbRefreshCache);
 
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
-            string strQuery = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+            string strQuery = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
 
             Console.Write("Open database read-only: ");
             DAO.Recordset rs = db.OpenRecordset(
@@ -321,7 +322,7 @@ namespace SimpleDbReader
 
             DAO.Database db = dbEngine.OpenDatabase(strConnection, false, false);
             DAO.Recordset rs = db.OpenRecordset(
-                m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString()),
+                m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString()),
                 DAO.RecordsetTypeEnum.dbOpenDynaset,
                 DAO.RecordsetOptionEnum.dbReadOnly);
             if (!(rs.BOF && rs.EOF))

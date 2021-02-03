@@ -26,7 +26,7 @@ namespace SimpleDbReader
 
         //private readonly string DbName_Simple = "SimpleTest.mdb";
         private readonly string DbName_Northwind97 = "Northwind 97.mdb";
-        private readonly string DbName_Northwind2000 = "Northwind 97.mdb";
+        private readonly string DbName_Northwind2000 = "Northwind 2000.mdb";
         private readonly string DbName_Northwind2007_2016 = "Northwind 2007-2016.accdb";
         #if USE_HMQ_DATABASE
             private readonly string DbName_HMQ = "HMQ.mdb";
@@ -40,6 +40,7 @@ namespace SimpleDbReader
 
         // Abstract methods
         public abstract string GetDbName(string strConnection);
+        public abstract string GetDbName(IDbConnection connection);
 
         // Methods
         public string GetConnectionDetailsDriver(bool b64bit)

@@ -71,15 +71,48 @@ namespace SimpleDbReader
             m_nwOleDB = new Northwind_OleDB(cfgGeneral, cfgDatabase);
         }
 
-        public void UpdateQuery(QueryType eQuery)
+        public void SetQuerySELECT(QueryType eQuery)
         {
-            // Update the generic query string
-            m_simpleDAO.UpdateQuery(eQuery);
-            m_simpleODBC.UpdateQuery(eQuery);
+            // Update the generic SELECT query string
+            m_simpleDAO.SetQuerySELECT(eQuery);
+            m_simpleODBC.SetQuerySELECT(eQuery);
 
-            m_nwDAO.UpdateQuery(eQuery);
-            m_nwODBC.UpdateQuery(eQuery);
-            m_nwOleDB.UpdateQuery(eQuery);
+            m_nwDAO.SetQuerySELECT(eQuery);
+            m_nwODBC.SetQuerySELECT(eQuery);
+            m_nwOleDB.SetQuerySELECT(eQuery);
+        }
+
+        public void SetQueryINSERT(QueryType eQuery)
+        {
+            // Update the INSERT query string
+            m_simpleDAO.SetQueryINSERT(eQuery);
+            m_simpleODBC.SetQueryINSERT(eQuery);
+
+            m_nwDAO.SetQueryINSERT(eQuery);
+            m_nwODBC.SetQueryINSERT(eQuery);
+            m_nwOleDB.SetQueryINSERT(eQuery);
+        }
+
+        public void SetQueryUPDATE(QueryType eQuery)
+        {
+            // Set the UPDATE query string
+            m_simpleDAO.SetQueryUPDATE(eQuery);
+            m_simpleODBC.SetQueryUPDATE(eQuery);
+
+            m_nwDAO.SetQueryUPDATE(eQuery);
+            m_nwODBC.SetQueryUPDATE(eQuery);
+            m_nwOleDB.SetQueryUPDATE(eQuery);
+        }
+
+        public void SetQueryDELETE(QueryType eQuery)
+        {
+            // Update the DELETE query string
+            m_simpleDAO.SetQueryDELETE(eQuery);
+            m_simpleODBC.SetQueryDELETE(eQuery);
+
+            m_nwDAO.SetQueryDELETE(eQuery);
+            m_nwODBC.SetQueryDELETE(eQuery);
+            m_nwOleDB.SetQueryDELETE(eQuery);
         }
 
         public void SimpleCreateDB()

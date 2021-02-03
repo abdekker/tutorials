@@ -26,6 +26,18 @@ namespace SimpleDbReader
         public static readonly string colReorderLevel = "ReorderLevel";
         public static readonly string colDiscontinued = "Discontinued";
 
+        // Bitmask for reading a subset of columns
+        public static readonly UInt64 colToReadProductID        = 0x0000000000000001;
+        public static readonly UInt64 colToReadProductName      = 0x0000000000000002;
+        public static readonly UInt64 colToReadSupplierID       = 0x0000000000000004;
+        public static readonly UInt64 colToReadCategoryID       = 0x0000000000000008;
+        public static readonly UInt64 colToReadQuantityPerUnit  = 0x0000000000000010;
+        public static readonly UInt64 colToReadUnitPrice        = 0x0000000000000020;
+        public static readonly UInt64 colToReadUnitsInStock     = 0x0000000000000040;
+        public static readonly UInt64 colToReadUnitsOnOrder     = 0x0000000000000080;
+        public static readonly UInt64 colToReadReorderLevel     = 0x0000000000000100;
+        public static readonly UInt64 colToReadDiscontinued     = 0x0000000000000200;
+
         // Display width
         public static readonly int colProductIDWidth = 12;
         public static readonly int colProductNameWidth = 40;
@@ -52,17 +64,23 @@ namespace SimpleDbReader
         #endregion
 
         #region Properties
-        /* Note: Provide a named member variable and manually code the property accessor, for example:
-        private int m_someMember;
-        public int SomeMember
-        {
-            get { return m_someMember; }
-            set { m_someMember = value; }
-        }
+        /* Property accessors normally use a named member variable, for example:
+            private int m_someMember;
+            public int SomeMember
+            {
+                get { return m_someMember; }
+                set { m_someMember = value; }
+            }
+        This is especially useful when you need to take action when the value is set or accessed.
 
-        // Alternatively if you don't need specialised get/set functionality, provide a generic property
-        // accessor and leave the rest to the compiler:
-        public int SomeMember { get; set; }*/
+        Since C# 7.0 (VS 2017, .NET 4.7) you can write single expression property get/set accessors:
+            get => m_cfgGeneral;
+            set => m_cfgGeneral = value;
+        In my opinion this is more difficult to read!
+
+        Alternatively, if you don't need specialised get/set functionality, provide a generic property
+        accessor and leave the rest to the compiler:
+            public int SomeMember { get; set; } */
         public int ProductID { get; set; }
         public string ProductName { get; set; }
         public int SupplierID { get; set; }
@@ -135,88 +153,123 @@ namespace SimpleDbReader
     {
         protected override Northwind_Products Map(IDataRecord record, UInt64 uRecordsToRead)
         {
-            // Mapper that works with IDataRecord
+            // Mapper working with IDataRecord objects
+            string error = string.Empty;
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadProductID) != 0)
             {
-                p.ProductID = (DBNull.Value == record[Northwind_Products.colProductID])
-                    ? Northwind_Products.cDefaultProductID
-                    : (int)record[Northwind_Products.colProductID];
+                try
+                {
+                    p.ProductID = (DBNull.Value == record[Northwind_Products.colProductID])
+                        ? Northwind_Products.cDefaultProductID
+                        : (int)record[Northwind_Products.colProductID];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadProductName) != 0)
             {
-                p.ProductName = (DBNull.Value == record[Northwind_Products.colProductName])
-                    ? Northwind_Products.cDefaultProductName
-                    : (string)record[Northwind_Products.colProductName];
+                try
+                {
+                    p.ProductName = (DBNull.Value == record[Northwind_Products.colProductName])
+                        ? Northwind_Products.cDefaultProductName
+                        : (string)record[Northwind_Products.colProductName];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
+                
+            if ((uRecordsToRead & Northwind_Products.colToReadSupplierID) != 0)
+            {
+                try
+                {
+                    p.SupplierID = (DBNull.Value == record[Northwind_Products.colSupplierID])
+                        ? Northwind_Products.cDefaultSupplierID
+                        : (int)record[Northwind_Products.colSupplierID];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadCategoryID) != 0)
             {
-                p.SupplierID = (DBNull.Value == record[Northwind_Products.colSupplierID])
-                    ? Northwind_Products.cDefaultSupplierID
-                    : (int)record[Northwind_Products.colSupplierID];
+                try
+                {
+                    p.CategoryID = (DBNull.Value == record[Northwind_Products.colCategoryID])
+                        ? Northwind_Products.cDefaultCategoryID
+                        : (int)record[Northwind_Products.colCategoryID];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadQuantityPerUnit) != 0)
             {
-                p.CategoryID = (DBNull.Value == record[Northwind_Products.colCategoryID])
-                    ? Northwind_Products.cDefaultCategoryID
-                    : (int)record[Northwind_Products.colCategoryID];
+                try
+                {
+                    p.QuantityPerUnit = (DBNull.Value == record[Northwind_Products.colQuantityPerUnit])
+                        ? Northwind_Products.cDefaultQuantityPerUnit
+                        : (string)record[Northwind_Products.colQuantityPerUnit];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
+
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitPrice) != 0)
+            {
+                try
+                {
+                    p.UnitPrice = (DBNull.Value == record[Northwind_Products.colUnitPrice])
+                        ? Northwind_Products.cDefaultUnitPrice
+                        : (decimal)record[Northwind_Products.colUnitPrice];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
+
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitsInStock) != 0)
+            {
+                try
+                {
+                    p.UnitsInStock = (DBNull.Value == record[Northwind_Products.colUnitsInStock])
+                        ? Northwind_Products.cDefaultUnitsInStock
+                        : (int)record[Northwind_Products.colUnitsInStock];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
+
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitsOnOrder) != 0)
+            {
+                try
+                {
+                    p.UnitsOnOrder = (DBNull.Value == record[Northwind_Products.colUnitsOnOrder])
+                        ? Northwind_Products.cDefaultUnitsOnOrder
+                        : (int)record[Northwind_Products.colUnitsOnOrder];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
+
+            if ((uRecordsToRead & Northwind_Products.colToReadReorderLevel) != 0)
+            {
+                try
+                {
+                    p.ReorderLevel = (DBNull.Value == record[Northwind_Products.colReorderLevel])
+                        ? Northwind_Products.cDefaultReorderLevel
+                        : (int)record[Northwind_Products.colReorderLevel];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
+
+            if ((uRecordsToRead & Northwind_Products.colToReadDiscontinued) != 0)
+            {
+                try
+                {
+                    p.Discontinued = (DBNull.Value == record[Northwind_Products.colDiscontinued])
+                        ? Northwind_Products.cDefaultDiscontinued
+                        : (bool)record[Northwind_Products.colDiscontinued];
+                }
+                catch (Exception ex) { error = ex.Message; }
+            }
             
-            try
-            {
-                p.QuantityPerUnit = (DBNull.Value == record[Northwind_Products.colQuantityPerUnit])
-                    ? Northwind_Products.cDefaultQuantityPerUnit
-                    : (string)record[Northwind_Products.colQuantityPerUnit];
-            }
-            catch { }
-            
-            try
-            {
-                p.UnitPrice = (DBNull.Value == record[Northwind_Products.colUnitPrice])
-                    ? Northwind_Products.cDefaultUnitPrice
-                    : (decimal)record[Northwind_Products.colUnitPrice];
-            }
-            catch { }
-            
-            try
-            {
-                p.UnitsInStock = (DBNull.Value == record[Northwind_Products.colUnitsInStock])
-                    ? Northwind_Products.cDefaultUnitsInStock
-                    : (int)record[Northwind_Products.colUnitsInStock];
-            }
-            catch { }
-
-            try
-            {
-                p.UnitsOnOrder = (DBNull.Value == record[Northwind_Products.colUnitsOnOrder])
-                    ? Northwind_Products.cDefaultUnitsOnOrder
-                    : (int)record[Northwind_Products.colUnitsOnOrder];
-            }
-            catch { }
-
-            try
-            {
-                p.ReorderLevel = (DBNull.Value == record[Northwind_Products.colReorderLevel])
-                    ? Northwind_Products.cDefaultReorderLevel
-                    : (int)record[Northwind_Products.colReorderLevel];
-            }
-            catch { }
-
-            try
-            {
-                p.Discontinued = (DBNull.Value == record[Northwind_Products.colDiscontinued])
-                    ? Northwind_Products.cDefaultDiscontinued
-                    : (bool)record[Northwind_Products.colDiscontinued];
-            }
-            catch { }
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
 
             return p;
         }
@@ -226,88 +279,123 @@ namespace SimpleDbReader
     {
         protected override Northwind_Products Map(DataRow row, UInt64 uRecordsToRead)
         {
-            // Mapper that works with DataRow
+            // Mapper working with DataRow objects
+            string error = string.Empty;
             Northwind_Products p = new Northwind_Products();
             p.DefaultRecord();
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadProductID) != 0)
             {
-                p.ProductID = (DBNull.Value == row[Northwind_Products.colProductID])
-                    ? Northwind_Products.cDefaultProductID
-                    : (int)row[Northwind_Products.colProductID];
+                try
+                {
+                    p.ProductID = (DBNull.Value == row[Northwind_Products.colProductID])
+                        ? Northwind_Products.cDefaultProductID
+                        : (int)row[Northwind_Products.colProductID];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadProductName) != 0)
             {
-                p.ProductName = (DBNull.Value == row[Northwind_Products.colProductName])
-                    ? Northwind_Products.cDefaultProductName
-                    : (string)row[Northwind_Products.colProductName];
+                try
+                {
+                    p.ProductName = (DBNull.Value == row[Northwind_Products.colProductName])
+                        ? Northwind_Products.cDefaultProductName
+                        : (string)row[Northwind_Products.colProductName];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadSupplierID) != 0)
             {
-                p.SupplierID = (DBNull.Value == row[Northwind_Products.colSupplierID])
-                    ? Northwind_Products.cDefaultSupplierID
-                    : (int)row[Northwind_Products.colSupplierID];
+                try
+                {
+                    p.SupplierID = (DBNull.Value == row[Northwind_Products.colSupplierID])
+                        ? Northwind_Products.cDefaultSupplierID
+                        : (int)row[Northwind_Products.colSupplierID];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadCategoryID) != 0)
             {
-                p.CategoryID = (DBNull.Value == row[Northwind_Products.colCategoryID])
-                    ? Northwind_Products.cDefaultCategoryID
-                    : (int)row[Northwind_Products.colCategoryID];
+                try
+                {
+                    p.CategoryID = (DBNull.Value == row[Northwind_Products.colCategoryID])
+                        ? Northwind_Products.cDefaultCategoryID
+                        : (int)row[Northwind_Products.colCategoryID];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadQuantityPerUnit) != 0)
             {
-                p.QuantityPerUnit = (DBNull.Value == row[Northwind_Products.colQuantityPerUnit])
-                    ? Northwind_Products.cDefaultQuantityPerUnit
-                    : (string)row[Northwind_Products.colQuantityPerUnit];
+                try
+                {
+                    p.QuantityPerUnit = (DBNull.Value == row[Northwind_Products.colQuantityPerUnit])
+                        ? Northwind_Products.cDefaultQuantityPerUnit
+                        : (string)row[Northwind_Products.colQuantityPerUnit];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitPrice) != 0)
             {
-                p.UnitPrice = (DBNull.Value == row[Northwind_Products.colUnitPrice])
-                    ? Northwind_Products.cDefaultUnitPrice
-                    : (decimal)row[Northwind_Products.colUnitPrice];
+                try
+                {
+                    p.UnitPrice = (DBNull.Value == row[Northwind_Products.colUnitPrice])
+                        ? Northwind_Products.cDefaultUnitPrice
+                        : (decimal)row[Northwind_Products.colUnitPrice];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitsInStock) != 0)
             {
-                p.UnitsInStock = (DBNull.Value == row[Northwind_Products.colUnitsInStock])
-                    ? Northwind_Products.cDefaultUnitsInStock
-                    : (int)row[Northwind_Products.colUnitsInStock];
+                try
+                {
+                    p.UnitsInStock = (DBNull.Value == row[Northwind_Products.colUnitsInStock])
+                        ? Northwind_Products.cDefaultUnitsInStock
+                        : (int)row[Northwind_Products.colUnitsInStock];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadUnitsOnOrder) != 0)
             {
-                p.UnitsOnOrder = (DBNull.Value == row[Northwind_Products.colUnitsOnOrder])
-                    ? Northwind_Products.cDefaultUnitsOnOrder
-                    : (int)row[Northwind_Products.colUnitsOnOrder];
+                try
+                {
+                    p.UnitsOnOrder = (DBNull.Value == row[Northwind_Products.colUnitsOnOrder])
+                        ? Northwind_Products.cDefaultUnitsOnOrder
+                        : (int)row[Northwind_Products.colUnitsOnOrder];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadReorderLevel) != 0)
             {
-                p.ReorderLevel = (DBNull.Value == row[Northwind_Products.colReorderLevel])
-                    ? Northwind_Products.cDefaultReorderLevel
-                    : (int)row[Northwind_Products.colReorderLevel];
+                try
+                {
+                    p.ReorderLevel = (DBNull.Value == row[Northwind_Products.colReorderLevel])
+                        ? Northwind_Products.cDefaultReorderLevel
+                        : (int)row[Northwind_Products.colReorderLevel];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
 
-            try
+            if ((uRecordsToRead & Northwind_Products.colToReadDiscontinued) != 0)
             {
-                p.Discontinued = (DBNull.Value == row[Northwind_Products.colDiscontinued])
-                    ? Northwind_Products.cDefaultDiscontinued
-                    : (bool)row[Northwind_Products.colDiscontinued];
+                try
+                {
+                    p.Discontinued = (DBNull.Value == row[Northwind_Products.colDiscontinued])
+                        ? Northwind_Products.cDefaultDiscontinued
+                        : (bool)row[Northwind_Products.colDiscontinued];
+                }
+                catch (Exception ex) { error = ex.Message; }
             }
-            catch { }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
 
             return p;
         }

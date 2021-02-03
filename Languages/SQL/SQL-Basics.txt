@@ -1,0 +1,66 @@
+Online tutorials include:
+	- https://www.w3schools.com/sql/sql_intro.asp
+
+* Data in RDBMS (Relation Database Management System) databases are stored in objects called tables
+* Tables collected related data entries and consist of columns and rows
+* Every table consists of fields, designed to maintain specific information about every record in the table
+* A record, also called a row, is each individual entry in the table. A record is a horizontal entity in the table.
+* A column is a vertical entity in the table and contains all information associated with a specific field in a table
+
+* SQL verbs and names are case-insensitive
+	- So the following would be equivalent:
+		"SELECT * FROM Customers"
+		"select * from cUsToMeRs"
+	- But by convention: Verbs in UPPERCASE, and table/column names in PascalCase (and avoid spaces)
+* Similarly, the SQL statement itself is largely insensitive to spacing
+	- So the following would be equivalent
+		"SELECT * FROM Customers"
+		"  Select *             FROM  Customers    "
+
+### SQL VERBS ###
+* SELECT, WHERE, ORDER BY
+	$ SELECT * FROM Customers;
+		- Select all columns from the Customers table
+	$ SELECT CustomerName, Address, Country FROM Customers;
+		- Select only the "CustomerName", "Address" and "Country" colums
+	$ SELECT * FROM CUSTOMERS WHERE Country = 'Germany';
+		- Select all colums where the Country is listed as "Germany"
+	$ SELECT * FROM CUSTOMERS ORDER BY City ASC;
+		- Select all columns, order ascending by the "City" column
+	$ SELECT * FROM CUSTOMERS WHERE Country = 'Germany' ORDER BY City DESC
+		- Select all columns where the Country is listed as "Germany", order descending by the "City" column
+
+	$ SELECT Country FROM Customers
+		- Returns values from the "Country" column
+	$ SELECT DISTINCT Country FROM Customers
+		- Returns only distinct values from the "Country" column
+
+* INSERT INTO, IS NULL, IS NOT NULL
+	$ INSERT INTO Customers
+		(CustomerID,CustomerName,ContactName,Address,City,PostalCode,Country)
+		VALUES (92,'Name','Contact','SomeAddress','BigCity','GU4 7HF','BigCountry')
+		- Inserts a record into the database
+		- If a column (eg. Customers.CustomerID) has an UNIQUE constraint this can fail
+		- And if a column (eg. Customers.ColumnID) has the "AutoInc" type, then it can be omitted
+
+	$ INSERT INTO Customers
+		(CustomerID,CustomerName,ContactName,City,Country)
+		VALUES (93,'Frank','Frankly','SmallCity','SmallCountry')
+		- Inserts a record, with NULL values for the "Address" and "PostalCode" columns
+
+	$ SELECT * FROM Customers WHERE Address IS NULL
+		- Return the above inserted record
+	$ SELECT * FROM Customers WHERE Address IS NOT NULL
+		- Returns all other records
+
+*  UPDATE
+	$ UPDATE Customers
+		SET ContactName='Alfred Schmidt', City='Frankfurt'
+		WHERE CustomerID=1
+		- Modify some values of the record which has a CustomerID of "1"
+
+	$ UPDATE Customers
+		SET CustomerName='New Name'
+		WHERE CustomerName='Old Name'
+		- Similar, but updating a specific value (in this case, the customer name)
+#

@@ -44,10 +44,12 @@ namespace SimpleDbReader
                 {
                     collection.Add(Map(reader, uRecordsToRead));
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
 
@@ -68,10 +70,12 @@ namespace SimpleDbReader
                 {
                     collection.Add(Map(row, uRecordsToRead));
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
 
@@ -146,9 +150,11 @@ namespace SimpleDbReader
                             MapperReaderBase<T> mapper = GetMapperReader();
                             collection = mapper.MapAll(reader, RecordsToRead);
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             //throw;
+                            Console.WriteLine(string.Format("{0}::{1} 1: {2}",
+                                this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                         }
                         finally
                         {
@@ -156,9 +162,11 @@ namespace SimpleDbReader
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
+                    Console.WriteLine(string.Format("{0}::{1} 2: {2}",
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
                 finally
                 {
@@ -253,17 +261,21 @@ namespace SimpleDbReader
                         MapperAdapterBase<T> mapper = GetMapperAdapter();
                         collection = mapper.MapAll(ds, RecordsToRead);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         //throw;
+                        Console.WriteLine(string.Format("{0}::{1} 1: {2}",
+                            this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                     }
                     finally
                     {
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
+                    Console.WriteLine(string.Format("{0}::{1} 2: {2}",
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
                 finally
                 {
@@ -356,9 +368,11 @@ namespace SimpleDbReader
                     connection.Open();
                     adapter.Fill(ds);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Throw?
+                    // throw?
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
                 finally
                 {

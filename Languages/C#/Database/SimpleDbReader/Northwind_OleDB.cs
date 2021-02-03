@@ -19,7 +19,7 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses OleDB
-            m_tech = DatabaseTechnology.eDB_OleDb;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_OleDb;
         }
 
         #region Abstract methods from the base class
@@ -173,7 +173,7 @@ namespace SimpleDbReader
             }
 
             // Example (Access 97) =
-            //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\Northwind 97.mdb;;User Id=admin;Password=;
+            //      Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Apps\\Data\\Northwind 97.mdb;;User Id=admin;Password=;
             return bHaveConnectionString;
         }
 
@@ -250,9 +250,9 @@ namespace SimpleDbReader
                     // Using System.Data.OleDb.OleDbDataReader : IDataReader
                     using (NorthwindReader_Products reader = new NorthwindReader_Products())
                     {
-                        reader.DbTechnology = m_tech;
+                        reader.DbTechnology = m_cfgDatabase.dbTech;
                         reader.ConnectionString = strConnection;
-                        reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        reader.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                         products = reader.Execute();
                     }
                 }
@@ -261,9 +261,9 @@ namespace SimpleDbReader
                     // Using System.Data.OleDb.OleDbDataAdapter : IDbDataAdapter
                     using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
                     {
-                        adapter.DbTechnology = m_tech;
+                        adapter.DbTechnology = m_cfgDatabase.dbTech;
                         adapter.ConnectionString = strConnection;
-                        adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                        adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                         products = adapter.Execute();
                     }
                 }
@@ -310,7 +310,7 @@ namespace SimpleDbReader
                             Northwind_Products.colProductName);
 
                         connection.Open();
-                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.strQuery, connection);
+                        OleDbCommand command = new OleDbCommand(m_cfgDatabase.querySELECT, connection);
                         command.Parameters.AddWithValue("@pricePoint", m_cfgDatabase.paramValue);
                         // This also works: command.Parameters.AddWithValue(string.Empty, paramValue);
 
@@ -326,7 +326,7 @@ namespace SimpleDbReader
                         reader.Close();
                         Console.WriteLine("    ({0} records)", recordsRead);
                     }
-                    else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataReader)
+                    else if (m_eDbReadTechnology == DatabaseReadTechnology.eRbRead_DataAdapter)
                     {
                         // This version uses:
                         // * System.Data.DataSet
@@ -343,7 +343,7 @@ namespace SimpleDbReader
 
                         connection.Open();
                         DataSet ds = new DataSet();
-                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.strQuery, connection);
+                        OleDbDataAdapter adapter = new OleDbDataAdapter(m_cfgDatabase.querySELECT, connection);
                         adapter.SelectCommand.Parameters.Add("@pricePoint", OleDbType.Integer).Value = m_cfgDatabase.paramValue;
                         adapter.Fill(ds);
                         foreach (DataRow row in ds.Tables[0].Rows)
@@ -359,7 +359,8 @@ namespace SimpleDbReader
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
 
@@ -377,9 +378,13 @@ namespace SimpleDbReader
                 Collection<Northwind_Products> products = null;
                 using (NorthwindReader_Products reader = new NorthwindReader_Products())
                 {
-                    reader.DbTechnology = m_tech;
+                    reader.DbTechnology = m_cfgDatabase.dbTech;
                     reader.ConnectionString = strConnection;
-                    reader.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    reader.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    reader.RecordsToRead = (
+                        Northwind_Products.colToReadProductID +
+                        Northwind_Products.colToReadUnitPrice +
+                        Northwind_Products.colToReadProductName);
                     products = reader.Execute();
                 }
                 Connect_Read_Template_Typed(ref products);
@@ -391,9 +396,13 @@ namespace SimpleDbReader
                 Collection<Northwind_Products> products = null;
                 using (NorthwindAdapter_Products adapter = new NorthwindAdapter_Products())
                 {
-                    adapter.DbTechnology = m_tech;
+                    adapter.DbTechnology = m_cfgDatabase.dbTech;
                     adapter.ConnectionString = strConnection;
-                    adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
+                    adapter.RecordsToRead = (
+                        Northwind_Products.colToReadProductID +
+                        Northwind_Products.colToReadUnitPrice +
+                        Northwind_Products.colToReadProductName);
                     products = adapter.Execute();
                 }
                 Connect_Read_Template_Typed(ref products);
@@ -404,9 +413,9 @@ namespace SimpleDbReader
                 Console.WriteLine(" (OleDb.OleDbDataAdapter, raw DataSet)");
                 DataSet products = null;
                 ObjectDataSetRaw adapter = new ObjectDataSetRaw();
-                adapter.DbTechnology = m_tech;
+                adapter.DbTechnology = m_cfgDatabase.dbTech;
                 adapter.ConnectionString = strConnection;
-                adapter.CmdText = m_cfgDatabase.strQuery.Replace("?", m_cfgDatabase.paramValue.ToString());
+                adapter.CmdText = m_cfgDatabase.querySELECT.Replace("?", m_cfgDatabase.paramValue.ToString());
                 products = adapter.Execute();
                 Connect_Read_Template_Raw(ref products);
             }
@@ -456,10 +465,12 @@ namespace SimpleDbReader
                         ((decimal)p[Northwind_Products.colUnitPrice]).ToString("0.00").PadRight(Northwind_Products.colUnitPriceWidth),
                         (string)p[Northwind_Products.colProductName]);
                 }
-                catch
+                catch (Exception ex)
                 {
                     //throw;
                     // Consider handling exception (instead of re-throwing) if graceful recovery is possible
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
                 }
             }
             Console.WriteLine("    ({0} records)", recordsRead);
@@ -467,132 +478,83 @@ namespace SimpleDbReader
 
         private void ConvertRecordset(in OleDbDataReader reader, ref Northwind_Products rsProduct)
         {
-            // Convert the OleDbDataReader recordset to a local, strongly-typed, version (overload)
+            // Convert the OleDbDataReader record to a local, strongly-typed, version (overload)
+            string error = string.Empty;
             rsProduct.DefaultRecord();
-            try
-            {
-                rsProduct.ProductID = (int)reader[0];
-            }
-            catch { }
+            try { rsProduct.ProductID = (int)reader[0]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.ProductName = (string)reader[1];
-            }
-            catch { }
+            try { rsProduct.ProductName = (string)reader[1]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.SupplierID = (int)reader[2];
-            }
-            catch { }
+            try { rsProduct.SupplierID = (int)reader[2]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.CategoryID = (int)reader[3];
-            }
-            catch { }
+            try { rsProduct.CategoryID = (int)reader[3]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.QuantityPerUnit = (string)reader[4];
-            }
-            catch { }
+            try { rsProduct.QuantityPerUnit = (string)reader[4]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitPrice = (decimal)reader[5];
-            }
-            catch { }
+            try { rsProduct.UnitPrice = (decimal)reader[5]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsInStock = (int)reader[6];
-            }
-            catch { }
+            try { rsProduct.UnitsInStock = (int)reader[6]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsOnOrder = (int)reader[7];
-            }
-            catch { }
+            try { rsProduct.UnitsOnOrder = (int)reader[7]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.ReorderLevel = (int)reader[8];
-            }
-            catch { }
+            try { rsProduct.ReorderLevel = (int)reader[8]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.Discontinued = (bool)reader[8];
-            }
-            catch { }
+            try { rsProduct.Discontinued = (bool)reader[9]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
         }
 
         private void ConvertRecordset(in DataRow row, ref Northwind_Products rsProduct)
         {
             // Convert the DataRow record to a local, strongly-typed, version (overload)
+            string error = string.Empty;
             rsProduct.DefaultRecord();
-            try
-            {
-                rsProduct.ProductID = (int)row[Northwind_Products.colProductID];
-            }
-            catch { }
 
-            try
-            {
-                rsProduct.ProductName = (string)row[Northwind_Products.colProductName];
-            }
-            catch { }
+            try { rsProduct.ProductID = (int)row[Northwind_Products.colProductID]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.SupplierID = (int)row[Northwind_Products.colSupplierID];
-            }
-            catch { }
+            try { rsProduct.ProductName = (string)row[Northwind_Products.colProductName]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.CategoryID = (int)row[Northwind_Products.colCategoryID];
-            }
-            catch { }
+            try { rsProduct.SupplierID = (int)row[Northwind_Products.colSupplierID]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.QuantityPerUnit = (string)row[Northwind_Products.colQuantityPerUnit];
-            }
-            catch { }
+            try { rsProduct.CategoryID = (int)row[Northwind_Products.colCategoryID]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitPrice = (decimal)row[Northwind_Products.colUnitPrice];
-            }
-            catch { }
+            try { rsProduct.QuantityPerUnit = (string)row[Northwind_Products.colQuantityPerUnit]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsInStock = (int)row[Northwind_Products.colUnitsInStock];
-            }
-            catch { }
+            try { rsProduct.UnitPrice = (int)row[Northwind_Products.colUnitPrice]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.UnitsOnOrder = (int)row[Northwind_Products.colUnitsOnOrder];
-            }
-            catch { }
+            try { rsProduct.UnitsInStock = (int)row[Northwind_Products.colUnitsInStock]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.ReorderLevel = (int)row[Northwind_Products.colReorderLevel];
-            }
-            catch { }
+            try { rsProduct.UnitsOnOrder = (int)row[Northwind_Products.colUnitsOnOrder]; }
+            catch (Exception ex) { error = ex.Message; }
 
-            try
-            {
-                rsProduct.Discontinued = (bool)row[Northwind_Products.colDiscontinued];
-            }
-            catch { }
+            try { rsProduct.ReorderLevel = (int)row[Northwind_Products.colReorderLevel]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            try { rsProduct.Discontinued = (bool)row[Northwind_Products.colDiscontinued]; }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
         }
         #endregion // Methods specific to this class
     }

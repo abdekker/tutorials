@@ -148,7 +148,8 @@ namespace SimpleDbReader
     {
         protected override Simple_Members Map(IDataRecord record, UInt64 uRecordsToRead)
         {
-            // Mapper that works with IDataRecord
+            // Mapper working with IDataRecord objects
+            string error = string.Empty;
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
             try
@@ -157,7 +158,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultMemberID
                     : (int)record[Simple_Members.colMemberID];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -165,7 +166,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultSurname
                     : (string)record[Simple_Members.colSurname];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -173,7 +174,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultFirstName
                     : (string)record[Simple_Members.colFirstName];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -181,7 +182,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultDOB
                     : (DateTime)record[Simple_Members.colDOB];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -189,7 +190,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultFee
                     : (decimal)record[Simple_Members.colFee];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -197,7 +198,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultAccepted
                     : (bool)record[Simple_Members.colAccepted];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -205,7 +206,11 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultPoints
                     : (int)record[Simple_Members.colPoints];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
 
             return m;
         }
@@ -215,7 +220,8 @@ namespace SimpleDbReader
     {
         protected override Simple_Members Map(DataRow row, UInt64 uRecordsToRead)
         {
-            // Mapper that works with DataRow
+            // Mapper working with DataRow objects
+            string error = string.Empty;
             Simple_Members m = new Simple_Members();
             m.DefaultRecord();
             try
@@ -224,7 +230,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultMemberID
                     : (int)row[Simple_Members.colMemberID];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -232,7 +238,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultSurname
                     : (string)row[Simple_Members.colSurname];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -240,7 +246,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultFirstName
                     : (string)row[Simple_Members.colFirstName];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -248,7 +254,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultDOB
                     : (DateTime)row[Simple_Members.colDOB];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -256,7 +262,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultFee
                     : (decimal)row[Simple_Members.colFee];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -264,7 +270,7 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultAccepted
                     : (bool)row[Simple_Members.colAccepted];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
 
             try
             {
@@ -272,7 +278,11 @@ namespace SimpleDbReader
                     ? Simple_Members.cDefaultPoints
                     : (int)row[Simple_Members.colPoints];
             }
-            catch { }
+            catch (Exception ex) { error = ex.Message; }
+
+            if (!string.IsNullOrEmpty(error))
+                  Console.WriteLine(UtilitiesGeneral.FormatException(
+                       this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, error));
 
             return m;
         }

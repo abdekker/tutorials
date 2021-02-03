@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SimpleDbReader
 {
@@ -44,8 +45,18 @@ namespace SimpleDbReader
                 dbName = db.Name;
                 db.Close();
             }
-            catch { } 
+            catch (Exception ex)
+            {
+                Console.WriteLine(UtilitiesGeneral.FormatException(
+                    this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+            }
             return dbName;
+        }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // Not used for DAO connections
+            return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
 
@@ -104,7 +115,11 @@ namespace SimpleDbReader
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+                }
             }
             db.Close();
             return columns;
@@ -118,7 +133,11 @@ namespace SimpleDbReader
                 DAO.Field ThisField = db.TableDefs[strTable].Fields[strField];
                 return true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(UtilitiesGeneral.FormatException(
+                    this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+            }
             return false;
         }
 
@@ -131,7 +150,11 @@ namespace SimpleDbReader
                 if (rs.Fields[strField].Value != null)
                     objResult = rs.Fields[strField].Value;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(UtilitiesGeneral.FormatException(
+                    this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+            }
             return objResult;
         }
 
@@ -143,7 +166,11 @@ namespace SimpleDbReader
             {
                 objField = rs.Fields[strField];
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(UtilitiesGeneral.FormatException(
+                    this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+            }
             return (DAO.Field)objField;
         }
 
@@ -195,7 +222,11 @@ namespace SimpleDbReader
             {
                 strType = ((DAO.DataTypeEnum)fd.Type).ToString().Replace("db", "");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(UtilitiesGeneral.FormatException(
+                    this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+            }
             return strType;
         }
         #endregion // Private methods

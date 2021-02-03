@@ -71,6 +71,17 @@ namespace SimpleDbReader
             else
                 return string.Empty;
         }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // Get the name of the database associated with the connection string
+            if (m_tech == DatabaseTechnology.eDB_ODBC)
+                return m_utilsODBC.GetDbName(connection);
+            else if (m_tech == DatabaseTechnology.eDB_OleDb)
+                return m_utilsOleDb.GetDbName(connection);
+            else
+                return string.Empty;
+        }
         #endregion // Properties and methods from UtilitiesBase
 
         #region Public methods
@@ -151,7 +162,11 @@ namespace SimpleDbReader
 
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(UtilitiesGeneral.FormatException(
+                            this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+                    }
                 }
 
                 if (addTable)
@@ -305,43 +320,32 @@ namespace SimpleDbReader
                 try
                 {
                     fd.name = (string)row[m_utilsODBC.Schema_Columns_ODBC_Name];
-                }
-                catch { fd.name = "(name)"; }
 
-                try
-                {
                     // For ODBC data types, preferentially use "TYPE_NAME" to determine the field type. ODBC must work
                     // across multiple data sources and the mappings from underlying SQL data types to ODBC type
                     // identifiers are only approximate.
                     // Note: The "DATA_TYPE" column for ODBC data sources is actually an Int16
                     fd.type = Convert.ToInt32(row[m_utilsODBC.Schema_Columns_ODBC_Type]);
+
+                    fd.typeName = (string)row[m_utilsODBC.Schema_Columns_ODBC_TypeName];
+                    fd.size = (int)row[m_utilsODBC.Schema_Columns_ODBC_Size];
+                    fd.nullable = (string)row[m_utilsODBC.Schema_Columns_ODBC_Nullable];
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+                    fd.name = "(name)";
+
                     // The value contained in COUNTER or INTEGER columns is "4", but the value of "4" in
                     // System.Data.Odbc.OdbcType is "Char" (and the "Int" type is "10"). These appear to be different
                     // types...to be investigated.
                     fd.type = (int)OdbcType.Int;
-                }
 
-                try
-                {
-                    fd.typeName = (string)row[m_utilsODBC.Schema_Columns_ODBC_TypeName];
+                    fd.typeName = "(type)";
+                    fd.size = -1;
+                    fd.nullable = "(nullable)";
                 }
-                catch
-                { fd.typeName = "(type)"; }
-
-                try
-                {
-                    fd.size = (int)row[m_utilsODBC.Schema_Columns_ODBC_Size];
-                }
-                catch { fd.size = -1; }
-
-                try
-                {
-                    fd.nullable = (string)row[m_utilsODBC.Schema_Columns_ODBC_Nullable];
-                }
-                catch { fd.nullable = "(nullable)"; }
             }
             else if (connection is OleDbConnection)
             {
@@ -349,37 +353,27 @@ namespace SimpleDbReader
                 try
                 {
                     fd.name = (string)row[m_utilsOleDb.Schema_Columns_OleDB_Name];
-                }
-                catch { fd.name = "(name)"; }
-
-                try
-                {
                     fd.type = (int)row[m_utilsOleDb.Schema_Columns_OleDB_Type];
-                }
-                catch { fd.type = (int)OleDbType.Integer; }
-
-                try
-                {
                     if (Enum.IsDefined(typeof(OleDbType), fd.type))
                         fd.typeName = ((OleDbType)fd.type).ToString();
-                }
-                catch { fd.typeName = "(type)"; }
 
-                try
-                {
                     // Note:
                     // NUMERIC_PRECISION            => Int32
-                    // CHARACTER_MAXIMUM_LENGTH     =>  Int64
-                    // DATETIME_PRECISION           =>  Int64
+                    // CHARACTER_MAXIMUM_LENGTH     => Int64
+                    // DATETIME_PRECISION           => Int64
                     fd.size =Convert.ToInt32(row[m_utilsOleDb.GetOleDBTypeSchemaSizeColumn(fd.type)]);
-                }
-                catch { fd.size = -1; }
-
-                try
-                {
                     fd.nullable = Convert.ToString(row[m_utilsOleDb.Schema_Columns_OleDB_Nullable]);
                 }
-                catch { fd.nullable = "(nullable)"; }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(UtilitiesGeneral.FormatException(
+                        this.ToString(), System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message));
+                    fd.name = "(name)";
+                    fd.type = (int)OleDbType.Integer;
+                    fd.typeName = "(type)";
+                    fd.size = -1;
+                    fd.nullable = "(nullable)";
+                }
             }
         }
         #endregion // Private methods

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
 
 namespace SimpleDbReader
@@ -54,6 +55,12 @@ namespace SimpleDbReader
             }
 
             return dbName;
+        }
+
+        public override string GetDbName(IDbConnection connection)
+        {
+            // TODO, ADAD
+            return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
 
