@@ -49,7 +49,9 @@
         <!-- Grid definitions -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="230" />
-            <ColumnDefinition />
+            <!-- The 1st column has a fixed width -->
+            <ColumnDefinition/>
+            <!-- The 2nd column will use the remaining horizontal space-->
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -82,6 +84,12 @@
         <!-- View report button -->
         <Button x:Name="btnViewExpenses" Grid.Column="1" Grid.Row="3" Click="btnViewExpenses_Click"
                 Style="{StaticResource buttonStyle}">View</Button>
+        
+        <!-- TreeView control -->
+        <TreeView Name="familyTreeView"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            Height="90" Width="210" Margin="10,10,10,10"
+            ItemsSource="{Binding TreeFamily}"/>
     </Grid>
 
     <!-- The following would create three overlapping squares. Remove the entire <Grid> section above. -->

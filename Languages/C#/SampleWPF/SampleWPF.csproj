@@ -112,4 +112,7 @@
     <Resource Include="Watermark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+  </PropertyGroup>
 </Project>
