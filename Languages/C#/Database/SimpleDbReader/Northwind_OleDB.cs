@@ -9,7 +9,7 @@ namespace SimpleDbReader
     class Northwind_OleDB : DatabaseCommon
     {
         // Member variables specific to this class
-        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_OleDb);
+        private readonly Utilities_DbConnection m_utilsDbConnection = new Utilities_DbConnection(DatabaseTechnology.eDB_OleDB);
 
         private DatabaseReadTechnology m_eDbReadTechnology = DatabaseReadTechnology.eRbRead_DataReader;
         private DatabaseAccess m_dbAccess = DatabaseAccess.eDbAccess_Raw;
@@ -19,7 +19,7 @@ namespace SimpleDbReader
             base(cfgGeneral, cfgDatabase)
         {
             // This class uses OleDB
-            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_OleDb;
+            m_cfgDatabase.dbTech = DatabaseTechnology.eDB_OleDB;
         }
 
         #region Abstract methods from the base class
@@ -80,26 +80,23 @@ namespace SimpleDbReader
 
         public override void Insert()
         {
-            // System.Data.OleDb.OleDbCommand
             // TODO
         }
 
         public override void Update()
         {
-            // System.Data.OleDb.OleDbCommand
             // TODO
         }
 
         public override void Delete()
         {
-            // System.Data.OleDb.OleDbCommand
             // TODO
         }
 
         public override void PerformanceTest(int nLoops)
         {
             //  System.Data.OleDb.OleDbCommand
-            Console.WriteLine("### START: OleDb - Performance tests (Northwind) ###");
+            Console.WriteLine("### START: OleDB - Performance tests (Northwind) ###");
             string strConnection = string.Empty;
             foreach (MSAccessDbType dbType in Enum.GetValues(typeof(MSAccessDbType)))
             {
@@ -127,7 +124,7 @@ namespace SimpleDbReader
                 }
             }
 
-            Console.WriteLine("### END: OleDb - Performance tests ###\n");
+            Console.WriteLine("### END: OleDB - Performance tests ###\n");
         }
 
         public override bool SetConnectionString(ref string strConnection)

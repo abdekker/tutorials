@@ -5,7 +5,7 @@ using System.Data.OleDb;
 
 namespace SimpleDbReader
 {
-    class Utilities_OleDb : UtilitiesBase
+    class Utilities_OleDB : UtilitiesBase
     {
         // Utilities for using OleDB
 
@@ -27,10 +27,10 @@ namespace SimpleDbReader
         public readonly string Schema_Columns_OleDB_Nullable = "IS_NULLABLE";
         #endregion // Constants
 
-        public Utilities_OleDb()
+        public Utilities_OleDB()
         {
-            // This utility class uses OleDb
-            DbTechnology = DatabaseTechnology.eDB_OleDb;
+            // This utility class uses OleDB
+            DbTechnology = DatabaseTechnology.eDB_OleDB;
 
             // Initialise a dictionary to convert between System.Data.OleDb.OleDbType and the column name in the schema
             // which contains the size for that data type
@@ -59,7 +59,7 @@ namespace SimpleDbReader
 
         public override string GetDbName(IDbConnection connection)
         {
-            // TODO, ADAD
+            // TODO
             return string.Empty;
         }
         #endregion // Properties and methods from UtilitiesBase
@@ -122,7 +122,7 @@ namespace SimpleDbReader
                         break;
 
                     case OleDbType.BSTR:
-                        case OleDbType.Boolean:
+                    case OleDbType.Boolean:
                     case OleDbType.Binary:
                     case OleDbType.Char:
                     case OleDbType.WChar:

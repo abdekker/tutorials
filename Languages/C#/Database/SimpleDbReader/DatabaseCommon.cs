@@ -84,7 +84,7 @@
                     if (bFullDescription)
                     {
                         if ((m_cfgDatabase.dbTech == DatabaseTechnology.eDB_DAO) ||
-                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDb))
+                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDB))
                             strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                         else if (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_ODBC)
                             strName += " (32-bit using Microsoft Access Driver)";
@@ -96,7 +96,7 @@
                     if (bFullDescription)
                     {
                         if ((m_cfgDatabase.dbTech == DatabaseTechnology.eDB_DAO) ||
-                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDb))
+                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDB))
                             strName += " (32-bit using Microsoft.Jet.OLEDB.4.0)";
                         else if (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_ODBC)
                             strName += " (32-bit using Microsoft Access Driver)";
@@ -108,7 +108,7 @@
                     if (bFullDescription)
                     {
                         if ((m_cfgDatabase.dbTech == DatabaseTechnology.eDB_DAO) ||
-                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDb))
+                            (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_OleDB))
                             strName += " (64-bit using Microsoft.ACE.OLEDB.16.0)";
                         else if (m_cfgDatabase.dbTech == DatabaseTechnology.eDB_ODBC)
                             strName += " (64-bit using Microsoft Access Driver)";

@@ -10,13 +10,13 @@ namespace SimpleDbReader
 {
     class Utilities_DbConnection : UtilitiesBase
     {
-        // Utilities for using both ODBC and OleDb:
+        // Utilities for using both ODBC and OleDB:
         // * System.Data.DbConnection (such as System.Data.Odbc.OdbcConnection)
         // * System.Data.DataTable (such as returned from DbConnection::GetSchema)
 
         #region Member variables
         private readonly Utilities_ODBC m_utilsODBC = new Utilities_ODBC();
-        private readonly Utilities_OleDb m_utilsOleDb = new Utilities_OleDb();
+        private readonly Utilities_OleDB m_utilsOleDB = new Utilities_OleDB();
 
         private string m_fieldHeader;
         struct SchemaFieldDefinition
@@ -66,8 +66,8 @@ namespace SimpleDbReader
             // Get the name of the database associated with the connection string
             if (m_tech == DatabaseTechnology.eDB_ODBC)
                 return m_utilsODBC.GetDbName(strConnection);
-            else if (m_tech == DatabaseTechnology.eDB_OleDb)
-                return m_utilsOleDb.GetDbName(strConnection);
+            else if (m_tech == DatabaseTechnology.eDB_OleDB)
+                return m_utilsOleDB.GetDbName(strConnection);
             else
                 return string.Empty;
         }
@@ -77,8 +77,8 @@ namespace SimpleDbReader
             // Get the name of the database associated with the connection string
             if (m_tech == DatabaseTechnology.eDB_ODBC)
                 return m_utilsODBC.GetDbName(connection);
-            else if (m_tech == DatabaseTechnology.eDB_OleDb)
-                return m_utilsOleDb.GetDbName(connection);
+            else if (m_tech == DatabaseTechnology.eDB_OleDB)
+                return m_utilsOleDB.GetDbName(connection);
             else
                 return string.Empty;
         }
@@ -157,8 +157,8 @@ namespace SimpleDbReader
                         {
                             // OleDB
                             addTable = (
-                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDb.Schema_Tables_OleDB_SystemTable)) &&
-                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDb.Schema_Tables_OleDB_ViewTable)));
+                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDB.Schema_Tables_OleDB_SystemTable)) &&
+                                (!row[Schema_Tables_Column_TableType].Equals(m_utilsOleDB.Schema_Tables_OleDB_ViewTable)));
 
                         }
                     }
@@ -201,7 +201,7 @@ namespace SimpleDbReader
             // Retrieve "Columns" schema information, which differs between connection types. To see all columns, use "GetSchemaColumnsFull".
 
             #region Schema details
-            // See the "Data type conversions" section for conversion of the ODBC "TYPE_NAME" or OleDb "DATA_TYPE" to .NET types
+            // See the "Data type conversions" section for conversion of the ODBC "TYPE_NAME" or OleDB "DATA_TYPE" to .NET types
 
             /* ### OdbcConnection ###
             See https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/odbc-schema-collections
@@ -261,7 +261,7 @@ namespace SimpleDbReader
             #endregion // Schema details
 
             #region Data type conversions
-            /*          DAO                 ODBC                OleDb                   C#          VB
+            /*          DAO                 ODBC                OleDB                   C#          VB
                         TypeName    Type    TypeName    Type    TypeName        Type
                         ================    ================    ====================    ===================
             String      Text        10      VARCHAR     -9      WChar           130     string      String
@@ -376,8 +376,8 @@ namespace SimpleDbReader
                 // OleDB
                 try
                 {
-                    fd.name = (string)row[m_utilsOleDb.Schema_Columns_OleDB_Name];
-                    fd.type = (int)row[m_utilsOleDb.Schema_Columns_OleDB_Type];
+                    fd.name = (string)row[m_utilsOleDB.Schema_Columns_OleDB_Name];
+                    fd.type = (int)row[m_utilsOleDB.Schema_Columns_OleDB_Type];
                     if (Enum.IsDefined(typeof(OleDbType), fd.type))
                         fd.typeName = ((OleDbType)fd.type).ToString();
 
@@ -385,8 +385,8 @@ namespace SimpleDbReader
                     // NUMERIC_PRECISION            => Int32
                     // CHARACTER_MAXIMUM_LENGTH     => Int64
                     // DATETIME_PRECISION           => Int64
-                    fd.size =Convert.ToInt32(row[m_utilsOleDb.GetOleDBTypeSchemaSizeColumn(fd.type)]);
-                    fd.nullable = Convert.ToString(row[m_utilsOleDb.Schema_Columns_OleDB_Nullable]);
+                    fd.size =Convert.ToInt32(row[m_utilsOleDB.GetOleDBTypeSchemaSizeColumn(fd.type)]);
+                    fd.nullable = Convert.ToString(row[m_utilsOleDB.Schema_Columns_OleDB_Nullable]);
                 }
                 catch (Exception ex)
                 {

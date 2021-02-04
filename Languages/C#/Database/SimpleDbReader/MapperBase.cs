@@ -221,7 +221,7 @@ namespace SimpleDbReader
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 connection = new OdbcConnection(ConnectionString);
-            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
                 connection = new OleDbConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
                 connection = new SqlConnection(ConnectionString);
@@ -320,7 +320,7 @@ namespace SimpleDbReader
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 connection = new OdbcConnection(ConnectionString);
-            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
                 connection = new OleDbConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
                 connection = new SqlConnection(ConnectionString);
@@ -333,7 +333,7 @@ namespace SimpleDbReader
             IDbDataAdapter adapter = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 adapter = new OdbcDataAdapter();
-            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
                 adapter = new OleDbDataAdapter();
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
                 adapter = new SqlDataAdapter();
@@ -417,7 +417,7 @@ namespace SimpleDbReader
             IDbConnection connection = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 connection = new OdbcConnection(ConnectionString);
-            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
                 connection = new OleDbConnection(ConnectionString);
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
                 connection = new SqlConnection(ConnectionString);
@@ -430,7 +430,7 @@ namespace SimpleDbReader
             IDbDataAdapter adapter = null;
             if (DbTechnology == DatabaseTechnology.eDB_ODBC)
                 adapter = new OdbcDataAdapter();
-            else if (DbTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (DbTechnology == DatabaseTechnology.eDB_OleDB)
                 adapter = new OleDbDataAdapter();
             else if (DbTechnology == DatabaseTechnology.eDB_SqlServer)
                 adapter = new SqlDataAdapter();

@@ -143,7 +143,7 @@ namespace SimpleDbReader
                 m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindStats(DatabaseTechnology.eDB_OleDb);
+                m_db.NorthwindStats(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -152,7 +152,7 @@ namespace SimpleDbReader
                 m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindRead(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindRead(DatabaseTechnology.eDB_OleDb);
+                m_db.NorthwindRead(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -162,7 +162,7 @@ namespace SimpleDbReader
                 m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
-                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -171,7 +171,7 @@ namespace SimpleDbReader
                 m_db.SetQueryINSERT(QueryType.eQueryStd1);
                 m_db.NorthwindInsert(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindInsert(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindInsert(DatabaseTechnology.eDB_OleDb);
+                m_db.NorthwindInsert(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -180,7 +180,7 @@ namespace SimpleDbReader
                 m_db.SetQueryUPDATE(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
-                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -189,7 +189,7 @@ namespace SimpleDbReader
                 m_db.SetQueryDELETE(QueryType.eQueryStd1);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_DAO);
                 //m_db.NorthwindWriteable(DatabaseTechnology.eDB_ODBC);
-                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDb);
+                //m_db.NorthwindWriteable(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
@@ -199,7 +199,7 @@ namespace SimpleDbReader
                 m_db.SetQuerySELECT(QueryType.eQueryStd1);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindPerformance(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindPerformance(DatabaseTechnology.eDB_OleDb);
+                m_db.NorthwindPerformance(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 

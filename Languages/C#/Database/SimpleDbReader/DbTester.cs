@@ -210,7 +210,7 @@ namespace SimpleDbReader
                 m_nwDAO.GetStats();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.GetStats();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.GetStats();
         }
 
@@ -221,7 +221,7 @@ namespace SimpleDbReader
                 m_nwDAO.Read();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Read();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.Read();
         }
 
@@ -232,7 +232,7 @@ namespace SimpleDbReader
                 m_nwDAO.Writeable();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Writeable();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.Writeable();
         }
 
@@ -243,7 +243,7 @@ namespace SimpleDbReader
                 m_nwDAO.Insert();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Insert();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.Insert();
         }
 
@@ -254,7 +254,7 @@ namespace SimpleDbReader
                 m_nwDAO.Update();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Update();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.Update();
         }
 
@@ -265,7 +265,7 @@ namespace SimpleDbReader
                 m_nwDAO.Delete();
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.Delete();
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.Delete();
         }
 
@@ -282,7 +282,7 @@ namespace SimpleDbReader
                 m_nwDAO.PerformanceTest(nLoops);
             else if (eTechnology == DatabaseTechnology.eDB_ODBC)
                 m_nwODBC.PerformanceTest(nLoops);
-            else if (eTechnology == DatabaseTechnology.eDB_OleDb)
+            else if (eTechnology == DatabaseTechnology.eDB_OleDB)
                 m_nwOleDB.PerformanceTest(nLoops);
         }
         // End: Methods (public)     

@@ -37,7 +37,7 @@ namespace SimpleDbReader
         eDB_Unknown,
         eDB_DAO,                // DAO (add reference to Microsoft DAO 3.6 Object Library)
         eDB_ODBC,               // System.Data.Odbc.OdbcConnection : DbConnection
-        eDB_OleDb,              // System.Data.OleDb.OleDbConnection : DbConnection
+        eDB_OleDB,              // System.Data.OleDb.OleDbConnection : DbConnection
         eDB_SqlServer           // System.Data.SqlClient.SqlConnection : DbConnection
     };
 

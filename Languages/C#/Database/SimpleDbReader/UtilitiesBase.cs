@@ -21,8 +21,8 @@ namespace SimpleDbReader
 
         private readonly string DbDriver_ODBC_32bit = "{Microsoft Access Driver (*.mdb)}";
         private readonly string DbDriver_ODBC_64bit = "{Microsoft Access Driver (*.mdb, *.accdb)}";   
-        private readonly string DbDriver_OleDb_32bit = "Microsoft.Jet.OLEDB.4.0";
-        private readonly string DbDriver_OleDb_64bit = "Microsoft.ACE.OLEDB.16.0";
+        private readonly string DbDriver_OleDB_32bit = "Microsoft.Jet.OLEDB.4.0";
+        private readonly string DbDriver_OleDB_64bit = "Microsoft.ACE.OLEDB.16.0";
 
         //private readonly string DbName_Simple = "SimpleTest.mdb";
         private readonly string DbName_Northwind97 = "Northwind 97.mdb";
@@ -59,10 +59,10 @@ namespace SimpleDbReader
                         : DbDriver_ODBC_32bit;
                     break;
 
-                case DatabaseTechnology.eDB_OleDb:
+                case DatabaseTechnology.eDB_OleDB:
                     driver = (b64bit)
-                        ? DbDriver_OleDb_64bit
-                        : DbDriver_OleDb_32bit;
+                        ? DbDriver_OleDB_64bit
+                        : DbDriver_OleDB_32bit;
                     break;
             }
             
