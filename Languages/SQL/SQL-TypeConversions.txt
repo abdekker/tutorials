@@ -1,0 +1,19 @@
+### SQL data type conversions to .NET ###
+
+            DAO                 ODBC                OleDB                   C#          VB
+            TypeName    Type    TypeName    Type    TypeName        Type
+            ================    ================    ====================    ===================
+String      Text        10      CHAR        -8      WChar           130     string      String
+            Text        10      VARCHAR     -9      WChar           130     string      String
+            Memo        1       LONGCHAR    -1      WChar           130     string      String
+Integer     Boolean     1       BIT         -7      Boolean         11      bool        Boolean
+            Byte        2       BYTE        -6      UnsignedTinyInt 17      byte        Byte
+            Integer     3       SMALLINT    5       SmallInt        2       short       Short
+            Long        4       INTEGER     4       Integer         3       int         Integer
+Float       Single      6       REAL        7       Single          4       float       Single
+            Double      7       DOUBLE      8       Double          5       double      Double
+            Currency    5       CURRENCY    2       Currency        6       decimal     Decimal
+DateTime    Date        8       DATETIME    93      Date            7       DateTime    Date
+Other       LongBinary  11      LONGBINARY  -4      Binary          128     ?           ?
+#
+    
