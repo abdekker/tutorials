@@ -13,4 +13,12 @@ not run unless they are signed by a trusted publisher.
 To run this script, re-open PS in Administrator mode, then type this command:
     Set-ExecutionPolicy RemoteSigned
 and finally re-open PS. #>
+
+<# Several methods to run Powershell scripts:
+1) Right-click the script in Explorer and select "Run with Powershell"
+2) Open Powershell, and use: ".\Path\to\Script\MyFirstScript.ps1"
+	(or navigate to the folder and use: .\MyFirstScript.ps1
+3) Open the Command Prompt and use: PowerShell "Path\to\Script\MyFirstScript.ps1"
+	(or navigate to the folder and use: PowerShell MyFirstScript.ps1 #>
 Write-Host "Hello, World!"
+pause
