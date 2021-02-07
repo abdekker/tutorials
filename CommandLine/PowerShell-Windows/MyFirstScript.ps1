@@ -18,7 +18,7 @@ and finally re-open PS. #>
 1) Right-click the script in Explorer and select "Run with Powershell"
 2) Open Powershell, and use: ".\Path\to\Script\MyFirstScript.ps1"
 	(or navigate to the folder and use: .\MyFirstScript.ps1
-3) Open the Command Prompt and use: PowerShell "Path\to\Script\MyFirstScript.ps1"
-	(or navigate to the folder and use: PowerShell MyFirstScript.ps1 #>
+3) Open the Command Prompt and use: PowerShell ".\Path\to\Script\MyFirstScript.ps1"
+	(or navigate to the folder and use: PowerShell .\MyFirstScript.ps1 #>
 Write-Host "Hello, World!"
 pause
