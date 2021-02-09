@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace systemHelperLibrary
@@ -44,6 +46,7 @@ namespace systemHelperLibrary
 
         public static string GetOSName()
         {
+            // Return a name for the operating system (probably "Windows")
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 return "MacOS";
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -52,6 +55,43 @@ namespace systemHelperLibrary
                 return "Windows";
 
             return "Unknown";
+        }
+
+        public static FileVersionInfo GetAssemblyVersionInfo(string path)
+        {
+            // Get file version information
+            if (File.Exists(path))
+                return FileVersionInfo.GetVersionInfo(path);
+            else
+                return null;
+        }
+
+        public static string GetParentFolder(string path, byte levels = 1, string targetFolder = null)
+        {
+            // Given "C:\Parent\Child\" or "C:\Parent\Child\MyFile.txt", return "C:\Parent". If a target has
+            // been provided, stop when the target folder is found. For example:
+            //      GetParentFolder("C:\\one\\two\\three\\four\\five\\test.txt", 50, "three")
+            // returns "C:\\one\\two\\three".
+            string parent = path;
+            levels = MathLibrary.Clamp<byte>(levels, 1, 100);
+
+            byte level = 0;
+            while ((level < levels) && (parent.Length > 0))
+            {
+                DirectoryInfo dir = new DirectoryInfo(parent);
+                if (dir.Parent != null)
+                {
+                    parent = dir.Parent.FullName;
+                    if ((!string.IsNullOrEmpty(targetFolder)) && (parent.EndsWith(targetFolder)))
+                        break;
+                    else
+                        level++;
+                }
+                else
+                    break;
+            }
+
+            return parent;
         }
     }
 }

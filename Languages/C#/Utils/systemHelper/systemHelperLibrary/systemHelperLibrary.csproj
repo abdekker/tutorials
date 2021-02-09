@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MathLibrary.cs" />
     <Compile Include="TypesLibrary.cs" />
     <Compile Include="SystemLibrary.cs" />
     <Compile Include="StringLibrary.cs" />
