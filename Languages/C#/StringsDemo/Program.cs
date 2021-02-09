@@ -216,7 +216,7 @@ namespace StringsDemo
             Console.WriteLine();
 
             Console.WriteLine("(formatting floats with padding)");
-            f1 = 3.141592f;
+            f1 = 3.141593f;
             Console.WriteLine("  A = |{0}|\t\t[raw]", f1);
             Console.WriteLine("  A = |{0,12}|\t\t[left padding, raw using \"0,N\"]", f1);
             Console.WriteLine("  A = |{0,-12}|\t\t[right padding, raw using \"0,-N\"]", f1);
@@ -229,6 +229,13 @@ namespace StringsDemo
             Console.WriteLine("(using a method to display a variable number of decimal places)");
             for (int places = 0; places <= 5; places++)
                 Console.WriteLine("  decimals = {0}, output = {1}", places, StringLibrary.FormatFloat(f2, places));
+            Console.WriteLine();
+
+            Console.WriteLine("(demonstrate method can handle template floating point types)");
+            double typeDouble = 3.141593;
+            decimal typeDecimal = 3.141593m;
+            Console.WriteLine("  [Double]  {0}", StringLibrary.FormatFloat(typeDouble, 5));
+            Console.WriteLine("  [Decimal] {0}", StringLibrary.FormatFloat(typeDecimal, 5));
             Console.WriteLine();
 
             Console.WriteLine("(using different formatting for positive and negative numbers, and zero)");
