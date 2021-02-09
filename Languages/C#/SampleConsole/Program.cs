@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -334,22 +335,19 @@ namespace SampleConsole
             return ("    .NET Framework and version = " + strDotNetFramework + " " + strDotNetVersion);
         }
 
-        private static void DisplayAssemblyInfo()
+        private static void DisplaySystemInformation()
         {
-            Console.WriteLine("# Assembly Information #");
-            Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
-            Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
-            #if DEBUG
-                Console.WriteLine("  Assembly built in DEBUG mode");
-            #else
-                Console.WriteLine("  Assembly built in RELEASE mode");
-            #endif
-            Console.WriteLine();
+            Console.WriteLine("### System Information ###");
+            Console.WriteLine("  OS Description\t\t{0} ({1})", RuntimeInformation.OSDescription, SystemLibrary.GetOSName());
+            Console.WriteLine("  OS Architecture\t\t{0}", RuntimeInformation.OSArchitecture.ToString());
+            Console.WriteLine("  Process Architecture\t\t{0}", RuntimeInformation.ProcessArchitecture.ToString());
+            Console.WriteLine("  Framework Description\t\t{0}", RuntimeInformation.FrameworkDescription);
+            Console.WriteLine("#\n");
         }
 
         private static void DisplayDotNetInfo()
         {
-            Console.WriteLine("# .NET Version Information #");
+            Console.WriteLine("### .NET Version Information ###");
             Console.WriteLine($"  .NET environment version: {Environment.Version}");
             Console.WriteLine("");
             Console.WriteLine("  Older .NET frameworks installed (v1-v4):");
@@ -361,17 +359,48 @@ namespace SampleConsole
 
             // In C/C++, there are pre-defined preprocessor macros such as "_MSC_VER" which give you the version of the
             // compiler at compile-time. These are not available in C# (because there is no preprocessor).
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
-        private static void DisplaySystemInformation()
+        private static void DisplayAssemblyInfo()
         {
-            Console.WriteLine("# System Information #");
-            Console.WriteLine("  OS Description\t\t{0} ({1})", RuntimeInformation.OSDescription, SystemLibrary.GetOSName());
-            Console.WriteLine("  OS Architecture\t\t{0}", RuntimeInformation.OSArchitecture.ToString());
-            Console.WriteLine("  Process Architecture\t\t{0}", RuntimeInformation.ProcessArchitecture.ToString());
-            Console.WriteLine("  Framework Description\t\t{0}", RuntimeInformation.FrameworkDescription);
-            Console.WriteLine();
+            Console.WriteLine("#### Assembly Information ####");
+            Console.WriteLine(String.Format("  Assembly full path: {0}", GetAssemblyPath));
+            Console.WriteLine(String.Format("  Assembly directory: {0}", GetAssemblyDirectory));
+            #if DEBUG
+                Console.WriteLine("  Assembly built in DEBUG mode");
+            #else
+                Console.WriteLine("  Assembly built in RELEASE mode");
+            #endif
+            Console.WriteLine("#\n");
+        }
+
+        private static void DisplayOtherAssemblyInfo()
+        {
+            Console.WriteLine("### Information for External Assemblies ###");
+
+            // Add a Windows DLL, Windows EXE and a DLL from this repo
+            List<string> assemblies = new List<string>();
+            assemblies.Add("C:\\Windows\\System32\\kernel32.dll");
+            assemblies.Add("C:\\Windows\\regedit.exe");
+            assemblies.Add(SystemLibrary.GetParentFolder(GetAssemblyPath, 10, "C#") + "\\Utils\\systemHelperLibrary.dll");
+
+            FileVersionInfo verInfo;
+            foreach (string item in assemblies)
+            {
+                verInfo = SystemLibrary.GetAssemblyVersionInfo(item);
+                Console.WriteLine("  Assembly: {0}", item);
+                Console.WriteLine("    File version:    {0} ({1}.{2})",
+                    verInfo.FileVersion,
+                    verInfo.FileMajorPart,
+                    verInfo.FileMinorPart);
+                Console.WriteLine("    Product version: {0}", verInfo.ProductVersion);
+                Console.WriteLine("    Internal name:   {0}", verInfo.InternalName);
+                Console.WriteLine("    Company name:    {0}", verInfo.CompanyName);
+                Console.WriteLine("    Copyright:       {0}", verInfo.LegalCopyright);
+                Console.WriteLine();
+            }
+            Console.WriteLine("#\n");
         }
 
         // Main entry point for the console application
@@ -393,6 +422,9 @@ namespace SampleConsole
 
             // Show some information about this assembly
             DisplayAssemblyInfo();
+
+            // Show information about another assembly
+            DisplayOtherAssemblyInfo();
 
             // Show the arguments passed to this console application
             Console.WriteLine("# Check for arguments #");
