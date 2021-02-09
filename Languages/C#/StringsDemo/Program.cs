@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
 using systemHelperLibrary;
 
 namespace StringsDemo
@@ -157,7 +156,11 @@ namespace StringsDemo
             string s6 = "hello,33,everyone,#";
             string[] array3 = s6.Split(',');
             Console.WriteLine("  " + string.Join(" ", array3) + "   [using string.Split(char)]");
+            Console.WriteLine();
 
+            Console.WriteLine("(randomised strings)");
+            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(40, true));
+            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(40, false));
             Console.WriteLine();
         }
 
