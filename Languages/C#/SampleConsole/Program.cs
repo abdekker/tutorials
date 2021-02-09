@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 using Microsoft.Win32;
+using systemHelperLibrary;
 
 // By default, the "Console App (.NET Framework)" template adds "using" classes for:
 //      System.Collections.Generic
@@ -18,27 +19,6 @@ namespace SampleConsole
     class Program
     {
         // Property accessors
-        private static string OSType
-        {
-            get
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    return "MacOS";
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    return "Linux";
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    return "Windows";
-
-                return "Unknown";
-            }
-        }
-
-        private static string ExecutablePath
-        {
-            get;
-            set;
-        }
-
         private static string GetAssemblyPath
         {
             get
@@ -387,7 +367,7 @@ namespace SampleConsole
         private static void DisplaySystemInformation()
         {
             Console.WriteLine("# System Information #");
-            Console.WriteLine("  OS Description\t\t{0} ({1})", RuntimeInformation.OSDescription, OSType);
+            Console.WriteLine("  OS Description\t\t{0} ({1})", RuntimeInformation.OSDescription, SystemLibrary.GetOSName());
             Console.WriteLine("  OS Architecture\t\t{0}", RuntimeInformation.OSArchitecture.ToString());
             Console.WriteLine("  Process Architecture\t\t{0}", RuntimeInformation.ProcessArchitecture.ToString());
             Console.WriteLine("  Framework Description\t\t{0}", RuntimeInformation.FrameworkDescription);
