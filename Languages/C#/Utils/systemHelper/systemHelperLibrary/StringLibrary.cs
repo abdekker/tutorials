@@ -16,7 +16,7 @@ namespace systemHelperLibrary
             return char.IsUpper(ch);
         }
 
-        public static string GetRandomString(byte length, bool lettersOnly, int seed = 0)
+        public static string GetRandomString(byte length, bool lettersOnly, bool removeIllegal, int seed = 0)
         {
             // Generate a randomised string
             string sRandom = string.Empty;
@@ -25,6 +25,7 @@ namespace systemHelperLibrary
             // Assign allowed characters to a temporary array
             byte start, end, character;
             List<char> allowed = new List<char>();
+            List<char> forbidden = new List<char>();
             if (lettersOnly)
             {
                 // Lowercase letters only
@@ -33,14 +34,45 @@ namespace systemHelperLibrary
             }
             else
             {
-                // Any printable ASCCI character
+                // Any printable ASCII character
                 start = 33;     // !
                 end = 126;      // ~
+
+                // Remove illegal characters? Use this if the random string will be used to create a file/folder in
+                // the file system. Forbidden printable ASCII characters are:
+                // * Windows:   \ / : * ? " < > |
+                // * MacOS:     :
+                // * Linux:     /
+                if (removeIllegal)
+                {
+                    // Use the Windows superset because it covers MacOS and Linux too
+                    forbidden.Add('\\');
+                    forbidden.Add('/');
+                    forbidden.Add(':');
+                    forbidden.Add('*');
+                    forbidden.Add('?');
+                    forbidden.Add('"');
+                    forbidden.Add('<');
+                    forbidden.Add('>');
+                    forbidden.Add('|');
+                }
             }
 
-
-            for (character = start; character <= end; character++)
-                allowed.Add((char)character);
+            if (forbidden.Count > 0)
+            {
+                char toAdd;
+                for (character = start; character <= end; character++)
+                {
+                    toAdd = (char)character;
+                    if (!forbidden.Contains(toAdd))
+                        allowed.Add((char)character);
+                }
+            }
+            else
+            {
+                for (character = start; character <= end; character++)
+                    allowed.Add((char)character);
+            }
 
             // Create a random number generator (with optional seed for performance and test)
             Random rnd;

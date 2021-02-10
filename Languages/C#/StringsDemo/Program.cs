@@ -158,9 +158,11 @@ namespace StringsDemo
             Console.WriteLine("  " + string.Join(" ", array3) + "   [using string.Split(char)]");
             Console.WriteLine();
 
-            Console.WriteLine("(randomised strings)");
-            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(40, true));
-            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(40, false));
+            byte randomLength = 40;
+            Console.WriteLine("(randomised strings, length {0})", randomLength);
+            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true, false));
+            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false, false));
+            Console.WriteLine("  Remove illegal\t{0}", StringLibrary.GetRandomString(randomLength, false, true));
             Console.WriteLine();
         }
 
