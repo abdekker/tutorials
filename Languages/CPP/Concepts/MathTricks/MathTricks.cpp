@@ -22,8 +22,8 @@ void CountBits()
     };
     for (auto in : bitmask)
     {
-        cout << m_sHelper.formatString("  Algorithm 1: 0x%08x (%d bits are set)", in, m_mHelper.CountBitsSet_U1(in)) << endl;
-        cout << m_sHelper.formatString("  Algorithm 2: 0x%08x (%d bits are set)", in, m_mHelper.CountBitsSet_U2(in)) << endl;
+        cout << m_sHelper.FormatString("  Algorithm 1: 0x%08x (%d bits are set)", in, m_mHelper.CountBitsSet_U1(in)) << endl;
+        cout << m_sHelper.FormatString("  Algorithm 2: 0x%08x (%d bits are set)", in, m_mHelper.CountBitsSet_U2(in)) << endl;
     }
     cout << "#\n\n";
 }
@@ -33,7 +33,7 @@ void FloatToInt()
     cout << "Representing a floating point number as an integer\n";
     cout << "(Uses IEEE 754 representation and assumption that floating and integer number sizes are the same)\n";
     cout << "(The IEEE 754 specification should ensure that if (a > b) then (int(a) > int(b))\n";
-    cout << m_sHelper.formatString("  Size of float, int:\t\t%d, %d\n  Size of double, __int64:\t%d, %d\n\n",
+    cout << m_sHelper.FormatString("  Size of float, int:\t\t%d, %d\n  Size of double, __int64:\t%d, %d\n\n",
         sizeof(float),
         sizeof(int),
         sizeof(double),
@@ -60,9 +60,9 @@ void FloatToInt()
     {
         int32Convert = *(int*)&in;
         if (index++ <= 7)
-            cout << m_sHelper.formatString("  %-30.8f: %d\n", in, int32Convert);
+            cout << m_sHelper.FormatString("  %-30.8f: %d\n", in, int32Convert);
         else
-            cout << m_sHelper.formatString("  %-30.8e: %d\n", in, int32Convert);
+            cout << m_sHelper.FormatString("  %-30.8e: %d\n", in, int32Convert);
     }
     cout << endl;
 
@@ -87,9 +87,9 @@ void FloatToInt()
     {
         int64Convert = *(__int64*)&in;
         if (index++ <= 7)
-            cout << m_sHelper.formatString("  %-30.16f: %lld\n", in, int64Convert);
+            cout << m_sHelper.FormatString("  %-30.16f: %lld\n", in, int64Convert);
         else
-            cout << m_sHelper.formatString("  %-30.16e: %lld\n", in, int64Convert);
+            cout << m_sHelper.FormatString("  %-30.16e: %lld\n", in, int64Convert);
     }
     cout << endl;
 }
