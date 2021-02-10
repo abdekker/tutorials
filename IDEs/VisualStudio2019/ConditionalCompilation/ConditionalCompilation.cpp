@@ -119,6 +119,19 @@ void Demonstrate_if()
 		false;
 #endif
 	UpdateRow("SYMBOL2", bIsDefined, " [ #if X ]");
+
+    // Checking for specific values using pre-processor operators
+#if (SYMBOL1 == 1)
+    std::cout << "  SYMBOL1 == 1          [ #if (X == 1) ]\n";
+#else
+    std::cout << "  SYMBOL1 != 1          [ #if (X == 1) ]\n";
+#endif
+
+#if (SYMBOL1 >= 5)
+    std::cout << "  SYMBOL1 >= 5          [ #if (X >= 5) ]\n";
+#else
+    std::cout << "  SYMBOL1 < 5           [ #if (X >= 5) ]\n";
+#endif
 }
 
 void Demonstrate_if_logic()
