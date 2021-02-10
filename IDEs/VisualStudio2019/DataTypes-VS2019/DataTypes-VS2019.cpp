@@ -34,7 +34,7 @@ int main()
 		bool min = false;
 		bool max = true;
 		cout << "bool\t\t\t" << sizeof(bool) << "\t\t" << min << "\t\t\t" << max << "\n";
-        // Or: cout << formatter.formatString("bool\t\t\t%d\t\t%d\t\t\t%d\n", sizeof(bool), min, max);
+        // Or: cout << formatter.FormatString("bool\t\t\t%d\t\t%d\t\t\t%d\n", sizeof(bool), min, max);
 	}
 
     {
@@ -42,14 +42,14 @@ int main()
 		char min = CHAR_MIN;
 		char max = CHAR_MAX;
 		unsigned char maxU = UCHAR_MAX;
-        cout << formatter.formatString("char (__int8)\t\t%d\t\t%d\t\t\t%d\n", sizeof(char), min, max);
-        cout << formatter.formatString("unsigned char\t\t%d\t\t0\t\t\t%u\n", sizeof(unsigned char), maxU);
+        cout << formatter.FormatString("char (__int8)\t\t%d\t\t%d\t\t\t%d\n", sizeof(char), min, max);
+        cout << formatter.FormatString("unsigned char\t\t%d\t\t0\t\t\t%u\n", sizeof(unsigned char), maxU);
 	}
 
     {
 		// wchar_t, __wchar_t (wide char: should be the same as __int16)
 		wchar_t max = _UI16_MAX;
-		cout << formatter.formatString("wchar_t\t\t\t%d\t\t0\t\t\t%u\n", sizeof(wchar_t), max);
+		cout << formatter.FormatString("wchar_t\t\t\t%d\t\t0\t\t\t%u\n", sizeof(wchar_t), max);
 	}
 
     {
@@ -57,8 +57,8 @@ int main()
 		short min = SHRT_MIN;
 		short max = SHRT_MAX;
 		unsigned short maxU = USHRT_MAX;
-		cout << formatter.formatString("short (__int16)\t\t%d\t\t%d\t\t\t%d\n", sizeof(short), min, max);
-		cout << formatter.formatString("unsigned short\t\t%d\t\t0\t\t\t%u\n", sizeof(unsigned short), maxU);
+		cout << formatter.FormatString("short (__int16)\t\t%d\t\t%d\t\t\t%d\n", sizeof(short), min, max);
+		cout << formatter.FormatString("unsigned short\t\t%d\t\t0\t\t\t%u\n", sizeof(unsigned short), maxU);
 	}
 
 	{
@@ -66,8 +66,8 @@ int main()
 		int min = INT_MIN;
 		int max = INT_MAX;
 		unsigned int maxU = UINT_MAX;
-		cout << formatter.formatString("int (__int32)\t\t%d\t\t%d\t\t%d\n", sizeof(int), min, max);
-		cout << formatter.formatString("unsigned int\t\t%d\t\t%u\t\t\t%u\n", sizeof(unsigned int), 0, maxU);
+		cout << formatter.FormatString("int (__int32)\t\t%d\t\t%d\t\t%d\n", sizeof(int), min, max);
+		cout << formatter.FormatString("unsigned int\t\t%d\t\t%u\t\t\t%u\n", sizeof(unsigned int), 0, maxU);
 	}
 
 	{
@@ -75,8 +75,8 @@ int main()
 		long min = LONG_MIN;
 		long max = LONG_MAX;
 		unsigned long maxU = ULONG_MAX;
-		cout << formatter.formatString("long (__int32)\t\t%d\t\t%ld\t\t%ld\n", sizeof(long), min, max);
-		cout << formatter.formatString("unsigned long\t\t%d\t\t0\t\t\t%lu\n", sizeof(unsigned long), maxU);
+		cout << formatter.FormatString("long (__int32)\t\t%d\t\t%ld\t\t%ld\n", sizeof(long), min, max);
+		cout << formatter.FormatString("unsigned long\t\t%d\t\t0\t\t\t%lu\n", sizeof(unsigned long), maxU);
 	}
 
 	{
@@ -89,8 +89,8 @@ int main()
 		long long min = LLONG_MIN;
 		long long max = LLONG_MAX;
 		unsigned long long maxU = ULLONG_MAX;
-        cout << formatter.formatString("long long (__int64)\t%d\t\t%lld\t%lld\n", sizeof(long long), min, max);
-		cout << formatter.formatString("unsigned long long\t%d\t\t0\t\t\t%llu\n", sizeof(unsigned long long), maxU);
+        cout << formatter.FormatString("long long (__int64)\t%d\t\t%lld\t%lld\n", sizeof(long long), min, max);
+		cout << formatter.FormatString("unsigned long long\t%d\t\t0\t\t\t%llu\n", sizeof(unsigned long long), maxU);
 	}
 	cout << "\n";
 
@@ -101,7 +101,7 @@ int main()
 		float zero = FLT_MIN;
 		float min = -FLT_MAX;
 		float max = FLT_MAX;
-		cout << formatter.formatString("float\t\t%d\t\t%.10e\t%.10e\t%.10e\n", sizeof(float), zero, min, max);
+		cout << formatter.FormatString("float\t\t%d\t\t%.10e\t%.10e\t%.10e\n", sizeof(float), zero, min, max);
 	}
 
 	{
@@ -109,7 +109,7 @@ int main()
 		double zero = DBL_MIN;
 		double min = -DBL_MAX;
 		double max = DBL_MAX;
-		cout << formatter.formatString("double\t\t%d\t\t%.10e\t%.10e\t%.10e\n", sizeof(double), zero, min, max);
+		cout << formatter.FormatString("double\t\t%d\t\t%.10e\t%.10e\t%.10e\n", sizeof(double), zero, min, max);
 	}
 	cout << "\n";
 
