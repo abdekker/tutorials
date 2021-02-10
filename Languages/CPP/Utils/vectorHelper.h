@@ -64,7 +64,7 @@ public:
         // Version which uses an alignment specifier (std::setw)
         if (input.size() > 0)
         {
-            (void) std::clamp(width, 1, 10); // Ensure width is valid
+            width = std::clamp(width, 1, 10); // Ensure width is valid
             typename std::vector<T>::iterator it = input.begin();
             for (; it != input.end();)
             {
