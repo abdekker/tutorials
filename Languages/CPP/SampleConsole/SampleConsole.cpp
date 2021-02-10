@@ -12,8 +12,15 @@ void ShowCppStandard()
     // 201103 for C++11
     // 201402 for C++14
     // 201703 for C++17
-    std::cout << __cplusplus << std::endl;
-    std::cout << "  (Note: Might be 199711 even if compiled for, say, C++17. Reasons unknown.)\n";
+    std::cout << "__cplusplus = " << __cplusplus << ", _MSC_VER = " << _MSC_VER << std::endl;
+    std::cout << "  (Note: Will be \"199711\" if the project is not compiled with the \"/Zc:__cplusplus\" flag)\n";
+    // To add this flag:
+    // * Project Properties > C/C++ > Command-Line
+    // * Manually add "/Zc:__cplusplus" to the Additional Options field and click Apply
+
+    // Flag has been added to the DEBUG build only to show the difference. Caution! It is risky relying on
+    // this macro to decide whether the compiler has support for a particular feature. The most reliable way
+    // to determine whether a compiler has support for a specific feature is to test.
     std::cout << "#\n\n";
 }
 
