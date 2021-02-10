@@ -16,11 +16,11 @@ namespace systemHelperLibrary
             return char.IsUpper(ch);
         }
 
-        public static string GetRandomString(byte length, bool lettersOnly, bool removeIllegal, int seed = 0)
+        public static string GetRandomString(byte length, bool lettersOnly, bool removeIllegal = false, int seed = 0)
         {
             // Generate a randomised string
             string sRandom = string.Empty;
-            length = MathLibrary.Clamp<byte>(length, 1, 200);
+            length = MathLibrary.Clamp<byte>(length, 1, 100);
 
             // Assign allowed characters to a temporary array
             byte start, end, character;
@@ -38,7 +38,7 @@ namespace systemHelperLibrary
                 start = 33;     // !
                 end = 126;      // ~
 
-                // Remove illegal characters? Use this if the random string will be used to create a file/folder in
+                // Remove illegal characters? Use if the random string will be used to create a file/folder in
                 // the file system. Forbidden printable ASCII characters are:
                 // * Windows:   \ / : * ? " < > |
                 // * MacOS:     :
@@ -60,11 +60,9 @@ namespace systemHelperLibrary
 
             if (forbidden.Count > 0)
             {
-                char toAdd;
                 for (character = start; character <= end; character++)
                 {
-                    toAdd = (char)character;
-                    if (!forbidden.Contains(toAdd))
+                    if (!forbidden.Contains((char)character))
                         allowed.Add((char)character);
                 }
             }

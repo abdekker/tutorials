@@ -160,8 +160,8 @@ namespace StringsDemo
 
             byte randomLength = 40;
             Console.WriteLine("(randomised strings, length {0})", randomLength);
-            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true, false));
-            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false, false));
+            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true));
+            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false));
             Console.WriteLine("  Remove illegal\t{0}", StringLibrary.GetRandomString(randomLength, false, true));
             Console.WriteLine();
         }
