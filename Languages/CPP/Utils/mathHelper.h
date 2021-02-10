@@ -11,6 +11,15 @@ public:
     mathHelper() {}
     ~mathHelper() {}
 
+    template<class T>
+    constexpr const T& clamp(const T& val, const T& min, const T& max)
+    {
+        // std::clamp is introduced in C++17, which may make this obsolete
+        return (val < min)
+            ? min
+            : (max < val) ? max : val;
+    }
+
     bool IsPrime(const int cCandidate)
     {
         // Primality testing
