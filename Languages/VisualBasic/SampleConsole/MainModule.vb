@@ -116,13 +116,45 @@ Module MainModule
         ' Some details on strings and string formatting in Visual Basic
         Console.WriteLine("### Strings ###")
 
-        Console.WriteLine("(Basic formatting)")
+        Console.WriteLine("(basic formatting)")
         Dim name As String = "Fred"
         Dim height As Single = 1.936
         Dim age As Integer = 29
         Console.WriteLine("  a) {0} is {1:0.00}m tall and {2} years old [implicit formatting]", name, height, age)
         Console.WriteLine(String.Format("  b) {0} is {1:0.00}m tall and {2} years old [explicit formatting]", name, height, age))
         Console.WriteLine($"  c) {name} is {height:0.00}m tall and {age} years old [string interpolation]")
+        Console.WriteLine()
+
+        Console.WriteLine("(searching strings)")
+        Dim msg As String = "According to Joe, this is a beautiful day. Joe rides a bicycle!"
+        Dim joe As String = "Joe"
+        Dim joeLower As String = "joe"
+        Dim jedi As String = "Jedi"
+        Console.WriteLine("  (string = '{0}')", msg)
+        Console.WriteLine()
+
+        Console.WriteLine("  (InStr & InStrRev - these are legacy and can be avoided)")
+        Console.WriteLine("    Instr ({0}):             {1,3}", joe, InStr(msg, joe))
+        Console.WriteLine("    Instr (Binary) ({0}):    {1,3}", joeLower, InStr(msg, joeLower))
+        Console.WriteLine("    Instr (Text)  ({0}):     {1,3}", joeLower, InStr(msg, joeLower, CompareMethod.Text))
+        Console.WriteLine("    Instr ({0}):            {1,3}", jedi, InStr(msg, jedi))
+        Console.WriteLine()
+        Console.WriteLine("    InstrRev ({0}):          {1,3}", joe, InStrRev(msg, joe))
+        Console.WriteLine("    InStrRev (Binary) ({0}): {1,3}", joeLower, InStrRev(msg, joeLower))
+        Console.WriteLine("    InStrRev (Text)  ({0}):  {1,3}", joeLower, InStrRev(msg, joeLower, -1, CompareMethod.Text))
+        Console.WriteLine("    InStrRev ({0}):         {1,3}", jedi, InStrRev(msg, jedi))
+        Console.WriteLine()
+
+        Console.WriteLine("  (IndexOf & LastIndexOf - modern .NET equivalents)")
+        Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(joe))
+        Console.WriteLine("    IndexOf (case) ({0}):        {1,3}", joe, msg.IndexOf(joeLower))
+        Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
+        Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(jedi))
+        Console.WriteLine()
+        Console.WriteLine("    LastIndexOf ({0}):           {1,3}", joe, msg.LastIndexOf(joe))
+        Console.WriteLine("    LastIndexOf (case) ({0}):    {1,3}", joe, msg.LastIndexOf(joeLower))
+        Console.WriteLine("    LastIndexOf (no case) ({0}): {1,3}", joe, msg.LastIndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
+        Console.WriteLine("    LastIndexOf ({0}):           {1,3}", joe, msg.LastIndexOf(jedi))
 
         Console.WriteLine("#")
         Console.WriteLine()
@@ -259,15 +291,15 @@ Module MainModule
         Console.WriteLine()
 
         ' Display some system information
-        DisplaySystemInformation()
+        'DisplaySystemInformation()
 
         ' Show some information about this assembly
-        DisplayAssemblyInfo()
+        'DisplayAssemblyInfo()
 
         ' Additional demonstrations
         StringsInVB()
-        NullableTypesInVB()
-        EnumerationsInVB()
+        'NullableTypesInVB()
+        'EnumerationsInVB()
 
         Console.WriteLine("Press any key to exit...")
         Console.ReadKey()
