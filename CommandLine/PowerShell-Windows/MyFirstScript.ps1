@@ -11,8 +11,11 @@ not run unless they are signed by a trusted publisher.
 * Unrestricted – All scripts will run regardless of who created them and whether or not they are signed.
 
 To run this script, re-open PS in Administrator mode, then type this command:
-    Set-ExecutionPolicy RemoteSigned
-and finally re-open PS. #>
+    $ Set-ExecutionPolicy RemoteSigned
+and finally re-run the script.
+
+To run any script that you trust:
+	$ Set-ExecutionPolicy Unrestricted -Force #>
 
 <# Several methods to run Powershell scripts:
 1) Right-click the script in Explorer and select "Run with Powershell"
