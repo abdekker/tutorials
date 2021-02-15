@@ -45,10 +45,10 @@ namespace StringsDemo
         #endregion // Enumerations
 
         #region Main test methods
-        private static void Info_Basic()
+        private static void Info_Basics()
         {
             // Basic information on formatting (see each section for more detailed examples)
-            Console.WriteLine("# Basics #");
+            Console.WriteLine("### Basics ###");
             Console.WriteLine("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on. These are called placeholders.");
             Console.WriteLine("    Note: Use \"$\" for string literals. The following are equivalent.");
             Console.WriteLine("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
@@ -70,14 +70,14 @@ namespace StringsDemo
             Console.WriteLine("     - {0,8:0.000} fixed decimals and leading spaces to pad to a fixed length");
             Console.WriteLine("     - {0,-8:0.000} fixed decimals and trailing spaces to pad to a fixed length");
             Console.WriteLine("     - {0:N3} fixed decimal places with thousands separator");
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_String()
         {
             // Formatting strings
             // Note: You can also use the "string.Format(...)" methods
-            Console.WriteLine("# Strings #");
+            Console.WriteLine("### Strings ###");
             string s1 = "AAA";
             string s2 = "zzz";
             Console.WriteLine("(A = {0}, B = {1})", s1, s2);
@@ -163,13 +163,37 @@ namespace StringsDemo
             Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true));
             Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false));
             Console.WriteLine("  Remove illegal\t{0}", StringLibrary.GetRandomString(randomLength, false, true));
+            Console.WriteLine("#\n");
+        }
+
+        private static void Info_String_Search()
+        {
+            // Searching strings
+            Console.WriteLine("### Strings (searching and extraction) ###");
+            string msg = "According to Joe, this is a beautiful day. Joe rides a bicycle!";
+            string joeUpper = "Joe";
+            string joeLower = "joe";
+            Console.WriteLine("(searching \"{0}\")", msg);
+            Console.WriteLine("    IndexOf ({0}):               {1,3}", joeUpper, msg.IndexOf(joeUpper));
+            Console.WriteLine("    IndexOf (case) ({0}):        {1,3}", joeLower, msg.IndexOf(joeLower));
+            Console.WriteLine("    IndexOf (no case) ({0}):     {1,3}", joeLower, msg.IndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase));
             Console.WriteLine();
+            Console.WriteLine("    LastIndexOf ({0}):           {1,3}", joeUpper, msg.LastIndexOf(joeUpper));
+            Console.WriteLine("    LastIndexOf (case) ({0}):    {1,3}", joeLower, msg.LastIndexOf(joeLower));
+            Console.WriteLine("    LastIndexOf (no case) ({0}): {1,3}", joeLower, msg.LastIndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase));
+            Console.WriteLine();
+
+            Console.WriteLine("(extracting sub-strings)");
+            int pos = msg.IndexOf(joeUpper);
+            Console.WriteLine("    Left of 1st Joe:  |{0}|", msg.Substring(0, pos));
+            Console.WriteLine("    Right of 1st Joe: |{0}|", msg.Substring(pos + joeUpper.Length, msg.Length - pos - joeUpper.Length));
+            Console.WriteLine("#\n");
         }
 
         private static void Info_Boolean()
         {
             // Formatting boolean values
-            Console.WriteLine("# Booleans #");
+            Console.WriteLine("### Booleans ###");
             bool bFalse = false;
             bool bTrue = true;
             int nonZero = 1;
@@ -178,13 +202,13 @@ namespace StringsDemo
             Console.WriteLine("  (B):\t\t{0}", bTrue);
             Console.WriteLine("  (C == 0):\t{0}", (nonZero == 0));
             Console.WriteLine("  (C != 0):\t{0}", (nonZero != 0));
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_Integer()
         {
             // Formatting integers
-            Console.WriteLine("# Integers #");
+            Console.WriteLine("### Integers ###");
             int n1 = 0;
             int n2 = -13;
             int n3 = 12345;
@@ -203,13 +227,13 @@ namespace StringsDemo
             uint u2 = uint.MaxValue;
             Console.WriteLine("  {0:D2} = 0x{1:X2}", u1, u1);
             Console.WriteLine("  {0:D8} = 0x{1:X8}", u2, u2);
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_Float()
         {
             // Formatting floating point numbers (of type "float")
-            Console.WriteLine("# Floats #");
+            Console.WriteLine("### Floats ###");
             float f1 = 0.0f;
             float f2 = -3.14159265359f;
             float f3 = 123456.789f;
@@ -267,14 +291,14 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:0.0000}\t\t\t[using \"{{0:0.0...}}\"]", f1);
             Console.WriteLine("  A = {0}\t\t\t[custom function using \"{{0:F*}}\" internally]", StringLibrary.FormatFloat(f1, 4));
             Console.WriteLine("  A = {0}\t\t\t[using System.Single::ToString(format)]", f1.ToString("0.0000"));
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_Double()
         {
             // Formatting floating point numbers (of type "double")
             // Note: Similar to float, so this section is simpler
-            Console.WriteLine("# Doubles # (similar to floats)");
+            Console.WriteLine("### Doubles ### (similar to floats)");
             double d = 123.0987654321;
             Console.WriteLine("  A = {0} [raw]", d);
             Console.WriteLine();
@@ -283,7 +307,7 @@ namespace StringsDemo
             for (int places = 0; places <= 10; places++)
                 Console.WriteLine("  decimals = {0,2}, output = {1}", places, StringLibrary.FormatFloat(d, places));
 
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_DateTime()
@@ -291,7 +315,7 @@ namespace StringsDemo
             // Formatting System.Date variables
             // Note: Date/Time variables are specific to culture/locale. Change locale like this:
             //      Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
-            Console.WriteLine("# Date/Time #");
+            Console.WriteLine("### Date/Time ###");
             DateTime dtA = DateTime.Now;
             DateTime dtB = new DateTime(2008, 1, 20, 12, 34, 56);   // Constructed dates
             DateTime dtC;
@@ -325,13 +349,13 @@ namespace StringsDemo
             Console.WriteLine("  name of 1st day of week:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.DayNames[0]);
             Console.WriteLine("  name of 1st month of year:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.MonthNames[0]);
             Console.WriteLine("  rule for 1st week of year:\t{0}", CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule.ToString());
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
 
         private static void Info_Enum()
         {
             // Displaying enumerated values
-            Console.WriteLine("# Enumerations #");
+            Console.WriteLine("### Enumerations ###");
             Console.WriteLine("(Weekdays contains {0} values)", Enum.GetNames(typeof(Weekdays)).Length);
             foreach (var day in Enum.GetValues(typeof(Weekdays)))
             {
@@ -389,7 +413,7 @@ namespace StringsDemo
             for (int val = 0; val <= 16; val++)
                 Console.WriteLine( "{0,3} - {1:G}", val, (EnumWithFlags)val);
 
-            Console.WriteLine();
+            Console.WriteLine("#\n");
         }
         #endregion // Main test methods
 
@@ -399,14 +423,15 @@ namespace StringsDemo
             Console.WriteLine("=== Strings and string formatting in C# ===");
             Console.WriteLine();    // Or "Console.Write(Environment.NewLine)" or "Console.WriteLine("")"
 
-            Info_Basic();
-            Info_String();
-            Info_Boolean();
-            Info_Integer();
-            Info_Float();
-            Info_Double();
-            Info_DateTime();
-            Info_Enum();
+            //Info_Basics();
+            //Info_String();
+            Info_String_Search();
+            //Info_Boolean();
+            //Info_Integer();
+            //Info_Float();
+            //Info_Double();
+            //Info_DateTime();
+            //Info_Enum();
 
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
