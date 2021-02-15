@@ -147,13 +147,13 @@ Module MainModule
 
         Console.WriteLine("  (IndexOf & LastIndexOf - modern .NET equivalents)")
         Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(joe))
-        Console.WriteLine("    IndexOf (case) ({0}):        {1,3}", joe, msg.IndexOf(joeLower))
-        Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
+        Console.WriteLine("    IndexOf (case) ({0}):        {1,3}", joeLower, msg.IndexOf(joeLower))
+        Console.WriteLine("    IndexOf (no case) ({0}):     {1,3}", joeLower, msg.IndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
         Console.WriteLine("    IndexOf ({0}):               {1,3}", joe, msg.IndexOf(jedi))
         Console.WriteLine()
         Console.WriteLine("    LastIndexOf ({0}):           {1,3}", joe, msg.LastIndexOf(joe))
-        Console.WriteLine("    LastIndexOf (case) ({0}):    {1,3}", joe, msg.LastIndexOf(joeLower))
-        Console.WriteLine("    LastIndexOf (no case) ({0}): {1,3}", joe, msg.LastIndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
+        Console.WriteLine("    LastIndexOf (case) ({0}):    {1,3}", joeLower, msg.LastIndexOf(joeLower))
+        Console.WriteLine("    LastIndexOf (no case) ({0}): {1,3}", joeLower, msg.LastIndexOf(joeLower, StringComparison.InvariantCultureIgnoreCase))
         Console.WriteLine("    LastIndexOf ({0}):           {1,3}", joe, msg.LastIndexOf(jedi))
 
         Console.WriteLine("#")
