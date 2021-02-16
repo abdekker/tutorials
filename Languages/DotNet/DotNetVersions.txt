@@ -1,0 +1,34 @@
+### C# versions ###
+Adapted from:
+	https://stackoverflow.com/questions/247621/what-are-the-correct-version-numbers-for-c/247623#247623
+	https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/versions-and-dependencies
+	https://en.wikipedia.org/wiki/Visual_Basic_.NET
+
+(Note to self: Do not edit in abdekker\tutorials! The master is in abdekker\privDevelopment\Documents\DotNet.)
+
+╔════════════╦════════════╦══════════════╦══════════════╦═════════════╦══════════════╦═════════════════╗
+║ C# version ║ VB version ║  VS version  ║ .NET version ║ CLR version ║ Release date ║ Windows support ║
+╠════════════╬════════════╬══════════════╬══════════════╬═════════════╬══════════════╬═════════════════╣
+║    1.0     ║    7.0     ║     2002     ║    1.0       ║     1.0     ║   Feb 2002   ║       N/A       ║
+║    1.2     ║    7.1     ║     2003     ║    1.1       ║     1.1     ║   Apr 2003   ║       N/A       ║
+║    2.0     ║    8.0     ║     2005     ║    2.0       ║     2.0     ║   Nov 2005   ║       N/A       ║
+║            ║            ║              ║    3.0       ║     2.0     ║   Nov 2006   ║      Vista      ║
+║    3.0     ║    9.0     ║     2008     ║    3.5       ║     2.0     ║   Nov 2007   ║ Vista, 7, 8, 10 ║
+║    4.0     ║    10.0    ║     2010     ║    4.0       ║     4       ║   Apr 2010   ║     Vista, 7    ║
+║    5.0     ║    11.0    ║     2012     ║    4.5       ║     4       ║   Aug 2012   ║   Vista, 7, 8   ║
+║    5.0     ║    12.0    ║     2013     ║    4.5.1     ║     4       ║   Oct 2013   ║   Vista, 7, 8   ║
+║            ║            ║              ║    4.5.2     ║     4       ║   May 2014   ║   Vista, 7, 8   ║
+║    6.0     ║    14.0    ║     2015     ║    4.6       ║     4       ║   Jul 2015   ║ Vista, 7, 8, 10 ║
+║            ║            ║              ║    4.6.1     ║     4       ║   Nov 2015   ║     7, 8, 10    ║
+║            ║            ║              ║    4.6.2     ║     4       ║   Aug 2016   ║     7, 8, 10    ║
+║    7.0     ║    15.x    ║     2017     ║              ║             ║   Mar 2017   ║                 ║
+║            ║            ║              ║    4.7       ║     4       ║   May 2017   ║     7, 8, 10    ║
+║    7.1     ║            ║  2017(v15.3) ║              ║             ║   Aug 2017   ║                 ║
+║            ║            ║              ║    4.7.1     ║     4       ║   Oct 2017   ║     7, 8, 10    ║
+║    7.2     ║            ║  2017(v15.5) ║              ║             ║   Dec 2017   ║                 ║
+║            ║            ║              ║    4.7.2     ║     4       ║   Apr 2018   ║     7, 8, 10    ║
+║    7.3     ║            ║  2017(v15.7) ║              ║             ║   May 2018   ║                 ║
+║    8.0     ║    16.0    ║     2019     ║    4.8       ║     4       ║   Apr 2019   ║     7, 8, 10    ║
+║    9.0     ║            ║  2019(v16.8) ║    5.0^      ║     ^^      ║   Nov 2020   ║   (7?), 8, 10   ║
+╚════════════╩════════════╩══════════════╩══════════════╩═════════════╩══════════════╩═════════════════╝
+#
