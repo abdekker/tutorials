@@ -4,6 +4,8 @@ Imports System.Runtime.Versioning
 Imports System.Runtime.InteropServices
 Imports System.Linq
 
+Imports Microsoft.VisualBasic   ' For legacy string and other VB6 methods
+
 Imports systemHelperLibrary
 
 ' To create this console application in Visual Studio 2019:
