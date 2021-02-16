@@ -218,8 +218,8 @@ namespace StringsDemo
             Console.WriteLine("  A = {0,8}, B = {1,8}, C = {2,8}\t[leading spaces using \"0,*\"]", n1, n2, n3);
             Console.WriteLine("  A = {0,-8}, B = {1,-8}, C = {2,-8}\t[trailing spaces using \"0,-*\"]", n1, n2, n3);
             Console.WriteLine("  A = {0,8:0000}, B = {1,8:0000}, C = {2,8:0000}\t[leading zeroes and spaces using \"0,*:0...\"]", n1, n2, n3);
-            Console.WriteLine("  A = {0:N0}, B = {1:N0}, C = {2:N0}\t\t\t[thousand separator using \"0:N0\"]", n1, n2, n3);
-            Console.WriteLine("  A = {0:#,0}, B = {1:#,0}, C = {2:#,0}\t\t\t[thousand separator using \"0:#,0\"]", n1, n2, n3);
+            Console.WriteLine("  A = {0:N0}, B = {1:N0}, C = {2:N0}\t\t\t[thousand/comma separator using \"0:N0\"]", n1, n2, n3);
+            Console.WriteLine("  A = {0:#,0}, B = {1:#,0}, C = {2:#,0}\t\t\t[thousand/comma separator using \"0:#,0\"]", n1, n2, n3);
             Console.WriteLine();
 
             Console.WriteLine("(displaying numbers in hex using 0:X*)");
@@ -423,15 +423,15 @@ namespace StringsDemo
             Console.WriteLine("=== Strings and string formatting in C# ===");
             Console.WriteLine();    // Or "Console.Write(Environment.NewLine)" or "Console.WriteLine("")"
 
-            //Info_Basics();
-            //Info_String();
+            Info_Basics();
+            Info_String();
             Info_String_Search();
-            //Info_Boolean();
-            //Info_Integer();
-            //Info_Float();
-            //Info_Double();
-            //Info_DateTime();
-            //Info_Enum();
+            Info_Boolean();
+            Info_Integer();
+            Info_Float();
+            Info_Double();
+            Info_DateTime();
+            Info_Enum();
 
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
