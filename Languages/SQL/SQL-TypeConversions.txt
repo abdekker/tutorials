@@ -15,5 +15,28 @@ Float       Single      6       REAL        7       Single          4       floa
             Currency    5       CURRENCY    2       Currency        6       decimal     Decimal
 DateTime    Date        8       DATETIME    93      Date            7       DateTime    Date
 Other       LongBinary  11      LONGBINARY  -4      Binary          128     ?           ?
+
+          ╔═════════════════════════════╦═════════════════════════════╦═════════════════════════════╦══════════╦══════════╗
+          ║              DAO            ║             ODBC            ║             OleDB           ║    C#    ║  VB.NET  ║
+          ╠═══════════════╦══════╦══════╬═══════════════╦══════╦══════╬═══════════════╦══════╦══════╬══════════╬══════════╣
+          ║    TypeName   ║ Type ║ Size ║    TypeName   ║ Type ║ Size ║    TypeName   ║ Type ║ Size ║          ║          ║
+          ╠═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬══════════╬══════════╣
+String    ║     Text      ║  10  ║  -   ║     CHAR      ║  -8  ║  -   ║     WChar     ║ 130  ║  -   ║  string  ║  String  ║
+          ║     Text      ║  10  ║  -   ║    VARCHAR    ║  -9  ║  -   ║     WChar     ║ 130  ║  -   ║  string  ║  String  ║
+          ║     Memo      ║  1   ║  -   ║   LONGCHAR    ║  -1  ║  -   ║     WChar     ║ 130  ║  -   ║  string  ║  String  ║
+          ╠═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬══════════╬══════════╣
+Integer   ║    Boolean    ║  1   ║  1   ║      BIT      ║  -7  ║  1   ║    Boolean    ║  11  ║  2   ║   bool   ║ Boolean  ║
+          ║     Byte      ║  2   ║  1   ║     BYTE      ║  -6  ║  3   ║UnsignedTinyInt║  17  ║  3   ║   byte   ║   Byte   ║
+          ║    Integer    ║  3   ║  2   ║   SMALLINT    ║  5   ║  5   ║   SmallInt    ║  2   ║  5   ║  short   ║  Short   ║
+          ║     Long      ║  4   ║  4   ║    INTEGER    ║  4   ║  10  ║    Integer    ║  3   ║  10  ║   int    ║ Integer  ║
+          ╠═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬══════════╬══════════╣
+Float     ║    Single     ║  6   ║  4   ║     REAL      ║  7   ║  24  ║    Single     ║  4   ║  7   ║  float   ║  Single  ║
+          ║    Double     ║  7   ║  8   ║    DOUBLE     ║  8   ║  53  ║    Double     ║  5   ║  15  ║  double  ║  Double  ║
+          ║   Currency    ║  5   ║  8   ║   CURRENCY    ║  2   ║  19  ║   Currency    ║  6   ║  19  ║ decimal  ║ Decimal  ║
+          ╠═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬══════════╬══════════╣
+DateTime  ║     Date      ║  8   ║  8   ║   DATETIME    ║  93  ║  19  ║     Date      ║  7   ║  0   ║ DateTime ║   Date   ║
+          ╠═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬═══════════════╬══════╬══════╬══════════╬══════════╣
+Other     ║  LongBinary   ║  11  ║  -   ║  LONGBINARY   ║  -4  ║  -   ║    Binary     ║ 128  ║      ║     ?    ║     ?    ║
+          ╚═══════════════╩══════╩══════╩═══════════════╩══════╩══════╩═══════════════╩══════╩══════╩══════════╩══════════╝
 #
     
