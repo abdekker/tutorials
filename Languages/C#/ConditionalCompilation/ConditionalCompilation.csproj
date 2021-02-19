@@ -7,7 +7,7 @@
     <ProjectGuid>{CFC3AD5D-32F2-45BE-8794-54457452E375}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ConditionalCompilation</RootNamespace>
-    <AssemblyName>ConditionalCompilation</AssemblyName>
+    <AssemblyName>ConditionalCompilation-C#</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,6 +51,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\..\..\..\build</PostBuildEvent>
   </PropertyGroup>
 </Project>
