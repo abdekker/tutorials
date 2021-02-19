@@ -115,20 +115,11 @@ Module MainModule
     End Sub
 
     Private Sub VB_Loops()
-        ' Demonstrating the main control structures used in VB
-        Const txtFile As String = "Sample.txt"
+        ' Demonstrating the main control structures used in VB for loops
+        Console.WriteLine("### Loops in Visual Basic ###")
+        Console.WriteLine("(NB! 'loop' is a reserved word in VB!")
 
-        Console.WriteLine("### Visual Basic loops ###")
-        Console.WriteLine(" (While...End While)")
-        Console.WriteLine("   (exit with 'Exit While')")
-        Console.WriteLine("   (continue to next iteration with 'Continue While')")
-        Dim index As Integer = 10
-        While index <= 50
-            Console.Write(index.ToString & " ")
-            index += 10
-        End While
-        Console.WriteLine()
-
+        Const txtFile As String = "sampleReading.txt"
         If (File.Exists(txtFile)) Then
             Console.WriteLine()
             Console.WriteLine(" (reading text file: {0})", txtFile)
@@ -141,6 +132,17 @@ Module MainModule
             sr.Close()
             Console.WriteLine()
         End If
+
+        Console.WriteLine(" (While...End While)")
+        Console.WriteLine("   (exit with 'Exit While')")
+        Console.WriteLine("   (continue to next iteration with 'Continue While')")
+        Dim index As Integer = 10
+        While index <= 50
+            Console.Write(index.ToString & " ")
+            index += 10
+        End While
+        Console.WriteLine()
+        Console.WriteLine()
 
         Console.WriteLine(" (Do...Loop Until)")
         Console.WriteLine("   (exit with 'Exit Do')")
@@ -209,6 +211,32 @@ Module MainModule
         Console.WriteLine($"  c) {name} is {height:0.00}m tall and {age} years old [string interpolation]")
         Console.WriteLine()
 
+        Console.WriteLine("(string arrays)")
+        Dim array1() As String = { "hello", "11", "everyone", "!" }
+        Console.WriteLine("  " + String.Join(" ", array1) + "   [Dim array() As String = { ... }]")
+
+        Dim array2() As String = New String() { "hello", "22", "everyone", "?" }
+        Console.WriteLine("  " + String.Join(" ", array2) + "   [Dim array() As String = New String { ... }]")
+
+        Dim s As String = "hello,33,everyone,#"
+        Dim array3() As String = s.Split(",")
+        Console.WriteLine("  " + String.Join(" ", array3) + "   [using String.Split(char)]")
+        Console.WriteLine()
+
+        Dim randomLength As Byte = 40
+        Console.WriteLine("(randomised strings, length {0})", randomLength)
+        Console.WriteLine("  {0,-20}{1}", "Letters only", StringLibrary.GetRandomString(randomLength, true))
+        Console.WriteLine("  {0,-20}{1}", "Any printable", StringLibrary.GetRandomString(randomLength, false))
+        Console.WriteLine("  {0,-20}{1}", "Remove illegal", StringLibrary.GetRandomString(randomLength, false, true))
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
+    Private Sub VB_Strings_Basic_Search()
+        ' String searching
+        Console.WriteLine("### Strings - Search ###")
+
         Console.WriteLine("(searching strings)")
         Dim msg As String = "According to Joe, this is a beautiful day. Joe rides a bicycle!"
         Dim joeUpper As String = "Joe"
@@ -217,7 +245,7 @@ Module MainModule
         Console.WriteLine("  (string = '{0}')", msg)
         Console.WriteLine()
 
-        Console.WriteLine("  (InStr & InStrRev & Len - legacy and can be avoided, though InStr is faster than IndexOf for strings)")
+        Console.WriteLine("  (InStr & InStrRev & Len - legacy and should be avoided, though InStr is faster than IndexOf for strings)")
         Console.WriteLine("    Instr ({0}):             {1,3}", joeUpper, InStr(msg, joeUpper))
         Console.WriteLine("    Instr (Binary) ({0}):    {1,3}", joeLower, InStr(msg, joeLower))
         Console.WriteLine("    Instr (Text)  ({0}):     {1,3}", joeLower, InStr(msg, joeLower, CompareMethod.Text))
@@ -918,7 +946,8 @@ Module MainModule
 
         ' Strings
         VB_Strings_Basic()
-        'VB_Strings_Performance_InStr()
+        VB_Strings_Basic_Search()
+        'VB_Strings_Performance_InStr()     ' Leave performance tests commented out unless testing!
         'VB_Strings_Performance_InStrRev()
         'VB_Strings_Performance_Len()
 
