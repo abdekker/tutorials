@@ -9,8 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Data.OleDb;
-
 using System.Windows.Forms;
 
 namespace AccessLoginApp_MDB
@@ -84,18 +82,31 @@ namespace AccessLoginApp_MDB
                 {
                     countUsers++;
                 }
-                lblDebug.Text = countUsers.ToString();
+                lblDebug.Text = string.Format("Users: {0}", countUsers);
 
                 string msg = string.Empty;
-                if (countUsers < 1)
-                    msg = "No user found with those credentials";
-                else if (countUsers > 1)
-                    msg = string.Format("Duplicate users! {0} users found with those credentials.", countUsers);
-                else if (countUsers == 1)
-                    msg = "Username and password correct!";
+                if (countUsers != 1)
+                {
+                    m_error = true;
+                    if (countUsers < 1)
+                        msg = string.Format("User '{0}' not found or password incorrect", txtUsername.Text);
+                    else if (countUsers > 1)
+                        msg = string.Format("Duplicate users! {0} users found with those credentials.", countUsers);
 
-                MessageBox.Show(msg);
+                    lblStatus.Text = msg;   // Or: MessageBox.Show(msg);
+                }
+
                 m_connection.Close();
+                m_connection.Dispose();
+                if (!m_error)
+                {
+                    this.Hide();
+                    frmUserEntry userEntry = new frmUserEntry(m_connectionString);
+                    userEntry.ShowDialog();
+                    this.txtPassword.Clear();
+                    this.btnLogin.Focus();
+                    this.Show();
+                }
             }
             catch (Exception ex)
             {

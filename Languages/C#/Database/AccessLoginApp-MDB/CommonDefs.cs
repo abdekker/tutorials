@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AccessLoginApp_MDB
+{
+     // Common definitions
+    public static class CommonDefs
+    {
+        // Fields in the database4
+        public static readonly UInt32 fieldNone         = 0x00000000;
+        public static readonly UInt32 fieldAll          = 0xFFFFFFFF;
+
+        public static readonly UInt32 fieldEmployeeID   = 0x00000001;
+        public static readonly UInt32 fieldFirstName    = 0x00000002;
+        public static readonly UInt32 fieldLastName     = 0x00000004;
+        public static readonly UInt32 fieldDOB          = 0x00000008;
+        public static readonly UInt32 fieldCountry      = 0x00000010;
+        public static readonly UInt32 fieldPhone        = 0x00000020;
+        public static readonly UInt32 fieldPay          = 0x00000040;
+        public static readonly UInt32 fieldUsername     = 0x00000080;
+        public static readonly UInt32 fieldPassword     = 0x00000100;
+
+        // Enumerations
+        public enum FieldError
+        {
+            // Validation errors on new user entry
+            fieldError_None,
+            fieldError_Blank,               // Generic
+            fieldError_Length,              // Generic (mostly applies to Text/VarChar fields)
+            fieldError_DuplicateName,       // FirstName, LastName already exists
+            fieldError_DuplicateUsername,   // Username already exists
+            fieldError_InvalidDOB,          // DOB ill-formed
+            fieldError_InvalidPay           // Pay out of range or ill-formed
+        };
+    };
+}
