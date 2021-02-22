@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMainLogin));
             this.groupLogin = new System.Windows.Forms.GroupBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.picLogin = new System.Windows.Forms.PictureBox();
             this.lblDebug = new System.Windows.Forms.Label();
             this.btnLogin = new System.Windows.Forms.Button();
             this.txtPassword = new System.Windows.Forms.TextBox();
@@ -42,12 +42,12 @@
             this.tmrStatus = new System.Windows.Forms.Timer(this.components);
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.groupLogin.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogin)).BeginInit();
             this.SuspendLayout();
             // 
             // groupLogin
             // 
-            this.groupLogin.Controls.Add(this.pictureBox1);
+            this.groupLogin.Controls.Add(this.picLogin);
             this.groupLogin.Controls.Add(this.lblDebug);
             this.groupLogin.Controls.Add(this.btnLogin);
             this.groupLogin.Controls.Add(this.txtPassword);
@@ -62,15 +62,15 @@
             this.groupLogin.TabStop = false;
             this.groupLogin.Text = "Login";
             // 
-            // pictureBox1
+            // picLogin
             // 
-            this.pictureBox1.Image = global::AccessLoginApp_MDB.Properties.Resources.IconLogin;
-            this.pictureBox1.Location = new System.Drawing.Point(315, 40);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(128, 128);
-            this.pictureBox1.TabIndex = 6;
-            this.pictureBox1.TabStop = false;
+            this.picLogin.Image = global::AccessLoginApp_MDB.Properties.Resources.IconLogin;
+            this.picLogin.Location = new System.Drawing.Point(315, 40);
+            this.picLogin.Margin = new System.Windows.Forms.Padding(2);
+            this.picLogin.Name = "picLogin";
+            this.picLogin.Size = new System.Drawing.Size(128, 128);
+            this.picLogin.TabIndex = 6;
+            this.picLogin.TabStop = false;
             // 
             // lblDebug
             // 
@@ -88,7 +88,7 @@
             this.btnLogin.Image = global::AccessLoginApp_MDB.Properties.Resources.IconAccept;
             this.btnLogin.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnLogin.Location = new System.Drawing.Point(150, 134);
-            this.btnLogin.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLogin.Margin = new System.Windows.Forms.Padding(2);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(150, 41);
             this.btnLogin.TabIndex = 4;
@@ -99,7 +99,7 @@
             // txtPassword
             // 
             this.txtPassword.Location = new System.Drawing.Point(150, 89);
-            this.txtPassword.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtPassword.Margin = new System.Windows.Forms.Padding(2);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(151, 32);
             this.txtPassword.TabIndex = 3;
@@ -108,7 +108,7 @@
             // txtUsername
             // 
             this.txtUsername.Location = new System.Drawing.Point(150, 39);
-            this.txtUsername.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtUsername.Margin = new System.Windows.Forms.Padding(2);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(151, 32);
             this.txtUsername.TabIndex = 2;
@@ -177,7 +177,7 @@
             this.Load += new System.EventHandler(this.frmMainLogin_Load);
             this.groupLogin.ResumeLayout(false);
             this.groupLogin.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogin)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -195,7 +195,7 @@
         private System.Windows.Forms.Timer tmrStatus;
         private System.Windows.Forms.Label lblStatusTitle;
         private System.Windows.Forms.Label lblDebug;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox picLogin;
     }
 }
 
