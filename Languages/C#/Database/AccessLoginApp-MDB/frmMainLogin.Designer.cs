@@ -152,6 +152,7 @@
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.groupLogin);
             this.Name = "frmMainLogin";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Main Logic (Access .mdb)";
             this.Load += new System.EventHandler(this.frmMainLogin_Load);
             this.groupLogin.ResumeLayout(false);
