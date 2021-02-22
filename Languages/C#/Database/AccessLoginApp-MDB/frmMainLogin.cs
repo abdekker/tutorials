@@ -19,6 +19,8 @@ namespace AccessLoginApp_MDB
     // * Microsoft Access (.mdb, pre Access 2007)
     // * OleDB
 
+    // Example database at: abdekker\privDevelopment\Data\Database\AccessLogin.mdb
+
     // Tutorial URLs:
     // 1) C# MS Access Database Tutorial 1 # Getting Started and Access database Connection (https://www.youtube.com/watch?v=AE-PS6-sL7U)
 
