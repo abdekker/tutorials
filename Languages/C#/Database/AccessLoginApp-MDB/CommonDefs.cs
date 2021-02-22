@@ -10,9 +10,6 @@ namespace AccessLoginApp_MDB
     public static class CommonDefs
     {
         // Fields in the database4
-        public static readonly UInt32 fieldNone         = 0x00000000;
-        public static readonly UInt32 fieldAll          = 0xFFFFFFFF;
-
         public static readonly UInt32 fieldEmployeeID   = 0x00000001;
         public static readonly UInt32 fieldFirstName    = 0x00000002;
         public static readonly UInt32 fieldLastName     = 0x00000004;
@@ -22,6 +19,18 @@ namespace AccessLoginApp_MDB
         public static readonly UInt32 fieldPay          = 0x00000040;
         public static readonly UInt32 fieldUsername     = 0x00000080;
         public static readonly UInt32 fieldPassword     = 0x00000100;
+
+        public static readonly UInt32 fieldsNone        = 0x00000000;
+        public static readonly UInt32 fieldsAll         = (
+            fieldEmployeeID |
+            fieldFirstName |
+            fieldLastName |
+            fieldDOB |
+            fieldCountry |
+            fieldPhone |
+            fieldPay |
+            fieldUsername |
+            fieldPassword);
 
         // Enumerations
         public enum FieldError

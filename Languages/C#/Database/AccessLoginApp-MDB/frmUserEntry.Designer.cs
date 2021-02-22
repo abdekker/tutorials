@@ -30,7 +30,10 @@ namespace AccessLoginApp_MDB
         private void InitializeComponent()
         {
             this.groupUserEntry = new System.Windows.Forms.GroupBox();
-            this.btnSaveUser = new System.Windows.Forms.Button();
+            this.ddlAction = new System.Windows.Forms.ComboBox();
+            this.txtEmployeeID = new System.Windows.Forms.TextBox();
+            this.lblEmployeeID = new System.Windows.Forms.Label();
+            this.btnUpdate = new System.Windows.Forms.Button();
             this.txtPay = new System.Windows.Forms.TextBox();
             this.lblPay = new System.Windows.Forms.Label();
             this.txtLastName = new System.Windows.Forms.TextBox();
@@ -44,7 +47,10 @@ namespace AccessLoginApp_MDB
             // 
             // groupUserEntry
             // 
-            this.groupUserEntry.Controls.Add(this.btnSaveUser);
+            this.groupUserEntry.Controls.Add(this.ddlAction);
+            this.groupUserEntry.Controls.Add(this.txtEmployeeID);
+            this.groupUserEntry.Controls.Add(this.lblEmployeeID);
+            this.groupUserEntry.Controls.Add(this.btnUpdate);
             this.groupUserEntry.Controls.Add(this.txtPay);
             this.groupUserEntry.Controls.Add(this.lblPay);
             this.groupUserEntry.Controls.Add(this.txtLastName);
@@ -54,35 +60,64 @@ namespace AccessLoginApp_MDB
             this.groupUserEntry.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupUserEntry.Location = new System.Drawing.Point(10, 10);
             this.groupUserEntry.Name = "groupUserEntry";
-            this.groupUserEntry.Size = new System.Drawing.Size(329, 234);
+            this.groupUserEntry.Size = new System.Drawing.Size(365, 280);
             this.groupUserEntry.TabIndex = 0;
             this.groupUserEntry.TabStop = false;
             this.groupUserEntry.Text = "User Entry";
             // 
-            // btnSaveUser
+            // ddlAction
             // 
-            this.btnSaveUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveUser.Location = new System.Drawing.Point(150, 175);
-            this.btnSaveUser.Name = "btnSaveUser";
-            this.btnSaveUser.Size = new System.Drawing.Size(150, 40);
-            this.btnSaveUser.TabIndex = 10;
-            this.btnSaveUser.Text = "Save User";
-            this.btnSaveUser.UseVisualStyleBackColor = true;
-            this.btnSaveUser.Click += new System.EventHandler(this.btnSaveUser_Click);
+            this.ddlAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlAction.FormattingEnabled = true;
+            this.ddlAction.Location = new System.Drawing.Point(15, 226);
+            this.ddlAction.Name = "ddlAction";
+            this.ddlAction.Size = new System.Drawing.Size(110, 33);
+            this.ddlAction.TabIndex = 12;
+            this.ddlAction.SelectedIndexChanged += new System.EventHandler(this.ddlAction_SelectedIndexChanged);
+            // 
+            // txtEmployeeID
+            // 
+            this.txtEmployeeID.Location = new System.Drawing.Point(195, 39);
+            this.txtEmployeeID.Margin = new System.Windows.Forms.Padding(2);
+            this.txtEmployeeID.Name = "txtEmployeeID";
+            this.txtEmployeeID.Size = new System.Drawing.Size(151, 31);
+            this.txtEmployeeID.TabIndex = 0;
+            // 
+            // lblEmployeeID
+            // 
+            this.lblEmployeeID.AutoSize = true;
+            this.lblEmployeeID.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEmployeeID.Location = new System.Drawing.Point(15, 40);
+            this.lblEmployeeID.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblEmployeeID.Name = "lblEmployeeID";
+            this.lblEmployeeID.Size = new System.Drawing.Size(149, 26);
+            this.lblEmployeeID.TabIndex = 11;
+            this.lblEmployeeID.Text = "Employee ID";
+            // 
+            // btnUpdate
+            // 
+            this.btnUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnUpdate.Location = new System.Drawing.Point(145, 220);
+            this.btnUpdate.Name = "btnUpdate";
+            this.btnUpdate.Size = new System.Drawing.Size(200, 40);
+            this.btnUpdate.TabIndex = 4;
+            this.btnUpdate.Text = "Update";
+            this.btnUpdate.UseVisualStyleBackColor = true;
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
             // 
             // txtPay
             // 
-            this.txtPay.Location = new System.Drawing.Point(150, 129);
+            this.txtPay.Location = new System.Drawing.Point(195, 174);
             this.txtPay.Margin = new System.Windows.Forms.Padding(2);
             this.txtPay.Name = "txtPay";
             this.txtPay.Size = new System.Drawing.Size(151, 31);
-            this.txtPay.TabIndex = 9;
+            this.txtPay.TabIndex = 3;
             // 
             // lblPay
             // 
             this.lblPay.AutoSize = true;
             this.lblPay.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPay.Location = new System.Drawing.Point(15, 130);
+            this.lblPay.Location = new System.Drawing.Point(15, 175);
             this.lblPay.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPay.Name = "lblPay";
             this.lblPay.Size = new System.Drawing.Size(89, 26);
@@ -91,25 +126,25 @@ namespace AccessLoginApp_MDB
             // 
             // txtLastName
             // 
-            this.txtLastName.Location = new System.Drawing.Point(150, 84);
+            this.txtLastName.Location = new System.Drawing.Point(195, 129);
             this.txtLastName.Margin = new System.Windows.Forms.Padding(2);
             this.txtLastName.Name = "txtLastName";
             this.txtLastName.Size = new System.Drawing.Size(151, 31);
-            this.txtLastName.TabIndex = 7;
+            this.txtLastName.TabIndex = 2;
             // 
             // txtFirstName
             // 
-            this.txtFirstName.Location = new System.Drawing.Point(150, 39);
+            this.txtFirstName.Location = new System.Drawing.Point(195, 84);
             this.txtFirstName.Margin = new System.Windows.Forms.Padding(2);
             this.txtFirstName.Name = "txtFirstName";
             this.txtFirstName.Size = new System.Drawing.Size(151, 31);
-            this.txtFirstName.TabIndex = 6;
+            this.txtFirstName.TabIndex = 1;
             // 
             // lblLastName
             // 
             this.lblLastName.AutoSize = true;
             this.lblLastName.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLastName.Location = new System.Drawing.Point(15, 85);
+            this.lblLastName.Location = new System.Drawing.Point(15, 130);
             this.lblLastName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblLastName.Name = "lblLastName";
             this.lblLastName.Size = new System.Drawing.Size(116, 26);
@@ -120,7 +155,7 @@ namespace AccessLoginApp_MDB
             // 
             this.lblFirstName.AutoSize = true;
             this.lblFirstName.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFirstName.Location = new System.Drawing.Point(15, 40);
+            this.lblFirstName.Location = new System.Drawing.Point(15, 85);
             this.lblFirstName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblFirstName.Name = "lblFirstName";
             this.lblFirstName.Size = new System.Drawing.Size(129, 26);
@@ -131,7 +166,7 @@ namespace AccessLoginApp_MDB
             // 
             this.lblStatusTitle.AutoSize = true;
             this.lblStatusTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStatusTitle.Location = new System.Drawing.Point(10, 250);
+            this.lblStatusTitle.Location = new System.Drawing.Point(10, 295);
             this.lblStatusTitle.Name = "lblStatusTitle";
             this.lblStatusTitle.Size = new System.Drawing.Size(37, 13);
             this.lblStatusTitle.TabIndex = 12;
@@ -140,9 +175,9 @@ namespace AccessLoginApp_MDB
             // lblStatus
             // 
             this.lblStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStatus.Location = new System.Drawing.Point(50, 250);
+            this.lblStatus.Location = new System.Drawing.Point(50, 295);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(285, 16);
+            this.lblStatus.Size = new System.Drawing.Size(325, 16);
             this.lblStatus.TabIndex = 11;
             this.lblStatus.Text = "?";
             // 
@@ -150,7 +185,7 @@ namespace AccessLoginApp_MDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(349, 271);
+            this.ClientSize = new System.Drawing.Size(384, 316);
             this.Controls.Add(this.lblStatusTitle);
             this.Controls.Add(this.groupUserEntry);
             this.Controls.Add(this.lblStatus);
@@ -171,10 +206,13 @@ namespace AccessLoginApp_MDB
         private System.Windows.Forms.TextBox txtFirstName;
         private System.Windows.Forms.Label lblLastName;
         private System.Windows.Forms.Label lblFirstName;
-        private System.Windows.Forms.Button btnSaveUser;
+        private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.TextBox txtPay;
         private System.Windows.Forms.Label lblPay;
         private System.Windows.Forms.Label lblStatusTitle;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.ComboBox ddlAction;
+        private System.Windows.Forms.TextBox txtEmployeeID;
+        private System.Windows.Forms.Label lblEmployeeID;
     }
 }

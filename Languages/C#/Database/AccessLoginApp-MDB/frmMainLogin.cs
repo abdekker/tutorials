@@ -18,9 +18,10 @@ namespace AccessLoginApp_MDB
     // * OleDB
 
     // Example database at: abdekker\privDevelopment\Data\Database\AccessLogin.mdb
+    // Created in Access 365 and saved as "Access 2002-2003 Database"
 
-    // Tutorial URLs:
-    // 1) C# MS Access Database Tutorial 1 # Getting Started and Access database Connection (https://www.youtube.com/watch?v=AE-PS6-sL7U)
+    // Tutorial URL = https://www.youtube.com/watch?v=AE-PS6-sL7U (Tutorial 1 of 21)
+    // (or search for "C# MS Access Database Tutorial")
 
     public partial class frmMainLogin : Form
     {
@@ -101,8 +102,13 @@ namespace AccessLoginApp_MDB
                 if (!m_error)
                 {
                     this.Hide();
-                    frmUserEntry userEntry = new frmUserEntry(m_connectionString);
-                    userEntry.ShowDialog();
+                    try
+                    {
+                        frmUserEntry userEntry = new frmUserEntry(m_connectionString);
+                        userEntry.ShowDialog();
+                    }
+                    catch { }
+
                     this.txtPassword.Clear();
                     this.btnLogin.Focus();
                     this.Show();
