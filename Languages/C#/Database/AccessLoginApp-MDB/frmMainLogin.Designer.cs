@@ -29,7 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMainLogin));
             this.groupLogin = new System.Windows.Forms.GroupBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblDebug = new System.Windows.Forms.Label();
             this.btnLogin = new System.Windows.Forms.Button();
             this.txtPassword = new System.Windows.Forms.TextBox();
@@ -40,10 +42,12 @@
             this.tmrStatus = new System.Windows.Forms.Timer(this.components);
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.groupLogin.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupLogin
             // 
+            this.groupLogin.Controls.Add(this.pictureBox1);
             this.groupLogin.Controls.Add(this.lblDebug);
             this.groupLogin.Controls.Add(this.btnLogin);
             this.groupLogin.Controls.Add(this.txtPassword);
@@ -51,17 +55,27 @@
             this.groupLogin.Controls.Add(this.lblPassword);
             this.groupLogin.Controls.Add(this.lblUsername);
             this.groupLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupLogin.Location = new System.Drawing.Point(10, 15);
+            this.groupLogin.Location = new System.Drawing.Point(10, 10);
             this.groupLogin.Name = "groupLogin";
-            this.groupLogin.Size = new System.Drawing.Size(315, 191);
+            this.groupLogin.Size = new System.Drawing.Size(460, 190);
             this.groupLogin.TabIndex = 0;
             this.groupLogin.TabStop = false;
             this.groupLogin.Text = "Login";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::AccessLoginApp_MDB.Properties.Resources.IconLogin;
+            this.pictureBox1.Location = new System.Drawing.Point(315, 40);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(128, 128);
+            this.pictureBox1.TabIndex = 6;
+            this.pictureBox1.TabStop = false;
+            // 
             // lblDebug
             // 
             this.lblDebug.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDebug.Location = new System.Drawing.Point(15, 134);
+            this.lblDebug.Location = new System.Drawing.Point(15, 135);
             this.lblDebug.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblDebug.Name = "lblDebug";
             this.lblDebug.Size = new System.Drawing.Size(131, 44);
@@ -71,6 +85,8 @@
             // btnLogin
             // 
             this.btnLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLogin.Image = global::AccessLoginApp_MDB.Properties.Resources.IconAccept;
+            this.btnLogin.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnLogin.Location = new System.Drawing.Point(150, 134);
             this.btnLogin.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnLogin.Name = "btnLogin";
@@ -82,7 +98,7 @@
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(150, 88);
+            this.txtPassword.Location = new System.Drawing.Point(150, 89);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(151, 32);
@@ -122,9 +138,9 @@
             // lblStatus
             // 
             this.lblStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStatus.Location = new System.Drawing.Point(52, 211);
+            this.lblStatus.Location = new System.Drawing.Point(50, 205);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(266, 44);
+            this.lblStatus.Size = new System.Drawing.Size(415, 36);
             this.lblStatus.TabIndex = 1;
             this.lblStatus.Text = "?";
             // 
@@ -137,7 +153,7 @@
             // 
             this.lblStatusTitle.AutoSize = true;
             this.lblStatusTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStatusTitle.Location = new System.Drawing.Point(11, 211);
+            this.lblStatusTitle.Location = new System.Drawing.Point(10, 205);
             this.lblStatusTitle.Name = "lblStatusTitle";
             this.lblStatusTitle.Size = new System.Drawing.Size(37, 13);
             this.lblStatusTitle.TabIndex = 2;
@@ -147,16 +163,21 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(335, 266);
+            this.ClientSize = new System.Drawing.Size(479, 246);
             this.Controls.Add(this.lblStatusTitle);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.groupLogin);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "frmMainLogin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Main Logic (Access .mdb)";
+            this.Text = "Main Logic (Access MDB using OleDB)";
             this.Load += new System.EventHandler(this.frmMainLogin_Load);
             this.groupLogin.ResumeLayout(false);
             this.groupLogin.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -174,6 +195,7 @@
         private System.Windows.Forms.Timer tmrStatus;
         private System.Windows.Forms.Label lblStatusTitle;
         private System.Windows.Forms.Label lblDebug;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
