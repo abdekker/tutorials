@@ -36,16 +36,23 @@ namespace AccessLoginApp_MDB
 
              // Connection string for older versions of Access:
              //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
-            OleDbConnection connection = new OleDbConnection();
-            connection.ConnectionString =
-                @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=AccessLogin.mdb;User Id=admin;Password=;";
-            connection.Open();
-            if (connection.State == ConnectionState.Open)
-                lblStatus.Text = "Status = Open";
-            else
-                lblStatus.Text = "Status = ?";
+            try
+            {
+                OleDbConnection connection = new OleDbConnection();
+                connection.ConnectionString =
+                    @"Provder=Microsoft.Jet.OLEDB.4.0;Data Source=AccessLogin.mdb;User Id=admin;Password=;";
+                connection.Open();
+                if (connection.State == ConnectionState.Open)
+                    lblStatus.Text = "Status = Open";
+                else
+                    lblStatus.Text = "Status = ?";
 
-            connection.Close();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = string.Format("Status = Exception {0}", ex.Message);
+            }
         }
     }
 }
