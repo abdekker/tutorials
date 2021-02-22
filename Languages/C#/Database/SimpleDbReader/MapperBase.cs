@@ -181,7 +181,7 @@ namespace SimpleDbReader
         public IDbConnection GetConnection()
         {
             // Notes:
-            // * The examples below are for Access 97, 2000, 2002 and 2003 (.mdb files); generally just change
+            // * The examples below are for Access 97, 2000, 2002 and 2003 (.mdb files)
             // * Generally only two changes are required for Access 2007+ (.accdb) files:
             //      - For ODBC, change the "Driver" to "{Microsoft Access Driver (*.mdb, *.accdb)}"
             //      - Change the database name to "myDB.accdb"
