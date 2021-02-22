@@ -17,13 +17,20 @@ namespace AccessLoginApp_MDB
 {
     // Following the tutorial (see below) using:
     // * Microsoft Access (.mdb, pre Access 2007)
-    // * OleDb
+    // * OleDB
 
     // Tutorial URLs:
     // 1) C# MS Access Database Tutorial 1 # Getting Started and Access database Connection (https://www.youtube.com/watch?v=AE-PS6-sL7U)
 
     public partial class frmMainLogin : Form
     {
+        #region Member variables
+        private bool m_error = false;
+        private OleDbConnection m_connection = new OleDbConnection();
+        private string m_connectionString =
+            @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
+        #endregion // Member variables
+
         public frmMainLogin()
         {
             InitializeComponent();
@@ -31,28 +38,109 @@ namespace AccessLoginApp_MDB
 
         private void frmMainLogin_Load(object sender, EventArgs e)
         {
-            // Connection string for Access 2007+:
-            //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";
+            // Start an update timer for the status of the connection
+            tmrStatus.Enabled = true;
 
-             // Connection string for older versions of Access:
-             //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
             try
             {
-                OleDbConnection connection = new OleDbConnection();
-                connection.ConnectionString =
-                    @"Provder=Microsoft.Jet.OLEDB.4.0;Data Source=AccessLogin.mdb;User Id=admin;Password=;";
-                connection.Open();
-                if (connection.State == ConnectionState.Open)
-                    lblStatus.Text = "Status = Open";
-                else
-                    lblStatus.Text = "Status = ?";
+                // Set the connection string for the database
+                // Connection string for Access 2007+:
+                //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";
 
-                connection.Close();
+                 // Connection string for older versions of Access:
+                 //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
+                m_connection.ConnectionString = m_connectionString;
+
+                // Test open/close the database
+                m_connection.Open();
+                m_connection.Close();
             }
             catch (Exception ex)
             {
-                lblStatus.Text = string.Format("Status = Exception {0}", ex.Message);
+                m_error = true;
+                lblStatus.Text = string.Format("Exception: {0}", ex.Message);
             }
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            // Validate the username and password
+            try
+            {
+                m_error = false;
+                m_connection.ConnectionString = m_connectionString;
+                m_connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = m_connection;
+                command.CommandText = (
+                    "SELECT * FROM EmployeeData WHERE " +
+                    "Username='" + txtUsername.Text + "' AND " +     // Change to "OR" to show duplicate users
+                    "Password='" + txtPassword.Text + "'");
+                OleDbDataReader reader = command.ExecuteReader();
+                int countUsers = 0;
+                while (reader.Read())
+                {
+                    countUsers++;
+                }
+                lblDebug.Text = countUsers.ToString();
+
+                string msg = string.Empty;
+                if (countUsers < 1)
+                    msg = "No user found with those credentials";
+                else if (countUsers > 1)
+                    msg = string.Format("Duplicate users! {0} users found with those credentials.", countUsers);
+                else if (countUsers == 1)
+                    msg = "Username and password correct!";
+
+                MessageBox.Show(msg);
+                m_connection.Close();
+            }
+            catch (Exception ex)
+            {
+                m_error = true;
+                lblStatus.Text = string.Format("Exception: {0}", ex.Message);
+            }
+        }
+
+        private void tmrStatus_Tick(object sender, EventArgs e)
+        {
+            // Update the status for the connection
+            tmrStatus.Enabled = false;
+            if (!m_error)
+            {
+                switch (m_connection.State)
+                {
+                    case ConnectionState.Closed:
+                        lblStatus.Text = "Closed";
+                        break;
+
+                    case ConnectionState.Open:
+                        lblStatus.Text = "Open";
+                        break;
+
+                    case ConnectionState.Connecting:
+                        lblStatus.Text = "Connecting";
+                        break;
+
+                    case ConnectionState.Executing:
+                        lblStatus.Text = "Executing";
+                        break;
+
+                    case ConnectionState.Fetching:
+                        lblStatus.Text = "Fetching";
+                        break;
+
+                    case ConnectionState.Broken:
+                        lblStatus.Text = "Broken";
+                        break;
+
+                    default:
+                        lblStatus.Text = "???";
+                        break;
+                }
+            }
+
+            tmrStatus.Enabled = true;
         }
     }
 }
