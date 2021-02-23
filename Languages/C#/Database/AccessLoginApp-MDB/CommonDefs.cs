@@ -32,6 +32,17 @@ namespace AccessLoginApp_MDB
             fieldUsername |
             fieldPassword);
 
+        public static readonly string nameEmployeeID   = "EmployeeID";
+        public static readonly string nameFirstName    = "FirstName";
+        public static readonly string nameLastName     = "LastName";
+        public static readonly string nameDOB          = "DOB";
+        public static readonly string nameCountry      = "Country";
+        public static readonly string namePhone        = "Phone";
+        public static readonly string namePay          = "Pay";
+        public static readonly string nameUsername     = "Username";
+        public static readonly string namePassword     = "Password";
+        #endregion // Fields in the database
+
         // Enumerations
         public enum FieldError
         {
