@@ -759,7 +759,17 @@ namespace AccessLoginApp_MDB
                 m_connection.Open();
                 OleDbCommand command = new OleDbCommand();
                 command.Connection = m_connection;
-                command.CommandText = ("SELECT * FROM EmployeeData;");
+                // Don't use "SELECT * FROM EmployeeData" because the username and password will be displayed!
+                command.CommandText = (
+                    "SELECT " +
+                    CommonDefs.nameEmployeeID + "," +
+                    CommonDefs.nameFirstName + "," +
+                    CommonDefs.nameLastName + "," +
+                    CommonDefs.nameDOB + "," +
+                    CommonDefs.nameCountry + "," +
+                    CommonDefs.namePhone + "," +
+                    CommonDefs.namePay +
+                    " FROM EmployeeData;");
 
                 OleDbDataAdapter da = new OleDbDataAdapter(command);
                 DataTable dt = new DataTable();

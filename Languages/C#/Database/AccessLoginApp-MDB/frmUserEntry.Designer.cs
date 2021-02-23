@@ -227,7 +227,7 @@ namespace AccessLoginApp_MDB
             this.groupReviewDataGridView.Controls.Add(this.gridUsers);
             this.groupReviewDataGridView.Location = new System.Drawing.Point(10, 320);
             this.groupReviewDataGridView.Name = "groupReviewDataGridView";
-            this.groupReviewDataGridView.Size = new System.Drawing.Size(1015, 430);
+            this.groupReviewDataGridView.Size = new System.Drawing.Size(765, 430);
             this.groupReviewDataGridView.TabIndex = 14;
             this.groupReviewDataGridView.TabStop = false;
             this.groupReviewDataGridView.Text = "Review (DataGridView)";
@@ -257,14 +257,14 @@ namespace AccessLoginApp_MDB
             this.gridUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridUsers.Location = new System.Drawing.Point(5, 20);
             this.gridUsers.Name = "gridUsers";
-            this.gridUsers.Size = new System.Drawing.Size(1005, 405);
+            this.gridUsers.Size = new System.Drawing.Size(755, 405);
             this.gridUsers.TabIndex = 0;
             // 
             // frmUserEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1034, 761);
+            this.ClientSize = new System.Drawing.Size(784, 761);
             this.Controls.Add(this.lblNumUsers);
             this.Controls.Add(this.groupReviewDataGridView);
             this.Controls.Add(this.groupReviewListBox);
