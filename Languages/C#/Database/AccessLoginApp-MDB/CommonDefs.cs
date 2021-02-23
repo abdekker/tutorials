@@ -46,4 +46,32 @@ namespace AccessLoginApp_MDB
             fieldError_DuplicateUsername    // Username already exists
         };
     };
+
+    public class EmployeeData
+    {
+        // Properties
+        public int EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DOB { get; set; }
+        public string Country { get; set; }
+        public string Phone { get; set; }
+        public decimal Pay { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+
+        // Class to represent an employee
+        public EmployeeData()
+        {
+            EmployeeID = -1;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            DOB = DateTime.Now;
+            Country = string.Empty;
+            Phone = string.Empty;
+            Pay = 0.0m;
+            Username = string.Empty;
+            Password = string.Empty;
+        }
+    };
 }
