@@ -43,12 +43,16 @@ namespace AccessLoginApp_MDB
             this.lblFirstName = new System.Windows.Forms.Label();
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.groupReview = new System.Windows.Forms.GroupBox();
+            this.groupReviewListBox = new System.Windows.Forms.GroupBox();
             this.lstUsers = new System.Windows.Forms.ListBox();
-            this.btnRefreshList = new System.Windows.Forms.Button();
+            this.groupReviewDataGridView = new System.Windows.Forms.GroupBox();
             this.lblNumUsers = new System.Windows.Forms.Label();
+            this.btnRefreshList = new System.Windows.Forms.Button();
+            this.gridUsers = new System.Windows.Forms.DataGridView();
             this.groupUserEntry.SuspendLayout();
-            this.groupReview.SuspendLayout();
+            this.groupReviewListBox.SuspendLayout();
+            this.groupReviewDataGridView.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gridUsers)).BeginInit();
             this.SuspendLayout();
             // 
             // groupUserEntry
@@ -198,17 +202,15 @@ namespace AccessLoginApp_MDB
             this.lblStatus.TabIndex = 11;
             this.lblStatus.Text = "?";
             // 
-            // groupReview
+            // groupReviewListBox
             // 
-            this.groupReview.Controls.Add(this.lblNumUsers);
-            this.groupReview.Controls.Add(this.btnRefreshList);
-            this.groupReview.Controls.Add(this.lstUsers);
-            this.groupReview.Location = new System.Drawing.Point(385, 10);
-            this.groupReview.Name = "groupReview";
-            this.groupReview.Size = new System.Drawing.Size(265, 280);
-            this.groupReview.TabIndex = 13;
-            this.groupReview.TabStop = false;
-            this.groupReview.Text = "Review";
+            this.groupReviewListBox.Controls.Add(this.lstUsers);
+            this.groupReviewListBox.Location = new System.Drawing.Point(385, 10);
+            this.groupReviewListBox.Name = "groupReviewListBox";
+            this.groupReviewListBox.Size = new System.Drawing.Size(265, 265);
+            this.groupReviewListBox.TabIndex = 13;
+            this.groupReviewListBox.TabStop = false;
+            this.groupReviewListBox.Text = "Review (ListBox)";
             // 
             // lstUsers
             // 
@@ -216,36 +218,57 @@ namespace AccessLoginApp_MDB
             this.lstUsers.FormattingEnabled = true;
             this.lstUsers.Location = new System.Drawing.Point(5, 20);
             this.lstUsers.Name = "lstUsers";
-            this.lstUsers.Size = new System.Drawing.Size(255, 225);
+            this.lstUsers.Size = new System.Drawing.Size(255, 238);
             this.lstUsers.TabIndex = 5;
             this.lstUsers.SelectedIndexChanged += new System.EventHandler(this.lstUsers_SelectedIndexChanged);
             // 
-            // btnRefreshList
+            // groupReviewDataGridView
             // 
-            this.btnRefreshList.Location = new System.Drawing.Point(170, 250);
-            this.btnRefreshList.Name = "btnRefreshList";
-            this.btnRefreshList.Size = new System.Drawing.Size(85, 23);
-            this.btnRefreshList.TabIndex = 6;
-            this.btnRefreshList.Text = "Refresh List";
-            this.btnRefreshList.UseVisualStyleBackColor = true;
-            this.btnRefreshList.Click += new System.EventHandler(this.btnRefreshList_Click);
+            this.groupReviewDataGridView.Controls.Add(this.gridUsers);
+            this.groupReviewDataGridView.Location = new System.Drawing.Point(10, 320);
+            this.groupReviewDataGridView.Name = "groupReviewDataGridView";
+            this.groupReviewDataGridView.Size = new System.Drawing.Size(1015, 430);
+            this.groupReviewDataGridView.TabIndex = 14;
+            this.groupReviewDataGridView.TabStop = false;
+            this.groupReviewDataGridView.Text = "Review (DataGridView)";
             // 
             // lblNumUsers
             // 
             this.lblNumUsers.AutoSize = true;
             this.lblNumUsers.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNumUsers.Location = new System.Drawing.Point(10, 250);
+            this.lblNumUsers.Location = new System.Drawing.Point(385, 280);
             this.lblNumUsers.Name = "lblNumUsers";
             this.lblNumUsers.Size = new System.Drawing.Size(45, 13);
-            this.lblNumUsers.TabIndex = 13;
+            this.lblNumUsers.TabIndex = 16;
             this.lblNumUsers.Text = "Users: ?";
+            // 
+            // btnRefreshList
+            // 
+            this.btnRefreshList.Location = new System.Drawing.Point(560, 280);
+            this.btnRefreshList.Name = "btnRefreshList";
+            this.btnRefreshList.Size = new System.Drawing.Size(85, 23);
+            this.btnRefreshList.TabIndex = 15;
+            this.btnRefreshList.Text = "Refresh List";
+            this.btnRefreshList.UseVisualStyleBackColor = true;
+            this.btnRefreshList.Click += new System.EventHandler(this.btnRefreshList_Click);
+            // 
+            // gridUsers
+            // 
+            this.gridUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridUsers.Location = new System.Drawing.Point(5, 20);
+            this.gridUsers.Name = "gridUsers";
+            this.gridUsers.Size = new System.Drawing.Size(1005, 405);
+            this.gridUsers.TabIndex = 0;
             // 
             // frmUserEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(661, 316);
-            this.Controls.Add(this.groupReview);
+            this.ClientSize = new System.Drawing.Size(1034, 761);
+            this.Controls.Add(this.lblNumUsers);
+            this.Controls.Add(this.groupReviewDataGridView);
+            this.Controls.Add(this.groupReviewListBox);
+            this.Controls.Add(this.btnRefreshList);
             this.Controls.Add(this.lblStatusTitle);
             this.Controls.Add(this.groupUserEntry);
             this.Controls.Add(this.lblStatus);
@@ -256,8 +279,9 @@ namespace AccessLoginApp_MDB
             this.Load += new System.EventHandler(this.frmUserEntry_Load);
             this.groupUserEntry.ResumeLayout(false);
             this.groupUserEntry.PerformLayout();
-            this.groupReview.ResumeLayout(false);
-            this.groupReview.PerformLayout();
+            this.groupReviewListBox.ResumeLayout(false);
+            this.groupReviewDataGridView.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gridUsers)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -279,9 +303,11 @@ namespace AccessLoginApp_MDB
         private System.Windows.Forms.TextBox txtEmployeeID;
         private System.Windows.Forms.Label lblEmployeeID;
         private System.Windows.Forms.Label lblUserName;
-        private System.Windows.Forms.GroupBox groupReview;
+        private System.Windows.Forms.GroupBox groupReviewListBox;
         private System.Windows.Forms.ListBox lstUsers;
-        private System.Windows.Forms.Button btnRefreshList;
+        private System.Windows.Forms.GroupBox groupReviewDataGridView;
+        private System.Windows.Forms.DataGridView gridUsers;
         private System.Windows.Forms.Label lblNumUsers;
+        private System.Windows.Forms.Button btnRefreshList;
     }
 }

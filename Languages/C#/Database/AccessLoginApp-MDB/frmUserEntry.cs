@@ -69,6 +69,7 @@ namespace AccessLoginApp_MDB
 
             // Show a list of the current users
             RefreshUserList();
+            RefreshUserGrid();
         }
 
         private void ddlAction_SelectedIndexChanged(object sender, EventArgs e)
@@ -166,6 +167,7 @@ namespace AccessLoginApp_MDB
         {
             // Refresh the list with the current users
             RefreshUserList();
+            RefreshUserGrid();
         }
         #endregion // Form Events
 
@@ -714,7 +716,7 @@ namespace AccessLoginApp_MDB
 
         private void RefreshUserList()
         {
-            // Show the fields in the database from this field (or column)
+            // Update the list of users in a ListBOx
             try
             {
                 m_connection.ConnectionString = m_connectionString;
@@ -738,6 +740,32 @@ namespace AccessLoginApp_MDB
                 }
                 lstUsers.EndUpdate();
                 lblNumUsers.Text = string.Format("Users: {0}", numUsers);
+
+                m_connection.Close();
+                m_connection.Dispose();
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = string.Format("Exception: {0}", ex.Message);
+            }
+        }
+
+        private void RefreshUserGrid()
+        {
+            // Update the list of users in a DataGridView
+            try
+            {
+                m_connection.ConnectionString = m_connectionString;
+                m_connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = m_connection;
+                command.CommandText = ("SELECT * FROM EmployeeData;");
+
+                OleDbDataAdapter da = new OleDbDataAdapter(command);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gridUsers.DataSource = dt;
+                OleDbDataReader reader = command.ExecuteReader();
 
                 m_connection.Close();
                 m_connection.Dispose();
