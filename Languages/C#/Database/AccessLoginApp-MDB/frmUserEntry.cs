@@ -101,7 +101,7 @@ namespace AccessLoginApp_MDB
         #region Private methods
         private void ActionAddNewUser()
         {
-            // Adding a new user. Ensure the entered data is valid before continuing.
+            // Add a new user. Ensure the entered data is valid before continuing.
             // Note: Currently requires First Name, Last Name, and pay to be provided.
             if (ValidateDataNewUser())
             {
@@ -137,7 +137,7 @@ namespace AccessLoginApp_MDB
 
         private void ActionEditExistingUser()
         {
-            // Editing an existing user. Ensure the entered data is valid before continuing.
+            // Edit an existing user. Ensure the entered data is valid before continuing.
             if (ValidateDataEditExisting())
             {
                 // Data is valid. Update the existing user based on Employee ID.
@@ -170,6 +170,33 @@ namespace AccessLoginApp_MDB
 
         private void ActionDeleteExistingUser()
         {
+            // Delete an existing user. Ensure the entered data is valid before continuing.
+            if (ValidateDataDeleteExisting())
+            {
+                // Data is valid. Update the existing user based on Employee ID.
+                try
+                {
+                    m_error = false;
+                    m_connection.ConnectionString = m_connectionString;
+                    m_connection.Open();
+                    OleDbCommand command = new OleDbCommand();
+                    command.Connection = m_connection;
+                    string query = (
+                        "DELETE FROM EmployeeData WHERE EmployeeID=" + m_employee.EmployeeID.ToString() + ";");
+                    command.CommandText = query;
+                    command.ExecuteNonQuery(); 
+                    m_connection.Close();
+                    m_connection.Dispose();
+                    lblStatus.Text = string.Format("Employee ID '{0}' deleted from the database", m_employee.EmployeeID);
+                }
+                catch (Exception ex)
+                {
+                    m_error = true;
+                    lblStatus.Text = string.Format("Exception: {0}", ex.Message);
+                }
+            }
+            else
+                MessageBox.Show(GetInvalidMessage(), "Error!");
         }
 
         private bool ValidateDataNewUser()
@@ -390,6 +417,57 @@ namespace AccessLoginApp_MDB
                 m_employee.LastName = txtLastName.Text;
                 m_employee.Pay = pay;
             }
+            return (!m_error);
+        }
+
+        private bool ValidateDataDeleteExisting()
+        {
+            // Validate user entry (for deleting an existing user)
+            m_error = false;
+            m_errorID = CommonDefs.fieldsNone;
+            m_errorCode = CommonDefs.FieldError.fieldError_None;
+
+            // Note: Only the employee ID is required for deleting a user
+
+            // Employee ID
+            int employeeID = -1;
+            if (string.IsNullOrEmpty(txtEmployeeID.Text))
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldEmployeeID;
+                m_errorCode = CommonDefs.FieldError.fieldError_Blank;
+            }
+            else if (!int.TryParse(txtEmployeeID.Text, out employeeID))
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldEmployeeID;
+                m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+            }
+            else if ((employeeID < employeeIdMin) || (employeeID > employeeIdMax))
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldEmployeeID;
+                m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
+            }
+
+            // Confirm this employee exists in the database
+            if (!m_error)
+            {
+                string query = (
+                    "SELECT * FROM EmployeeData WHERE " +
+                    "EmployeeID=" + employeeID.ToString() + ";");
+                if (!DoesQueryReturnRows(query))
+                {
+                    m_error = true;
+                    m_errorID |= CommonDefs.fieldEmployeeID;
+                    m_errorCode = CommonDefs.FieldError.fieldError_IdUnknown;
+                }
+            }
+
+            // If there are no errors, this user can be edited in the database!
+            if (!m_error)
+                m_employee.EmployeeID = employeeID;
+
             return (!m_error);
         }
 
