@@ -27,6 +27,9 @@ namespace AccessLoginApp_MDB
         private readonly int employeeIdMin = 0;
         private readonly int employeeIdMax = 999999;
 
+        private readonly int firstNameLengthMax = 20;
+        private readonly int lastNameLengthMax = 50;
+
         private readonly decimal payMin = 0.0m;
         private readonly decimal payMax = 999.99m;
         #endregion // Constants
@@ -36,6 +39,7 @@ namespace AccessLoginApp_MDB
         private UInt32 m_errorID = CommonDefs.fieldsNone;
         private CommonDefs.FieldError m_errorCode = CommonDefs.FieldError.fieldError_None;
 
+        private EmployeeData m_employee = new EmployeeData();
         private UInt32 m_editFields = CommonDefs.fieldsAll;
 
         private OleDbConnection m_connection = new OleDbConnection();
@@ -98,6 +102,7 @@ namespace AccessLoginApp_MDB
         private void ActionAddNewUser()
         {
             // Adding a new user. Ensure the entered data is valid before continuing.
+            // Note: Currently requires First Name, Last Name, and pay to be provided.
             if (ValidateDataNewUser())
             {
                 try
@@ -117,11 +122,13 @@ namespace AccessLoginApp_MDB
 
                     m_connection.Close();
                     m_connection.Dispose();
+                    lblStatus.Text = string.Format("User '{0}' '{1}' added to the database",
+                        txtFirstName.Text, txtLastName.Text);
                 }
-                catch
+                catch (Exception ex)
                 {
                     m_error = true;
-                    lblStatus.Text = "Exception!";
+                    lblStatus.Text = string.Format("Exception: {0}", ex.Message);
                 }
             }
             else
@@ -141,24 +148,20 @@ namespace AccessLoginApp_MDB
                     m_connection.Open();
                     OleDbCommand command = new OleDbCommand();
                     command.Connection = m_connection;
-                    command.CommandText = (
-                        "UPDATE EmployeeData SET " +
-                        "FirstName='" + "'" + txtFirstName.Text + "'," +
-                        "LastName='" + "'" + txtFirstName.Text + "'," +
-
-                        "VALUES (" + 
-                            "'" + txtFirstName.Text + "'," +
-                            "'" + txtLastName.Text + "'," +
-                            "'" + txtPay.Text + "')");
+                    string query = (
+                        "UPDATE EmployeeData" +
+                        GetEditParameters() +
+                        "WHERE EmployeeID=" + m_employee.EmployeeID.ToString() + ";");
+                    command.CommandText = query;
                     command.ExecuteNonQuery(); 
-
                     m_connection.Close();
                     m_connection.Dispose();
+                    lblStatus.Text = string.Format("Employee ID '{0}' updated in the database", m_employee.EmployeeID);
                 }
-                catch
+                catch (Exception ex)
                 {
                     m_error = true;
-                    lblStatus.Text = "Exception!";
+                    lblStatus.Text = string.Format("Exception: {0}", ex.Message);
                 }
             }
             else
@@ -176,95 +179,82 @@ namespace AccessLoginApp_MDB
             m_errorID = CommonDefs.fieldsNone;
             m_errorCode = CommonDefs.FieldError.fieldError_None;
 
-            // Check for blank entries
+            // First name
             if (string.IsNullOrEmpty(txtFirstName.Text))
             {
                 m_error = true;
                 m_errorID |= CommonDefs.fieldFirstName;
                 m_errorCode = CommonDefs.FieldError.fieldError_Blank;
             }
+            else if (txtFirstName.Text.Length > firstNameLengthMax)
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldFirstName;
+                m_errorCode = CommonDefs.FieldError.fieldError_Length;
+            }
 
+            // Last name
             if (string.IsNullOrEmpty(txtLastName.Text))
             {
                 m_error = true;
                 m_errorID |= CommonDefs.fieldLastName;
                 m_errorCode = CommonDefs.FieldError.fieldError_Blank;
             }
-
-            if (string.IsNullOrEmpty(txtPay.Text))
+            else if (txtLastName.Text.Length > lastNameLengthMax)
             {
                 m_error = true;
-                m_errorID |= CommonDefs.fieldPay;
-                m_errorCode = CommonDefs.FieldError.fieldError_Blank;
+                m_errorID |= CommonDefs.fieldLastName;
+                m_errorCode = CommonDefs.FieldError.fieldError_Length;
             }
 
+            // Check for a duplicate combination of (FirstName,LastName)
             if (!m_error)
             {
-                // Check for length issues
-                if (txtFirstName.Text.Length > 20)
+                string query = (
+                    "SELECT * FROM EmployeeData WHERE " +
+                    "FirstName='" + txtFirstName.Text + "' AND " +
+                    "LastName='" + txtLastName.Text + "';");
+                if (DoesQueryReturnRows(query))
                 {
                     m_error = true;
-                    m_errorID |= CommonDefs.fieldFirstName;
-                    m_errorCode = CommonDefs.FieldError.fieldError_Length;
+                    m_errorID |= (
+                        CommonDefs.fieldFirstName |
+                        CommonDefs.fieldLastName);
+                    m_errorCode = CommonDefs.FieldError.fieldError_DuplicateName;
                 }
+            }
 
-                if (txtLastName.Text.Length > 50)
+            // Pay
+            decimal pay = 0.0m;
+            if (!m_error)
+            {
+                if (string.IsNullOrEmpty(txtPay.Text))
                 {
                     m_error = true;
-                    m_errorID |= CommonDefs.fieldLastName;
-                    m_errorCode = CommonDefs.FieldError.fieldError_Length;
+                    m_errorID |= CommonDefs.fieldPay;
+                    m_errorCode = CommonDefs.FieldError.fieldError_Blank;
                 }
-            }
-
-            if (!m_error)
-            {
-                // Check for a duplicate combination of (FirstName,LastName)
-                try
-                {
-                    m_connection.ConnectionString = m_connectionString;
-                    m_connection.Open();
-                    OleDbCommand command = new OleDbCommand();
-                    command.Connection = m_connection;
-                    command.CommandText = (
-                        "SELECT * FROM EmployeeData WHERE " +
-                        "FirstName='" + txtFirstName.Text + "' AND " +
-                        "LastName='" + txtLastName.Text + "'");
-                    OleDbDataReader reader = command.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        m_error = true;
-                        m_errorID |= CommonDefs.fieldFirstName;
-                        m_errorCode = CommonDefs.FieldError.fieldError_DuplicateName;
-                    }
-
-                    m_connection.Close();
-                    m_connection.Dispose();
-                }
-                catch { }
-            }
-
-            if (!m_error)
-            {
-                // Check for valid pay
-                decimal pay = 0.0m;
-                if (!decimal.TryParse(txtPay.Text, out pay))
+                else if (!decimal.TryParse(txtPay.Text, out pay))
                 {
                     m_error = true;
                     m_errorID |= CommonDefs.fieldPay;
                     m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
                 }
-
-                if (!m_error)
+                else if ((pay < payMin) || (pay > payMax))
                 {
-                    if ((pay < payMin) || (pay > payMax))
-                    {
-                        m_error = true;
-                        m_errorID |= CommonDefs.fieldPay;
-                        m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
-                    }
+                    m_error = true;
+                    m_errorID |= CommonDefs.fieldPay;
+                    m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
                 }
             }
 
+            // If there are no errors, this user can be added to the database!
+            if (!m_error)
+            {
+                m_employee.FirstName = txtFirstName.Text;
+                m_employee.LastName = txtLastName.Text;
+                m_employee.Pay = pay;
+            }
             return (!m_error);
         }
 
@@ -275,9 +265,10 @@ namespace AccessLoginApp_MDB
             m_errorID = CommonDefs.fieldsNone;
             m_errorCode = CommonDefs.FieldError.fieldError_None;
 
+            // Assume all user data has been entered and is valid
             m_editFields = CommonDefs.fieldsAll;
 
-            // Check for a valid employee ID
+            // Employee ID
             int employeeID = -1;
             if (string.IsNullOrEmpty(txtEmployeeID.Text))
             {
@@ -285,65 +276,36 @@ namespace AccessLoginApp_MDB
                 m_errorID |= CommonDefs.fieldEmployeeID;
                 m_errorCode = CommonDefs.FieldError.fieldError_Blank;
             }
+            else if (!int.TryParse(txtEmployeeID.Text, out employeeID))
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldEmployeeID;
+                m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+            }
+            else if ((employeeID < employeeIdMin) || (employeeID > employeeIdMax))
+            {
+                m_error = true;
+                m_errorID |= CommonDefs.fieldEmployeeID;
+                m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
+            }
 
+            // Confirm this employee exists in the database
             if (!m_error)
             {
-                if (!int.TryParse(txtEmployeeID.Text, out employeeID))
+                string query = (
+                    "SELECT * FROM EmployeeData WHERE " +
+                    "EmployeeID=" + employeeID.ToString() + ";");
+                if (!DoesQueryReturnRows(query))
                 {
                     m_error = true;
                     m_errorID |= CommonDefs.fieldEmployeeID;
-                    m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+                    m_errorCode = CommonDefs.FieldError.fieldError_IdUnknown;
                 }
             }
 
+            // Check at least one user detail has been provided (e.g. first name)
             if (!m_error)
             {
-                if ((employeeID < employeeIdMin) || (employeeID > employeeIdMax))
-                {
-                    m_error = true;
-                    m_errorID |= CommonDefs.fieldEmployeeID;
-                    m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
-                }
-            }
-
-            if (!m_error)
-            {
-                // Search for this user in the database
-                try
-                {
-                    m_connection.ConnectionString = m_connectionString;
-                    m_connection.Open();
-                    OleDbCommand command = new OleDbCommand();
-                    command.Connection = m_connection;
-                    command.CommandText = (
-                        "SELECT * FROM EmployeeData WHERE " +
-                        "EmployeeID=" + employeeID.ToString() + "");
-                    OleDbDataReader reader = command.ExecuteReader();
-                    if (!reader.HasRows)
-                    {
-                        m_error = true;
-                        m_errorID |= CommonDefs.fieldEmployeeID;
-                        m_errorCode = CommonDefs.FieldError.fieldError_IdUnknown;
-                    }
-
-                    m_connection.Close();
-                    m_connection.Dispose();
-                }
-                catch { }
-            }
-
-            if (!m_error)
-            {
-                // Check for blank entries
-                if (string.IsNullOrEmpty(txtFirstName.Text))
-                    m_editFields &= ~(CommonDefs.fieldFirstName);
-
-                if (string.IsNullOrEmpty(txtLastName.Text))
-                    m_editFields &= ~(CommonDefs.fieldLastName);
-
-                if (string.IsNullOrEmpty(txtPay.Text))
-                    m_editFields &= ~(CommonDefs.fieldPay);
-
                 if ((string.IsNullOrEmpty(txtFirstName.Text)) &&
                     (string.IsNullOrEmpty(txtLastName.Text)) &&
                     (string.IsNullOrEmpty(txtPay.Text)))
@@ -354,83 +316,114 @@ namespace AccessLoginApp_MDB
                         CommonDefs.fieldLastName |
                         CommonDefs.fieldPay);
                     m_errorCode = CommonDefs.FieldError.fieldError_Blank;
-                }
-            }
-
-            if (!m_error)
-            {
-                // Check for length issues
-                if (txtFirstName.Text.Length > 20)
                     m_editFields &= ~(CommonDefs.fieldFirstName);
-
-                if (txtLastName.Text.Length > 50)
                     m_editFields &= ~(CommonDefs.fieldLastName);
-
-                if ((txtFirstName.Text.Length > 20) &&
-                    (txtLastName.Text.Length > 50))
-                {
-                    m_error = true;
-                    m_errorID |= (
-                        CommonDefs.fieldFirstName |
-                        CommonDefs.fieldLastName);
-                    m_errorCode = CommonDefs.FieldError.fieldError_Length;
+                    m_editFields &= ~(CommonDefs.fieldPay);
                 }
             }
 
+            // First name
             if (!m_error)
             {
-                // Check for a duplicate combination of (FirstName,LastName)
+                if ((string.IsNullOrEmpty(txtFirstName.Text)) ||
+                    (txtFirstName.Text.Length > firstNameLengthMax))
+                    m_editFields &= ~(CommonDefs.fieldFirstName);
+            }
+
+            // Last name
+            if (!m_error)
+            {
+                if ((string.IsNullOrEmpty(txtLastName.Text)) ||
+                    (txtLastName.Text.Length > lastNameLengthMax))
+                    m_editFields &= ~(CommonDefs.fieldLastName);
+            }
+
+            // Check for a duplicate combination of (FirstName,LastName)
+            if (!m_error)
+            {
                 if ((!string.IsNullOrEmpty(txtFirstName.Text)) &&
                     (!string.IsNullOrEmpty(txtLastName.Text)))
                 {
-                    try
+                    string query = (
+                        "SELECT * FROM EmployeeData WHERE " +
+                        "FirstName='" + txtFirstName.Text + "' AND " +
+                        "LastName='" + txtLastName.Text + "';");
+                    if (DoesQueryReturnRows(query))
                     {
-                        m_connection.ConnectionString = m_connectionString;
-                        m_connection.Open();
-                        OleDbCommand command = new OleDbCommand();
-                        command.Connection = m_connection;
-                        command.CommandText = (
-                            "SELECT * FROM EmployeeData WHERE " +
-                            "FirstName='" + txtFirstName.Text + "' AND " +
-                            "LastName='" + txtLastName.Text + "'");
-                        OleDbDataReader reader = command.ExecuteReader();
-                        if (reader.HasRows)
-                        {
-                            m_error = true;
-                            m_errorID |= CommonDefs.fieldFirstName;
-                            m_errorCode = CommonDefs.FieldError.fieldError_DuplicateName;
-                        }
-
-                        m_connection.Close();
-                        m_connection.Dispose();
+                        m_error = true;
+                        m_errorID |= (
+                            CommonDefs.fieldFirstName |
+                            CommonDefs.fieldLastName);
+                        m_errorCode = CommonDefs.FieldError.fieldError_DuplicateName;
+                        m_editFields &= ~(CommonDefs.fieldFirstName);
+                        m_editFields &= ~(CommonDefs.fieldLastName);
                     }
-                    catch { }
                 }
             }
 
+            // Pay
+            decimal pay = 0.0m;
             if (!m_error)
             {
-                // Check for valid pay
-                decimal pay = 0.0m;
-                if (!decimal.TryParse(txtPay.Text, out pay))
+                if (string.IsNullOrEmpty(txtPay.Text))
+                    m_editFields &= ~(CommonDefs.fieldPay);
+                else if (!decimal.TryParse(txtPay.Text, out pay))
                 {
                     m_error = true;
                     m_errorID |= CommonDefs.fieldPay;
                     m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+                    m_editFields &= ~(CommonDefs.fieldPay);
                 }
-
-                if (!m_error)
+                else if ((pay < payMin) || (pay > payMax))
                 {
-                    if ((pay < payMin) || (pay > payMax))
-                    {
-                        m_error = true;
-                        m_errorID |= CommonDefs.fieldPay;
-                        m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
-                    }
+                    m_error = true;
+                    m_errorID |= CommonDefs.fieldPay;
+                    m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
                 }
             }
 
+            // If there are no errors, this user can be edited in the database!
+            if (!m_error)
+            {
+                m_employee.EmployeeID = employeeID;
+                m_employee.FirstName = txtFirstName.Text;
+                m_employee.LastName = txtLastName.Text;
+                m_employee.Pay = pay;
+            }
             return (!m_error);
+        }
+
+        private string GetEditParameters()
+        {
+            // Set up the parameters for the "SET" part of the SQL UPDATE statement
+            string clauseSET = " SET ";
+            int numParams = 0;
+            if ((m_editFields & CommonDefs.fieldFirstName) != 0)
+            {
+                clauseSET += ("FirstName='" + m_employee.FirstName + "'");
+                numParams++;
+            }
+
+            if ((m_editFields & CommonDefs.fieldLastName) != 0)
+            {
+                if (numParams > 0)
+                    clauseSET += ",";
+
+                clauseSET += ("LastName='" + m_employee.LastName + "'");
+                numParams++;
+            }
+
+            if ((m_editFields & CommonDefs.fieldPay) != 0)
+            {
+                if (numParams > 0)
+                    clauseSET += ",";
+
+                clauseSET += ("Pay=" + m_employee.Pay.ToString("0.00") + "");
+                numParams++;
+            }
+
+            clauseSET += " ";
+            return clauseSET;
         }
 
         private string GetInvalidMessage()
@@ -529,11 +522,11 @@ namespace AccessLoginApp_MDB
                     break;
 
                 case CommonDefs.FieldError.fieldError_IdUnknown:
-                    reason = "Employee ID unrecognised";
+                    reason = "ID not recognised";
                     break;
 
                 case CommonDefs.FieldError.fieldError_DuplicateName:
-                    reason = "Duplicate First and Last name";
+                    reason = "Duplicate name";
                     break;
 
                 case CommonDefs.FieldError.fieldError_DuplicateUsername:
@@ -546,6 +539,27 @@ namespace AccessLoginApp_MDB
             }
 
             return reason;
+        }
+
+        private bool DoesQueryReturnRows(string query)
+        {
+            // Helper method which runs the provided query against the database, and returns true if the query
+            // returned one or more rows.
+            bool hasRows = false;
+            try
+            {
+                m_connection.ConnectionString = m_connectionString;
+                m_connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = m_connection;
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                hasRows = reader.HasRows;
+                m_connection.Close();
+                m_connection.Dispose();
+            }
+            catch { }
+            return hasRows;
         }
         #endregion // Private methods
     }
