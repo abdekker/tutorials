@@ -127,12 +127,11 @@ namespace AccessLoginApp_MDB
                             "'" + txtFirstName.Text + "'," +
                             "'" + txtLastName.Text + "'," +
                             "'" + txtPay.Text + "')");
-                    command.ExecuteNonQuery(); 
-
+                    int rowsAffected = command.ExecuteNonQuery(); 
                     m_connection.Close();
                     m_connection.Dispose();
-                    lblStatus.Text = string.Format("User '{0}' '{1}' added to the database",
-                        txtFirstName.Text, txtLastName.Text);
+                    lblStatus.Text = string.Format("User '{0}' '{1}' added to the database [{2} rows affected]",
+                        txtFirstName.Text, txtLastName.Text, rowsAffected);
                 }
                 catch (Exception ex)
                 {
@@ -162,10 +161,11 @@ namespace AccessLoginApp_MDB
                         GetEditParameters() +
                         "WHERE EmployeeID=" + m_employee.EmployeeID.ToString() + ";");
                     command.CommandText = query;
-                    command.ExecuteNonQuery(); 
+                    int rowsAffected = command.ExecuteNonQuery(); 
                     m_connection.Close();
                     m_connection.Dispose();
-                    lblStatus.Text = string.Format("Employee ID '{0}' updated in the database", m_employee.EmployeeID);
+                    lblStatus.Text = string.Format("Employee ID '{0}' updated in the database [{1} rows affected]",
+                        m_employee.EmployeeID, rowsAffected);
                 }
                 catch (Exception ex)
                 {
@@ -193,10 +193,11 @@ namespace AccessLoginApp_MDB
                     string query = (
                         "DELETE FROM EmployeeData WHERE EmployeeID=" + m_employee.EmployeeID.ToString() + ";");
                     command.CommandText = query;
-                    command.ExecuteNonQuery(); 
+                    int rowsAffected = command.ExecuteNonQuery(); 
                     m_connection.Close();
                     m_connection.Dispose();
-                    lblStatus.Text = string.Format("Employee ID '{0}' deleted from the database", m_employee.EmployeeID);
+                    lblStatus.Text = string.Format("Employee ID '{0}' deleted from the database [{1} rows affected]",
+                        m_employee.EmployeeID, rowsAffected);
                 }
                 catch (Exception ex)
                 {
