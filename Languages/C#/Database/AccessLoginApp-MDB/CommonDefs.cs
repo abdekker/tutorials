@@ -39,10 +39,11 @@ namespace AccessLoginApp_MDB
             fieldError_None,
             fieldError_Blank,               // Generic
             fieldError_Length,              // Generic (mostly applies to Text/VarChar fields)
+            fieldError_Invalid,             // Ill-formed or invalid (eg alphabetic characters in number)
+            fieldError_OutOfRange,          // Value too high or too low
+            fieldError_IdUnknown,           // Unknown user (for UPDATE and DELETE)
             fieldError_DuplicateName,       // FirstName, LastName already exists
-            fieldError_DuplicateUsername,   // Username already exists
-            fieldError_InvalidDOB,          // DOB ill-formed
-            fieldError_InvalidPay           // Pay out of range or ill-formed
+            fieldError_DuplicateUsername    // Username already exists
         };
     };
 }

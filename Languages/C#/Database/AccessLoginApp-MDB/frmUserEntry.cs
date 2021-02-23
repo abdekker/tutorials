@@ -23,6 +23,12 @@ namespace AccessLoginApp_MDB
         private readonly string buttonTextNewUser = "Add New";
         private readonly string buttonTextEditUser = "Edit Existing";
         private readonly string buttonTextDeleteUser = "Delete Existing";
+
+        private readonly int employeeIdMin = 0;
+        private readonly int employeeIdMax = 999999;
+
+        private readonly decimal payMin = 0.0m;
+        private readonly decimal payMax = 999.99m;
         #endregion // Constants
 
         #region Member variables
@@ -240,12 +246,22 @@ namespace AccessLoginApp_MDB
             if (!m_error)
             {
                 // Check for valid pay
-                Decimal pay = 0.0m;
-                if (!Decimal.TryParse(txtPay.Text, out pay))
+                decimal pay = 0.0m;
+                if (!decimal.TryParse(txtPay.Text, out pay))
                 {
                     m_error = true;
                     m_errorID |= CommonDefs.fieldPay;
-                    m_errorCode = CommonDefs.FieldError.fieldError_InvalidPay;
+                    m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+                }
+
+                if (!m_error)
+                {
+                    if ((pay < payMin) || (pay > payMax))
+                    {
+                        m_error = true;
+                        m_errorID |= CommonDefs.fieldPay;
+                        m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
+                    }
                 }
             }
 
@@ -261,26 +277,84 @@ namespace AccessLoginApp_MDB
 
             m_editFields = CommonDefs.fieldsAll;
 
-            // Check for blank entries
-            if (string.IsNullOrEmpty(txtFirstName.Text))
-                m_editFields &= ~(CommonDefs.fieldFirstName);
-
-            if (string.IsNullOrEmpty(txtLastName.Text))
-                m_editFields &= ~(CommonDefs.fieldLastName);
-
-            if (string.IsNullOrEmpty(txtPay.Text))
-                m_editFields &= ~(CommonDefs.fieldPay);
-
-            if ((string.IsNullOrEmpty(txtFirstName.Text)) &&
-                (string.IsNullOrEmpty(txtLastName.Text)) &&
-                (string.IsNullOrEmpty(txtPay.Text)))
+            // Check for a valid employee ID
+            int employeeID = -1;
+            if (string.IsNullOrEmpty(txtEmployeeID.Text))
             {
                 m_error = true;
-                m_errorID |= (
-                    CommonDefs.fieldFirstName &
-                    CommonDefs.fieldLastName &
-                    CommonDefs.fieldPay);
+                m_errorID |= CommonDefs.fieldEmployeeID;
                 m_errorCode = CommonDefs.FieldError.fieldError_Blank;
+            }
+
+            if (!m_error)
+            {
+                if (!int.TryParse(txtEmployeeID.Text, out employeeID))
+                {
+                    m_error = true;
+                    m_errorID |= CommonDefs.fieldEmployeeID;
+                    m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+                }
+            }
+
+            if (!m_error)
+            {
+                if ((employeeID < employeeIdMin) || (employeeID > employeeIdMax))
+                {
+                    m_error = true;
+                    m_errorID |= CommonDefs.fieldEmployeeID;
+                    m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
+                }
+            }
+
+            if (!m_error)
+            {
+                // Search for this user in the database
+                try
+                {
+                    m_connection.ConnectionString = m_connectionString;
+                    m_connection.Open();
+                    OleDbCommand command = new OleDbCommand();
+                    command.Connection = m_connection;
+                    command.CommandText = (
+                        "SELECT * FROM EmployeeData WHERE " +
+                        "EmployeeID=" + employeeID.ToString() + "");
+                    OleDbDataReader reader = command.ExecuteReader();
+                    if (!reader.HasRows)
+                    {
+                        m_error = true;
+                        m_errorID |= CommonDefs.fieldEmployeeID;
+                        m_errorCode = CommonDefs.FieldError.fieldError_IdUnknown;
+                    }
+
+                    m_connection.Close();
+                    m_connection.Dispose();
+                }
+                catch { }
+            }
+
+            if (!m_error)
+            {
+                // Check for blank entries
+                if (string.IsNullOrEmpty(txtFirstName.Text))
+                    m_editFields &= ~(CommonDefs.fieldFirstName);
+
+                if (string.IsNullOrEmpty(txtLastName.Text))
+                    m_editFields &= ~(CommonDefs.fieldLastName);
+
+                if (string.IsNullOrEmpty(txtPay.Text))
+                    m_editFields &= ~(CommonDefs.fieldPay);
+
+                if ((string.IsNullOrEmpty(txtFirstName.Text)) &&
+                    (string.IsNullOrEmpty(txtLastName.Text)) &&
+                    (string.IsNullOrEmpty(txtPay.Text)))
+                {
+                    m_error = true;
+                    m_errorID |= (
+                        CommonDefs.fieldFirstName |
+                        CommonDefs.fieldLastName |
+                        CommonDefs.fieldPay);
+                    m_errorCode = CommonDefs.FieldError.fieldError_Blank;
+                }
             }
 
             if (!m_error)
@@ -297,7 +371,7 @@ namespace AccessLoginApp_MDB
                 {
                     m_error = true;
                     m_errorID |= (
-                        CommonDefs.fieldFirstName &
+                        CommonDefs.fieldFirstName |
                         CommonDefs.fieldLastName);
                     m_errorCode = CommonDefs.FieldError.fieldError_Length;
                 }
@@ -337,12 +411,22 @@ namespace AccessLoginApp_MDB
             if (!m_error)
             {
                 // Check for valid pay
-                Decimal pay = 0.0m;
-                if (!Decimal.TryParse(txtPay.Text, out pay))
+                decimal pay = 0.0m;
+                if (!decimal.TryParse(txtPay.Text, out pay))
                 {
                     m_error = true;
                     m_errorID |= CommonDefs.fieldPay;
-                    m_errorCode = CommonDefs.FieldError.fieldError_InvalidPay;
+                    m_errorCode = CommonDefs.FieldError.fieldError_Invalid;
+                }
+
+                if (!m_error)
+                {
+                    if ((pay < payMin) || (pay > payMax))
+                    {
+                        m_error = true;
+                        m_errorID |= CommonDefs.fieldPay;
+                        m_errorCode = CommonDefs.FieldError.fieldError_OutOfRange;
+                    }
                 }
             }
 
@@ -353,8 +437,16 @@ namespace AccessLoginApp_MDB
         {
             // Validate user entry
             string errorMsg = string.Empty;
+            if ((m_errorID & CommonDefs.fieldEmployeeID) != 0)
+                errorMsg = string.Format("Employee ID: {0}", GetInvalidDataReason(m_errorCode));
+            
             if ((m_errorID & CommonDefs.fieldFirstName) != 0)
-                errorMsg = string.Format("First Name: {0}", GetInvalidDataReason(m_errorCode));
+            {
+                if (errorMsg.Length > 0)
+                    errorMsg += "\n";
+
+                errorMsg += string.Format("First Name: {0}", GetInvalidDataReason(m_errorCode));
+            }
 
             if ((m_errorID & CommonDefs.fieldLastName) != 0)
             {
@@ -428,17 +520,24 @@ namespace AccessLoginApp_MDB
                     reason = "Length too long";
                     break;
 
+                case CommonDefs.FieldError.fieldError_Invalid:
+                    reason = "Invalid format";
+                    break;
+
+                case CommonDefs.FieldError.fieldError_OutOfRange:
+                    reason = "Out of range";
+                    break;
+
+                case CommonDefs.FieldError.fieldError_IdUnknown:
+                    reason = "Employee ID unrecognised";
+                    break;
+
                 case CommonDefs.FieldError.fieldError_DuplicateName:
                     reason = "Duplicate First and Last name";
                     break;
 
                 case CommonDefs.FieldError.fieldError_DuplicateUsername:
                     reason = "User already exists";
-                    break;
-
-                case CommonDefs.FieldError.fieldError_InvalidDOB:
-                case CommonDefs.FieldError.fieldError_InvalidPay:
-                    reason = "Invalid format";
                     break;
 
                 default:
