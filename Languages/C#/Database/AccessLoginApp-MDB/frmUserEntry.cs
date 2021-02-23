@@ -176,9 +176,48 @@ namespace AccessLoginApp_MDB
             }
         }
 
-        private void gridUsers_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void gridUsers_SelectionChanged(object sender, EventArgs e)
         {
             // Refresh the user details when a user is selected in the grid
+            DataGridViewCell cell = null;
+            foreach (DataGridViewCell selectedCell in gridUsers.SelectedCells)
+            {
+                cell = selectedCell;
+                break;
+            }
+
+            if (cell != null)
+            {
+                DataGridViewRow row = cell.OwningRow;
+                decimal pay = 0.0m;
+                if (ddlAction.Text.Equals(actionNewUser))
+                {
+                    txtFirstName.Text = row.Cells[CommonDefs.nameFirstName].Value.ToString();
+                    txtLastName.Text = row.Cells[CommonDefs.nameLastName].Value.ToString();
+                    if (decimal.TryParse(row.Cells[CommonDefs.namePay].Value.ToString(), out pay))
+                        txtPay.Text = pay.ToString("0.00");
+                }
+                else if (ddlAction.Text.Equals(actionEditUser))
+                {
+                    txtEmployeeID.Text = row.Cells[CommonDefs.nameEmployeeID].Value.ToString();
+                    txtFirstName.Text = row.Cells[CommonDefs.nameFirstName].Value.ToString();
+                    txtLastName.Text = row.Cells[CommonDefs.nameLastName].Value.ToString();
+                    if (decimal.TryParse(row.Cells[CommonDefs.namePay].Value.ToString(), out pay))
+                        txtPay.Text = pay.ToString("0.00");
+                }
+                else if (ddlAction.Text.Equals(actionDeleteUser))
+                {
+                    txtEmployeeID.Text = row.Cells[CommonDefs.nameEmployeeID].Value.ToString();
+                }
+            }
+        }
+
+        private void gridUsers_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Alternative to extracting data from the grid using the "CellClick" event. The "SelectionChanged"
+            // event is more reliable, though.
+
+            /*// Refresh the user details when a user is selected in the grid
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = gridUsers.Rows[e.RowIndex];
@@ -202,7 +241,7 @@ namespace AccessLoginApp_MDB
                 {
                     txtEmployeeID.Text = row.Cells[CommonDefs.nameEmployeeID].Value.ToString();
                 }
-            }
+            }*/
         }
 
         private void btnRefreshList_Click(object sender, EventArgs e)

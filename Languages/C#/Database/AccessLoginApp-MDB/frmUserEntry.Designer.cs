@@ -240,6 +240,7 @@ namespace AccessLoginApp_MDB
             this.gridUsers.Size = new System.Drawing.Size(755, 405);
             this.gridUsers.TabIndex = 0;
             this.gridUsers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridUsers_CellClick);
+            this.gridUsers.SelectionChanged += new System.EventHandler(this.gridUsers_SelectionChanged);
             // 
             // lblNumUsers
             // 
