@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Data;
-using System.Data.OleDb;
-
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+#if UseOleDB
+    using System.Data.OleDb;
+#elif UseODBC
+    using System.Data.Odbc;
+#endif
 using System.Windows.Forms;
 
 namespace AccessLoginApp_MDB
 {
     // Following the tutorial (see below) using:
     // * Microsoft Access (.mdb, pre Access 2007)
-    // * OleDB
+    // * OleDB (open project properties and set Build\Conditional compilation symbols to "UseOleDB")
+    // * ODBC (as above, but set to "UseODBC")
 
     // Example database at: abdekker\privDevelopment\Data\Database\AccessLogin.mdb
     // Created in Access 365 and saved as "Access 2002-2003 Database"
@@ -27,9 +24,15 @@ namespace AccessLoginApp_MDB
     {
         #region Member variables
         private bool m_error = false;
-        private OleDbConnection m_connection = new OleDbConnection();
-        private string m_connectionString =
-            @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
+        #if UseOleDB
+            private OleDbConnection m_connection = new OleDbConnection();
+            private string m_connectionString =
+                @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
+        #elif UseODBC
+            private OdbcConnection m_connection = new OdbcConnection();
+            private string m_connectionString =
+                @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
+        #endif
         #endregion // Member variables
 
         public frmMainLogin()
@@ -45,11 +48,14 @@ namespace AccessLoginApp_MDB
             try
             {
                 // Set the connection string for the database
-                // Connection string for Access 2007+:
+                // Connection string for Access 2007+ (OleDB):
                 //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";
 
-                 // Connection string for older versions of Access:
-                 //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
+                // Connection string for older versions of Access (OleDB):
+                //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
+
+                // Connection string for ODBC:
+                //      @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\MyDatabase.mdb;Uid=Admin;Pwd=;";
                 m_connection.ConnectionString = m_connectionString;
 
                 // Test open/close the database
@@ -71,13 +77,22 @@ namespace AccessLoginApp_MDB
                 m_error = false;
                 m_connection.ConnectionString = m_connectionString;
                 m_connection.Open();
-                OleDbCommand command = new OleDbCommand();
+                #if UseOleDB
+                    OleDbCommand command = new OleDbCommand();
+                #elif UseODBC
+                    OdbcCommand command = new OdbcCommand();
+                #endif
                 command.Connection = m_connection;
                 command.CommandText = (
                     "SELECT * FROM EmployeeData WHERE " +
                     "Username='" + txtUsername.Text + "' AND " +     // Change to "OR" to show duplicate users
                     "Password='" + txtPassword.Text + "'");
-                OleDbDataReader reader = command.ExecuteReader();
+
+                #if UseOleDB
+                    OleDbDataReader reader = command.ExecuteReader();
+                #elif UseODBC
+                    OdbcDataReader reader = command.ExecuteReader();
+                #endif
                 int countUsers = 0;
                 while (reader.Read())
                 {
