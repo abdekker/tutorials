@@ -42,11 +42,13 @@ namespace AccessLoginApp_MDB
             this.lblFirstName = new System.Windows.Forms.Label();
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.lblUserName = new System.Windows.Forms.Label();
             this.groupUserEntry.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupUserEntry
             // 
+            this.groupUserEntry.Controls.Add(this.lblUserName);
             this.groupUserEntry.Controls.Add(this.ddlAction);
             this.groupUserEntry.Controls.Add(this.txtEmployeeID);
             this.groupUserEntry.Controls.Add(this.lblEmployeeID);
@@ -69,7 +71,7 @@ namespace AccessLoginApp_MDB
             // 
             this.ddlAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlAction.FormattingEnabled = true;
-            this.ddlAction.Location = new System.Drawing.Point(15, 226);
+            this.ddlAction.Location = new System.Drawing.Point(20, 224);
             this.ddlAction.Name = "ddlAction";
             this.ddlAction.Size = new System.Drawing.Size(110, 33);
             this.ddlAction.TabIndex = 12;
@@ -77,10 +79,10 @@ namespace AccessLoginApp_MDB
             // 
             // txtEmployeeID
             // 
-            this.txtEmployeeID.Location = new System.Drawing.Point(195, 39);
+            this.txtEmployeeID.Location = new System.Drawing.Point(180, 39);
             this.txtEmployeeID.Margin = new System.Windows.Forms.Padding(2);
             this.txtEmployeeID.Name = "txtEmployeeID";
-            this.txtEmployeeID.Size = new System.Drawing.Size(151, 31);
+            this.txtEmployeeID.Size = new System.Drawing.Size(80, 31);
             this.txtEmployeeID.TabIndex = 0;
             // 
             // lblEmployeeID
@@ -107,10 +109,10 @@ namespace AccessLoginApp_MDB
             // 
             // txtPay
             // 
-            this.txtPay.Location = new System.Drawing.Point(195, 174);
+            this.txtPay.Location = new System.Drawing.Point(180, 174);
             this.txtPay.Margin = new System.Windows.Forms.Padding(2);
             this.txtPay.Name = "txtPay";
-            this.txtPay.Size = new System.Drawing.Size(151, 31);
+            this.txtPay.Size = new System.Drawing.Size(165, 31);
             this.txtPay.TabIndex = 3;
             // 
             // lblPay
@@ -126,18 +128,18 @@ namespace AccessLoginApp_MDB
             // 
             // txtLastName
             // 
-            this.txtLastName.Location = new System.Drawing.Point(195, 129);
+            this.txtLastName.Location = new System.Drawing.Point(180, 129);
             this.txtLastName.Margin = new System.Windows.Forms.Padding(2);
             this.txtLastName.Name = "txtLastName";
-            this.txtLastName.Size = new System.Drawing.Size(151, 31);
+            this.txtLastName.Size = new System.Drawing.Size(165, 31);
             this.txtLastName.TabIndex = 2;
             // 
             // txtFirstName
             // 
-            this.txtFirstName.Location = new System.Drawing.Point(195, 84);
+            this.txtFirstName.Location = new System.Drawing.Point(180, 84);
             this.txtFirstName.Margin = new System.Windows.Forms.Padding(2);
             this.txtFirstName.Name = "txtFirstName";
-            this.txtFirstName.Size = new System.Drawing.Size(151, 31);
+            this.txtFirstName.Size = new System.Drawing.Size(165, 31);
             this.txtFirstName.TabIndex = 1;
             // 
             // lblLastName
@@ -147,9 +149,9 @@ namespace AccessLoginApp_MDB
             this.lblLastName.Location = new System.Drawing.Point(15, 130);
             this.lblLastName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblLastName.Name = "lblLastName";
-            this.lblLastName.Size = new System.Drawing.Size(116, 26);
+            this.lblLastName.Size = new System.Drawing.Size(57, 26);
             this.lblLastName.TabIndex = 5;
-            this.lblLastName.Text = "Password";
+            this.lblLastName.Text = "Last";
             // 
             // lblFirstName
             // 
@@ -158,9 +160,9 @@ namespace AccessLoginApp_MDB
             this.lblFirstName.Location = new System.Drawing.Point(15, 85);
             this.lblFirstName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblFirstName.Name = "lblFirstName";
-            this.lblFirstName.Size = new System.Drawing.Size(129, 26);
+            this.lblFirstName.Size = new System.Drawing.Size(59, 26);
             this.lblFirstName.TabIndex = 4;
-            this.lblFirstName.Text = "First Name";
+            this.lblFirstName.Text = "First";
             // 
             // lblStatusTitle
             // 
@@ -180,6 +182,16 @@ namespace AccessLoginApp_MDB
             this.lblStatus.Size = new System.Drawing.Size(325, 16);
             this.lblStatus.TabIndex = 11;
             this.lblStatus.Text = "?";
+            // 
+            // lblUserName
+            // 
+            this.lblUserName.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUserName.Location = new System.Drawing.Point(265, 40);
+            this.lblUserName.Name = "lblUserName";
+            this.lblUserName.Size = new System.Drawing.Size(80, 28);
+            this.lblUserName.TabIndex = 13;
+            this.lblUserName.Text = "Mark Tesar";
+            this.lblUserName.Visible = false;
             // 
             // frmUserEntry
             // 
@@ -214,5 +226,6 @@ namespace AccessLoginApp_MDB
         private System.Windows.Forms.ComboBox ddlAction;
         private System.Windows.Forms.TextBox txtEmployeeID;
         private System.Windows.Forms.Label lblEmployeeID;
+        private System.Windows.Forms.Label lblUserName;
     }
 }
