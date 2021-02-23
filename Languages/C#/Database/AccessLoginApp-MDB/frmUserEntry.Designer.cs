@@ -44,8 +44,8 @@ namespace AccessLoginApp_MDB
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
             this.groupReview = new System.Windows.Forms.GroupBox();
-            this.lstFields = new System.Windows.Forms.ListBox();
-            this.btnUpdateList = new System.Windows.Forms.Button();
+            this.lstUsers = new System.Windows.Forms.ListBox();
+            this.btnRefreshList = new System.Windows.Forms.Button();
             this.lblNumUsers = new System.Windows.Forms.Label();
             this.groupUserEntry.SuspendLayout();
             this.groupReview.SuspendLayout();
@@ -201,8 +201,8 @@ namespace AccessLoginApp_MDB
             // groupReview
             // 
             this.groupReview.Controls.Add(this.lblNumUsers);
-            this.groupReview.Controls.Add(this.btnUpdateList);
-            this.groupReview.Controls.Add(this.lstFields);
+            this.groupReview.Controls.Add(this.btnRefreshList);
+            this.groupReview.Controls.Add(this.lstUsers);
             this.groupReview.Location = new System.Drawing.Point(385, 10);
             this.groupReview.Name = "groupReview";
             this.groupReview.Size = new System.Drawing.Size(265, 280);
@@ -210,24 +210,25 @@ namespace AccessLoginApp_MDB
             this.groupReview.TabStop = false;
             this.groupReview.Text = "Review";
             // 
-            // lstFields
+            // lstUsers
             // 
-            this.lstFields.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstFields.FormattingEnabled = true;
-            this.lstFields.Location = new System.Drawing.Point(5, 20);
-            this.lstFields.Name = "lstFields";
-            this.lstFields.Size = new System.Drawing.Size(255, 225);
-            this.lstFields.TabIndex = 5;
+            this.lstUsers.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstUsers.FormattingEnabled = true;
+            this.lstUsers.Location = new System.Drawing.Point(5, 20);
+            this.lstUsers.Name = "lstUsers";
+            this.lstUsers.Size = new System.Drawing.Size(255, 225);
+            this.lstUsers.TabIndex = 5;
+            this.lstUsers.SelectedIndexChanged += new System.EventHandler(this.lstUsers_SelectedIndexChanged);
             // 
-            // btnUpdateList
+            // btnRefreshList
             // 
-            this.btnUpdateList.Location = new System.Drawing.Point(170, 250);
-            this.btnUpdateList.Name = "btnUpdateList";
-            this.btnUpdateList.Size = new System.Drawing.Size(85, 23);
-            this.btnUpdateList.TabIndex = 6;
-            this.btnUpdateList.Text = "Update List";
-            this.btnUpdateList.UseVisualStyleBackColor = true;
-            this.btnUpdateList.Click += new System.EventHandler(this.btnUpdateList_Click);
+            this.btnRefreshList.Location = new System.Drawing.Point(170, 250);
+            this.btnRefreshList.Name = "btnRefreshList";
+            this.btnRefreshList.Size = new System.Drawing.Size(85, 23);
+            this.btnRefreshList.TabIndex = 6;
+            this.btnRefreshList.Text = "Update List";
+            this.btnRefreshList.UseVisualStyleBackColor = true;
+            this.btnRefreshList.Click += new System.EventHandler(this.btnRefreshList_Click);
             // 
             // lblNumUsers
             // 
@@ -279,8 +280,8 @@ namespace AccessLoginApp_MDB
         private System.Windows.Forms.Label lblEmployeeID;
         private System.Windows.Forms.Label lblUserName;
         private System.Windows.Forms.GroupBox groupReview;
-        private System.Windows.Forms.ListBox lstFields;
-        private System.Windows.Forms.Button btnUpdateList;
+        private System.Windows.Forms.ListBox lstUsers;
+        private System.Windows.Forms.Button btnRefreshList;
         private System.Windows.Forms.Label lblNumUsers;
     }
 }

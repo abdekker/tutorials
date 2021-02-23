@@ -112,7 +112,57 @@ namespace AccessLoginApp_MDB
                 ActionDeleteExistingUser();
         }
 
-        private void btnUpdateList_Click(object sender, EventArgs e)
+        private void lstUsers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Refresh the user details when a user is selected in the list
+            string selectedText = lstUsers.Items[lstUsers.SelectedIndex].ToString();
+            string[] details = selectedText.Split(':');
+            int employeeID = -1;
+            if (int.TryParse(details[0], out employeeID))
+            {
+                try
+                {
+                    m_connection.ConnectionString = m_connectionString;
+                    m_connection.Open();
+                    OleDbCommand command = new OleDbCommand();
+                    command.Connection = m_connection;
+                    string query = (
+                        "SELECT * FROM EmployeeData WHERE " +
+                        "EmployeeID=" + employeeID.ToString() + ";");
+                    command.CommandText = query;
+                    OleDbDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        if (ddlAction.Text.Equals(actionNewUser))
+                        {
+                            txtFirstName.Text = reader[CommonDefs.nameFirstName].ToString();
+                            txtLastName.Text = reader[CommonDefs.nameLastName].ToString();
+                            txtPay.Text = ((decimal)reader[CommonDefs.namePay]).ToString("0.00");
+                        }
+                        else if (ddlAction.Text.Equals(actionEditUser))
+                        {
+                            txtEmployeeID.Text = reader[CommonDefs.nameEmployeeID].ToString();
+                            txtFirstName.Text = reader[CommonDefs.nameFirstName].ToString();
+                            txtLastName.Text = reader[CommonDefs.nameLastName].ToString();
+                            txtPay.Text = ((decimal)reader[CommonDefs.namePay]).ToString("0.00");
+                        }
+                        else if (ddlAction.Text.Equals(actionDeleteUser))
+                        {
+                            txtEmployeeID.Text = reader[CommonDefs.nameEmployeeID].ToString();
+                        }
+                    }
+
+                    m_connection.Close();
+                    m_connection.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    lblStatus.Text = string.Format("Exception: {0}", ex.Message);
+                }
+            }
+        }
+
+        private void btnRefreshList_Click(object sender, EventArgs e)
         {
             // Refresh the list with the current users
             RefreshUserList();
@@ -675,18 +725,18 @@ namespace AccessLoginApp_MDB
                 OleDbDataReader reader = command.ExecuteReader();
 
                 int numUsers = 0;
-                lstFields.BeginUpdate();
-                lstFields.Items.Clear();
+                lstUsers.BeginUpdate();
+                lstUsers.Items.Clear();
                 while (reader.Read())
                 {
                     numUsers++;
-                    lstFields.Items.Add(string.Format("{0}: {1}, {2}, €{3:0.00}",
+                    lstUsers.Items.Add(string.Format("{0}: {1}, {2}, €{3:0.00}",
                         reader[CommonDefs.nameEmployeeID],
                         reader[CommonDefs.nameLastName],
                         reader[CommonDefs.nameFirstName],
                         (decimal)reader[CommonDefs.namePay]));
                 }
-                lstFields.EndUpdate();
+                lstUsers.EndUpdate();
                 lblNumUsers.Text = string.Format("Users: {0}", numUsers);
 
                 m_connection.Close();
