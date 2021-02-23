@@ -226,7 +226,7 @@ namespace AccessLoginApp_MDB
             this.btnRefreshList.Name = "btnRefreshList";
             this.btnRefreshList.Size = new System.Drawing.Size(85, 23);
             this.btnRefreshList.TabIndex = 6;
-            this.btnRefreshList.Text = "Update List";
+            this.btnRefreshList.Text = "Refresh List";
             this.btnRefreshList.UseVisualStyleBackColor = true;
             this.btnRefreshList.Click += new System.EventHandler(this.btnRefreshList_Click);
             // 
