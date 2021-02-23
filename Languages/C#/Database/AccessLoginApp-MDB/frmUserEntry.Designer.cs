@@ -46,9 +46,9 @@ namespace AccessLoginApp_MDB
             this.groupReviewListBox = new System.Windows.Forms.GroupBox();
             this.lstUsers = new System.Windows.Forms.ListBox();
             this.groupReviewDataGridView = new System.Windows.Forms.GroupBox();
+            this.gridUsers = new System.Windows.Forms.DataGridView();
             this.lblNumUsers = new System.Windows.Forms.Label();
             this.btnRefreshList = new System.Windows.Forms.Button();
-            this.gridUsers = new System.Windows.Forms.DataGridView();
             this.groupUserEntry.SuspendLayout();
             this.groupReviewListBox.SuspendLayout();
             this.groupReviewDataGridView.SuspendLayout();
@@ -232,6 +232,15 @@ namespace AccessLoginApp_MDB
             this.groupReviewDataGridView.TabStop = false;
             this.groupReviewDataGridView.Text = "Review (DataGridView)";
             // 
+            // gridUsers
+            // 
+            this.gridUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridUsers.Location = new System.Drawing.Point(5, 20);
+            this.gridUsers.Name = "gridUsers";
+            this.gridUsers.Size = new System.Drawing.Size(755, 405);
+            this.gridUsers.TabIndex = 0;
+            this.gridUsers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridUsers_CellClick);
+            // 
             // lblNumUsers
             // 
             this.lblNumUsers.AutoSize = true;
@@ -251,14 +260,6 @@ namespace AccessLoginApp_MDB
             this.btnRefreshList.Text = "Refresh List";
             this.btnRefreshList.UseVisualStyleBackColor = true;
             this.btnRefreshList.Click += new System.EventHandler(this.btnRefreshList_Click);
-            // 
-            // gridUsers
-            // 
-            this.gridUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridUsers.Location = new System.Drawing.Point(5, 20);
-            this.gridUsers.Name = "gridUsers";
-            this.gridUsers.Size = new System.Drawing.Size(755, 405);
-            this.gridUsers.TabIndex = 0;
             // 
             // frmUserEntry
             // 
