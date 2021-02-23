@@ -9,7 +9,7 @@ namespace AccessLoginApp_MDB
      // Common definitions
     public static class CommonDefs
     {
-        // Fields in the database4
+        #region Fields in the database
         public static readonly UInt32 fieldEmployeeID   = 0x00000001;
         public static readonly UInt32 fieldFirstName    = 0x00000002;
         public static readonly UInt32 fieldLastName     = 0x00000004;
