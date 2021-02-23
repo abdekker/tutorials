@@ -55,16 +55,22 @@ namespace AccessLoginApp_MDB
 
             // Set the connection string
             m_connectionString = connectionString;
+        }
 
+        #region Form Events
+        private void frmUserEntry_Load(object sender, EventArgs e)
+        {
             // Populate the available actions
             ddlAction.Items.Clear();
             ddlAction.Items.Add(actionNewUser);
             ddlAction.Items.Add(actionEditUser);
             ddlAction.Items.Add(actionDeleteUser);
             ddlAction.SelectedIndex = 0;
+
+            // Show a list of the current users
+            RefreshUserList();
         }
 
-        #region User Events
         private void ddlAction_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Update the button text
@@ -105,7 +111,13 @@ namespace AccessLoginApp_MDB
             else if (ddlAction.Text.Equals(actionDeleteUser))
                 ActionDeleteExistingUser();
         }
-        #endregion // User Events
+
+        private void btnUpdateList_Click(object sender, EventArgs e)
+        {
+            // Refresh the list with the current users
+            RefreshUserList();
+        }
+        #endregion // Form Events
 
         #region Private methods
         private void ActionAddNewUser()
@@ -648,6 +660,42 @@ namespace AccessLoginApp_MDB
             }
             catch { }
             return hasRows;
+        }
+
+        private void RefreshUserList()
+        {
+            // Show the fields in the database from this field (or column)
+            try
+            {
+                m_connection.ConnectionString = m_connectionString;
+                m_connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = m_connection;
+                command.CommandText = ("SELECT * FROM EmployeeData;");
+                OleDbDataReader reader = command.ExecuteReader();
+
+                int numUsers = 0;
+                lstFields.BeginUpdate();
+                lstFields.Items.Clear();
+                while (reader.Read())
+                {
+                    numUsers++;
+                    lstFields.Items.Add(string.Format("{0}: {1}, {2}, €{3:0.00}",
+                        reader[CommonDefs.nameEmployeeID],
+                        reader[CommonDefs.nameLastName],
+                        reader[CommonDefs.nameFirstName],
+                        (decimal)reader[CommonDefs.namePay]));
+                }
+                lstFields.EndUpdate();
+                lblNumUsers.Text = string.Format("Users: {0}", numUsers);
+
+                m_connection.Close();
+                m_connection.Dispose();
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = string.Format("Exception: {0}", ex.Message);
+            }
         }
         #endregion // Private methods
     }

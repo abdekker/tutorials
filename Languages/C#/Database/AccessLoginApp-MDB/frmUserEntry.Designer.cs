@@ -30,6 +30,7 @@ namespace AccessLoginApp_MDB
         private void InitializeComponent()
         {
             this.groupUserEntry = new System.Windows.Forms.GroupBox();
+            this.lblUserName = new System.Windows.Forms.Label();
             this.ddlAction = new System.Windows.Forms.ComboBox();
             this.txtEmployeeID = new System.Windows.Forms.TextBox();
             this.lblEmployeeID = new System.Windows.Forms.Label();
@@ -42,8 +43,12 @@ namespace AccessLoginApp_MDB
             this.lblFirstName = new System.Windows.Forms.Label();
             this.lblStatusTitle = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.lblUserName = new System.Windows.Forms.Label();
+            this.groupReview = new System.Windows.Forms.GroupBox();
+            this.lstFields = new System.Windows.Forms.ListBox();
+            this.btnUpdateList = new System.Windows.Forms.Button();
+            this.lblNumUsers = new System.Windows.Forms.Label();
             this.groupUserEntry.SuspendLayout();
+            this.groupReview.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupUserEntry
@@ -67,6 +72,16 @@ namespace AccessLoginApp_MDB
             this.groupUserEntry.TabStop = false;
             this.groupUserEntry.Text = "User Entry";
             // 
+            // lblUserName
+            // 
+            this.lblUserName.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUserName.Location = new System.Drawing.Point(265, 40);
+            this.lblUserName.Name = "lblUserName";
+            this.lblUserName.Size = new System.Drawing.Size(80, 28);
+            this.lblUserName.TabIndex = 13;
+            this.lblUserName.Text = "Mark Tesar";
+            this.lblUserName.Visible = false;
+            // 
             // ddlAction
             // 
             this.ddlAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -74,7 +89,7 @@ namespace AccessLoginApp_MDB
             this.ddlAction.Location = new System.Drawing.Point(20, 224);
             this.ddlAction.Name = "ddlAction";
             this.ddlAction.Size = new System.Drawing.Size(110, 33);
-            this.ddlAction.TabIndex = 12;
+            this.ddlAction.TabIndex = 5;
             this.ddlAction.SelectedIndexChanged += new System.EventHandler(this.ddlAction_SelectedIndexChanged);
             // 
             // txtEmployeeID
@@ -183,21 +198,53 @@ namespace AccessLoginApp_MDB
             this.lblStatus.TabIndex = 11;
             this.lblStatus.Text = "?";
             // 
-            // lblUserName
+            // groupReview
             // 
-            this.lblUserName.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUserName.Location = new System.Drawing.Point(265, 40);
-            this.lblUserName.Name = "lblUserName";
-            this.lblUserName.Size = new System.Drawing.Size(80, 28);
-            this.lblUserName.TabIndex = 13;
-            this.lblUserName.Text = "Mark Tesar";
-            this.lblUserName.Visible = false;
+            this.groupReview.Controls.Add(this.lblNumUsers);
+            this.groupReview.Controls.Add(this.btnUpdateList);
+            this.groupReview.Controls.Add(this.lstFields);
+            this.groupReview.Location = new System.Drawing.Point(385, 10);
+            this.groupReview.Name = "groupReview";
+            this.groupReview.Size = new System.Drawing.Size(265, 280);
+            this.groupReview.TabIndex = 13;
+            this.groupReview.TabStop = false;
+            this.groupReview.Text = "Review";
+            // 
+            // lstFields
+            // 
+            this.lstFields.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstFields.FormattingEnabled = true;
+            this.lstFields.Location = new System.Drawing.Point(5, 20);
+            this.lstFields.Name = "lstFields";
+            this.lstFields.Size = new System.Drawing.Size(255, 225);
+            this.lstFields.TabIndex = 5;
+            // 
+            // btnUpdateList
+            // 
+            this.btnUpdateList.Location = new System.Drawing.Point(170, 250);
+            this.btnUpdateList.Name = "btnUpdateList";
+            this.btnUpdateList.Size = new System.Drawing.Size(85, 23);
+            this.btnUpdateList.TabIndex = 6;
+            this.btnUpdateList.Text = "Update List";
+            this.btnUpdateList.UseVisualStyleBackColor = true;
+            this.btnUpdateList.Click += new System.EventHandler(this.btnUpdateList_Click);
+            // 
+            // lblNumUsers
+            // 
+            this.lblNumUsers.AutoSize = true;
+            this.lblNumUsers.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNumUsers.Location = new System.Drawing.Point(10, 250);
+            this.lblNumUsers.Name = "lblNumUsers";
+            this.lblNumUsers.Size = new System.Drawing.Size(45, 13);
+            this.lblNumUsers.TabIndex = 13;
+            this.lblNumUsers.Text = "Users: ?";
             // 
             // frmUserEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 316);
+            this.ClientSize = new System.Drawing.Size(661, 316);
+            this.Controls.Add(this.groupReview);
             this.Controls.Add(this.lblStatusTitle);
             this.Controls.Add(this.groupUserEntry);
             this.Controls.Add(this.lblStatus);
@@ -205,8 +252,11 @@ namespace AccessLoginApp_MDB
             this.Name = "frmUserEntry";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "User Details";
+            this.Load += new System.EventHandler(this.frmUserEntry_Load);
             this.groupUserEntry.ResumeLayout(false);
             this.groupUserEntry.PerformLayout();
+            this.groupReview.ResumeLayout(false);
+            this.groupReview.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -228,5 +278,9 @@ namespace AccessLoginApp_MDB
         private System.Windows.Forms.TextBox txtEmployeeID;
         private System.Windows.Forms.Label lblEmployeeID;
         private System.Windows.Forms.Label lblUserName;
+        private System.Windows.Forms.GroupBox groupReview;
+        private System.Windows.Forms.ListBox lstFields;
+        private System.Windows.Forms.Button btnUpdateList;
+        private System.Windows.Forms.Label lblNumUsers;
     }
 }
