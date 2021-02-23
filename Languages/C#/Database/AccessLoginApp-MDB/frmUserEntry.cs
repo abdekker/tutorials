@@ -73,16 +73,25 @@ namespace AccessLoginApp_MDB
                 btnUpdate.Text = buttonTextNewUser;
                 txtEmployeeID.Enabled = false;
                 txtEmployeeID.Text = string.Empty;
+                txtFirstName.Enabled = true;
+                txtLastName.Enabled = true;
+                txtPay.Enabled = true;
             }
             else if (ddlAction.Text.Equals(actionEditUser))
             {
                 btnUpdate.Text = buttonTextEditUser;
                 txtEmployeeID.Enabled = true;
+                txtFirstName.Enabled = true;
+                txtLastName.Enabled = true;
+                txtPay.Enabled = true;
             }
             else if (ddlAction.Text.Equals(actionDeleteUser))
             {
                 btnUpdate.Text = buttonTextDeleteUser;
                 txtEmployeeID.Enabled = true;
+                txtFirstName.Enabled = false;
+                txtLastName.Enabled = false;
+                txtPay.Enabled = false;
             }
         }
 
