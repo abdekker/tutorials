@@ -81,6 +81,7 @@
             this.lblDebug.Size = new System.Drawing.Size(131, 44);
             this.lblDebug.TabIndex = 5;
             this.lblDebug.Text = "Debug...";
+            this.lblDebug.Visible = false;
             // 
             // btnLogin
             // 
