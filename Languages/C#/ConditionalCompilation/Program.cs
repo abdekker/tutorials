@@ -1,4 +1,13 @@
-﻿using System;
+﻿// Uncomment this to show a different value in "LocalDefine"
+// Note: In C#, pre-processor symbols must be defined / undefined as the first tokens in a file
+#define SOMEVALUE
+
+// Comment/uncomment these lines to undefine a pre-processor symbol
+#if SOMEVALUE
+    #undef SOMEVALUE
+#endif
+
+using System;
 
 namespace ConditionalCompilation
 {
@@ -6,7 +15,6 @@ namespace ConditionalCompilation
     {
         private static void DebugOrRelease()
         {
-            // The "DEBUG" symbol
             Console.WriteLine("### DEBUG or not? ###");
             string mode;
 
@@ -17,7 +25,7 @@ namespace ConditionalCompilation
             #endif
             Console.WriteLine("  Assembly built in {0,-9} mode [check with '#if DEBUG']", mode);
 
-             #if !DEBUG
+            #if !DEBUG
                 mode = "RELEASE";
             #else
                 mode = "DEBUG";
@@ -28,8 +36,7 @@ namespace ConditionalCompilation
 
         private static void DotNetImplementation()
         {
-            // The "DEBUG" symbol
-            Console.WriteLine("### DEBUG or not? ###");
+            Console.WriteLine("### .NET implementation details ###");
             string dotNet;
 
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-if
@@ -50,6 +57,17 @@ namespace ConditionalCompilation
             Console.WriteLine("#\n");
         }
 
+        private static void LocalDefine()
+        {
+            Console.WriteLine("### Local symbol (SOMEVALUE) ###");
+            #if SOMEVALUE
+                Console.WriteLine("  Symbol SOMEVALUE is defined! :)");
+            #else
+                Console.WriteLine("  Symbol SOMEVALUE is not defined :(");
+            #endif
+            Console.WriteLine("#\n");
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("### Exploring conditional compilation in C# ###");
@@ -57,6 +75,7 @@ namespace ConditionalCompilation
 
             DebugOrRelease();
             DotNetImplementation();
+            LocalDefine();
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
