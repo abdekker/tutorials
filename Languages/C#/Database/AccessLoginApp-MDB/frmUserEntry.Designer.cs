@@ -191,7 +191,7 @@ namespace AccessLoginApp_MDB
             this.Controls.Add(this.lblStatus);
             this.Name = "frmUserEntry";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmUserEntry";
+            this.Text = "User Details";
             this.groupUserEntry.ResumeLayout(false);
             this.groupUserEntry.PerformLayout();
             this.ResumeLayout(false);
