@@ -44,6 +44,26 @@ namespace StringsDemo
         };
         #endregion // Enumerations
 
+        #region Helper methods
+        private static void UseParamsInt(params int[] list)
+        {
+            for (int index = 0; index < list.Length; index++)
+            {
+                Console.Write(list[index] + " ");
+            }
+            Console.WriteLine();
+        }
+
+        private static void UseParamsObj(params object[] list)
+        {
+            for (int index = 0; index < list.Length; index++)
+            {
+                Console.Write(list[index] + " ");
+            }
+            Console.WriteLine();
+        }
+        #endregion // Helper methods
+
         #region Main test methods
         private static void Info_Basics()
         {
@@ -415,6 +435,32 @@ namespace StringsDemo
 
             Console.WriteLine("#\n");
         }
+
+        private static void Info_Params()
+        {
+            // Displaying enumerated values
+            Console.WriteLine("### 'params' keyword ###");
+            Console.WriteLine("(allows a method parameter to take a variable number of arguments)");
+            Console.WriteLine();
+
+            Console.Write("  Integer array 1 : ");
+            UseParamsInt(1, 2, 3, 4);
+            Console.Write("  Integer array 2 : ");
+            int[] myIntArray = { 5, 6, 7, 8, 9 };
+            UseParamsInt(myIntArray);
+            Console.WriteLine();
+
+            Console.Write("  Object array 1  : ");
+            UseParamsObj(1, 'a', "test");
+            Console.Write("  Object array 2  : ");
+            object[] myObjArray = { 2, 'b', "test", "again" };
+            UseParamsObj(myObjArray);
+            Console.Write("  Object array 3  : ");
+            UseParamsObj(myIntArray);
+            // Can't call "UseParamsInt(myObjArray);" as the object array cannot be converted to an integer array
+
+            Console.WriteLine("#\n");
+        }
         #endregion // Main test methods
 
         static void Main(string[] args)
@@ -432,6 +478,7 @@ namespace StringsDemo
             Info_Double();
             Info_DateTime();
             Info_Enum();
+            Info_Params();
 
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
