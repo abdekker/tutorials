@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AccessLoginApp-MDB")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("cdAccessLoginApp-MDB")]
+[assembly: AssemblyDescription("Access database using C# and OleDB or ODBC")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AccessLoginApp-MDB")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCompany("DekkerSoft")]
+[assembly: AssemblyProduct("csAccessLoginApp-MDB")]
+[assembly: AssemblyCopyright("Copyright © DekkerSoft 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

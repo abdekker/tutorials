@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{929E64B3-03AE-4827-A9D1-317194AE653D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>AccessLoginApp_MDB</RootNamespace>
-    <AssemblyName>AccessLoginApp-MDB</AssemblyName>
+    <RootNamespace>csAccessLoginApp_MDB</RootNamespace>
+    <AssemblyName>csAccessLoginApp-MDB</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
