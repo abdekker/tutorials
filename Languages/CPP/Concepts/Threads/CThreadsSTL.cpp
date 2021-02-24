@@ -344,7 +344,7 @@ void CThreadsSTL::Ex3_ThreadFunc(const string &url)
 	// Create the text for page
 	stringHelper sHelper;
 	thread::id this_id = this_thread::get_id();
-	string result = sHelper.formatString("fake content from thread 0x%8.8d", this_id); 
+	string result = sHelper.FormatString("fake content from thread 0x%8.8d", this_id); 
 
 	// Lock mutex and update our map
 	m_ex3Mutex.lock();

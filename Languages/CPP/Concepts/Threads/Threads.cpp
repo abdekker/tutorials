@@ -144,5 +144,6 @@ int main()
 
 	// All done!
 	cout << "\nFinished...";
+    _getch();
 	return 0;
 }
