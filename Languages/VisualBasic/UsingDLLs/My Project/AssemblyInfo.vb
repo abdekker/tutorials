@@ -8,11 +8,11 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("UsingDLLs")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("UsingDLLs")>
-<Assembly: AssemblyCopyright("Copyright ©  2021")>
+<Assembly: AssemblyTitle("vbUsingDLLs")>
+<Assembly: AssemblyDescription("Using DLLs in VB.NET")>
+<Assembly: AssemblyCompany("DekkerSoft")>
+<Assembly: AssemblyProduct("vbUsingDLLs")>
+<Assembly: AssemblyCopyright("Copyright © DekkerSoft 2021")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "UsingDLLs", "UsingDLLs.vbproj", "{4528C0D1-B6AF-4E70-9416-05FE6EADEA63}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vbUsingDLLs", "vbUsingDLLs.vbproj", "{4528C0D1-B6AF-4E70-9416-05FE6EADEA63}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ClassLibrary_VB", "ClassLibrary_VB\ClassLibrary_VB.vbproj", "{0155001D-C366-443D-B7AA-13CE9B015345}"
 EndProject
