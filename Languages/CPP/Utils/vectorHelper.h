@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <algorithm>
 #include <iomanip>
 #include <vector>
@@ -59,7 +60,7 @@ public:
     }
 
     template <typename T>
-    void PrintVector(std::vector<T> input, const int width, const char cSeparator = ' ', bool bNewLine = false)
+    void PrintVector(std::vector<T> input, int width, const char cSeparator = ' ', bool bNewLine = false)
     {
         // Version which uses an alignment specifier (std::setw)
         if (input.size() > 0)
