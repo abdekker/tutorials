@@ -41,8 +41,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="systemHelperLibrary">
-      <HintPath>T:\build\systemHelperLibrary.dll</HintPath>
+	<Reference Include="systemHelperLibrary">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\systemHelperLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
