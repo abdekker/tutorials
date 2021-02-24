@@ -856,8 +856,8 @@ Module MainModule
         For Each item? As Person In people  ' Note the "item?" nullable type
             Console.WriteLine("  Person {0}: Name: {1,-10} Age: {2}",
                 index,
-                If (item?.name = Nothing, "(blank)", item?.name),
-                If (item?.age = Nothing, -1, item?.age))
+                If (item?.name Is Nothing, "(blank)", item?.name),
+                If (item?.age Is Nothing, -1, item?.age))
             index += 1
         Next
 

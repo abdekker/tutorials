@@ -6,9 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D11482B1-5EE6-42C1-A883-8EC93D8ABC97}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <StartupObject>SampleConsole.MainModule</StartupObject>
-    <RootNamespace>SampleConsole</RootNamespace>
-    <AssemblyName>SampleConsole-VB</AssemblyName>
+    <StartupObject>vbSampleConsole.MainModule</StartupObject>
+    <RootNamespace>vbSampleConsole</RootNamespace>
+    <AssemblyName>vbSampleConsole</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -37,7 +37,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>SampleConsole-VB.xml</DocumentationFile>
+    <DocumentationFile>vbSampleConsole.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -47,7 +47,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>SampleConsole-VB.xml</DocumentationFile>
+    <DocumentationFile>vbSampleConsole.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>

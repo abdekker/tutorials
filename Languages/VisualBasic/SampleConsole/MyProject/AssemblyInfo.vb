@@ -8,11 +8,11 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("SampleConsole")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("SampleConsole")>
-<Assembly: AssemblyCopyright("Copyright ©  2021")>
+<Assembly: AssemblyTitle("vbSampleConsole")>
+<Assembly: AssemblyDescription("Console application written in VB.NET")>
+<Assembly: AssemblyCompany("DekkerSoft")>
+<Assembly: AssemblyProduct("vbSampleConsole")>
+<Assembly: AssemblyCopyright("Copyright © DekkerSoft 2021")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
