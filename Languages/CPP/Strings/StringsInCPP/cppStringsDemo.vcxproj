@@ -64,7 +64,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)\$(TargetFileName) .</Command>
+      <Command>copy $(TargetDir)$(TargetFileName) ..\..\..\..\build</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,7 +86,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)\$(TargetFileName) .</Command>
+      <Command>copy $(TargetDir)$(TargetFileName) ..\..\..\..\build</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
