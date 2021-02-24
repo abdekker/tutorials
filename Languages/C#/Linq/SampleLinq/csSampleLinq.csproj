@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0995EEDA-7062-4986-AA76-836F551AD39A}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SampleLinq</RootNamespace>
-    <AssemblyName>SampleLinq</AssemblyName>
+    <RootNamespace>csSampleLinq</RootNamespace>
+    <AssemblyName>csSampleLinq</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
