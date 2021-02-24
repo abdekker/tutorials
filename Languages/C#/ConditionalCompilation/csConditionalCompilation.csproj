@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CFC3AD5D-32F2-45BE-8794-54457452E375}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ConditionalCompilation</RootNamespace>
-    <AssemblyName>ConditionalCompilation-C#</AssemblyName>
+    <RootNamespace>csConditionalCompilation</RootNamespace>
+    <AssemblyName>csConditionalCompilation</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

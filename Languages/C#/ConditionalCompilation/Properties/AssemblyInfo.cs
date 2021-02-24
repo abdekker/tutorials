@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConditionalCompilation")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("csConditionalCompilation")]
+[assembly: AssemblyDescription("Conditional compilation in C#")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConditionalCompilation")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCompany("DekkerSoft")]
+[assembly: AssemblyProduct("csConditionalCompilation")]
+[assembly: AssemblyCopyright("Copyright © DekkerSoft 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
