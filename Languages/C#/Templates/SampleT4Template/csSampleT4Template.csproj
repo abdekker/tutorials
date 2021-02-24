@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4173D97A-F2EE-444C-8F2B-D37AD3B20191}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SampleT4Template</RootNamespace>
-    <AssemblyName>SampleT4Template</AssemblyName>
+    <RootNamespace>csSampleT4Template</RootNamespace>
+    <AssemblyName>csSampleT4Template</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

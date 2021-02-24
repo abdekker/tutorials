@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleT4Template", "SampleT4Template.csproj", "{4173D97A-F2EE-444C-8F2B-D37AD3B20191}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csSampleT4Template", "csSampleT4Template.csproj", "{4173D97A-F2EE-444C-8F2B-D37AD3B20191}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
