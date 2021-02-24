@@ -174,7 +174,7 @@ void ClassPuzzle0001::PerformanceTests()
 		averagePerAttempts[attempt] =
 			(static_cast<double>(timerDuration) / static_cast<double>(TIMING_ITERATIONS));
 		averagePerAttempts[attempt] /= static_cast<double>(1000000L);   // Concert to ms
-		cout << strings.formatString("  Attempt %d: Total %.3f s, Avg %.3f ms\n",
+		cout << strings.FormatString("  Attempt %d: Total %.3f s, Avg %.3f ms\n",
 			attempt, totalTimes[attempt],  averagePerAttempts[attempt]);
 	}
 }
