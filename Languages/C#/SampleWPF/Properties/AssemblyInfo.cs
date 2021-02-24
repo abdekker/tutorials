@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SampleWPF")]
+[assembly: AssemblyTitle("csSampleWPF")]
 [assembly: AssemblyDescription("Sample walkthrough for creating a WPF application")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SampleWPF")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCompany("DekkerSoft")]
+[assembly: AssemblyProduct("csSampleWPF")]
+[assembly: AssemblyCopyright("Copyright © DekkerSoft 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
