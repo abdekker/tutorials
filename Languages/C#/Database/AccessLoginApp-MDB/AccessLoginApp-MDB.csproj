@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UseODBC</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UseOleDB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonDefs.cs" />
+    <Compile Include="DatabaseUtils.cs" />
     <Compile Include="frmMainLogin.cs">
       <SubType>Form</SubType>
     </Compile>

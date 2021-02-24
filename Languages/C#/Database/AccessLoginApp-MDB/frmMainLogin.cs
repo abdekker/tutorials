@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 #if UseOleDB
     using System.Data.OleDb;
 #elif UseODBC
     using System.Data.Odbc;
 #endif
+
 using System.Windows.Forms;
 
 namespace AccessLoginApp_MDB
 {
     // Following the tutorial (see below) using:
     // * Microsoft Access (.mdb, pre Access 2007)
-    // * OleDB (open project properties and set Build\Conditional compilation symbols to "UseOleDB")
-    // * ODBC (as above, but set to "UseODBC")
+    // * OleDB or ODBC
+
+    // To choose between OleDB and ODBC:
+    // * Open project properties > Build
+    // * Set Conditional compilation symbols to "UseOleDB" or "UseODBC"
 
     // Example database at: abdekker\privDevelopment\Data\Database\AccessLogin.mdb
-    // Created in Access 365 and saved as "Access 2002-2003 Database"
+    // Created in Access 365 and saved as "Access 2002-2003 Database" format
 
     // Tutorial URL = https://www.youtube.com/watch?v=AE-PS6-sL7U (Tutorial 1 of 21)
     // (or search for "C# MS Access Database Tutorial")
@@ -23,21 +28,20 @@ namespace AccessLoginApp_MDB
     public partial class frmMainLogin : Form
     {
         #region Member variables
+        private DatabaseUtils m_utils = new DatabaseUtils();
         private bool m_error = false;
-        #if UseOleDB
-            private OleDbConnection m_connection = new OleDbConnection();
-            private string m_connectionString =
-                @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
-        #elif UseODBC
-            private OdbcConnection m_connection = new OdbcConnection();
-            private string m_connectionString =
-                @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
-        #endif
+        private DbConnection m_connection;
+        private string m_connectionString;
         #endregion // Member variables
 
         public frmMainLogin()
         {
+            // Initialise form
             InitializeComponent();
+
+            // Set up the database connection
+            m_connection = m_utils.GetDbConnection();
+            m_connectionString = m_utils.GetDbConnectionString();
         }
 
         private void frmMainLogin_Load(object sender, EventArgs e)
@@ -48,14 +52,6 @@ namespace AccessLoginApp_MDB
             try
             {
                 // Set the connection string for the database
-                // Connection string for Access 2007+ (OleDB):
-                //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";
-
-                // Connection string for older versions of Access (OleDB):
-                //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
-
-                // Connection string for ODBC:
-                //      @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\MyDatabase.mdb;Uid=Admin;Pwd=;";
                 m_connection.ConnectionString = m_connectionString;
 
                 // Test open/close the database
@@ -77,22 +73,15 @@ namespace AccessLoginApp_MDB
                 m_error = false;
                 m_connection.ConnectionString = m_connectionString;
                 m_connection.Open();
-                #if UseOleDB
-                    OleDbCommand command = new OleDbCommand();
-                #elif UseODBC
-                    OdbcCommand command = new OdbcCommand();
-                #endif
+
+                DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                 command.Connection = m_connection;
                 command.CommandText = (
                     "SELECT * FROM EmployeeData WHERE " +
                     "Username='" + txtUsername.Text + "' AND " +     // Change to "OR" to show duplicate users
                     "Password='" + txtPassword.Text + "'");
 
-                #if UseOleDB
-                    OleDbDataReader reader = command.ExecuteReader();
-                #elif UseODBC
-                    OdbcDataReader reader = command.ExecuteReader();
-                #endif
+                DbDataReader reader = command.ExecuteReader(); // OleDbDataReader or OdbcDataReader
                 int countUsers = 0;
                 while (reader.Read())
                 {

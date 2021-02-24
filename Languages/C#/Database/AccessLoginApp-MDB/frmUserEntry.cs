@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 #if UseOleDB
     using System.Data.OleDb;
 #elif UseODBC
@@ -32,6 +33,7 @@ namespace AccessLoginApp_MDB
         #endregion // Constants
 
         #region Member variables
+        private DatabaseUtils m_utils = new DatabaseUtils();
         private bool m_error = false;
         private UInt32 m_errorID = CommonDefs.fieldsNone;
         private CommonDefs.FieldError m_errorCode = CommonDefs.FieldError.fieldError_None;
@@ -39,15 +41,8 @@ namespace AccessLoginApp_MDB
         private EmployeeData m_employee = new EmployeeData();
         private UInt32 m_editFields = CommonDefs.fieldsAll;
 
-        #if UseOleDB
-            private OleDbConnection m_connection = new OleDbConnection();
-            private string m_connectionString =
-                @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
-        #elif UseODBC
-            private OdbcConnection m_connection = new OdbcConnection();
-            private string m_connectionString =
-                @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
-        #endif
+        private DbConnection m_connection;
+        private string m_connectionString;
         #endregion // Member variables
 
         // Constructor
@@ -56,7 +51,8 @@ namespace AccessLoginApp_MDB
             // Initialise form
             InitializeComponent();
 
-            // Set the connection string
+            // Set up the database connection
+            m_connection = m_utils.GetDbConnection();
             m_connectionString = connectionString;
         }
 
@@ -128,23 +124,14 @@ namespace AccessLoginApp_MDB
                 {
                     m_connection.ConnectionString = m_connectionString;
                     m_connection.Open();
-
-                    #if UseOleDB
-                        OleDbCommand command = new OleDbCommand();
-                    #elif UseODBC
-                        OdbcCommand command = new OdbcCommand();
-                    #endif
+                    DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                     command.Connection = m_connection;
                     string query = (
                         "SELECT * FROM EmployeeData WHERE " +
                         "EmployeeID=" + employeeID.ToString() + ";");
                     command.CommandText = query;
 
-                    #if UseOleDB
-                        OleDbDataReader reader = command.ExecuteReader();
-                    #elif UseODBC
-                        OdbcDataReader reader = command.ExecuteReader();
-                    #endif
+                    DbDataReader reader = command.ExecuteReader(); // OleDbDataReader or OdbcDataReader
                     if (reader.Read())
                     {
                         if (ddlAction.Text.Equals(actionNewUser))
@@ -265,12 +252,7 @@ namespace AccessLoginApp_MDB
                     m_connection.ConnectionString = m_connectionString;
                     m_connection.Open();
 
-                    #if UseOleDB
-                        OleDbCommand command = new OleDbCommand();
-                    #elif UseODBC
-                        OdbcCommand command = new OdbcCommand();
-                    #endif
-
+                    DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                     command.Connection = m_connection;
                     command.CommandText = (
                         "INSERT INTO EmployeeData (FirstName,LastName,Pay) " +
@@ -305,11 +287,8 @@ namespace AccessLoginApp_MDB
                     m_error = false;
                     m_connection.ConnectionString = m_connectionString;
                     m_connection.Open();
-                    #if UseOleDB
-                        OleDbCommand command = new OleDbCommand();
-                    #elif UseODBC
-                        OdbcCommand command = new OdbcCommand();
-                    #endif
+
+                    DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                     command.Connection = m_connection;
                     string query = (
                         "UPDATE EmployeeData" +
@@ -343,11 +322,8 @@ namespace AccessLoginApp_MDB
                     m_error = false;
                     m_connection.ConnectionString = m_connectionString;
                     m_connection.Open();
-                    #if UseOleDB
-                        OleDbCommand command = new OleDbCommand();
-                    #elif UseODBC
-                        OdbcCommand command = new OdbcCommand();
-                    #endif
+
+                    DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                     command.Connection = m_connection;
                     string query = (
                         "DELETE FROM EmployeeData WHERE EmployeeID=" + m_employee.EmployeeID.ToString() + ";");
@@ -797,19 +773,12 @@ namespace AccessLoginApp_MDB
             {
                 m_connection.ConnectionString = m_connectionString;
                 m_connection.Open();
-                #if UseOleDB
-                    OleDbCommand command = new OleDbCommand();
-                #elif UseODBC
-                    OdbcCommand command = new OdbcCommand();
-                #endif
+
+                DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                 command.Connection = m_connection;
                 command.CommandText = query;
 
-                #if UseOleDB
-                    OleDbDataReader reader = command.ExecuteReader();
-                #elif UseODBC
-                    OdbcDataReader reader = command.ExecuteReader();
-                #endif
+                DbDataReader reader = command.ExecuteReader(); // OleDbDataReader or OdbcDataReader
                 hasRows = reader.HasRows;
                 m_connection.Close();
                 m_connection.Dispose();
@@ -825,20 +794,12 @@ namespace AccessLoginApp_MDB
             {
                 m_connection.ConnectionString = m_connectionString;
                 m_connection.Open();
-                #if UseOleDB
-                    OleDbCommand command = new OleDbCommand();
-                #elif UseODBC
-                    OdbcCommand command = new OdbcCommand();
-                #endif
+
+                DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                 command.Connection = m_connection;
                 command.CommandText = ("SELECT * FROM EmployeeData;");
 
-                #if UseOleDB
-                    OleDbDataReader reader = command.ExecuteReader();
-                #elif UseODBC
-                    OdbcDataReader reader = command.ExecuteReader();
-                #endif
-
+                DbDataReader reader = command.ExecuteReader(); // OleDbDataReader or OdbcDataReader
                 int numUsers = 0;
                 lstUsers.BeginUpdate();
                 lstUsers.Items.Clear();
@@ -870,11 +831,7 @@ namespace AccessLoginApp_MDB
             {
                 m_connection.ConnectionString = m_connectionString;
                 m_connection.Open();
-                #if UseOleDB
-                    OleDbCommand command = new OleDbCommand();
-                #elif UseODBC
-                    OdbcCommand command = new OdbcCommand();
-                #endif
+                DbCommand command = m_utils.GetDbCommand(); // OleDbCommand or OdbcCommand
                 command.Connection = m_connection;
                 // Don't use "SELECT * FROM EmployeeData" because the username and password will be displayed!
                 command.CommandText = (
@@ -888,11 +845,7 @@ namespace AccessLoginApp_MDB
                     CommonDefs.namePay +
                     " FROM EmployeeData;");
 
-                #if UseOleDB
-                    OleDbDataAdapter da = new OleDbDataAdapter(command);
-                #elif UseODBC
-                    OdbcDataAdapter da = new OdbcDataAdapter(command);
-                #endif
+                DbDataAdapter da = m_utils.GetDbDataAdapter(command); // OleDbDataAdapter or OdbcDataAdapter
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gridUsers.DataSource = dt;
