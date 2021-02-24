@@ -118,6 +118,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)$(TargetFileName) ..\..\..\..\..\build</PostBuildEvent>
   </PropertyGroup>
 </Project>
