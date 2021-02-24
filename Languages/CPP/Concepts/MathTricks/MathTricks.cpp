@@ -1,3 +1,4 @@
+#include <conio.h>
 #include <iostream>
 #include <vector>
 
@@ -105,4 +106,5 @@ int main()
     FloatToInt();
 
     cout << "\nAll done!\n";
+    _getch();
 }
