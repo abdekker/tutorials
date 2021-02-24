@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F554A82B-8401-4005-913A-40F38D81C7AF}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SampleConsole</RootNamespace>
-    <AssemblyName>SampleConsole-C#</AssemblyName>
+    <RootNamespace>csSampleConsole</RootNamespace>
+    <AssemblyName>csSampleConsole</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
