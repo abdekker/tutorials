@@ -16,14 +16,15 @@ namespace AccessLoginApp_MDB
         public DbConnection GetDbConnection()
         {
             // Return an OleDB or ODBC database connection object
-#if UseOleDB
-            // OleDbConnection : DbConnection, ICloneable, IDbConnection, IDisposable
-            return new OleDbConnection();
-#elif UseODBC
-            // OdbcConnection : DbConnection, ICloneable
-            return new OdbcConnection();
-#endif
-            return null;
+            #if UseOleDB
+                // OleDbConnection : DbConnection, ICloneable, IDbConnection, IDisposable
+                return new OleDbConnection();
+            #elif UseODBC
+                // OdbcConnection : DbConnection, ICloneable
+                return new OdbcConnection();
+            #else
+                return null;    // Remember to set the conditional compilation symbol
+            #endif
         }
 
         public string GetDbConnectionString()
@@ -38,38 +39,41 @@ namespace AccessLoginApp_MDB
 
             // Connection string for ODBC:
             //      @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\MyDatabase.mdb;Uid=Admin;Pwd=;";
-#if UseOleDB
-            return @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
-#elif UseODBC
-            return @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
-#endif
-            return string.Empty;
+            #if UseOleDB
+                return @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Apps\Data\AccessLogin.mdb;User Id=admin;Password=;";
+            #elif UseODBC
+                return @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
+            #else
+                return string.Empty;    // Remember to set the conditional compilation symbol
+            #endif
         }
 
         public DbCommand GetDbCommand()
         {
             // Return an OleDB or ODBC database command object
-#if UseOleDB
-            // OleDbCommand : DbCommand, ICloneable, IDbCommand, IDisposable
-            return new OleDbCommand();
-#elif UseODBC
-            // OdbcCommand : DbCommand, ICloneable
-            return new OdbcCommand();
-#endif
-            return null;
+            #if UseOleDB
+                // OleDbCommand : DbCommand, ICloneable, IDbCommand, IDisposable
+                return new OleDbCommand();
+            #elif UseODBC
+                // OdbcCommand : DbCommand, ICloneable
+                return new OdbcCommand();
+            #else
+                return null;    // Remember to set the conditional compilation symbol
+            #endif
         }
 
         public DbDataAdapter GetDbDataAdapter(DbCommand command)
         {
             // Return an OleDB or ODBC data adapter object
-#if UseOleDB
-            // OleDbDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
-            return new OleDbDataAdapter((OleDbCommand)command);
-#elif UseODBC
-            // OdbcDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
-            return new OdbcDataAdapter((OdbcCommand)command);
-#endif
-            return null;
+            #if UseOleDB
+                // OleDbDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
+                return new OleDbDataAdapter((OleDbCommand)command);
+            #elif UseODBC
+                // OdbcDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
+                return new OdbcDataAdapter((OdbcCommand)command);
+            #else
+                return null;    // Remember to set the conditional compilation symbol
+            #endif
         }
         #endregion // Public methods
     }
