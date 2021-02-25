@@ -23,6 +23,7 @@ namespace AccessLoginApp_MDB
             // OdbcConnection : DbConnection, ICloneable
             return new OdbcConnection();
 #endif
+            return null;
         }
 
         public string GetDbConnectionString()
@@ -42,6 +43,7 @@ namespace AccessLoginApp_MDB
 #elif UseODBC
             return @"Driver={Microsoft Access Driver (*.mdb)};Dbq=C:\Apps\Data\AccessLogin.mdb;Uid=Admin;Pwd=;";
 #endif
+            return string.Empty;
         }
 
         public DbCommand GetDbCommand()
@@ -54,6 +56,7 @@ namespace AccessLoginApp_MDB
             // OdbcCommand : DbCommand, ICloneable
             return new OdbcCommand();
 #endif
+            return null;
         }
 
         public DbDataAdapter GetDbDataAdapter(DbCommand command)
@@ -66,6 +69,7 @@ namespace AccessLoginApp_MDB
             // OdbcDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
             return new OdbcDataAdapter((OdbcCommand)command);
 #endif
+            return null;
         }
         #endregion // Public methods
     }
