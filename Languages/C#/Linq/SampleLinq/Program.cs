@@ -89,7 +89,7 @@ namespace SampleLinq
             }
             Console.WriteLine();
 
-            // Return the array...note thisis from the initial query (not the updated query)
+            // Return the array...note this is from the initial query (not the updated query)
             // because we converted the query into an array before updating the data.
             return arrayGT20;
         }
