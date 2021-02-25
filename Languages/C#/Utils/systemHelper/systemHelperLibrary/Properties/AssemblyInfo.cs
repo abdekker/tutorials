@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DekkerSoft")]
 [assembly: AssemblyProduct("systemHelperLibrary")]
-[assembly: AssemblyCopyright("Copyright © DekkerSoft")]
+[assembly: AssemblyCopyright("Copyright © DekkerSoft 2020")]
 [assembly: AssemblyTrademark("DekkerSoft")]
 [assembly: AssemblyCulture("")]
 

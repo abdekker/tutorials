@@ -383,7 +383,7 @@ namespace SampleConsole
             List<string> assemblies = new List<string>();
             assemblies.Add("C:\\Windows\\System32\\kernel32.dll");
             assemblies.Add("C:\\Windows\\regedit.exe");
-            assemblies.Add(SystemLibrary.GetParentFolder(GetAssemblyPath, 10) + "build\\systemHelperLibrary.dll");
+            assemblies.Add(SystemLibrary.GetParentFolder(GetAssemblyPath, 10, "tutorials") + "\\build\\systemHelperLibrary.dll");
 
             FileVersionInfo verInfo;
             foreach (string item in assemblies)
