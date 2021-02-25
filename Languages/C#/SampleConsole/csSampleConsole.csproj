@@ -44,6 +44,7 @@
     <Reference Include="systemHelperLibrary">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\systemHelperLibrary.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

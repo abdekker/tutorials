@@ -223,7 +223,6 @@ namespace demoDataTable
             // Manually create a new DataTable
             DataTable dtEmployees = new DataTable("Employee");
             HelperPopulateDataTable(ref dtEmployees);
-            DataRow employee;
 
             Console.WriteLine("(using DataTable::Select)");
             Console.WriteLine("(simply query for a number => just use the number as is)");
