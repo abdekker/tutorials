@@ -1,4 +1,5 @@
 ### SQL data type conversions to .NET ###
+(Note to self: Do not edit in abdekker\tutorials! The master is in abdekker\privDevelopment\Data\Database.)
 
             DAO                 ODBC                OleDB                   C#          VB
             TypeName    Type    TypeName    Type    TypeName        Type
