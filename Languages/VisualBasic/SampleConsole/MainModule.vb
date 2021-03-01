@@ -169,6 +169,16 @@ Module MainModule
         '       Console.WriteLine(sr.ReadLine())
         '   Loop
 
+        Console.WriteLine(" (For...Next, also demonstrating 'Step' and nesting)")
+        For outer As Integer = 3 To 1 Step -1
+            Console.Write(outer.ToString & ": ")
+            For inner As Integer = 10 To 50 Step 10
+                Console.Write(inner.ToString & " ")
+            Next inner
+            Console.WriteLine()
+        Next outer
+        Console.WriteLine()
+
         Console.WriteLine(" (For Each...Next, also demonstrating exit/continue)")
         Dim numbers As List(Of Integer) = New List(Of Integer)
         ' Or Dim numbers() As Integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
