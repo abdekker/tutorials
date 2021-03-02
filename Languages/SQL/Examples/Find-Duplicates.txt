@@ -1,0 +1,21 @@
+### Find duplicates in a single column ###
+
+	SELECT ColumnName, COUNT(ColumnName)
+	FROM TableName
+	GROUP BY ColumnName
+	HAVING COUNT(ColumnName) > 1
+	
+or	SELECT ColumnName, COUNT(*)
+	FROM TableName
+	GROUP BY ColumnName
+	HAVING COUNT(*) > 1
+
+#
+
+### Finding duplicates in multiple columns ###
+
+	SELECT Column1, Column2, COUNT(*)
+	FROM TableName
+	GROUP BY Column1, Column2
+	HAVING COUNT(*) > 1
+#
