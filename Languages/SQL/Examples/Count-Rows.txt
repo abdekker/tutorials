@@ -1,0 +1,28 @@
+### Count rows in a table ###
+	SELECT COUNT(*)
+	FROM TableName;
+#
+
+### Count non-NULL rows in a specific column ###
+	SELECT COUNT(ColumnName)
+	FROM TableName;
+	
+Note: Return the same result as the previous query if every value in the column is not NULL
+#
+
+### Count unique, non-NULL rows in a specific column ###
+	SELECT COUNT(DISTINCT ColumnName)
+	FROM TableName;
+#
+
+### Count rows returned by a query with criteria ###
+	SELECT COUNT(*)
+	FROM TableName
+	WHERE ColumnName LIKE '%dog%' 
+	OR ColumnName LIKE '%cat%';
+#
+
+### Count rows returned by a more complex query ###
+	SELECT COUNT(*)
+	FROM (SELECT ColumnName, COUNT(1) AS AliasName FROM TableName GROUP BY ColumnName ORDER BY ColumnName)
+#
