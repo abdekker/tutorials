@@ -18,11 +18,10 @@ Note: Return the same result as the previous query if every value in the column 
 ### Count rows returned by a query with criteria ###
 	SELECT COUNT(*)
 	FROM TableName
-	WHERE ColumnName LIKE '%dog%' 
-	OR ColumnName LIKE '%cat%';
+	WHERE ColumnName LIKE '%dog%' OR ColumnName LIKE '%cat%';
 #
 
 ### Count rows returned by a more complex query ###
 	SELECT COUNT(*)
-	FROM (SELECT ColumnName, COUNT(1) AS AliasName FROM TableName GROUP BY ColumnName ORDER BY ColumnName)
+	FROM (SELECT ColumnName, COUNT(*) AS AliasName FROM TableName GROUP BY ColumnName ORDER BY ColumnName)
 #
