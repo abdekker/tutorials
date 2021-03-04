@@ -7,90 +7,136 @@ End Function
 Private Function HasContent(strValue As String) As Boolean
     ' Test a string for content (spaces are not content in this version, so " " == "")
     'HasContent = (Len(Trim(strValue)) = 0)
-    HasContent = (Trim(strValue & vbNullString) = vbNullString)
+    HasContent = (Trim(strValue & vbNullString) <> vbNullString)
 End Function
 
-Function GetAccessFileType() As String
-    ' This method supplied by user "Gord Thompson" on StackOverflow
-    ' Works by peeking at the 21st byte of the file
-	On Error GoTo Error_GetAccessFileType
-    Dim strFileName As String
-    strFileName = Selection.Value
-    If (HasContent(strFileName)) Then
-        ' When no database file is provided, hard-code a path here
-        strFileName = "P:\HqVar\_clin\Data\clindb1.mdb"
-        'strFileName = "C:\Apps\Data\Northwind 97.mdb"
-        'strFileName = "C:\Apps\Data\Northwind 2000.mdb"
-        'strFileName = "C:\Apps\Data\Northwind 2007-2016.accdb"
-        'strFileName = "C:\Apps\Data\SampleAccess.accdb"
+Private Function GetFilename() As String
+    GetFilename = vbNullString
+    Dim strFilename As String
+    strFilename = Selection.Value
+    If (Not HasContent(strFilename)) Then
+        ' When no file is provided, hard-code a path here
+        'strFilename = "P:\HqVar\_clin\Data\clindb1.mdb"
+        'strFilename = "C:\Apps\Data\Northwind 97.mdb"
+        'strFilename = "C:\Apps\Data\Northwind 2000.mdb"
+        strFilename = "C:\Apps\Data\Northwind 2007-2016.accdb"
+        'strFilename = "C:\Apps\Data\SampleAccess2007.accdb"
     End If
     
-    If IsEmpty(Dir(strFileName)) Then
+    If IsEmpty(Dir(strFilename)) Then
         ' File does not exist
-        MsgBox "Could not find: " & strFileName
+        MsgBox "Could not find: " & strFilename
         Exit Function
+    End If
+    GetFilename = strFilename
+End Function
+
+Sub GetAccessFormat1()
+    ' Version 1: Determine the format of an Access database by peeking at the 21st byte of the file
+    ' This method supplied by user "Gord Thompson" on StackOverflow
+    On Error GoTo Error_GetAccessFormat1
+    Dim strFilename As String
+    strFilename = GetFilename()
+    If (IsEmpty(strFilename)) Then
+        Exit Sub
     End If
     
     ' Read the first twenty-one bytes
     Dim buffer() As Byte
     Dim fileData As Integer
     fileData = FreeFile
-    Open strFileName For Binary Access Read As fileData
+    Open strFilename For Binary Access Read As fileData
     If (LOF(fileData) > 25) Then
         ReDim buffer(0 To 22)
         Get fileData, , buffer
         Close fileData
-        ReadByteArrFromFile = buffer
     Else
-        Exit Function
+        Exit Sub
     End If
     
-    ' Get the file format (byte 21) [Note: The buffer is 0-based]
+    ' Get the file format (byte 21)
     Dim byFileType As Byte
-    byFileType = buffer(20)
+    byFileType = buffer(20) ' buffer is 0-based
     
     ' Convert the file format into a string
-    Dim strFileType As String
+    Dim strFormat As String
     Select Case byFileType
         Case 0:
-            strFileType = "Access 97 or older"
+            strFormat = "Access 97 or older"
         Case 1:
-            strFileType = "Access 2000/2003"
+            strFormat = "Access 2000/2003"
         Case 2:
-            strFileType = "Access 2007"
+            strFormat = "Access 2007"
         Case 3:
-            strFileType = "Access 2010"
+            strFormat = "Access 2010"
         Case 5:
-            strFileType = "Access 2016 with BIGINT support (Type 5)"
+            strFormat = "Access 2016 with BIGINT support (Type 5)"
         Case Else:
-            strFileType = "Unknown Access file format"
+            strFormat = "Unknown Access file format"
     End Select
-    
-    strFileType = (strFileType + " (Type: " & byFileType & ")")
-    MsgBox strFileType
-	Exit Function
 
-Error_GetAccessFileType:
+    strFormat = (strFormat + " (Type: " & byFileType & ")")
+    MsgBox strFormat
+    Exit Sub
+
+Error_GetAccessFormat1:
     ' Unable to open the database (not Access or not supported by this version of Office)
-    MsgBox "Unable to open as an Access database: " & strFileName & ", Error: " & Err.Description
-    Exit Function
-End Function
+    MsgBox "Unable to open as an Access database: " & strFilename & ", Error: " & Err.Description
+End Sub
 
-Public Sub GetAccessFormat()
-    ' Attempt to determine the format of an Access database
-    ' Note: Access 16.0 (Office 365) cannot read databases from Office 2013 and earlier)
-    On Error GoTo Error_GetAccessFormat
-    Dim strFileName As String
-    strFileName = Selection.Value
-    If (HasContent(strFileName)) Then
-        ' When no database file is provided, hard-code a path here
-        'strFileName = "P:\HqVar\_clin\Data\clindb1.mdb"
-        strFileName = "C:\Apps\Data\Northwind 2007-2016.accdb"
+Sub GetAccessFormat2()
+    ' Version 2: Determine the format of an Access database by using DAO
+    ' This method supplied by user "Erik A" on StackOverflow
+    ' Note: DAO.DbEngine.36 may not be registered on your system, so this may fail for .mdb files
+    On Error GoTo Error_GetAccessFormat2
+    Dim strFilename As String
+    strFilename = GetFilename()
+    If (IsEmpty(strFilename)) Then
+        Exit Sub
     End If
     
-    If IsEmpty(Dir(strFileName)) Then
-        ' File does not exist
-        MsgBox "Could not find: " & strFileName
+    ' Open the database using DAO
+    If (strFilename Like "*.mdb") Then
+        ' Old JET engine, on 32-bits likely the MDAC version that still supports Access 2.0
+        Set dbe = CreateObject("DAO.DbEngine.36") ' Will likely fail on 64-bit Excel/VBA
+    Else
+        ' ACE engine used for modern Access databases
+        Set dbe = CreateObject("DAO.DbEngine.120")
+    End If
+    
+    Dim db As Object
+    Set db = dbe.OpenDatabase(strFilename)
+    
+    ' Get the file format
+    Dim dFileFormat As Double
+    dFileFormat = db.Version
+    
+    ' Convert the file format into a string
+    Dim strAccessFormat As String
+    If (dFileFormat = 12#) Then
+        strAccessFormat = "Microsoft Access 2007"
+    ElseIf (dFileFormat = 14#) Then
+        strAccessFormat = "Microsoft Access 2010"
+    Else
+        strAccessFormat = "Unknown Access file format"
+    End If
+
+    strAccessFormat = (strAccessFormat + " (Version: " & dFileFormat & ".0)")
+    MsgBox strAccessFormat
+    Exit Sub
+
+Error_GetAccessFormat2:
+    MsgBox "Unable to open as an Access database: " & strFilename & ", Error: " & Err.Description
+End Sub
+
+Public Sub GetAccessFormat3()
+    ' Version 3: Determine the format of an Access database by running the installed Access application
+    ' Note: Access 16.0 (Office 365) cannot fully read databases from Office 2013 (and earlier), and will refuse
+    ' to open Access 97 (and earlier) databases. This method is also slow, so use the other methods.
+    On Error GoTo Error_GetAccessFormat3
+    Dim strFilename As String
+    strFilename = GetFilename()
+    If (IsEmpty(strFilename)) Then
         Exit Sub
     End If
     
@@ -107,12 +153,13 @@ Public Sub GetAccessFormat()
     'Set objAccess = New Access.Application
     Dim objAccess As Object
     Set objAccess = CreateObject("Access.Application")
-    objAccess.OpenCurrentDatabase strFileName
+    objAccess.OpenCurrentDatabase strFilename
     objAccess.Visible = False
     
-    ' Get the file format
+    ' Get the file format and close the database
     Dim nFileFormat As Integer
     nFileFormat = objAccess.CurrentProject.FileFormat
+    objAccess.CloseCurrentDatabase
     
     ' Convert the file format into a string
     Dim strAccessFormat As String
@@ -125,30 +172,27 @@ Public Sub GetAccessFormat()
             strAccessFormat = "Microsoft Access 97"
         Case 9
             strAccessFormat = "Microsoft Access 2000"
-        Case 10               
+        Case 10
             strAccessFormat = "Microsoft Access 2002"
-        Case 11               
+        Case 11
             strAccessFormat = "Microsoft Access 2003"
-        Case 12               
+        Case 12
             strAccessFormat = "Microsoft Access 2007"
-        Case 14               
+        Case 14
             strAccessFormat = "Microsoft Access 2010"
-        Case 15               
+        Case 15
             strAccessFormat = "Microsoft Access 2013"
-        Case 16               
+        Case 16
             strAccessFormat = "Microsoft Access 2016/9"
         Case Else
             strAccessFormat = "Unknown Access file format"
     End Select
-    
-    ' Close database and display the formatting information
-    objAccess.CloseCurrentDatabase
+
     strAccessFormat = (strAccessFormat + " (Type: " & nFileFormat & ")")
     MsgBox strAccessFormat
     Exit Sub
 
-Error_GetAccessFormat:
+Error_GetAccessFormat3:
     ' Unable to open the database (not Access or not supported by this version of Office)
-    MsgBox "Unable to open as an Access database: " & strFileName & ", Error: " & Err.Description
-    Exit Sub
+    MsgBox "Unable to open as an Access database: " & strFilename & ", Error: " & Err.Description
 End Sub
