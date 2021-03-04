@@ -25,6 +25,5 @@ Public Sub GetSelectionFont()
         strFont = "Mixed or Unknown"
     End If
 
-    MsgBox "Selection: " & strSelection & vbCrLf & _
-        "Font: " & strFont
+    MsgBox "Selection: " & strSelection & vbCrLf & "Font: " & strFont
 End Sub
