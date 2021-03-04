@@ -32,7 +32,8 @@ namespace AccessLoginApp_MDB
             // Return an OleDB or ODBC connection string for our test database
 
             // Connection string for Access 2007+ (OleDB):
-            //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";
+            //      @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";  // Office 2007
+            //      @"Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\MyDatabase.accdb;Persist Security Info=False;";  // Office 365 (2019)
 
             // Connection string for older versions of Access (OleDB):
             //      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\MyDatabase.mdb;User Id=admin;Password=;";
