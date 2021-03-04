@@ -1,0 +1,72 @@
+Private Function IsEmpty(strValue As String) As Boolean
+    ' Test whether a string is empty (spaces are counted as content, so " " returns FALSE)
+    IsEmpty = (strValue = vbNullString)
+End Function
+
+Private Function HasContent(strValue As String) As Boolean
+    ' Test a string for content (spaces are not content in this version, so " " == "")
+    HasContent = (Trim(strValue & vbNullString) = vbNullString)
+End Function
+
+Public Sub ReadTxtFileLineByLine()
+    ' Read a text file line by line
+    On Error GoTo Error_ReadTextFile
+    Dim strFileName As String
+    strFileName = Selection.Value
+    If (HasContent(strFileName)) Then
+        ' When no file is provided, hard-code a path here
+        strFileName = "C:\Tmp\Test.txt"
+    End If
+    
+    If IsEmpty(Dir(strFileName)) Then
+        ' File does not exist
+        MsgBox "Could not find: " & strFileName
+        Exit Sub
+    End If
+    
+    Dim strTextData As String, strTextRow As String
+    Dim fileNumber As Integer
+    fileNumber = FreeFile ' Get the first free file number
+    
+    Open strFileName For Input As fileNumber
+    Do While Not EOF(fileNumber)
+        Line Input #fileNumber, strTextRow
+        strTextData = strTextData & strTextRow
+    Loop
+    Close #fileNumber
+
+Error_ReadTextFile:
+    MsgBox "Error: " & Err.Description
+    Exit Sub
+End Sub
+
+Public Sub ReadTxtFileComplete()
+    ' Read a text file in one go
+    On Error GoTo Error_ReadTextFile
+    Dim strFileName As String
+    strFileName = Selection.Value
+    If (HasContent(strFileName)) Then
+        ' When no file is provided, hard-code a path here
+        strFileName = "C:\Tmp\Test.txt"
+    End If
+    
+    If IsEmpty(Dir(strFileName)) Then
+        ' File does not exist
+        MsgBox "Could not find: " & strFileName
+        Exit Sub
+    End If
+    
+    Dim strTextData As String, strTextRow As String
+    Dim fileNumber As Integer
+    fileNumber = FreeFile ' Get the first free file number
+    
+    Open strFileName For Input As fileNumber
+    Do While Not EOF(fileNumber)
+        strTextData = Input$(LOF(fileNumber), fileNumber)
+    Loop
+    Close #fileNumber
+
+Error_ReadTextFile:
+    MsgBox "Error: " & Err.Description
+    Exit Sub
+End Sub
