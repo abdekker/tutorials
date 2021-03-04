@@ -36,7 +36,7 @@ Function GetAccessFileType() As String
     Dim fileData As Integer
     fileData = FreeFile
     Open strFileName For Binary Access Read As fileData
-    If (LOF(fileData) > 21) Then
+    If (LOF(fileData) > 25) Then
         ReDim buffer(0 To 22)
         Get fileData, , buffer
         Close fileData
@@ -45,8 +45,7 @@ Function GetAccessFileType() As String
         Exit Function
     End If
     
-    ' Get the file format (byte 21)
-	' Note: The buffer is 0-based
+    ' Get the file format (byte 21) [Note: The buffer is 0-based]
     Dim byFileType As Byte
     byFileType = buffer(20)
     
@@ -67,7 +66,7 @@ Function GetAccessFileType() As String
             strFileType = "Unknown Access file format"
     End Select
     
-    strFileType = (strFileType + " (" & byFileType & ")")
+    strFileType = (strFileType + " (Type: " & byFileType & ")")
     MsgBox strFileType
 	Exit Function
 
@@ -113,7 +112,7 @@ Public Sub GetAccessFormat()
     
     ' Get the file format
     Dim nFileFormat As Integer
-    nFileFormat = objAccess.CurrentProject.nFileFormat
+    nFileFormat = objAccess.CurrentProject.FileFormat
     
     ' Convert the file format into a string
     Dim strAccessFormat As String
@@ -121,9 +120,9 @@ Public Sub GetAccessFormat()
         Case 2
             strAccessFormat = "Microsoft Access 2"
         Case 7
-            strAccessFormat = "Microsoft Access 95")
+            strAccessFormat = "Microsoft Access 95"
         Case 8
-            strAccessFormat = "Microsoft Access 97")
+            strAccessFormat = "Microsoft Access 97"
         Case 9
             strAccessFormat = "Microsoft Access 2000"
         Case 10               
@@ -144,7 +143,7 @@ Public Sub GetAccessFormat()
     
     ' Close database and display the formatting information
     objAccess.CloseCurrentDatabase
-    strAccessFormat = (strAccessFormat + " (" & nFileFormat & ")")
+    strAccessFormat = (strAccessFormat + " (Type: " & nFileFormat & ")")
     MsgBox strAccessFormat
     Exit Sub
 
