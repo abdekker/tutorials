@@ -1,0 +1,18 @@
+* Steps to use 32-bit DAO 3.6 in 64-bit Excel/VBA:
+	- Open the Registry Editor and search for "DAO.DBEngine.36"
+	- Locate your COM object GUID under the HKEY_CLASSES_ROOT\Wow6432Node\CLSID\[GUID]
+		- In our case: HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{00000100-0000-0010-8000-00AA006D2EA4}
+	- Add a REG_SZ value "AppID" with data the GUID search above
+		- In our case: HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{00000100-0000-0010-8000-00AA006D2EA4}\AppID = {00000100-0000-0010-8000-00AA006D2EA4}
+		- This will likely fail due to permissions:
+			- Right-click the [GUID] key > Permissions > Advanced
+			- Change the owner to a local administrator account
+			- Select "Replace owner on subcontainers and objects" and click "OK"
+			- Back in the "Security" tab of Permissions, select the "Administrators" group and then "Full Control"
+			- Click "OK"
+	- Add a new key under HKEY_CLASSES_ROOT\WOW6432Node\AppID named for the [GUID} of the COM object
+		- In our case: HKEY_CLASSES_ROOT\WOW6432Node\AppID\{00000100-0000-0010-8000-00AA006D2EA4}
+	- Under the new key, add a REG_SZ called "DllSurrogate" with a blank value
+	- Check and see if the key HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppID\[GUID] exists
+		- If not, create a new key with this name. No values are necessary to be added under this key.
+	- Now your 32-bit COM object should be accessible from a 64-bit environment and can be used like a regular COM object!
