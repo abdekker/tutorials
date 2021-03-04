@@ -2,7 +2,9 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using systemHelperLibrary;
+using typesLib = systemHelperLibrary.TypesLibrary;
 
 namespace StringsDemo
 {
