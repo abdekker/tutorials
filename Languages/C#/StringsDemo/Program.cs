@@ -14,6 +14,7 @@ namespace StringsDemo
         // Date/Time separation for strings in ISO 8601 format (yyyy-MM-ddTHH:mm:ss)
         public static char[] cDateTimeSeparator = { 'T' };
         public const string szDateTimeFormat_ISO8601 = "yyyy-MM-ddTHH:mm:ss";
+        public const string szDateFormat_ISO8601 = "yyyy-MM-dd";
         #endregion // Constants
 
         #region Enumerations
@@ -345,7 +346,8 @@ namespace StringsDemo
             Console.WriteLine("  A (now) = {0}", dtA);
             Console.WriteLine("  B (from numbers) = {0}, C (from string) = {0}", dtB, dtC);
             Console.WriteLine("  Is B == C? {0}", ( dtB.CompareTo(dtC) == 0));
-            Console.WriteLine("  ISO8601 (B) = {0}", dtB.ToString(szDateTimeFormat_ISO8601));
+            Console.WriteLine("  ISO8601 (B) = {0} [Date and time]", dtB.ToString(szDateTimeFormat_ISO8601));
+            Console.WriteLine("  ISO8601 (B) = {0} [Date only]", dtB.ToString(szDateFormat_ISO8601));
             Console.WriteLine();
 
             Console.WriteLine("(locale information)");
