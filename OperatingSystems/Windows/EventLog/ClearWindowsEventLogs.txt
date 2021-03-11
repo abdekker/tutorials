@@ -1,0 +1,19 @@
+Clearing the Windows Event logs
+
+### Command Prompt (recommended) ###
+- Open an elevated command prompt
+- Run the following command:
+	for /F "tokens=*" %1 in ('wevtutil.exe el') DO wevtutil.exe cl "%1"
+- The event logs will now be cleared. You can close the command prompt when it's finished.
+#
+
+### PowerShell ###
+- Open an elevated Windows PowerShell
+- Run the following command:
+	Get-WinEvent -ListLog * | where {$_.RecordCount} | ForEach-Object -Process { [System.Diagnostics.Eventing.Reader.EventLogSession]::GlobalSession.ClearLog($_.LogName) }
+OR
+	Get-EventLog -LogName * | ForEach { Clear-EventLog $_.Log } 
+OR
+	wevtutil el | Foreach-Object {wevtutil cl "$_"}
+- The event logs will now be cleared. You can close PowerShell when it's finished.
+#
