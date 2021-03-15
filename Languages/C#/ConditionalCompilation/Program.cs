@@ -1,11 +1,11 @@
 ﻿// Uncomment this to show a different value in "LocalDefine"
 // Note: In C#, pre-processor symbols must be defined / undefined as the first tokens in a file
-#define SOMEVALUE
+#define LOCAL_VALUE
 
-// Comment/uncomment these lines to undefine a pre-processor symbol
-#if SOMEVALUE
-    #undef SOMEVALUE
-#endif
+// Uncomment to undefine a pre-processor symbol
+//#if LOCAL_VALUE
+//    #undef LOCAL_VALUE
+//#endif
 
 using System;
 
@@ -15,7 +15,7 @@ namespace ConditionalCompilation
     {
         private static void DebugOrRelease()
         {
-            Console.WriteLine("### DEBUG or not? ###");
+            Console.WriteLine("### DEBUG or RELEASE? ###");
             string mode;
 
             #if DEBUG
@@ -59,11 +59,25 @@ namespace ConditionalCompilation
 
         private static void LocalDefine()
         {
-            Console.WriteLine("### Local symbol (SOMEVALUE) ###");
-            #if SOMEVALUE
-                Console.WriteLine("  Symbol SOMEVALUE is defined! :)");
+            Console.WriteLine("### Local symbol (LOCAL_VALUE) ###");
+            Console.WriteLine("(Defined at the top of this file)");
+            #if LOCAL_VALUE
+                Console.WriteLine("  Symbol LOCAL_VALUE is defined! :)");
             #else
-                Console.WriteLine("  Symbol SOMEVALUE is not defined :(");
+                Console.WriteLine("  Symbol LOCAL_VALUE is not defined :(");
+            #endif
+            Console.WriteLine("#\n");
+        }
+
+        private static void GlobalDefine()
+        {
+            Console.WriteLine("### Global symbol (GLOBAL_VALUE) ###");
+            Console.WriteLine("(Defined in Project Settings > Build > Conditional compilation symbols)");
+            Console.WriteLine("(Can be defined in both Debug and Release configurations)");
+            #if GLOBAL_VALUE
+                Console.WriteLine("  Symbol GLOBAL_VALUE is defined! :)");
+            #else
+                Console.WriteLine("  Symbol GLOBAL_VALUE is not defined :(");
             #endif
             Console.WriteLine("#\n");
         }
@@ -76,6 +90,7 @@ namespace ConditionalCompilation
             DebugOrRelease();
             DotNetImplementation();
             LocalDefine();
+            GlobalDefine();
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
