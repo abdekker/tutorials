@@ -10,6 +10,7 @@ namespace SimpleDbReader
         //      - "const" is intended for things that are genuinely unchanging (such as mathematical constants)
         //      - Other assemblies consuming the constant get a hard-coded value of the constant at compile-time
         //      - If the value of the constant changes, the dependent assemblies will need to be re-compiled
+        //      - Default values for function parameters also require compile-time constants using "const"
         // * Use "readonly" for values that may change in future versions of the program
         //      - This allows these values to be consumed by other assemblies
         // * Several web sources recommend using the app.config file for storing constants
