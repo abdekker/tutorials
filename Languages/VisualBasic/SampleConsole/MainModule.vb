@@ -7,6 +7,7 @@ Imports System.Linq
 Imports Microsoft.VisualBasic   ' For legacy string and other VB6 methods
 
 Imports systemHelperLibrary
+Imports typesLib = systemHelperLibrary.TypesLibrary
 
 ' To create this console application in Visual Studio 2019:
 ' * Create a new project
@@ -815,6 +816,32 @@ Module MainModule
         Console.WriteLine()
     End Sub
 
+    Private Sub VB_Integers()
+        Console.WriteLine("### Integers ###")
+
+        'ADAD
+        Console.WriteLine("\t\tName\t\tFull Name\t\tSize (bytes)\tMin\t\t\tMax")
+        Console.WriteLine("  (signed)")
+        If True Then
+            Dim min As Boolean = False
+            Dim max As Boolean = False
+            Console.WriteLine("bool\t\t{0}\t\t{1}\t\t{2}\t\t{3}\t\t\t{4}",
+                typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        Console.WriteLine()
+
+        Console.WriteLine("(arrays)")
+        Dim intData() As Integer = {12, 16, 20, 24, 28, 32}
+        For Each num In intData
+            Console.Write(num.ToString() + " ")
+        Next
+        Console.WriteLine()
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
     Private Sub VB_NullableTypes()
         ' Nullable types were introduced into .NET 4.6 (2015)
         Console.WriteLine("### Nullable types ###")
@@ -952,18 +979,21 @@ Module MainModule
         DisplayAssemblyInfo()
 
         ' Loops and other control structures in VB
-        VB_Loops()
+        'VB_Loops()
 
         ' Strings
-        VB_Strings_Basic()
-        VB_Strings_Basic_Search()
+        'VB_Strings_Basic()
+        'VB_Strings_Basic_Search()
         'VB_Strings_Performance_InStr()     ' Leave performance tests commented out unless testing!
         'VB_Strings_Performance_InStrRev()
         'VB_Strings_Performance_Len()
 
+        ' Integers
+        VB_Integers()
+
         ' Miscellaneous
-        VB_NullableTypes()
-        VB_Enumerations()
+        'VB_NullableTypes()
+        'VB_Enumerations()
 
         Console.WriteLine("Press any key to exit...")
         Console.ReadKey()
