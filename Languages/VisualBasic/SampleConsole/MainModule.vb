@@ -819,20 +819,89 @@ Module MainModule
     Private Sub VB_Integers()
         Console.WriteLine("### Integers ###")
 
-        'ADAD
-        Console.WriteLine("\t\tName\t\tFull Name\t\tSize (bytes)\tMin\t\t\tMax")
-        Console.WriteLine("  (signed)")
+        Const Formatting As String = "  {0,-10}{1,-10}{2,-18}{3,-14}{4,-22}{5}"
+        Console.WriteLine(Formatting, "Type", "Name", "Full Name", "Size (bytes)", "Min", "Max")
+
+        Console.WriteLine()
+        Console.WriteLine("(signed)")
         If True Then
+            ' Boolean (System.Boolean)
             Dim min As Boolean = False
-            Dim max As Boolean = False
-            Console.WriteLine("bool\t\t{0}\t\t{1}\t\t{2}\t\t{3}\t\t\t{4}",
-                typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+            Dim max As Boolean = True
+            Console.WriteLine(Formatting,
+                "Boolean", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' SByte (System.SByte)
+            Dim min As SByte = SByte.MinValue
+            Dim max As SByte = SByte.MaxValue
+            Console.WriteLine(Formatting,
+                "SByte", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' Short (System.Int16)
+            Dim min As Short = Short.MinValue
+            Dim max As Short = Short.MaxValue
+            Console.WriteLine(Formatting,
+                "Short", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' Integer (System.Int32)
+            Dim min As Integer = Integer.MinValue
+            Dim max As Integer = Integer.MaxValue
+            Console.WriteLine(Formatting,
+                "Integer", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' Long (System.Int64)
+            Dim min As Long = Long.MinValue
+            Dim max As Long = Long.MaxValue
+            Console.WriteLine(Formatting,
+                "Long", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
         End If
 
         Console.WriteLine()
+        Console.WriteLine("(unsigned)")
+        If True Then
+            ' Byte (System.Byte)
+            Dim min As Byte = Byte.MinValue
+            Dim max As Byte = Byte.MaxValue
+            Console.WriteLine(Formatting,
+                "Byte", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' UShort (System.UInt16)
+            Dim min As UShort = UShort.MinValue
+            Dim max As UShort = UShort.MaxValue
+            Console.WriteLine(Formatting,
+                "UShort", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' UInteger (System.UInt32)
+            Dim min As UInteger = UInteger.MinValue
+            Dim max As UInteger = UInteger.MaxValue
+            Console.WriteLine(Formatting,
+                "UInteger", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+
+        If True Then
+            ' ULong (System.UInt64)
+            Dim min As ULong = ULong.MinValue
+            Dim max As ULong = ULong.MaxValue
+            Console.WriteLine(Formatting,
+                "ULong", typesLib.GetObjectName(min), typesLib.GetObjectFullName(min), typesLib.GetObjectSize(min), min, max)
+        End If
+        Console.WriteLine()
 
         Console.WriteLine("(arrays)")
-        Dim intData() As Integer = {12, 16, 20, 24, 28, 32}
+        Dim intData() As Integer = {-123, 0, 7, 13, 2147483647}
+        Console.Write("  ")
         For Each num In intData
             Console.Write(num.ToString() + " ")
         Next
@@ -979,11 +1048,11 @@ Module MainModule
         DisplayAssemblyInfo()
 
         ' Loops and other control structures in VB
-        'VB_Loops()
+        VB_Loops()
 
         ' Strings
-        'VB_Strings_Basic()
-        'VB_Strings_Basic_Search()
+        VB_Strings_Basic()
+        VB_Strings_Basic_Search()
         'VB_Strings_Performance_InStr()     ' Leave performance tests commented out unless testing!
         'VB_Strings_Performance_InStrRev()
         'VB_Strings_Performance_Len()
@@ -992,8 +1061,8 @@ Module MainModule
         VB_Integers()
 
         ' Miscellaneous
-        'VB_NullableTypes()
-        'VB_Enumerations()
+        VB_NullableTypes()
+        VB_Enumerations()
 
         Console.WriteLine("Press any key to exit...")
         Console.ReadKey()
