@@ -824,6 +824,12 @@ Module MainModule
 
         Console.WriteLine()
         Console.WriteLine("(signed)")
+        ' The "If True Then...End If" constructs used below artificially create local scope.
+        ' Alternatives include:
+        '       With True...End With
+        '       With Nothing...End With
+        '       With 0...End With
+        '       Do...Loop Until True
         If True Then
             ' Boolean (System.Boolean)
             Dim min As Boolean = False
