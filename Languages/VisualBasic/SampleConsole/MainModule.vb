@@ -181,15 +181,13 @@ Module MainModule
         Console.WriteLine()
 
         Console.WriteLine(" (For Each...Next, also demonstrating exit/continue)")
-        Dim numbers As List(Of Integer) = New List(Of Integer)
-        ' Or Dim numbers() As Integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+        Dim numbersList As List(Of Integer) = New List(Of Integer)
+        ' Or: Dim numbers() As Integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
         For index = 1 To 12
-            numbers.Add(index)
-        'Next index
-        Next
+            numbersList.Add(index)
+        Next ' Or: "Next index"
 
-        For Each index In numbers
-        ' Or: For Each number As Integer In numbers
+        For Each index In numbersList ' Or: For Each number As Integer In numbersList
             ' Skip numbers 5 through 8
             If (index >= 5) And (index) <= 8 Then
                 Continue For
@@ -204,6 +202,14 @@ Module MainModule
             End If
         Next
         Console.WriteLine()
+
+        Console.WriteLine()
+        Console.WriteLine(" (Using LBound and UBound of an array)")
+        Console.WriteLine(" (Note: LBound = 0 and UBound = -1 for an empty array)")
+        Dim numbersArray() As Integer = {-123, 0, 7, 13, 2147483647}
+        For index = LBound(numbersArray) To UBound(numbersArray)
+            Console.WriteLine("    " & index.ToString() & ": " & numbersArray(index))
+        Next
 
         Console.WriteLine("#")
         Console.WriteLine()
@@ -1248,7 +1254,7 @@ Module MainModule
         Const DISPLAY_INT_CASTING As Integer            = &H00000200
         Const DISPLAY_NULLABLE_TYPES As Integer         = &H00001000
         Const DISPLAY_ENUMS As Integer                  = &H00002000
-        Dim display As Integer = DISPLAY_INT_CASTING
+        Dim display As Integer = DISPLAY_LOOPING
 
         ' Display some system information
         If ((display And DISPLAY_SYS_INFO) <> 0) Then
