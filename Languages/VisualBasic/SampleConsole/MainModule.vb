@@ -917,6 +917,196 @@ Module MainModule
         Console.WriteLine()
     End Sub
 
+    Private Sub VB_Integers_Casting_From_Object()
+        Console.WriteLine("### Integer casting - from object ###")
+        Console.WriteLine("(Note: Each casting technique has different performance implications)")
+        Console.WriteLine()
+
+        Const Formatting As String = "    Object {0,-5}{1,10} {2,-5}{3}"
+        Dim objInt As Object
+        Dim myInt As Integer
+        Dim myShort As Short
+
+        Console.WriteLine("  (implicit casting by direct assignment)")
+        objInt = 3
+        myInt = objInt
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(direct assignment)")
+        myShort = objInt
+        Console.WriteLine(Formatting, objInt, "Short", myShort, "(direct assignment)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (DirectCast - requires one type to inherit from or implement the other type)")
+        objInt = 5
+        myInt = DirectCast(objInt, Integer)
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(DirectCast)")
+
+        Try
+            myShort = DirectCast(objInt, Short)
+            Console.WriteLine(Formatting, objInt, "Short", myShort, "(DirectCast)")
+        Catch ex As Exception
+            Console.WriteLine("  DirectCast fails for 'Short': " + ex.Message + " (expected)")
+        End Try
+        Console.WriteLine()
+
+        Console.WriteLine("  (TryCast - works on reference types only (not value types), so does not apply to integers)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CType)")
+        objInt = 7
+        myInt = CType(objInt, Integer)
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(CType)")
+        myShort = CType(objInt, Short)
+        Console.WriteLine(Formatting, objInt, "Short", myShort, "(CType)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CInt)")
+        objInt = 11
+        myInt = CInt(objInt)
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(CInt)")
+        myShort = CInt(objInt)
+        Console.WriteLine(Formatting, objInt, "Short", myShort, "(CInt)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CShort)")
+        objInt = 13
+        myInt = CShort(objInt)
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(CShort)")
+        myShort = CShort(objInt)
+        Console.WriteLine(Formatting, objInt, "Short", myShort, "(CShort)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (Convert)")
+        objInt = 17
+        myInt = Convert.ToInt32(objInt)
+        Console.WriteLine(Formatting, objInt, "Integer", myInt, "(Convert)")
+        myShort = Convert.ToInt16(objInt)
+        Console.WriteLine(Formatting, objInt, "Short", myShort, "(Convert)")
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
+    Private Sub VB_Integers_Casting_From_String()
+        Console.WriteLine("### Integer casting - from String ###")
+        Console.WriteLine("(Note: Each casting technique has different performance implications)")
+        Console.WriteLine()
+
+        Const Formatting As String = "    String {0,-5}{1,10} {2,-5}{3}"
+        Dim myString As String
+        Dim myInt As Integer
+        Dim myShort As Short
+
+        Console.WriteLine("  (implicit casting by direct assignment)")
+        myString = "3"
+        myInt = myString
+        Console.WriteLine(Formatting, myString, "Integer", myInt, "(direct assignment)")
+        myShort = myString
+        Console.WriteLine(Formatting, myString, "Short", myShort, "(direct assignment)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (DirectCast - requires one type to inherit from or implement the other type, so does not apply to integers)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (TryCast - works on reference types only (not value types), so does not apply to integers)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CType)")
+        myString = "5"
+        myInt = CType(myString, Integer)
+        Console.WriteLine(Formatting, myString, "Integer", myInt, "(CType)")
+        myShort = CType(myString, Short)
+        Console.WriteLine(Formatting, myString, "Short", myShort, "(CType)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CInt)")
+        myString = "7"
+        myInt = CInt(myString)
+        Console.WriteLine(Formatting, myString, "Integer", myInt, "(CInt)")
+        myShort = CInt(myString)
+        Console.WriteLine(Formatting, myString, "Short", myShort, "(CInt)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CShort)")
+        myString = "11"
+        myInt = CShort(myString)
+        Console.WriteLine(Formatting, myString, "Integer", myInt, "(CShort)")
+        myShort = CShort(myString)
+        Console.WriteLine(Formatting, myString, "Short", myShort, "(CShort)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (Convert)")
+        myString = "13"
+        myInt = Convert.ToInt32(myString)
+        Console.WriteLine(Formatting, myString, "Integer", myInt, "(Convert)")
+        myShort = Convert.ToInt16(myString)
+        Console.WriteLine(Formatting, myString, "Short", myShort, "(Convert)")
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
+    Private Sub VB_Integers_Casting_Between_Integers()
+        Console.WriteLine("### Integer casting - between integer types ###")
+        Console.WriteLine()
+
+        Const Formatting As String = "    Integer {0,-5} Short {1,-5}{2}"
+        Dim myInt As Integer
+        Dim myShort As Short
+
+        Console.WriteLine("  (implicit casting by direct assignment)")
+        myInt = 3
+        myShort = myInt
+        Console.WriteLine(Formatting, myInt, myShort, "(direct assignment, short = int)")
+        myShort = 5
+        myInt = myShort
+        Console.WriteLine(Formatting, myInt, myShort, "(direct assignment, int = short)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (DirectCast - not applicable because Integer and Short are different types)")
+        Console.WriteLine()
+        
+        Console.WriteLine("  (TryCast - not applicable because Integer and Short are different types)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CType)")
+        myInt = 7
+        myShort = CType(myInt, Integer)
+        Console.WriteLine(Formatting, myInt, myShort, "(CType, short = int)")
+        myShort = 11
+        myInt = CType(myShort, Short)
+        Console.WriteLine(Formatting, myInt, myShort, "(CType, int = short)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CInt)")
+        myInt = 13
+        myShort = CInt(myInt)
+        Console.WriteLine(Formatting, myInt, myShort, "(CInt, short = int)")
+        myShort = 17
+        myInt = CInt(myShort)
+        Console.WriteLine(Formatting, myInt, myShort, "(CInt, int = short)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (CShort)")
+        myInt = 19
+        myShort = CShort(myInt)
+        Console.WriteLine(Formatting, myInt, myShort, "(CShort, short = int)")
+        myShort = 21
+        myInt = CShort(myShort)
+        Console.WriteLine(Formatting, myInt, myShort, "(CShort, int = short)")
+        Console.WriteLine()
+
+        Console.WriteLine("  (Convert)")
+        myInt = 23
+        myShort = Convert.ToInt16(myInt)
+        Console.WriteLine(Formatting, myInt, myShort, "(Convert, short = int)")
+        myShort = 29
+        myInt = Convert.ToInt32(myShort)
+        Console.WriteLine(Formatting, myInt, myShort, "(Convert, int = short)")
+
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
     Private Sub VB_NullableTypes()
         ' Nullable types were introduced into .NET 4.6 (2015)
         Console.WriteLine("### Nullable types ###")
@@ -1038,7 +1228,7 @@ Module MainModule
     End Sub
 
     Sub Main()
-        ' This application combines some examples from these C# samples:
+        ' This application combines some examples from the following C# samples:
         ' * SampleConsole
         ' * StringsDemo
         Console.WriteLine("Caution! Visual Basic is rather disgusting...avoid!")
@@ -1047,28 +1237,68 @@ Module MainModule
         Console.WriteLine(msgWelcome)
         Console.WriteLine()
 
+        ' Which sections are we going to display
+        Const DISPLAY_ALL_SECTIONS As Integer           = &HFFFFFFFF    ' Generally use this one
+        Const DISPLAY_SYS_INFO As Integer               = &H00000001
+        Const DISPLAY_ASSEMBLY_INFO As Integer          = &H00000002
+        Const DISPLAY_LOOPING As Integer                = &H00000004
+        Const DISPLAY_STRINGS As Integer                = &H00000010
+        Const DISPLAY_STRINGS_PERFORMANCE As Integer    = &H00000020
+        Const DISPLAY_INTEGERS As Integer               = &H00000100
+        Const DISPLAY_INT_CASTING As Integer            = &H00000200
+        Const DISPLAY_NULLABLE_TYPES As Integer         = &H00001000
+        Const DISPLAY_ENUMS As Integer                  = &H00002000
+        Dim display As Integer = DISPLAY_INT_CASTING
+
         ' Display some system information
-        DisplaySystemInformation()
+        If ((display And DISPLAY_SYS_INFO) <> 0) Then
+            DisplaySystemInformation()
+        End If
 
         ' Show some information about this assembly
-        DisplayAssemblyInfo()
+        If ((display And DISPLAY_ASSEMBLY_INFO) <> 0) Then
+            DisplayAssemblyInfo()
+        End If
 
         ' Loops and other control structures in VB
-        VB_Loops()
+        If ((display And DISPLAY_LOOPING) <> 0) Then
+            VB_Loops()
+        End If
 
         ' Strings
-        VB_Strings_Basic()
-        VB_Strings_Basic_Search()
-        'VB_Strings_Performance_InStr()     ' Leave performance tests commented out unless testing!
-        'VB_Strings_Performance_InStrRev()
-        'VB_Strings_Performance_Len()
+        If ((display And DISPLAY_STRINGS) <> 0) Then
+            VB_Strings_Basic()
+            VB_Strings_Basic_Search()
+        End If
+
+        'If ((display And DISPLAY_STRINGS_PERFORMANCE) <> 0) Then
+        '    ' Avoid string performance tests unless actually testing!
+        '    VB_Strings_Performance_InStr()
+        '    VB_Strings_Performance_InStrRev()
+        '    VB_Strings_Performance_Len()
+        'End If
 
         ' Integers
-        VB_Integers()
+        If ((display And DISPLAY_INTEGERS) <> 0) Then
+            VB_Integers()
+        End If
 
-        ' Miscellaneous
-        VB_NullableTypes()
-        VB_Enumerations()
+        If ((display And DISPLAY_INT_CASTING) <> 0) Then
+            VB_Integers_Casting_From_Object()
+            VB_Integers_Casting_From_String()
+            VB_Integers_Casting_Between_Integers()
+            ' TODO: Measure performance of different casting operations
+        End If
+
+        ' Nullable types
+        If ((display And DISPLAY_NULLABLE_TYPES) <> 0) Then
+            VB_NullableTypes()
+        End If
+
+        ' Enumerations
+        If ((display And DISPLAY_ENUMS) <> 0) Then
+            VB_Enumerations()
+        End If
 
         Console.WriteLine("Press any key to exit...")
         Console.ReadKey()
