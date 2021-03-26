@@ -1243,7 +1243,7 @@ Module MainModule
         Console.WriteLine(msgWelcome)
         Console.WriteLine()
 
-        ' Which sections are we going to display
+        ' Which sections are we going to display?
         Const DISPLAY_ALL_SECTIONS As Integer           = &HFFFFFFFF    ' Generally use this one
         Const DISPLAY_SYS_INFO As Integer               = &H00000001
         Const DISPLAY_ASSEMBLY_INFO As Integer          = &H00000002

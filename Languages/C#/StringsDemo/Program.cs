@@ -68,10 +68,10 @@ namespace StringsDemo
         #endregion // Helper methods
 
         #region Main test methods
-        private static void Info_Basics()
+        private static void Info_Formatting()
         {
             // Basic information on formatting (see each section for more detailed examples)
-            Console.WriteLine("### Basics ###");
+            Console.WriteLine("### Basics on formatting ###");
             Console.WriteLine("  * Use {0} for the 1st parameter, {1} for the 2nd, and so on. These are called placeholders.");
             Console.WriteLine("    Note: Use \"$\" for string literals. The following are equivalent.");
             Console.WriteLine("          Console.WriteLine(\"My integer is {0} and I like it\", myInt);");
@@ -169,6 +169,18 @@ namespace StringsDemo
             Console.WriteLine("  {0} [new String(System.Linq.Enumerable.Range(...)) (super weird)]", new String(Enumerable.Range(0, repeat).SelectMany(x => s5).ToArray()));
             Console.WriteLine();
 
+            byte randomLength = 40;
+            Console.WriteLine("(randomised strings, length {0})", randomLength);
+            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true));
+            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false));
+            Console.WriteLine("  Remove illegal\t{0}", StringLibrary.GetRandomString(randomLength, false, true));
+            Console.WriteLine("#\n");
+        }
+
+        private static void Info_String_Arrays()
+        {
+            // String arrays
+            Console.WriteLine("### Strings (arrays) ###");
             Console.WriteLine("(string arrays)");
             string[] array1 = { "hello", "11", "everyone", "!" };
             Console.WriteLine("  " + string.Join(" ", array1) + "   [string[] array = { ... }]");
@@ -176,16 +188,17 @@ namespace StringsDemo
             string[] array2 = new string[] { "hello", "22", "everyone", "?" };
             Console.WriteLine("  " + string.Join(" ", array2) + "   [string[] array = new string[] { ... }]");
 
-            string s6 = "hello,33,everyone,#";
-            string[] array3 = s6.Split(',');
+            // Split using a character
+            string s1 = "hello,33,everyone,#";
+            string[] array3 = s1.Split(',');
             Console.WriteLine("  " + string.Join(" ", array3) + "   [using string.Split(char)]");
-            Console.WriteLine();
 
-            byte randomLength = 40;
-            Console.WriteLine("(randomised strings, length {0})", randomLength);
-            Console.WriteLine("  Letters only\t\t{0}", StringLibrary.GetRandomString(randomLength, true));
-            Console.WriteLine("  Any printable\t\t{0}", StringLibrary.GetRandomString(randomLength, false));
-            Console.WriteLine("  Remove illegal\t{0}", StringLibrary.GetRandomString(randomLength, false, true));
+            // Split using a string
+            string[] stringSeparators = new string[] { "$$$" };
+            string[] array4 = new string[] { "hello", "44", "everyone", "%" };
+            string s2 = string.Join(stringSeparators[0], array4);
+            string[] array5 = s2.Split(stringSeparators, StringSplitOptions.None);
+            Console.WriteLine("  " + string.Join(" ", array5) + "   [using string.Split(string)]");
             Console.WriteLine("#\n");
         }
 
@@ -473,16 +486,49 @@ namespace StringsDemo
             Console.WriteLine("=== Strings and string formatting in C# ===");
             Console.WriteLine();    // Or "Console.Write(Environment.NewLine)" or "Console.WriteLine("")"
 
-            Info_Basics();
-            Info_String();
-            Info_String_Search();
-            Info_Boolean();
-            Info_Integer();
-            Info_Float();
-            Info_Double();
-            Info_DateTime();
-            Info_Enum();
-            Info_Params();
+            // Which sections are we going to display?
+            const uint DISPLAY_ALL_SECTIONS         = 0xFFFFFFFF;   // Generally use this one
+            const uint DISPLAY_GENERAL_FORMATTING   = 0x00000001;
+            const uint DISPLAY_STRINGS              = 0x00000002;
+            const uint DISPLAY_BOOLEAN              = 0x00000004;
+            const uint DISPLAY_INTEGER              = 0x00000008;
+            const uint DISPLAY_FLOAT                = 0x00000010;
+            const uint DISPLAY_DOUBLE               = 0x00000020;
+            const uint DISPLAY_DATETIME             = 0x00000040;
+            const uint DISPLAY_ENUMERATIONS         = 0x00000080;
+            const uint DISPLAY_PARAMS               = 0x00000100;
+            uint display = DISPLAY_ALL_SECTIONS;
+
+            if ((display & DISPLAY_GENERAL_FORMATTING) != 0)
+                Info_Formatting();
+
+            if ((display & DISPLAY_STRINGS) != 0)
+            {
+                Info_String();
+                Info_String_Arrays();
+                Info_String_Search();
+            }
+
+            if ((display & DISPLAY_BOOLEAN) != 0)
+                Info_Boolean();
+
+            if ((display & DISPLAY_INTEGER) != 0)
+                Info_Integer();
+
+            if ((display & DISPLAY_FLOAT) != 0)
+                Info_Float();
+
+            if ((display & DISPLAY_DOUBLE) != 0)
+                Info_Double();
+
+            if ((display & DISPLAY_DATETIME) != 0)
+                Info_DateTime();
+
+            if ((display & DISPLAY_ENUMERATIONS) != 0)
+                Info_Enum();
+
+            if ((display & DISPLAY_PARAMS) != 0)
+                Info_Params();
 
             Console.WriteLine("All done...press any key to continue");
             Console.ReadKey(false);
