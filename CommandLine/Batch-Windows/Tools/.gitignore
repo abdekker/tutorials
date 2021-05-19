@@ -1,0 +1,5 @@
+# Note: Additional pattern for DLLs built externally
+
+# DumpArgs shows the arguments passed to a Windows command-line program
+# Comes from: http://www.windowsinspired.com/understanding-the-command-line-string-and-arguments-received-by-a-windows-program/
+!DumpArgs.zip
