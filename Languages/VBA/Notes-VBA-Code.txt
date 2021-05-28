@@ -21,10 +21,44 @@
 		- The location may be given as "C:\Program Files\...", but the correct location would be "C:\Program Files (x86)\..."
 		- Appears to be a bug in Excel/VBA
 		- Click "Browse..." and locate the DLL in the "(x86)" path
-		- Note: Even after adding the reference from the correct path, "Location" is still listed as "C:\Program Files\..."!
+		- Note that after adding the reference from the correct path, "Location" is still listed as "C:\Program Files\..."!
+		- If this fails, a COM surrogate may be required to use 32-bit DLLs in 64-Bit Excel (see section below)
 
 	- Common required references include:
 		- Working with Microsoft Access databases and the JET engine:
 			- Microsoft DAO 3.6 Object Library
 			- Microsoft Jet and Replication Objects 2.6 Library
+
+* Using a COM surrogate to use 32-bit DLLs in 64-bit environments
+	- These notes adapted from: https://techtalk.gfi.com/32bit-object-64bit-environment/
+
+	- A COM surrogate uses dllhost as a surrogate for the 32-bit COM object
+	- Where applicable, examples are shown for "Microsoft DAO 3.6 Object Library"
+	- Open Registry Editor
+	- Locate your COM object GUID under the HKCR\Wow6432Node\CLSID\[GUID]
+		- Our example:
+			- In VBA, the location of "Microsoft DAO 3.6 Object Library" is ...\dao360.dll
+			- Open to the HKCR\WOW6432Node\CLSID key and search for "dao360.dll"
+			- There will likely be several matches
+			- The first found is for "DAO.DBEngine.36" with GUID = {00000100-0000-0010-8000-00AA006D2EA4}
+			- Use this as your GUID
+	- Add a new REG_SZ (string) value
+		- Name = "AppID"
+		- Data = COM object GUID you have just searched for
+		- Our example:
+			[HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{00000100-0000-0010-8000-00AA006D2EA4}]
+				"AppID"="{00000100-0000-0010-8000-00AA006D2EA4}"
+	- Add a new key under HKCR\Wow6432Node\AppID\
+		- Name of the new key is the same as the COM object GUID
+	- Under the new key just added, add a new REG_SZ (string) value
+		- Name = "DllSurrogate", leave the data empty
+		- Our example:
+			[HKEY_CLASSES_ROOT\AppID\{00000100-0000-0010-8000-00AA006D2EA4}]
+			"DllSurrogate"=""
+	- Add a new key under HKLM\Software\Classes\AppID\
+		- Name of the new key is the same as the COM object GUID
+	- No values are necessary to be added under this new key
+		- Our example:
+			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppID\{00000100-0000-0010-8000-00AA006D2EA4}]
+	- That’s it. Your COM Object should now be accessible from a 64-bit environment and can be used like a regular COM Object!
 #
