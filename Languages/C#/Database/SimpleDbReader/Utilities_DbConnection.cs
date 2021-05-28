@@ -92,7 +92,9 @@ namespace SimpleDbReader
             if (collection.Equals(Schema_Tables))
             {
                 GetSchemaTables(ref schemaInfo, connection, removeSysTables);
-                //GetSchemaTablesFull(ref schemaInfo, connection); // Uncomment to get full schema information
+
+                // Uncomment to get full schema information (this is less informative)
+                //GetSchemaTablesFull(ref schemaInfo, connection);
             }
 
             return schemaInfo;
@@ -111,7 +113,8 @@ namespace SimpleDbReader
         #region Private methods
         private void GetSchemaTables(ref List<string> tables, DbConnection connection, bool stdTablesOnly = false)
         {
-            // Retrieve "Tables" schema information, which differs between connection types. To see all columns, use "GetSchemaTablesFull".
+            // Retrieve "Tables" schema information, which differs between connection types. To see all columns,
+            // use "GetSchemaTablesFull".
             
             #region Schema details
             /* ### OdbcConnection ###
@@ -198,7 +201,8 @@ namespace SimpleDbReader
 
         private void GetSchemaColumns(ref List<string> columns, DbConnection connection, string table)
         {
-            // Retrieve "Columns" schema information, which differs between connection types. To see all columns, use "GetSchemaColumnsFull".
+            // Retrieve "Columns" schema information, which differs between connection types. To see all columns,
+            // use "GetSchemaColumnsFull".
 
             #region Schema details
             // See the "Data type conversions" section for conversion of the ODBC "TYPE_NAME" or OleDB "DATA_TYPE" to .NET types
