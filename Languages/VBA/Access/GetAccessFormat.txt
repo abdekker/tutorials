@@ -1,13 +1,13 @@
-Private Function IsEmpty(strValue As String) As Boolean
+Private Function IsEmpty(value As String) As Boolean
     ' Test whether a string is empty (spaces are counted as content, so " " returns FALSE)
-    'IsEmpty = (Len(strValue) = 0)
-    IsEmpty = (strValue = vbNullString)
+    'IsEmpty = (Len(value) = 0)
+    IsEmpty = (value = vbNullString)
 End Function
 
-Private Function HasContent(strValue As String) As Boolean
+Private Function HasContent(value As String) As Boolean
     ' Test a string for content (spaces are not content in this version, so " " == "")
-    'HasContent = (Len(Trim(strValue)) = 0)
-    HasContent = (Trim(strValue & vbNullString) <> vbNullString)
+    'HasContent = (Len(Trim(value)) = 0)
+    HasContent = (Trim(value & vbNullString) <> vbNullString)
 End Function
 
 Private Function GetDbName() As String
@@ -34,7 +34,7 @@ End Function
 
 Sub GetAccessFormat1()
     ' Version 1: Determine the format of an Access database by peeking at the 21st byte of the file header
-    ' This method supplied by user "Gord Thompson" on StackOverflow
+    ' Method supplied by user "Gord Thompson" on StackOverflow
     On Error GoTo Error_GetAccessFormat1
     Dim dbName As String
     dbName = GetDbName()
@@ -56,38 +56,38 @@ Sub GetAccessFormat1()
     End If
     
     ' Get the file format (byte 21)
-    Dim byFileType As Byte
-    byFileType = buffer(20) ' buffer is 0-based
+    Dim fileType As Byte
+    fileType = buffer(20) ' buffer is 0-based
     
     ' Convert the file format into a string
-    Dim strFormat As String
-    Select Case byFileType
+    Dim accessFormat As String
+    Select Case fileType
         Case 0:
-            strFormat = "Access 97 or older"
+            accessFormat = "Access 97 or older"
         Case 1:
-            strFormat = "Access 2000/2003"
+            accessFormat = "Access 2000/2003"
         Case 2:
-            strFormat = "Access 2007"
+            accessFormat = "Access 2007"
         Case 3:
-            strFormat = "Access 2010"
+            accessFormat = "Access 2010"
         Case 5:
-            strFormat = "Access 2016 with BIGINT support (Type 5)"
+            accessFormat = "Access 2016 with BIGINT support"
         Case Else:
-            strFormat = "Unknown Access file format"
+            accessFormat = "Unknown Access file format"
     End Select
 
-    strFormat = (strFormat + " (Type: " & byFileType & ")")
-    MsgBox strFormat
+    accessFormat = (accessFormat & " (Type: " & fileType & ")")
+    MsgBox accessFormat
     Exit Sub
 
 Error_GetAccessFormat1:
     ' Unable to open the database (not Access or not supported by this version of Office)
-    MsgBox "Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
+    MsgBox "GetAccessFormat1: Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
 End Sub
 
 Sub GetAccessFormat2()
     ' Version 2: Determine the format of an Access database by using DAO
-    ' This method supplied by user "Erik A" on StackOverflow
+    ' Method supplied by user "Erik A" on StackOverflow
     ' Note: DAO.DbEngine.36 may not be registered on your system, so this may fail for .mdb files
     On Error GoTo Error_GetAccessFormat2
     Dim dbName As String
@@ -99,40 +99,48 @@ Sub GetAccessFormat2()
     ' Open the database using DAO
     If (dbName Like "*.mdb") Then
         ' Old JET engine (32-bit only); requires MDAC version that still supports Access 2.0
-        ' Following may fail on 64-bit Excel/VBA. Try adding a reference to "Microsoft DAO 3.6 Object Library"
-        Set dbe = CreateObject("DAO.DbEngine.36")
+        Set dbe = CreateObject("DAO.DbEngine.36") ' May fail on 64-bit Excel/VBA
     Else
         ' ACE engine used for modern Access databases
         Set dbe = CreateObject("DAO.DbEngine.120")
     End If
     
+	' This works if this project has a reference to "Microsoft DAO 3.6 Object Library"
+	'	Dim db As DAO.Database
     Dim db As Object
     Set db = dbe.OpenDatabase(dbName)
     
     ' Get the file format
-    Dim dFileFormat As Double
-    dFileFormat = db.Version
+    Dim fileFormat As Double
+    fileFormat = db.Version
     
     ' Convert the file format into a string
-    Dim strAccessFormat As String
-    If (dFileFormat = 3#) Then
-        strAccessFormat = "Microsoft Access 97 or older"
-    ElseIf (dFileFormat = 4#) Then
-        strAccessFormat = "Microsoft Access 2000-2003"
-    ElseIf (dFileFormat = 12#) Then
-        strAccessFormat = "Microsoft Access 2007"
-    ElseIf (dFileFormat = 14#) Then
-        strAccessFormat = "Microsoft Access 2010"
+    Dim accessFormat As String
+    If (fileFormat = 3#) Then
+        accessFormat = "Microsoft Access 97 or older"
+    ElseIf (fileFormat = 4#) Then
+        accessFormat = "Microsoft Access 2000-2003"
+    ElseIf (fileFormat = 12#) Then
+        accessFormat = "Microsoft Access 2007"
+    ElseIf (fileFormat = 14#) Then
+        accessFormat = "Microsoft Access 2010"
     Else
-        strAccessFormat = "Unknown Access file format"
+        accessFormat = "Unknown Access file format"
     End If
 
-    strAccessFormat = (strAccessFormat + " (Version: " & dFileFormat & ".0)")
-    MsgBox strAccessFormat
+    accessFormat = (accessFormat & " (Version: " & fileFormat & ".0)")
+    MsgBox accessFormat
+
+	' Clean up
+	If Not dbe Is Nothing Then Set dbe = Nothing
+	If Not db Is Nothing Then
+        db.Close
+        Set db = Nothing
+    End If
     Exit Sub
 
 Error_GetAccessFormat2:
-    MsgBox "Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
+    MsgBox "GetAccessFormat2: Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
 End Sub
 
 Public Sub GetAccessFormat3()
@@ -161,42 +169,42 @@ Public Sub GetAccessFormat3()
     objAccess.Visible = False
     
     ' Get the file format and close the database
-    Dim nFileFormat As Integer
-    nFileFormat = objAccess.CurrentProject.FileFormat
+    Dim fileFormat As Integer
+    fileFormat = objAccess.CurrentProject.FileFormat
     objAccess.CloseCurrentDatabase
     
     ' Convert the file format into a string
-    Dim strAccessFormat As String
-    Select Case nFileFormat
+    Dim accessFormat As String
+    Select Case fileFormat
         Case 2
-            strAccessFormat = "Microsoft Access 2"
+            accessFormat = "Microsoft Access 2"
         Case 7
-            strAccessFormat = "Microsoft Access 95"
+            accessFormat = "Microsoft Access 95"
         Case 8
-            strAccessFormat = "Microsoft Access 97"
+            accessFormat = "Microsoft Access 97"
         Case 9
-            strAccessFormat = "Microsoft Access 2000"
+            accessFormat = "Microsoft Access 2000"
         Case 10
-            strAccessFormat = "Microsoft Access 2002"
+            accessFormat = "Microsoft Access 2002"
         Case 11
-            strAccessFormat = "Microsoft Access 2003"
+            accessFormat = "Microsoft Access 2003"
         Case 12
-            strAccessFormat = "Microsoft Access 2007"
+            accessFormat = "Microsoft Access 2007"
         Case 14
-            strAccessFormat = "Microsoft Access 2010"
+            accessFormat = "Microsoft Access 2010"
         Case 15
-            strAccessFormat = "Microsoft Access 2013"
+            accessFormat = "Microsoft Access 2013"
         Case 16
-            strAccessFormat = "Microsoft Access 2016/9"
+            accessFormat = "Microsoft Access 2016/9"
         Case Else
-            strAccessFormat = "Unknown Access file format"
+            accessFormat = "Unknown Access file format"
     End Select
 
-    strAccessFormat = (strAccessFormat + " (Type: " & nFileFormat & ")")
-    MsgBox strAccessFormat
+    accessFormat = (accessFormat & " (Type: " & fileFormat & ")")
+    MsgBox accessFormat
     Exit Sub
 
 Error_GetAccessFormat3:
     ' Unable to open the database (not Access or not supported by this version of Office)
-    MsgBox "Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
+    MsgBox "GetAccessFormat3: Unable to open as an Access database: " & dbName & ", Error: " & Err.Description
 End Sub
