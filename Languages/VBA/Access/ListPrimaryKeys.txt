@@ -1,0 +1,164 @@
+Private Function IsEmpty(value As String) As Boolean
+    ' Test whether a string is empty (spaces are counted as content, so " " returns FALSE)
+    'IsEmpty = (Len(value) = 0)
+    IsEmpty = (value = vbNullString)
+End Function
+
+Private Function HasContent(value As String) As Boolean
+    ' Test a string for content (spaces are not content in this version, so " " == "")
+    'HasContent = (Len(Trim(value)) = 0)
+    HasContent = (Trim(value & vbNullString) <> vbNullString)
+End Function
+
+Private Function GetDbName() As String
+    ' Get the name of the database
+    GetDbName = vbNullString
+    Dim dbName As String
+    dbName = Selection.Value
+    If (Not HasContent(dbName)) Then
+        ' When no file is provided, hard-code a path here
+        'dbName = "P:\HqVar\_clin\Data\clindb1.mdb"
+        dbName = "C:\Apps\Data\Northwind 97.mdb"
+        'dbName = "C:\Apps\Data\Northwind 2000.mdb"
+        'dbName = "C:\Apps\Data\Northwind 2007-2016.accdb"
+        'dbName = "C:\Apps\Data\SampleAccess2007.accdb"
+    End If
+    
+    If IsEmpty(Dir(dbName)) Then
+        ' File does not exist
+        MsgBox "Could not find: " & dbName
+        Exit Function
+    End If
+    GetDbName = dbName
+End Function
+
+Private Function GetTableName() As String
+    ' Get the name of a table in the database
+    GetTableName = vbNullString
+    Dim tableName As String
+    tableName = Selection.Value
+    If (Not HasContent(tableName)) Then
+        ' When no file is provided, hard-code a path here
+        ' For dbName = "P:\HqVar\_clin\Data\clindb1.mdb"
+        'tableName = "Carpus Protocols"
+        'tableName = "Images"
+        'tableName = "Pending Scans"
+        
+        ' For the Northwind sample database
+        'tableName = "Customers"
+        tableName = "Order Details"
+    End If
+    GetTableName = tableName
+End Function
+
+Private Function ListPrimaryKeys() As String
+    ' List primary keys for passed table using DAO
+    ' The project needs a reference to "Microsoft DAO 3.6 Object Library"
+    On Error GoTo Error_ListPrimaryKeys
+    
+    ' Set the database and table names
+    Dim dbName As String
+    dbName = GetDbName()
+    If (IsEmpty(dbName)) Then
+        Exit Function
+    End If
+    
+    Dim tableName As String
+    tableName = GetTableName()
+    If (IsEmpty(tableName)) Then
+        Exit Function
+    End If
+    
+    ' Open the database using DAO
+    Dim dbe As DAO.DBEngine
+    If (dbName Like "*.mdb") Then
+        ' Old JET engine (32-bit only); requires MDAC version that still supports Access 2.0
+        ' Following may fail on 64-bit Excel/VBA. Try adding a reference to "Microsoft DAO 3.6 Object Library".
+        Set dbe = CreateObject("DAO.DbEngine.36")
+    Else
+        ' ACE engine used for modern Access databases
+        Set dbe = CreateObject("DAO.DbEngine.120")
+    End If
+    
+    Dim db As DAO.Database
+    Set db = dbe.OpenDatabase(dbName)
+    
+    ' Open the table schema and extract informationa about fields of interest (Primary, Unique, etc)
+    Dim fieldsOfInterest() As String
+    Dim fieldInfo As String
+    Dim hasFieldInfo As Boolean
+    Dim fieldCount As Integer
+    
+    Dim tbIndex As DAO.index
+    For Each tbIndex In db.TableDefs(tableName).Indexes
+        fieldCount = 0
+        For Each fld In tbIndex.Fields
+            ' Field name
+            hasFieldInfo = False
+            fieldInfo = ("    " & fld.Name & " (")
+            
+            ' Primary? Primary fields should necessarily also be Unique and Required.
+            If tbIndex.Primary Then
+                fieldInfo = fieldInfo & "p"
+                hasFieldInfo = True
+            End If
+            
+            ' Required? Similar meaning to "Nullable".
+            If tbIndex.Required Then
+                fieldInfo = fieldInfo & "r"
+                hasFieldInfo = True
+            End If
+            
+            ' Unique?
+            If tbIndex.Unique Then
+                fieldInfo = fieldInfo & "u"
+                hasFieldInfo = True
+            End If
+            
+            ' Foreign?
+            If tbIndex.Foreign Then
+                fieldInfo = fieldInfo & "f"
+                hasFieldInfo = True
+            End If
+            
+            ' If none of the above, its a vanilla index
+            If Not hasFieldInfo Then
+                fieldInfo = fieldInfo & "i"
+            End If
+            fieldInfo = fieldInfo & ")"
+            
+            ' Resize the array leaving data in place
+            ReDim Preserve fieldsOfInterest(fieldCount)
+            fieldsOfInterest(fieldCount) = fieldInfo
+            fieldCount = fieldCount + 1
+        Next
+    Next
+    
+    ' Build the field information
+    Dim indexInfo As String
+    indexInfo = ("Database: " & dbName & vbNewLine)
+    indexInfo = (indexInfo & "Table: " & tableName & vbNewLine & vbNewLine)
+    If (fieldCount > 0) Then
+        indexInfo = (indexInfo & "Fields of interest" & vbNewLine)
+        indexInfo = (indexInfo & "(p=primary, r=required, u=unique, f=foreign, i=index)")
+
+        Dim index As Integer
+        For index = 0 To (fieldCount - 1)
+            indexInfo = (indexInfo & vbNewLine & fieldsOfInterest(index))
+        Next
+    Else
+        indexInfo = (indexInfo & "Table contains no fields of interest (indexes)")
+    End If
+    MsgBox indexInfo
+
+    ' Clean up
+    If Not dbe Is Nothing Then Set dbe = Nothing
+    If Not db Is Nothing Then
+        db.Close
+        Set db = Nothing
+    End If
+    Exit Function
+
+Error_ListPrimaryKeys:
+    MsgBox "ListPrimaryKeys: Unable to extract primary keys from: " & dbName & ", Error: " & Err.Description
+End Function
