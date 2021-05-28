@@ -20,6 +20,6 @@
 	- Common requirements include:
 		- Working with Microsoft Access databases and the JET engine:
 			- Microsoft ADO Ext. 2.8 for DDL and Security
-			- Microsoft DAO 3.6 Object Libary
+			- Microsoft DAO 3.6 Object Library
 			- Microsoft Jet and Replication Objects 2.6 Library
 #
