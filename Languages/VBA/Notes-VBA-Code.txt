@@ -9,7 +9,17 @@
 		- Open Workbook or Document (either existing or blank)
 		- View the Visual Basic Editor
 			- Alt+F11, Quick Access > Visual Basic Editor, View > Macros > Edit
-		- In Project Explorer, right-click the project and select Insert > Module
+		- In Project Explorer, right-click the project (probably called "VBAProject") and select Insert > Module
 		- Paste in the code (and edit as required)
 		- Run directly from the Visual Basic Editor or return to the workbook and run the macro from there
+
+* Notes on project references
+	- To work with specific technologies, such as DAO, the project may need to include references to external COM assemblies
+	- Select Tools > References
+	- Scroll down the list and select the reference(s) required
+	- Common requirements include:
+		- Working with Microsoft Access databases and the JET engine:
+			- Microsoft ADO Ext. 2.8 for DDL and Security
+			- Microsoft DAO 3.6 Object Libary
+			- Microsoft Jet and Replication Objects 2.6 Library
 #
