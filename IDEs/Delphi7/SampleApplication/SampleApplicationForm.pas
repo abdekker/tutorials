@@ -499,9 +499,10 @@ begin
 	ddlAction.Items.AddObject('Get system drives', TObject(eWindowsAction_GetSystemDrives));
 	ddlAction.Items.AddObject('Check drive is valid', TObject(eWindowsAction_CheckDriveIsValid));
 	ddlAction.Items.AddObject('Save output to clipboard', TObject(eWindowsAction_SaveToClipboard));
-{$IFDEF DBG}
-	ddlAction.Items.AddObject('Break if Scroll Lock is pressed', TObject(eWindowsAction_BreakIfScrollLock));
-{$ENDIF}
+	ddlAction.Items.AddObject(
+		{$IFDEF DBG} 'Break if Scroll Lock is pressed'
+		{$ELSE} 'Break if Scroll Lock is pressed (DEBUG only)'
+		{$ENDIF}, TObject(eWindowsAction_BreakIfScrollLock));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Files();
@@ -1069,14 +1070,16 @@ begin
 				PAnsiChar('Output saved to the clipboard'), 'Windows', MB_ICONEXCLAMATION);
 			end;
 
-{$IFDEF DBG}
 		eWindowsAction_BreakIfScrollLock:
+{$IFDEF DBG}
 			begin
 			if (BreakIfScrollLock()) then
 				AddOutputText('Scroll Lock detected while debugging - breakpoint forced!')
 			else
 				AddOutputText('Scroll Lock not detected or not debugging');
 			end;
+{$ELSE}
+			AddOutputText('Scroll Lock is only tested in RELEASE builds');
 {$ENDIF}
 		end;
 end;
