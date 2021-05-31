@@ -13,7 +13,7 @@ type
 	// Size offsets (to assist with form resize events)
 	nGroupWidth, nGroupHeight: Integer;
 	nFilePathWidth, nBrowseLeft, nDiagnosticsLeft, nBevelWidth: Integer;
-	nOutputMsgWidth, nOutputMsgTop, nExitButtonLeft, nExitButtonTop: Integer;
+	nOutputMsgWidth, nOutputMsgTop, nOutputProgressLeft, nExitButtonLeft, nExitButtonTop: Integer;
   end;
 
   SETTINGS_IMAGE_READER = record
@@ -47,6 +47,7 @@ type
 	bevelSeparator: TBevel;
 
 	lblOutputMessage: TStaticText;
+	pbOutput: TProgressBar;
 	btnExit: TButton;
 
 	UpdateTimer: TTimer;
@@ -90,6 +91,7 @@ type
 	procedure DoResizeImage();
 	procedure SetGifImageControls(const cbShowGifControls: Boolean);
 	procedure OnGifPaint(Sender: TObject);
+	procedure SetOutputMessage(const cstrMessage: String);
 
   public
 	{ Public declarations }
@@ -146,6 +148,7 @@ begin
 
 	m_settings.offsets.nOutputMsgWidth := (Self.ClientWidth - lblOutputMessage.Width);
 	m_settings.offsets.nOutputMsgTop := (Self.ClientHeight - lblOutputMessage.Top);
+	m_settings.offsets.nOutputProgressLeft := (Self.ClientWidth - pbOutput.Left);
 	m_settings.offsets.nExitButtonLeft := (Self.ClientWidth - btnExit.Left);
 	m_settings.offsets.nExitButtonTop := (Self.ClientHeight - btnExit.Top);
 
@@ -354,6 +357,11 @@ begin
 
 			// Resize the TImage container
 			DoResizeImage();
+
+			// Show a message about the image being loaded
+			SetOutputMessage(Format('Image loaded: Width=%d, Height=%d', [
+				m_imgLoaded.Picture.Width,
+				m_imgLoaded.Picture.Height]));
 			end
 		else
 			begin
@@ -414,9 +422,7 @@ begin
 		// Note: Calling "TImage.Picture.SaveToFile(file);"( without conversion) gives the same
 		// image / mime type (ie. a loaded .ico file is saved as an icon).
 		SavePictureAsBMP(m_imgLoaded.Picture, strFullPath);
-		lblOutputMessage.Caption := Format('%s saved to application folder', [strFilename]);
-		lblOutputMessage.Visible := True;
-		m_dwHideOutputMessageLabel := (GetTickCount() + OUTPUT_MSG_VISIBLE_TICKS);
+		SetOutputMessage(Format('%s saved to application folder', [strFilename]));
 		end
 	else
 		MessageDlg('Please load an image first...', mtWarning, [mbOK], 0);
@@ -434,6 +440,8 @@ begin
 end;
 
 procedure TfrmWindowsMetaFile.OnUpdateTimer(Sender: TObject);
+var
+	dwTicks: Cardinal;
 begin
 	// Disable timer
 	UpdateTimer.Enabled := False;
@@ -443,11 +451,15 @@ begin
 	// Time to hide the "file saved" label?
 	if (m_dwHideOutputMessageLabel > 0) then
 		begin
-		if (GetTickCount() > m_dwHideOutputMessageLabel) then
+		dwTicks := GetTickCOunt();
+		if (dwTicks > m_dwHideOutputMessageLabel) then
 			begin
 			m_dwHideOutputMessageLabel := 0;
 			lblOutputMessage.Visible := False;
-			end;
+			pbOutput.Visible := False;
+			end
+		else
+			pbOutput.Position := (m_dwHideOutputMessageLabel - dwTicks);
 		end;
 
 	// Restart timer
@@ -476,6 +488,10 @@ begin
 
 	lblOutputMessage.Width := (Self.ClientWidth - m_settings.offsets.nOutputMsgWidth);
 	lblOutputMessage.Top := (Self.ClientHeight - m_settings.offsets.nOutputMsgTop);
+	pbOutput.Min := 0;
+	pbOutput.Max := OUTPUT_MSG_VISIBLE_TICKS;
+	pbOutput.Top := lblOutputMessage.Top;
+	pbOutput.Left := (Self.ClientWidth - m_settings.offsets.nOutputProgressLeft);
 	btnExit.Left := (Self.ClientWidth - m_settings.offsets.nExitButtonLeft);
 	btnExit.Top := (Self.ClientHeight - m_settings.offsets.nExitButtonTop);
 
@@ -582,6 +598,16 @@ begin
 	m_nLastGifFrame := (Sender as TGIFPainter).ActiveImage;
 	lblGifFrame.Caption := Format('Frame: %d', [m_nLastGifFrame]);
 	lblGifFrame.Refresh();
+end;
+
+procedure TfrmWindowsMetaFile.SetOutputMessage(const cstrMessage: String);
+begin
+	// Briefly show an output message
+	lblOutputMessage.Caption := cstrMessage;
+	lblOutputMessage.Visible := True;
+	pbOutput.Position := pbOutput.Max;
+	pbOutput.Visible := True;
+	m_dwHideOutputMessageLabel := (GetTickCount() + OUTPUT_MSG_VISIBLE_TICKS);
 end;
 
 end.

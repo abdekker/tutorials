@@ -225,7 +225,7 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
   object lblOutputMessage: TStaticText
     Left = 5
     Top = 282
-    Width = 410
+    Width = 370
     Height = 17
     Alignment = taCenter
     AutoSize = False
@@ -238,6 +238,15 @@ object frmWindowsMetaFile: TfrmWindowsMetaFile
     Font.Style = []
     ParentFont = False
     TabOrder = 2
+    Visible = False
+  end
+  object pbOutput: TProgressBar
+    Left = 380
+    Top = 282
+    Width = 35
+    Height = 17
+    Smooth = True
+    TabOrder = 3
     Visible = False
   end
   object UpdateTimer: TTimer
