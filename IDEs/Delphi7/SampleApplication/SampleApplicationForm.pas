@@ -174,7 +174,10 @@ type
   );
 
   TCategoryFiles = (
-	eFilesAction_GetImageSize
+	eFilesAction_GetImageSize,
+	eFilesAction_FileHasData,
+	eFilesAction_GetFolderListing,
+	eFilesAction_GetParentFolder
   );
 
   TCategoryHardware = (
@@ -509,6 +512,9 @@ procedure TfrmSampleApplication.PopulateActions_Files();
 begin
 	// Files: Populate actions for this category
 	ddlAction.Items.AddObject('Get image file size', TObject(eFilesAction_GetImageSize));
+	ddlAction.Items.AddObject('Does file have data ?', TObject(eFilesAction_FileHasData));
+	ddlAction.Items.AddObject('Get folder listing', TObject(eFilesAction_GetFolderListing));
+	ddlAction.Items.AddObject('Get parent folder', TObject(eFilesAction_GetParentFolder));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Hardware();
@@ -708,6 +714,38 @@ begin
 				'|Tag Image File Format (*.tif)|*.tif;*.tiff' +
 				'|MetaFile (*.emf, *.wmf)|*.emf;*.wmf');
 			m_cache.browse.eFileOption := eBrowseFullPath;
+			end;
+
+		eFilesAction_FileHasData:
+			begin
+			updates.astrSampleTitle[1] := 'File';
+			updates.astrSampleText[1] := '(use browse button or paste full path here)';
+
+			updates.bShowBrowseButton := True;
+			m_cache.browse.strInitialDir :=
+				(GetParentFolder(GetCurrentDir(), 3) + 'Graphics\Sample-Image-Types\');
+			m_cache.browse.strFilter := 'All file types|*.*';
+			m_cache.browse.eFileOption := eBrowseFullPath;
+			end;
+
+		eFilesAction_GetFolderListing:
+			begin
+			updates.astrSampleTitle[1] := 'Folder';
+			updates.astrSampleText[1] :=
+				(GetParentFolder(GetCurrentDir(), 3) + 'Graphics\Sample-Image-Types\');
+
+			updates.astrSampleTitle[2] := 'Filter';
+			updates.astrSampleText[2] := '*.ico';
+			end;
+
+		eFilesAction_GetParentFolder:
+			begin
+			updates.astrSampleTitle[1] := 'Folder';
+			updates.astrSampleText[1] :=
+				(GetParentFolder(GetCurrentDir(), 3) + 'Graphics\Sample-Image-Types\');
+
+			updates.astrSampleTitle[2] := 'Levels';
+			updates.astrSampleText[2] := '2';
 			end;
 		end;
 
@@ -1085,15 +1123,66 @@ begin
 end;
 
 procedure TfrmSampleApplication.PerformAction_Files();
+var
+	imgLoaded: TImage;
+	astrFiles: TStringList;
+	nFile, nValue: Integer;
+	strTmp: String;
 begin
 	// Windows: Perform the action
 	case TCategoryFiles(m_nActionCurrent) of
 		eFilesAction_GetImageSize:
 			begin
 			if (FileExists(ebSample1.Text)) then
-				AddOutputText('File exists...TODO')
+				begin
+				imgLoaded := TImage.Create(Self);
+				AssignPictureFromFile(imgLoaded.Picture, m_cache.aebSampleText[1].Text);
+				AddOutputText(Format('%s image loaded: Width=%d, Height=%d', [
+					DetectImageType(m_cache.aebSampleText[1].Text),
+					imgLoaded.Picture.Width,
+					imgLoaded.Picture.Height]));
+				imgLoaded.Picture := nil;
+				imgLoaded.Free();
+				end
 			else
 				AddOutputText('File does not exist');
+			end;
+
+		eFilesAction_FileHasData:
+			begin
+			if (FileExists(m_cache.aebSampleText[1].Text)) then
+				begin
+				if (FileHasData(m_cache.aebSampleText[1].Text)) then
+					AddOutputText('File exists and has some data')
+				else
+					AddOutputText('File exists but has no data or is corrupted');
+				end
+			else
+				AddOutputText('File does not exist');
+			end;
+
+		eFilesAction_GetFolderListing:
+			begin
+			astrFiles := TStringList.Create();
+			GetFolderListing(m_cache.aebSampleText[1].Text, m_cache.aebSampleText[2].Text, astrFiles);
+			if (astrFiles.Count > 0) then
+				begin
+				for nFile:=0 to (astrFiles.Count-1) do
+					AddOutputText(astrFiles[nFile]);
+				end
+			else
+				AddOutputText(Format('No files found in that folder type type "%s"', [
+					m_cache.aebSampleText[2].Text]));
+
+			astrFiles.Free();
+			end;
+
+		eFilesAction_GetParentFolder:
+			begin
+			if (TryStrToInt(m_cache.aebSampleText[2].Text, nValue)) then
+				AddOutputText(GetParentFolder(m_cache.aebSampleText[1].Text, nValue))
+			else
+				AddOutputText(Format('"%s" not a valid level', [m_cache.aebSampleText[2].Text]));
 			end;
 		end;
 end;
