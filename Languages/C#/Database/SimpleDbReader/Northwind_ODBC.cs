@@ -506,6 +506,8 @@ namespace SimpleDbReader
                 }
             }
             Console.WriteLine("    ({0} records)", recordsRead);
+
+            // Demonstrating searching for a specific record
         }
 
         private void ConvertRecordset(in OdbcDataReader reader, ref Northwind_Products rsProduct)

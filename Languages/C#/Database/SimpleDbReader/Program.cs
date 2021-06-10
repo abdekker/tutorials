@@ -59,10 +59,10 @@ namespace SimpleDbReader
                 //cSimpleDelete
                 //cOtherTests
                 //cNorthwindDummyOpenClose
-                //cNorthwindStats
+                cNorthwindStats
                 //cNorthwindRead
                 //cNorthwindWriteable
-                cNorthwindInsert
+                //cNorthwindInsert
                 //cNorthwindUpdate
                 //cNorthwindDelete
                 //cNorthwindPerformance
