@@ -141,9 +141,9 @@ namespace SimpleDbReader
             {
                 // Count tables, columns and other statistics
                 m_db.SetQuerySELECT(QueryType.eQueryStd1);
-                m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
+                //m_db.NorthwindStats(DatabaseTechnology.eDB_DAO);
                 m_db.NorthwindStats(DatabaseTechnology.eDB_ODBC);
-                m_db.NorthwindStats(DatabaseTechnology.eDB_OleDB);
+                //m_db.NorthwindStats(DatabaseTechnology.eDB_OleDB);
                 Console.WriteLine();
             }
 
