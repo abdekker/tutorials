@@ -238,6 +238,15 @@ namespace StringsDemo
             Console.WriteLine("  (B):\t\t{0}", bTrue);
             Console.WriteLine("  (C == 0):\t{0}", (nonZero == 0));
             Console.WriteLine("  (C != 0):\t{0}", (nonZero != 0));
+            Console.WriteLine();
+
+            Console.WriteLine("(GetHasCode:         false => 0 and true => 1)");
+            Console.WriteLine("(Convert.ToInt32:    false => 0 and true => 1)");
+            Console.WriteLine("  (A):\t\t{0}, {1}\t\t[1st is GetHasCode, 2nd is Convert]", bFalse.GetHashCode(), Convert.ToInt32(bFalse));
+            Console.WriteLine("  (B):\t\t{0}, {1}", bTrue.GetHashCode(), Convert.ToInt32(bTrue));
+            Console.WriteLine("(assume false is \"sad\" and true is \"happy\")");
+            Console.WriteLine("  (A):\t\t{0}\t\t[using (var) ? \"happy\" : \"sad\"]", (bFalse) ? "happy" : "sad");
+            Console.WriteLine("  (B):\t\t{0:happy;0;sad}\t\t[using {{0:happy;0;sad}}]", bTrue.GetHashCode());
             Console.WriteLine("#\n");
         }
 
