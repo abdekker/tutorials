@@ -47,6 +47,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ClassLibrary_VB", "..\Langu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csPassingParameters", "..\Languages\C#\csPassingParameters\csPassingParameters.csproj", "{1CE35694-DF4F-47D5-99EB-2843D1014FE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csCollections", "..\Languages\C#\csCollections\csCollections.csproj", "{9DAA9BED-B972-4FA8-B503-2CF54A254F34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -306,6 +308,18 @@ Global
 		{1CE35694-DF4F-47D5-99EB-2843D1014FE7}.Release|x64.Build.0 = Release|Any CPU
 		{1CE35694-DF4F-47D5-99EB-2843D1014FE7}.Release|x86.ActiveCfg = Release|Any CPU
 		{1CE35694-DF4F-47D5-99EB-2843D1014FE7}.Release|x86.Build.0 = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|x64.Build.0 = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Debug|x86.Build.0 = Debug|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|x64.ActiveCfg = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|x64.Build.0 = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|x86.ActiveCfg = Release|Any CPU
+		{9DAA9BED-B972-4FA8-B503-2CF54A254F34}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
