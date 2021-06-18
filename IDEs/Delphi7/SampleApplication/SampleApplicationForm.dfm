@@ -156,7 +156,7 @@ object frmSampleApplication: TfrmSampleApplication
     end
     object lblExplanationText: TStaticText
       Left = 570
-      Top = 85
+      Top = 80
       Width = 285
       Height = 85
       AutoSize = False
@@ -265,7 +265,7 @@ object frmSampleApplication: TfrmSampleApplication
     end
     object btnProcess: TBitBtn
       Left = 570
-      Top = 24
+      Top = 22
       Width = 120
       Height = 48
       Caption = 'Process...'
@@ -373,7 +373,7 @@ object frmSampleApplication: TfrmSampleApplication
     end
     object btnBrowse: TButton
       Left = 700
-      Top = 24
+      Top = 22
       Width = 100
       Height = 48
       Caption = 'Browse...'

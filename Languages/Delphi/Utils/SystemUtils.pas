@@ -15,10 +15,26 @@ const
   STR_PLUS			= $04;	// "+"  }
   STR_DECIMAL		= $08;	// "."
 
+  // Windows utilities and other system functions
+  WIN_UTIL_COMMAND_PROMPT		= $00000001;	// Command prompt
+  WIN_UTIL_DATE_TIME			= $00000002;	// Date/Time applet
+  WIN_UTIL_DEFRAG				= $00000004;	// Defragmentation utility
+  WIN_UTIL_WIN_EXPLORER			= $00000008;	// Windows Explorer
+  WIN_UTIL_MOUSE				= $00000010;	// Mouse applet
+  WIN_UTIL_NOTEPAD				= $00000020;	// Notepad
+  WIN_UTIL_START				= $00000040;	// Click the Windows "Start" button
+
+  WIN_UTIL_DEVICE_MANAGER		= $00010000;	// Windows Device Manager
+  WIN_UTIL_EVENT_VIEWER			= $00020000;	// Administrative Tools/Event Viewer
+  WIN_UTIL_FIREWALL				= $00040000;	// Windows Firewall
+  WIN_UTIL_LANGUAGE_OPTIONS		= $00080000;	// Regional and Language Options applet
+  WIN_UTIL_NETWORK				= $00100000;	// Network properties
+  WIN_UTIL_SERVICES				= $00200000;	// Administrative Tools/Services
+
 // Public methods
 
 // Initialisation and cache
-procedure InitialiseSystemUtils();
+procedure InitialiseSystemUtils(const chAppHandle: HWND = 0);
 procedure CloseSystemUtils();
 
 // Windows
@@ -28,6 +44,8 @@ function GetWindowsLocale() : String;
 procedure SetSystem32Path(var strSys32: String; bRedirect: Boolean);
 function ExpandEnvironment(const cstrInput: String): String;
 function ReplaceEnvironmentVariables(const cstrInput: String): String;
+function RunWindowsUtility(const cdwUtility: DWORD) : Boolean;
+function RunProcess(const cstrTest: String) : Boolean;
 function IsProcessRunning(strProcessName: String) : Boolean;
 function GetProcessThreadCount(dwProcessID: DWORD) : Integer;
 function GetSystemThreadCount() : Integer;
@@ -154,7 +172,7 @@ procedure Validate_Double(pdVar: PDouble; dMin, dMax, dDefault: Double);
 implementation
 
 uses
-  Clipbrd, Math, Registry, StrUtils, SysUtils, TLHelp32, WinSock;
+  Clipbrd, Math, Messages, Registry, ShellAPI, StrUtils, SysUtils, TLHelp32, WinSock;
 
 type
   // This record is used to specify shared network resources (eg. folders)
@@ -229,6 +247,9 @@ type
 
   // Cache
   CACHE_SYSTEM_UTILS = record
+	// Main application window (optional)
+	hApplication: HWND;
+
 	// Ping feature
 	hPingHandle: THandle;
   end;
@@ -269,7 +290,7 @@ function InternetCheckConnectionA(lpszUrl: PAnsiChar; dwFlags: DWORD; dwReserved
 
 // Start: Public methods
 // Initialisation and cache
-procedure InitialiseSystemUtils();
+procedure InitialiseSystemUtils(const chAppHandle: HWND = 0);
 var
 	socketData: TWSADATA;
 begin
@@ -278,6 +299,9 @@ begin
 
 	// Initialise the cache (and other private variables used in this unit)
 	ZeroMemory(@m_cache, SizeOf(CACHE_SYSTEM_UTILS));
+
+	// (Optional) application handle
+	m_cache.hApplication := chAppHandle;
 
 	// Ping feature
 	m_cache.hPingHandle := IcmpCreateFile();
@@ -386,7 +410,8 @@ var
 begin
 	// Set the path to %WinDir%\System32
 	// Note to developer: Delphi 7 produces 32-bit application only, so if running on 64-bit
-	// Windows, calls to the 64-bit "System32" folder will be subject to redirection under WOW64.
+	// Windows, calls to the 64-bit "System32" folder will be subject to redirection under
+	// "Windows on Windows 64-bit" or WOW64.
 	if (bRedirect) and (IsWindows64Bit()) then
 		begin
 		// 64-bit Windows (ie. our application is running WOW64)
@@ -479,6 +504,156 @@ begin
 
 	// Return the result
 	Result := strResult;
+end;
+
+function RunWindowsUtility(const cdwUtility: DWORD) : Boolean;
+const
+	// * "ShellExecute" returns a result greater than 32 on success
+	//		- Possible returns include "ERROR_FILE_NOT_FOUND"
+	// * "WinExec" returns a result greater than 31 on success
+	SUCCESS_SHELL_EXECUTE: DWORD	= 32;
+	SUCCESS_WINEXEC: DWORD			= 31;
+var
+	bSuccess, bCanProceed: Boolean;
+	strOption, strTmp: String;
+	dwResult: Cardinal;
+begin
+	// Run one of the Windows utilities or other system functions
+
+	// Note: Other possible applets include:
+	// * Display: 'control.exe desktop,@1' and use icon: "desk.cpl,0"
+	// * Printers: 'control.exe printers' and use icon: "shell32.cpl,58"
+	// * System Properties: 'control.exe sysdm.cpl,,1' and use icon: "sysdm.cpl,0"
+	bSuccess := False;
+	bCanProceed := False;
+	dwResult := 0;
+	if ((cdwUtility and WIN_UTIL_COMMAND_PROMPT) <> 0) then
+		begin
+		// Launch the command prompt
+		dwResult := ShellExecute(0, 'open',
+			PChar(ExpandEnvironment('%COMSPEC%')), nil, nil, SW_SHOWNORMAL);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_DATE_TIME) <> 0) then
+		begin
+		// Display the Windows Date/Time settings
+		// * Windows XP => Control Panel > Date and Time
+		// * Windows 10 => Control Panel > Clock, Language, and Region > Date and Time
+		SetSystem32Path(strTmp, True);
+		dwResult := WinExec(PChar(strTmp + 'control.exe timedate.cpl'), SW_NORMAL);
+		bSuccess := (dwResult > SUCCESS_WINEXEC);
+		end
+	else if ((cdwUtility and WIN_UTIL_DEFRAG) <> 0) then
+		begin
+		// Run the Windows defragmentation utility
+		// * Windows XP => C:\Windows\System32\dfrg.msc
+		// * Windows 10 => C:\Windows\System32\dfrgui.exe
+		SetSystem32Path(strTmp, True);
+		if (IsWindows10()) then
+			dwResult := ShellExecute(0, nil, PChar(strTmp + 'dfrgui.exe'), nil, nil, SW_SHOWNORMAL)
+		else
+			dwResult := ShellExecute(0, nil, PChar(strTmp + 'dfrg.msc'), nil, nil, SW_SHOWNORMAL);
+
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_WIN_EXPLORER) <> 0) then
+		begin
+		// Launch Windows Explorer
+		dwResult := ShellExecute(0, 'open',
+			PChar(ExpandEnvironment('%SystemRoot%') + '\explorer.exe'), nil, nil, SW_SHOWMAXIMIZED);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_MOUSE) <> 0) then
+		begin
+		// Display Windows mouse settings
+		// Note: Before Windows 10 was introduced, the cursor would normally be hidden
+		// * Windows XP => Control Panel > Mouse
+		// * Windows 10 => Windows Settings > Devices > Mouse & touchpad > Additional mouse options
+		SetSystem32Path(strTmp, True);
+		dwResult := WinExec(PChar(strTmp + 'control.exe main.cpl,@0,1'), SW_NORMAL);
+		bSuccess := (dwResult > SUCCESS_WINEXEC);
+		end
+	else if ((cdwUtility and WIN_UTIL_NOTEPAD) <> 0) then
+		begin
+		// Launch Notepad
+		SetSystem32Path(strTmp, True);
+		dwResult := ShellExecute(0, 'open', PChar(strTmp + 'Notepad.exe'), nil, nil, SW_SHOWNORMAL);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_START) <> 0) then
+		begin
+		// Click the Windows "Start" button as if you had a USB keyboard plugged in and clicked
+		// the Windows key (typically between the left CTRL and ALT)
+		SendMessage(m_cache.hApplication, WM_SYSCOMMAND, SC_TASKLIST, 0);
+		bSuccess := True;
+		end
+	else if ((cdwUtility and WIN_UTIL_DEVICE_MANAGER) <> 0) then
+		begin
+		// Show the Windows Device Manager
+		// * Windows XP => Control Panel > System > Hardware > Device Manager
+		// * Windows 10 => Windows Settings > Devices > Device Manager
+		SetSystem32Path(strTmp, False);
+		dwResult := ShellExecute(0, 'open', PChar(strTmp + 'devmgmt.msc'), nil, nil, SW_SHOWNORMAL);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_EVENT_VIEWER) <> 0) then
+		begin
+		// Show the Windows Event Viewer
+		// * Windows XP => Control Panel > Administrative Tools > Event Viewer
+		// * Windows 10 => Control Panel > System and Security > Administrative Tools > Event Viewer
+		SetSystem32Path(strTmp, False);
+		dwResult := ShellExecute(0, 'open', PChar(strTmp + 'eventvwr.msc'), nil, nil, SW_SHOWNORMAL);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end
+	else if ((cdwUtility and WIN_UTIL_FIREWALL) <> 0) then
+		begin
+		// Show the Windows Firewall
+		// * Windows XP => Control Panel > Windows Firewall
+		// * Windows 10 => Control Panel > System and Security > Windows Firewall
+		SetSystem32Path(strTmp, True);
+		dwResult := WinExec(PChar(strTmp + 'control.exe firewall.cpl'), SW_NORMAL);
+		bSuccess := (dwResult > SUCCESS_WINEXEC);
+		end
+	else if ((cdwUtility and WIN_UTIL_LANGUAGE_OPTIONS) <> 0) then
+		begin
+		// Display the Windows "Language for non-Unicode programs" settings
+		// * Windows XP => Control Panel > Regional and Language Options > Advanced
+		// * Windows 10 => Control Panel > System and Security > Windows Firewall
+		SetSystem32Path(strTmp, True);
+		dwResult := WinExec(PChar(strTmp + 'control.exe intl.cpl,@0,2'), SW_NORMAL);
+		bSuccess := (dwResult > SUCCESS_WINEXEC);
+		end
+	else if ((cdwUtility and WIN_UTIL_NETWORK) <> 0) then
+		begin
+		// Show Network Settings
+		// * Windows XP => Control Panel > Network Connections
+		// * Windows 10 => Windows Settings > Network & Internet > Ethernet > Change adapter options
+		SetSystem32Path(strTmp, True);
+		dwResult := WinExec(PChar(strTmp + 'control.exe ncpa.cpl'), SW_NORMAL);
+		bSuccess := (dwResult > SUCCESS_WINEXEC);
+		end
+	else if ((cdwUtility and WIN_UTIL_SERVICES) <> 0) then
+		begin
+		// Display the list of Services running on this computer
+		// * Windows XP => Control Panel > Administrative Tools > Services
+		// * Windows 10 => Control Panel > System and Security > Administrative Tools > Services
+		// Note: On most clones the Services view is resized to show more of the "Standard" view.
+		SetSystem32Path(strTmp, False);
+		if (FileExists(strTmp + 'services_Author.msc')) then
+			strOption := (strTmp + 'services_Author.msc')
+		else
+			strOption := (strTmp + 'services.msc');
+
+		dwResult := ShellExecute(0, 'open', PChar(strOption), nil, nil, SW_SHOWNORMAL);
+		bSuccess := (dwResult > SUCCESS_SHELL_EXECUTE);
+		end;
+
+	Result := bSuccess;
+end;
+
+function RunProcess(const cstrTest: String) : Boolean;
+begin
+	Result := True;
 end;
 
 function IsProcessRunning(strProcessName: String) : Boolean;
