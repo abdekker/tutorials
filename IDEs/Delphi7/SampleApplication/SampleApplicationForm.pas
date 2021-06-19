@@ -182,7 +182,8 @@ type
 	eFilesAction_GetImageSize,
 	eFilesAction_FileHasData,
 	eFilesAction_GetFolderListing,
-	eFilesAction_GetParentFolder
+	eFilesAction_GetParentFolder,
+	eFilesAction_ShowFilenameParts
   );
 
   TCategoryHardware = (
@@ -525,6 +526,7 @@ begin
 	ddlAction.Items.AddObject('Does file have data ?', TObject(eFilesAction_FileHasData));
 	ddlAction.Items.AddObject('Get folder listing', TObject(eFilesAction_GetFolderListing));
 	ddlAction.Items.AddObject('Get parent folder', TObject(eFilesAction_GetParentFolder));
+	ddlAction.Items.AddObject('File path details', TObject(eFilesAction_ShowFilenameParts));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Hardware();
@@ -799,6 +801,12 @@ begin
 
 			updates.astrSampleTitle[2] := 'Levels';
 			updates.astrSampleText[2] := '2';
+			end;
+
+		eFilesAction_ShowFilenameParts:
+			begin
+			updates.astrSampleTitle[1] := 'Filename';
+			updates.astrSampleText[1] := 'C:\Tmp\Subfolder\AmazingFile.abc';
 			end;
 		end;
 
@@ -1268,6 +1276,22 @@ begin
 				AddOutputText(GetParentFolder(m_cache.aebSampleText[1].Text, nValue))
 			else
 				AddOutputText(Format('"%s" not a valid level', [m_cache.aebSampleText[2].Text]));
+			end;
+
+		eFilesAction_ShowFilenameParts:
+			begin
+			AddOutputText(Format('%s', [m_cache.aebSampleText[1].Text]));
+			AddOutputText(Format('  Drive = %s', [ExtractFileDrive(m_cache.aebSampleText[1].Text)]));
+			AddOutputText(Format('  Directory = %s', [ExtractFileDir(m_cache.aebSampleText[1].Text)]));
+			AddOutputText(Format('  Path = %s', [ExtractFilePath(m_cache.aebSampleText[1].Text)]));
+			AddOutputText(Format('  Extension = %s', [ExtractFileExt(m_cache.aebSampleText[1].Text)]));
+			AddOutputText(Format('  Filename = %s', [ExtractFileName(m_cache.aebSampleText[1].Text)]));
+
+			nFile := LastDelimiter(PathDelim + DriveDelim, m_cache.aebSampleText[1].Text);
+			AddOutputText(Format('  File (raw) = %s', [Copy(
+				m_cache.aebSampleText[1].Text,
+				nFile + 1,
+				LastDelimiter('.' + PathDelim + DriveDelim, m_cache.aebSampleText[1].Text) - nFile - 1)]));
 			end;
 		end;
 end;
