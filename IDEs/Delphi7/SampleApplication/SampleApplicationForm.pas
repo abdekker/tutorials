@@ -526,7 +526,7 @@ begin
 	ddlAction.Items.AddObject('Does file have data ?', TObject(eFilesAction_FileHasData));
 	ddlAction.Items.AddObject('Get folder listing', TObject(eFilesAction_GetFolderListing));
 	ddlAction.Items.AddObject('Get parent folder', TObject(eFilesAction_GetParentFolder));
-	ddlAction.Items.AddObject('File path details', TObject(eFilesAction_ShowFilenameParts));
+	ddlAction.Items.AddObject('File and path details', TObject(eFilesAction_ShowFilenameParts));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Hardware();
@@ -1221,6 +1221,7 @@ var
 	imgLoaded: TImage;
 	astrFiles: TStringList;
 	nFile, nValue: Integer;
+	strTmp: String;
 begin
 	// Windows: Perform the action
 	case TCategoryFiles(m_nActionCurrent) of
@@ -1280,18 +1281,20 @@ begin
 
 		eFilesAction_ShowFilenameParts:
 			begin
-			AddOutputText(Format('%s', [m_cache.aebSampleText[1].Text]));
-			AddOutputText(Format('  Drive = %s', [ExtractFileDrive(m_cache.aebSampleText[1].Text)]));
-			AddOutputText(Format('  Directory = %s', [ExtractFileDir(m_cache.aebSampleText[1].Text)]));
-			AddOutputText(Format('  Path = %s', [ExtractFilePath(m_cache.aebSampleText[1].Text)]));
-			AddOutputText(Format('  Extension = %s', [ExtractFileExt(m_cache.aebSampleText[1].Text)]));
-			AddOutputText(Format('  Filename = %s', [ExtractFileName(m_cache.aebSampleText[1].Text)]));
+			strTmp := m_cache.aebSampleText[1].Text;
+			AddOutputText(Format('%s', [strTmp]));
+			AddOutputText(Format('  Drive = %s', [ExtractFileDrive(strTmp)]));
+			AddOutputText(Format('  Directory = %s', [ExtractFileDir(strTmp)]));
+			AddOutputText(Format('  Path = %s', [ExtractFilePath(strTmp)]));
+			AddOutputText(Format('  Extension = %s', [ExtractFileExt(strTmp)]));
+			AddOutputText(Format('  Filename (no path) = %s', [ExtractFileName(strTmp)]));
 
-			nFile := LastDelimiter(PathDelim + DriveDelim, m_cache.aebSampleText[1].Text);
-			AddOutputText(Format('  File (raw) = %s', [Copy(
-				m_cache.aebSampleText[1].Text,
-				nFile + 1,
-				LastDelimiter('.' + PathDelim + DriveDelim, m_cache.aebSampleText[1].Text) - nFile - 1)]));
+			nFile := LastDelimiter(PathDelim + DriveDelim, strTmp);
+			AddOutputText(Format('  Filename (no path, no ext) = %s', [
+				Copy(strTmp, nFile + 1, LastDelimiter('.' + PathDelim + DriveDelim, strTmp) - nFile - 1)]));
+
+			AddOutputText(Format('  File (renamed ext) = %s', [
+				Copy(strTmp, 0, Length(strTmp)-Length(ExtractFileExt(strTmp))) + '.xyz']));
 			end;
 		end;
 end;
