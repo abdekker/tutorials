@@ -41,6 +41,9 @@ type
 	nOutputWidthInitial, nOutputWidthMax: Integer;
 	bInitControlsGroup: Boolean;
 
+	// Explanation text position (at design-time)
+	nExplanationTop, nExplanationHeight: Integer;
+
 	// Maximum size to set sample control
 	nMaxControlWidth: Integer;
 
@@ -55,6 +58,7 @@ type
 	// Updates to the user interface
 	astrSampleTitle, astrSampleText: array [1..3] of String;
 	strExplanationText: String;
+	bExplanationFixedWidth, bExplanationSmallFont, bExplanationExtraSize: Boolean;
 	bShowBrowseButton: Boolean;
   end;
 
@@ -162,6 +166,7 @@ type
 	eWindowsAction_GetWindowsLocale,
 	eWindowsAction_ExpandEnvironment,
 	eWindowsAction_IsProcessRunning,
+	eWindowsAction_RunWindowsUtility,
 	eWindowsAction_GetProcessThreads,
 	eWindowsAction_GetSystemThreads,
 	eWindowsAction_FindWindowByTitle,
@@ -177,7 +182,8 @@ type
 	eFilesAction_GetImageSize,
 	eFilesAction_FileHasData,
 	eFilesAction_GetFolderListing,
-	eFilesAction_GetParentFolder
+	eFilesAction_GetParentFolder,
+	eFilesAction_ShowFilenameParts
   );
 
   TCategoryHardware = (
@@ -235,7 +241,7 @@ begin
 	RandSeed := Integer(GetTickCount() mod 7919);
 
 	// Initialise system and form utilities
-	InitialiseSystemUtils();
+	InitialiseSystemUtils(Application.Handle);
 	InitialiseFormUtils();
 end;
 
@@ -407,6 +413,10 @@ begin
 
 	m_cache.bInitControlsGroup := True;
 
+	// Explanation text position (at design-time)
+	m_cache.nExplanationTop := lblExplanationText.Top;
+	m_cache.nExplanationHeight := lblExplanationText.Height;
+
 	// Maximum size to set sample controls
 	m_cache.nMaxControlWidth := lblChildControls.Width;
 
@@ -494,6 +504,7 @@ begin
 	ddlAction.Items.AddObject('Get Windows locale', TObject(eWindowsAction_GetWindowsLocale));
 	ddlAction.Items.AddObject('Expand enviroment variable', TObject(eWindowsAction_ExpandEnvironment));
 	ddlAction.Items.AddObject('Is process running ?', TObject(eWindowsAction_IsProcessRunning));
+	ddlAction.Items.AddObject('Run Windows utililty', TObject(eWindowsAction_RunWindowsUtility));
 	ddlAction.Items.AddObject('Get process threads', TObject(eWindowsAction_GetProcessThreads));
 	ddlAction.Items.AddObject('Get system threads', TObject(eWindowsAction_GetSystemThreads));
 	ddlAction.Items.AddObject('Find windows by title', TObject(eWindowsAction_FindWindowByTitle));
@@ -515,6 +526,7 @@ begin
 	ddlAction.Items.AddObject('Does file have data ?', TObject(eFilesAction_FileHasData));
 	ddlAction.Items.AddObject('Get folder listing', TObject(eFilesAction_GetFolderListing));
 	ddlAction.Items.AddObject('Get parent folder', TObject(eFilesAction_GetParentFolder));
+	ddlAction.Items.AddObject('File and path details', TObject(eFilesAction_ShowFilenameParts));
 end;
 
 procedure TfrmSampleApplication.PopulateActions_Hardware();
@@ -600,11 +612,36 @@ begin
 		// Show explanation text
 		if (updates.strExplanationText <> m_cache.strLastExplanationText) then
 			begin
+			// Set the text
 			m_cache.strLastExplanationText := updates.strExplanationText;
 			for nSample:=1 to 3 do
 				m_cache.aebSampleText[nSample].Width := m_cache.nEditBoxWidthInitial;
 
 			lblExplanationText.Caption := updates.strExplanationText;
+
+			// Set the font and size
+			if (updates.bExplanationFixedWidth) then
+				lblExplanationText.Font.Name := 'Courier New'
+			else
+				lblExplanationText.Font.Name := 'MS Sans Serif';
+
+			if (updates.bExplanationSmallFont) then
+				lblExplanationText.Font.Size := 8
+			else
+				lblExplanationText.Font.Size := 10;
+
+			if (updates.bExplanationExtraSize) then
+				begin
+				lblExplanationText.Top := (btnProcess.Top + btnProcess.Height + 3);
+				lblExplanationText.Height := (listOutput.Top - lblExplanationText.Top);
+				end
+			else
+				begin
+				lblExplanationText.Top := m_cache.nExplanationTop;
+				lblExplanationText.Height := m_cache.nExplanationHeight;
+				end;
+
+			// Make the explanation text visible
 			lblExplanationText.Visible := True;
 			end;
 		end
@@ -644,6 +681,24 @@ begin
 			begin
 			updates.astrSampleTitle[1] := 'Process name';
 			updates.astrSampleText[1] := ExtractFileName(Application.ExeName);
+			end;
+
+		eWindowsAction_RunWindowsUtility:
+			begin
+			updates.astrSampleTitle[1] := 'Utility';
+			updates.astrSampleText[1] := '1';
+
+			updates.strExplanationText := (
+				'1=Command Prompt    10=Device Manager' + #13 +
+				'2=Date/Time         11=Event Viewer' + #13 +
+				'3=Defrag            12=Firewall' + #13 +
+				'4=Explorer          13=Language Options' + #13 +
+				'5=Mouse             14=Network' + #13 +
+				'6=Notepad           15=Services' + #13 +
+				'7=Windows Start');
+			updates.bExplanationFixedWidth := True;
+			updates.bExplanationSmallFont := True;
+			updates.bExplanationExtraSize := True;
 			end;
 
 		eWindowsAction_GetProcessThreads: ;
@@ -746,6 +801,12 @@ begin
 
 			updates.astrSampleTitle[2] := 'Levels';
 			updates.astrSampleText[2] := '2';
+			end;
+
+		eFilesAction_ShowFilenameParts:
+			begin
+			updates.astrSampleTitle[1] := 'Filename';
+			updates.astrSampleText[1] := 'C:\Tmp\Subfolder\AmazingFile.abc';
 			end;
 		end;
 
@@ -998,6 +1059,7 @@ var
 	strTmp: String;
 	cTmp: Char;
 	nTmp: Integer;
+	dwTmp: DWORD;
 	hWndTmp: HWND;
 	fTotalGB, fFreeGB: Single;
 begin
@@ -1039,6 +1101,38 @@ begin
 				AddOutputText('Process is running')
 			else
 				AddOutputText('Process is NOT running');
+			end;
+
+		eWindowsAction_RunWindowsUtility:
+			begin
+			// Which utility are we running?
+			if (TryStrToInt(m_cache.aebSampleText[1].Text, nTmp)) then
+				begin
+				dwTmp := WIN_UTIL_COMMAND_PROMPT;
+				case nTmp of
+					1: dwTmp := WIN_UTIL_COMMAND_PROMPT;
+					2: dwTmp := WIN_UTIL_DATE_TIME;
+					3: dwTmp := WIN_UTIL_DEFRAG;
+					4: dwTmp := WIN_UTIL_WIN_EXPLORER;
+					5: dwTmp := WIN_UTIL_MOUSE;
+					6: dwTmp := WIN_UTIL_NOTEPAD;
+					7: dwTmp := WIN_UTIL_START;
+
+					10: dwTmp := WIN_UTIL_DEVICE_MANAGER;
+					11: dwTmp := WIN_UTIL_EVENT_VIEWER;
+					12: dwTmp := WIN_UTIL_FIREWALL;
+					13: dwTmp := WIN_UTIL_LANGUAGE_OPTIONS;
+					14: dwTmp := WIN_UTIL_NETWORK;
+					15: dwTmp := WIN_UTIL_SERVICES;
+				end;
+
+				if (RunWindowsUtility(dwTmp)) then
+					AddOutputText('Utility launched')
+				else
+					AddOutputText('Failed to launch utility');
+				end
+			else
+				AddOutputText(Format('"%s" is NOT a number', [m_cache.aebSampleText[1].Text]));
 			end;
 
 		eWindowsAction_GetProcessThreads:
@@ -1183,6 +1277,24 @@ begin
 				AddOutputText(GetParentFolder(m_cache.aebSampleText[1].Text, nValue))
 			else
 				AddOutputText(Format('"%s" not a valid level', [m_cache.aebSampleText[2].Text]));
+			end;
+
+		eFilesAction_ShowFilenameParts:
+			begin
+			strTmp := m_cache.aebSampleText[1].Text;
+			AddOutputText(Format('%s', [strTmp]));
+			AddOutputText(Format('  Drive = %s', [ExtractFileDrive(strTmp)]));
+			AddOutputText(Format('  Directory = %s', [ExtractFileDir(strTmp)]));
+			AddOutputText(Format('  Path = %s', [ExtractFilePath(strTmp)]));
+			AddOutputText(Format('  Extension = %s', [ExtractFileExt(strTmp)]));
+			AddOutputText(Format('  Filename (no path) = %s', [ExtractFileName(strTmp)]));
+
+			nFile := LastDelimiter(PathDelim + DriveDelim, strTmp);
+			AddOutputText(Format('  Filename (no path, no ext) = %s', [
+				Copy(strTmp, nFile + 1, LastDelimiter('.' + PathDelim + DriveDelim, strTmp) - nFile - 1)]));
+
+			AddOutputText(Format('  File (renamed ext) = %s', [
+				Copy(strTmp, 0, Length(strTmp)-Length(ExtractFileExt(strTmp))) + '.xyz']));
 			end;
 		end;
 end;
