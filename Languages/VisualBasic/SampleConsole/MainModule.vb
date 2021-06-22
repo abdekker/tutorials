@@ -1258,6 +1258,52 @@ Module MainModule
         Console.WriteLine()
     End Sub
 
+    Private Sub VB_Like()
+        ' Some details on using the "Like" keyword in Visual Basic
+        Console.WriteLine("### Like (keyword) ###")
+        Console.WriteLine("  ""Like"" compares a string against a pattern (similar to regular expressions)")
+        Console.WriteLine("  Not currently supported in .NET Core and .NET Standard projects")
+        Console.WriteLine()
+
+        Dim testCheck As Boolean
+
+        ' Returns True (does "F" satisfy "F"?)
+        Console.WriteLine("  {0,-30}{1}", """F"" Like ""F""", ("F" Like "F"))
+
+        ' Returns False for Option Compare Binary, and True for Option Compare Text (does "F" satisfy "f"?)
+        Console.WriteLine("  {0,-30}{1}", """F"" Like ""f""", ("F" Like "f"))
+
+        ' Returns False (does "F" satisfy "FFF"?)
+        Console.WriteLine("  {0,-30}{1}", """F"" Like ""FFF""", ("F" Like "FFF"))
+
+        ' Returns True (does "aBBBa" have an "a" at the beginning, an "a" at the end, and any number of characters
+        ' in between?)
+        Console.WriteLine("  {0,-30}{1}", """aBBBa"" Like ""a*a""", ("aBBBa" Like "a*a"))
+
+        ' Returns True (does "F" occur in the set of characters from "A" through "Z"?)
+        Console.WriteLine("  {0,-30}{1}", """F"" Like ""[A-Z]""", ("F" Like "[A-Z]"))
+
+        ' Returns False (does "F" NOT occur in the set of characters from "A" through "Z"?)
+        Console.WriteLine("  {0,-30}{1}", """F"" Like ""[!A-Z]""", ("F" Like "[!A-Z]"))
+
+        ' Returns True (does "a2a" begin and end with an "a" and have any single-digit number in between?)
+        Console.WriteLine("  {0,-30}{1}", """a2a"" Like ""a#a""", ("a2a" Like "a#a"))
+
+        ' Returns True (does "aM5b" begin with an "a", followed by any character from the set "L" through "P",
+        ' followed by any single-digit number, and end with any character NOT in the character set "c" through "e"?)
+        Console.WriteLine("  {0,-30}{1}", """aM5b"" Like ""a[L-P]#[!c-e]""", ("aM5b" Like "a[L-P]#[!c-e]"))
+
+        ' Returns True (does "BAT123khg" begin with a "B", followed by any single character, followed by a "T", and
+        ' end with zero or more characters of any type?)
+        Console.WriteLine("  {0,-30}{1}", """BAT123khg"" Like ""B?T*""", ("BAT123khg" Like "B?T*"))
+
+        ' Returns False (does "CAT123khg" begin with a "B", followed by any single character, followed by a "T", and
+        ' end with zero or more characters of any type?)
+        Console.WriteLine("  {0,-30}{1}", """CAT123khg"" Like ""B?T*""", ("CAT123khg" Like "B?T*"))
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
     Sub Main()
         ' This application combines some examples from the following C# samples:
         ' * SampleConsole
@@ -1279,7 +1325,8 @@ Module MainModule
         Const DISPLAY_INT_CASTING As Integer            = &H00000200
         Const DISPLAY_NULLABLE_TYPES As Integer         = &H00001000
         Const DISPLAY_ENUMS As Integer                  = &H00002000
-        Dim display As Integer = DISPLAY_LOOPING
+        Const DISPLAY_LIKE As Integer                   = &H00004000
+        Dim display As Integer = DISPLAY_STRINGS
 
         ' Display some system information
         If ((display And DISPLAY_SYS_INFO) <> 0) Then
@@ -1329,6 +1376,11 @@ Module MainModule
         ' Enumerations
         If ((display And DISPLAY_ENUMS) <> 0) Then
             VB_Enumerations()
+        End If
+
+        ' Like keyword
+        If ((display And DISPLAY_LIKE) <> 0) Then
+            VB_Like()
         End If
 
         Console.WriteLine("Press any key to exit...")
