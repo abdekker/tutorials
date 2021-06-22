@@ -1,4 +1,21 @@
-﻿Imports System.IO
+﻿Option Strict Off
+#Region "Note on Option Strict"
+' "Option Strict On" is recommended, giving some of these benefits:
+' * Catches implicit narrowing conversions
+'       e.g. converting Int32 to Int16
+' * Prevents late-binding (assigning an object to a variable declared to be of type Object)
+'       Late-binding can be useful, such as using COM objects where the object type will only be determined at
+'       run-time. In this case, set Project > Properties > Compile > Option strict = "On" and "Late binding; call
+'       could fail at run time" = "Warning"
+' * Catches implicit typing that results in an Object type
+'       e.g "Dim myNum = 5" when "Dim myNum as Integer = 5" was intended
+' * Results in faster, more optimised code
+
+' In general, have "Option Strict On" enabled at file or project level. But it is disabled in this project in order
+' to demonstrate explicit casting and other techniques
+#End Region
+
+Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.Versioning
 Imports System.Runtime.InteropServices
@@ -82,7 +99,7 @@ Module MainModule
     End Property
 
     ' Helper methods
-    Private Function GetFrameworkDisplayName()
+    Private Function GetFrameworkDisplayName() As String
         Dim attribs() As Object = Assembly.GetExecutingAssembly().GetCustomAttributes(GetType(TargetFrameworkAttribute), False)
         Dim targetFramework As TargetFrameworkAttribute = attribs.SingleOrDefault() ' "SingleOrDefault" requires System.Linq
         GetFrameworkDisplayName = targetFramework.FrameworkDisplayName
@@ -321,7 +338,7 @@ Module MainModule
 
         Dim index, loops As Integer
         Dim startTicks, elapsedTicks As Integer
-        Dim avg As Single
+        Dim avg As Double
         Dim count As Int64
 
         Console.WriteLine("###############################################################################")
@@ -558,7 +575,7 @@ Module MainModule
 
         Dim index, loops As Integer
         Dim startTicks, elapsedTicks As Integer
-        Dim avg As Single
+        Dim avg As Double
         Dim count As Int64
 
         Console.WriteLine("###############################################################################")
@@ -767,7 +784,7 @@ Module MainModule
 
         Dim index, loops As Int64
         Dim startTicks, elapsedTicks As Integer
-        Dim avg As Single
+        Dim avg As Double
         Dim count As Int64
 
         Console.WriteLine("###############################################################################")
