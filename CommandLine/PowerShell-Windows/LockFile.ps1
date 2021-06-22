@@ -1,9 +1,9 @@
-﻿# This script lock a file to prevent it from being modified or copied
-
+﻿# This script locks a file to prevent it from being modified or copied
 if ($($args.count) -eq 0)
 {
 	# No arguments...specify a hard-coded file
-	$fileName = "C:\Project\LomaX4\target\Access__.ini"
+	# Note: sampleReading.txt can be found at ..\..\Samples
+	$fileName = "C:\Tmp\sampleReading.txt"
 }
 else
 {
