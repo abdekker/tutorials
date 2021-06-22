@@ -26,6 +26,9 @@ Imports Microsoft.VisualBasic   ' For legacy string and other VB6 methods
 Imports systemHelperLibrary
 Imports typesLib = systemHelperLibrary.TypesLibrary
 
+' Following import demonstrates a kind of "typedef" in Visual Basic => "S" becomes an alias for "System.String"
+Imports S = System.String
+
 ' To create this console application in Visual Studio 2019:
 ' * Create a new project
 ' * Set language to "Visual Basic" and type "console" in the search bar
@@ -252,9 +255,14 @@ Module MainModule
         Dim array2() As String = New String() { "hello", "22", "everyone", "?" }
         Console.WriteLine("  " + String.Join(" ", array2) + "   [Dim array() As String = New String { ... }]")
 
-        Dim s As String = "hello,33,everyone,#"
-        Dim array3() As String = s.Split(",")
+        Dim s1 As String = "hello,33,everyone,#"
+        Dim array3() As String = s1.Split(",")
         Console.WriteLine("  " + String.Join(" ", array3) + "   [using String.Split(char)]")
+        Console.WriteLine()
+
+        Console.WriteLine("(alias for System.String in VB, similar to ""typedef"")")
+        Dim s2 As S = "Today I'm an alias"
+        Console.WriteLine("  {0}    [using Imports S = System.String alias]", s2)
         Console.WriteLine()
 
         Dim randomLength As Byte = 40
