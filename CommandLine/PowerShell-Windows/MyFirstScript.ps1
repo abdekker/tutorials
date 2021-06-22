@@ -24,4 +24,22 @@ To run any script that you trust:
 3) Open the Command Prompt and use: PowerShell ".\Path\to\Script\MyFirstScript.ps1"
 	(or navigate to the folder and use: PowerShell .\MyFirstScript.ps1 #>
 Write-Host "Hello, World!"
+Write-Host ""
+
+# You can insert new lines with:
+#	Write-Host ""
+#	Write-Host `n
+Write-Host "AAA"`n"BBB"`n"CCC"
+Write-Host ""
+Write-Host "DDD"
+
+# Show the current Powershell version
+Get-Host | Select-Object Version
+Write-Host ""
+
+# Set a simple variable and write in a different colour
+$MyVariable = "Donkey"
+Write-Host -ForegroundColor cyan "Your variable has the value: $MyVariable"
+
+# Pause before exiting...
 pause
