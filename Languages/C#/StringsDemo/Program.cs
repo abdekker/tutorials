@@ -336,6 +336,20 @@ namespace StringsDemo
             Console.WriteLine("  A = {0:0.0000}\t\t\t[using \"{{0:0.0...}}\"]", f1);
             Console.WriteLine("  A = {0}\t\t\t[custom function using \"{{0:F*}}\" internally]", StringLibrary.FormatFloat(f1, 4));
             Console.WriteLine("  A = {0}\t\t\t[using System.Single::ToString(format)]", f1.ToString("0.0000"));
+            Console.WriteLine();
+
+            Console.WriteLine("(converting between a float and string)");
+            float fOrig = 3.14159265359f;
+            string s1 = fOrig.ToString();
+            string s2 = fOrig.ToString("R");    // "Round-trip" specifier (attempts to ensure string is parsed back to the original)
+            string s3 = fOrig.ToString("G9");   // Recommended specifier due to bugs and performance of the "R" specifier
+            f1 = Convert.ToSingle(s1);
+            f2 = Convert.ToSingle(s2);
+            f3 = Convert.ToSingle(s3);
+            Console.WriteLine("  Original = {0:0.#########}\t\t\t[original]", fOrig);
+            Console.WriteLine("  s1 = {0,-12}f1 = {1:0.#########}\t[ToString()]", s1, f1);
+            Console.WriteLine("  s2 = {0,-12}f2 = {1:0.#########}\t[ToString(\"R\")]", s2, f2);
+            Console.WriteLine("  s3 = {0,-12}f3 = {1:0.#########}\t[ToString(\"G9\")]", s3, f3);
             Console.WriteLine("#\n");
         }
 
@@ -352,6 +366,20 @@ namespace StringsDemo
             for (int places = 0; places <= 10; places++)
                 Console.WriteLine("  decimals = {0,2}, output = {1}", places, StringLibrary.FormatFloat(d, places));
 
+            Console.WriteLine();
+
+            Console.WriteLine("(converting between a double and string)");
+            double dOrig = 3.14159265358979323846;
+            string s1 = dOrig.ToString();
+            string s2 = dOrig.ToString("R");    // "Round-trip" specifier (attempts to ensure string is parsed back to the original)
+            string s3 = dOrig.ToString("G17");  // Recommended specifier due to bugs and performance of the "R" specifier
+            double d1 = Convert.ToDouble(s1);
+            double d2 = Convert.ToDouble(s2);
+            double d3 = Convert.ToDouble(s3);
+            Console.WriteLine("  Original = {0:0.#################}\t\t\t\t[original]", dOrig);
+            Console.WriteLine("  s1 = {0,-20}d1 = {1:0.#################}\t[ToString()]", s1, d1);
+            Console.WriteLine("  s2 = {0,-20}d2 = {1:0.#################}\t[ToString(\"R\")]", s2, d2);
+            Console.WriteLine("  s3 = {0,-20}d3 = {1:0.#################}\t[ToString(\"G17\")]", s3, d3);
             Console.WriteLine("#\n");
         }
 
