@@ -1392,8 +1392,9 @@ Module MainModule
         ' Note: "&H" is a signed hexadecimal literal, so "Dim i As UInt32 = &HFFFFFFFF" results in the BC30439 compile
         ' error due to numerical overflow. Resolve by either:
         '   * Using the largest representable literal for a signed type e.g. "Dim i As UInt32 = &H7FFFFFFF" or
+        '   * Add the "UI" or "UL" qualifier onto the end of the string literal e.g. "Dim i As UInt32 = &H7FFFFFFFUI" or
         '   * Project > Properties > Compile > Advanced Compile Options > Remove integer overflow checks
-        Const DISPLAY_ALL_SECTIONS As UInt64            = &H7FFFFFFFFFFFFFFF    ' Generally use this one
+        Const DISPLAY_ALL_SECTIONS As UInt64            = &HFFFFFFFFFFFFFFFFUL ' Generally use this one
         Const DISPLAY_SYS_INFO As UInt64                = &H0000000000000001
         Const DISPLAY_ASSEMBLY_INFO As UInt64           = &H0000000000000002
         Const DISPLAY_LOOPING As UInt64                 = &H0000000000000004
