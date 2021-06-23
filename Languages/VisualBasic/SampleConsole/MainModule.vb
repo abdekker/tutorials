@@ -78,7 +78,7 @@ Module MainModule
     End Structure
     #End Region
 
-    ' Property accessors
+    #Region "Property accessors"
     Public ReadOnly Property OSType As String
         Get
             If (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) Then
@@ -100,15 +100,30 @@ Module MainModule
             Return assemblyDirectory
         End Get
     End Property
+    #End Region
 
-    ' Helper methods
+    #Region "Helper methods"
     Private Function GetFrameworkDisplayName() As String
         Dim attribs() As Object = Assembly.GetExecutingAssembly().GetCustomAttributes(GetType(TargetFrameworkAttribute), False)
         Dim targetFramework As TargetFrameworkAttribute = attribs.SingleOrDefault() ' "SingleOrDefault" requires System.Linq
         GetFrameworkDisplayName = targetFramework.FrameworkDisplayName
     End Function
 
-    ' Main methods
+    Function IsValid(ByVal checkValue As Integer, ByRef grandTotal As Integer) As Boolean
+        ' Testing short-circuit behaviour in logical operators (e.g. And, AndAlso)
+        If (checkValue > 15) Then
+            ' The warning is not displayed if the call to IsValid() is part of a short-circuited expression
+            MsgBox(checkValue.ToString() + " is not a valid value.")
+            Return False
+        Else
+            ' grandTotal is not updated if the call to IsValid() is part of a short-circuited expression
+            grandTotal += checkValue
+            Return True
+        End If
+    End Function
+    #End Region
+
+    #Region "Main test methods"
     Private Sub DisplaySystemInformation()
         ' See C#\StringsDemo\DisplaySystemInformation
         Console.WriteLine("### System Information ###")
@@ -1138,6 +1153,64 @@ Module MainModule
         Console.WriteLine()
     End Sub
 
+    Private Sub VB_LogicalOperators()
+        ' Logical operators in Visual Basic
+
+        ' Short-circuit operators should generally be preferred to non short-circuit operators because code is more
+        ' efficient (as potentially expensive methods do not need to be called).
+
+        ' One exception is when all checks must be done, such as method calls that perform important system checks or
+        ' change variables. However, better code design is to remove these "hidden" checks => if the check is
+        ' genuinely important, explicitly call it.
+
+        ' Where possible use the short-circuit operators in new code, and convert older VB6 code to use the newer
+        ' operators where feasible.
+        Console.WriteLine("### Logical operators in Visual Basic ###")
+        Console.WriteLine("  VB uses these operators: And, Or, Not, AndAlso, OrElse, IsNot")
+        Console.WriteLine("  ""And"" and ""Or"" are non short-circuit operators like ""&"" and ""|"" in C#")
+        Console.WriteLine("  ""AndAlso"" and ""OrElse"" are short-circuit operators like ""&&"" and ""||"" in C#")
+        Console.WriteLine()
+
+        Const highestAllowed As Integer = 45
+        Dim amount As Integer = 12
+        Dim total As Integer = 0
+        Dim totalLast As Integer = total
+        Console.WriteLine("  Amount={0}, Total={1}", amount, total)
+        Console.WriteLine()
+
+        Console.WriteLine("(""And"" is a non short-circuit operator)")
+        If (amount > highestAllowed) And (IsValid(amount, total)) Then
+            ' The preceding statement calls IsValid()
+        End If
+        Console.WriteLine("  Amount={0}, Total={1}, {2}", amount, total, If(total = totalLast, "SAME", "CHANGED"))
+        Console.WriteLine()
+
+        Console.WriteLine("(""AndAlso"" is a short-circuit operator)")
+        totalLast = total
+        If (amount > highestAllowed) AndAlso (IsValid(amount, total)) Then
+            ' The preceding statement does NOT call IsValid()
+        End If
+        Console.WriteLine("  Amount={0}, Total={1}, {2}", amount, total, If(total = totalLast, "SAME", "CHANGED"))
+        Console.WriteLine()
+
+        Console.WriteLine("(""Or"" is a non short-circuit operator)")
+        totalLast = total
+        If (amount < highestAllowed) Or (IsValid(amount, total)) Then
+            ' The preceding statement calls IsValid()
+        End If
+        Console.WriteLine("  Amount={0}, Total={1}, {2}", amount, total, If(total = totalLast, "SAME", "CHANGED"))
+        Console.WriteLine()
+
+        Console.WriteLine("(""OrElse"" is a short-circuit operator)")
+        totalLast = total
+        If (amount < highestAllowed) OrElse (IsValid(amount, total)) Then
+             ' The preceding statement does NOT call IsValid()
+        End If
+        Console.WriteLine("  Amount={0}, Total={1}, {2}", amount, total, If(total = totalLast, "SAME", "CHANGED"))
+        Console.WriteLine("#")
+        Console.WriteLine()
+    End Sub
+
     Private Sub VB_NullableTypes()
         ' Nullable types were introduced into .NET 4.6 (2015)
         Console.WriteLine("### Nullable types ###")
@@ -1303,6 +1376,7 @@ Module MainModule
         Console.WriteLine("#")
         Console.WriteLine()
     End Sub
+    #End Region
 
     Sub Main()
         ' This application combines some examples from the following C# samples:
@@ -1315,18 +1389,23 @@ Module MainModule
         Console.WriteLine()
 
         ' Which sections are we going to display?
-        Const DISPLAY_ALL_SECTIONS As Integer           = &HFFFFFFFF    ' Generally use this one
-        Const DISPLAY_SYS_INFO As Integer               = &H00000001
-        Const DISPLAY_ASSEMBLY_INFO As Integer          = &H00000002
-        Const DISPLAY_LOOPING As Integer                = &H00000004
-        Const DISPLAY_STRINGS As Integer                = &H00000010
-        Const DISPLAY_STRINGS_PERFORMANCE As Integer    = &H00000020
-        Const DISPLAY_INTEGERS As Integer               = &H00000100
-        Const DISPLAY_INT_CASTING As Integer            = &H00000200
-        Const DISPLAY_NULLABLE_TYPES As Integer         = &H00001000
-        Const DISPLAY_ENUMS As Integer                  = &H00002000
-        Const DISPLAY_LIKE As Integer                   = &H00004000
-        Dim display As Integer = DISPLAY_STRINGS
+        ' Note: "&H" is a signed hexadecimal literal, so "Dim i As UInt32 = &HFFFFFFFF" results in the BC30439 compile
+        ' error due to numerical overflow. Resolve by either:
+        '   * Using the largest representable literal for a signed type e.g. "Dim i As UInt32 = &H7FFFFFFF" or
+        '   * Project > Properties > Compile > Advanced Compile Options > Remove integer overflow checks
+        Const DISPLAY_ALL_SECTIONS As UInt64            = &H7FFFFFFFFFFFFFFF    ' Generally use this one
+        Const DISPLAY_SYS_INFO As UInt64                = &H0000000000000001
+        Const DISPLAY_ASSEMBLY_INFO As UInt64           = &H0000000000000002
+        Const DISPLAY_LOOPING As UInt64                 = &H0000000000000004
+        Const DISPLAY_STRINGS As UInt64                 = &H0000000000000010
+        Const DISPLAY_STRINGS_PERFORMANCE As UInt64     = &H0000000000000020
+        Const DISPLAY_INTEGERS As UInt64                = &H0000000000000100
+        Const DISPLAY_INT_CASTING As UInt64             = &H0000000000000200
+        Const DISPLAY_LOGICAL_OPERATORS As UInt64       = &H0000000000001000
+        Const DISPLAY_NULLABLE_TYPES As UInt64          = &H0000000000002000
+        Const DISPLAY_ENUMS As UInt64                   = &H0000000000004000
+        Const DISPLAY_LIKE As UInt64                    = &H0000000000008000
+        Dim display As UInt64 = DISPLAY_ALL_SECTIONS
 
         ' Display some system information
         If ((display And DISPLAY_SYS_INFO) <> 0) Then
@@ -1361,11 +1440,17 @@ Module MainModule
             VB_Integers()
         End If
 
+        ' Casting (int)
         If ((display And DISPLAY_INT_CASTING) <> 0) Then
             VB_Integers_Casting_From_Object()
             VB_Integers_Casting_From_String()
             VB_Integers_Casting_Between_Integers()
             ' TODO: Measure performance of different casting operations
+        End If
+
+        ' Logical operators
+        If ((display And DISPLAY_LOGICAL_OPERATORS) <> 0) Then
+            VB_LogicalOperators()
         End If
 
         ' Nullable types
@@ -1378,7 +1463,7 @@ Module MainModule
             VB_Enumerations()
         End If
 
-        ' Like keyword
+        ' "Like" keyword
         If ((display And DISPLAY_LIKE) <> 0) Then
             VB_Like()
         End If
