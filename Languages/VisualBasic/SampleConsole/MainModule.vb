@@ -1207,6 +1207,32 @@ Module MainModule
              ' The preceding statement does NOT call IsValid()
         End If
         Console.WriteLine("  Amount={0}, Total={1}, {2}", amount, total, If(total = totalLast, "SAME", "CHANGED"))
+        Console.WriteLine()
+
+        Console.WriteLine("Since 2008, VB introduces a ternary operator ""If"" in three and two-argument varieties")
+        Console.WriteLine("  Similar to the C++ ternary operator: ""int value = (condition) ? -5 : 27""")
+        Console.WriteLine("  Somewhat more complicated than the C++ version since the return is of type Object")
+        Console.WriteLine()
+        Console.WriteLine("(three-argument ternary operator using short-circuit evaluation)")
+        Dim numerator As Integer = 12
+        Dim denominator As Integer = 3
+        Console.WriteLine("  A={0}, B={1}, A/B={2}", numerator, denominator, If(denominator = 0, "NOT EVALUATED", numerator/denominator))
+        denominator = 0
+        Console.WriteLine("  A={0}, B={1}, A/B={2}", numerator, denominator, If(denominator = 0, "NOT EVALUATED", numerator/denominator))
+
+        Console.WriteLine("(two-argument ternary operator using nullable 1st argument)")
+        Dim first? As Integer = 3
+        Dim second As Integer = 6
+        Console.WriteLine("  1st={0}, 2nd={1},          [1st if not Nothing, else 2nd]={2}",
+            If(first IsNot Nothing, first, "(Nothing)"), second, If(first, second))
+        second = Nothing
+        Console.WriteLine("  1st={0}, 2nd={1},          [1st if not Nothing, else 2nd]={2}",
+            If(first IsNot Nothing, first, "(Nothing)"), second, If(first, second))
+        first = Nothing
+        second = 6
+        Console.WriteLine("  1st={0}, 2nd={1},  [1st if not Nothing, else 2nd]={2}",
+            If(first IsNot Nothing, first, "(Nothing)"), second, If(first, second))
+
         Console.WriteLine("#")
         Console.WriteLine()
     End Sub
@@ -1266,7 +1292,19 @@ Module MainModule
                 If (item?.age Is Nothing, -1, item?.age))
             index += 1
         Next
+        Console.WriteLine()
 
+        Console.WriteLine("(nullable value types - using Integer as example)")
+        ' Can be declared in three ways:
+        ' * Dim first? As Integer
+        ' * Dim first As Integer?
+        ' * Dim first As Nullable(Of Integer)
+        Dim first? As Integer = 3
+        Dim second As Integer = 7
+        Console.WriteLine("  1st [nullable]={0}, 2nd [std value type]={1}   [both set to valid values]", first, second)
+        first = Nothing
+        second = Nothing
+        Console.WriteLine("  1st [nullable]={0}, 2nd [std value type]={1}    [both set to Nothing]", first, second)
         Console.WriteLine("#")
         Console.WriteLine()
     End Sub
@@ -1382,7 +1420,7 @@ Module MainModule
         ' This application combines some examples from the following C# samples:
         ' * SampleConsole
         ' * StringsDemo
-        Console.WriteLine("Caution! Visual Basic is rather disgusting...avoid!")
+        Console.WriteLine("Caution! Visual Basic is rather disgusting...avoid if possible!")
         Console.WriteLine()
         Dim msgWelcome As String = String.Format("### VB.NET console application, targeting {0} ###", GetFrameworkDisplayName())
         Console.WriteLine(msgWelcome)
@@ -1406,7 +1444,7 @@ Module MainModule
         Const DISPLAY_NULLABLE_TYPES As UInt64          = &H0000000000002000
         Const DISPLAY_ENUMS As UInt64                   = &H0000000000004000
         Const DISPLAY_LIKE As UInt64                    = &H0000000000008000
-        Dim display As UInt64 = DISPLAY_ALL_SECTIONS
+        Dim display As UInt64 = DISPLAY_LOGICAL_OPERATORS
 
         ' Display some system information
         If ((display And DISPLAY_SYS_INFO) <> 0) Then
