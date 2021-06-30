@@ -170,8 +170,8 @@ Module MainModule
         End If
 
         Console.WriteLine(" (While...End While)")
-        Console.WriteLine("   (exit with 'Exit While')")
-        Console.WriteLine("   (continue to next iteration with 'Continue While')")
+        Console.WriteLine("   (exit with 'Exit While', like C++ 'break')")
+        Console.WriteLine("   (continue to next iteration with 'Continue While', like C++ 'continue')")
         Dim index As Integer = 10
         While index <= 50
             Console.Write(index.ToString & " ")
@@ -181,8 +181,8 @@ Module MainModule
         Console.WriteLine()
 
         Console.WriteLine(" (Do...Loop Until)")
-        Console.WriteLine("   (exit with 'Exit Do')")
-        Console.WriteLine("   (continue to next iteration with 'Continue Do')")
+        Console.WriteLine("   (exit with 'Exit Do', like C++ 'break')")
+        Console.WriteLine("   (continue to next iteration with 'Continue Do', like C++ 'continue')")
         index = 10
         Do
             Console.Write(index.ToString & " ")
@@ -1444,7 +1444,7 @@ Module MainModule
         Const DISPLAY_NULLABLE_TYPES As UInt64          = &H0000000000002000
         Const DISPLAY_ENUMS As UInt64                   = &H0000000000004000
         Const DISPLAY_LIKE As UInt64                    = &H0000000000008000
-        Dim display As UInt64 = DISPLAY_LOGICAL_OPERATORS
+        Dim display As UInt64 = DISPLAY_ALL_SECTIONS
 
         ' Display some system information
         If ((display And DISPLAY_SYS_INFO) <> 0) Then
