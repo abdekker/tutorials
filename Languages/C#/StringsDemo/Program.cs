@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -189,16 +190,33 @@ namespace StringsDemo
             Console.WriteLine("  " + string.Join(" ", array2) + "   [string[] array = new string[] { ... }]");
 
             // Split using a character
-            string s1 = "hello,33,everyone,#";
-            string[] array3 = s1.Split(',');
+            string s1a = "hello,33,everyone,#";
+            string[] array3 = s1a.Split(',');
+            Console.WriteLine("    (s1 = {0})", s1a);
             Console.WriteLine("  " + string.Join(" ", array3) + "   [using string.Split(char)]");
+
+            // Changing an element of the array
+            array3[2] = "friends";
+            string s1b = string.Join(",", array3);
+            Console.WriteLine("    (s1 = {0})                [to modify an element, set value at array[index]]", s1b);
+
+            // Inserting and deleting elements => convert to List<T>, then back to array
+            List<string> list1 = array3.ToList();
+            list1.RemoveAt(1);
+            list1.Insert(1, "to");
+            list1.Insert(2, "your");
+            list1.Insert(3, "elephant");
+            string s1c = string.Join(",", list1.ToArray());
+            Console.WriteLine("    (s1 = {0})  [to remove/insert elements, use array.ToList and list.ToArray]", s1c);
+            Console.WriteLine();
 
             // Split using a string
             string[] stringSeparators = new string[] { "$$$" };
             string[] array4 = new string[] { "hello", "44", "everyone", "%" };
             string s2 = string.Join(stringSeparators[0], array4);
+            Console.WriteLine("    (s2 = {0})", s2);
             string[] array5 = s2.Split(stringSeparators, StringSplitOptions.None);
-            Console.WriteLine("  " + string.Join(" ", array5) + "   [using string.Split(string)]");
+            Console.WriteLine("  " + string.Join(" ", array5) + "  [using string.Split(string)]");
             Console.WriteLine("#\n");
         }
 
